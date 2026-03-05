@@ -20,7 +20,11 @@
       "Bash(npx biome:*)",
       "Bash(node_modules/.bin/biome check:*)",
       "Bash(node_modules/.bin/biome:*)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(\"C:/dev/gameflex/gameflex-automation/node_modules/.bin/biome.cmd\":*)",
+      "Bash(\"C:/dev/gameflex/gameflex-automation/node_modules/.bin/biome.cmd\" check:*)",
+      "Bash(\"C:\\\\dev\\\\gameflex\\\\gameflex-automation\\\\biome-out.txt\":*)",
+      "Read(//c/Users/luke.babich/**)"
     ]
   }
 }

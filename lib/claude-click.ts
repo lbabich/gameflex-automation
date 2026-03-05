@@ -1,9 +1,14 @@
+import * as fs from 'node:fs';
 import Anthropic from '@anthropic-ai/sdk';
-import * as fs from 'fs';
 import * as dotenv from 'dotenv';
-import { getCached, setCached, DeviceType } from './click-cache';
+import { type Coords, type DeviceType, getCached, setCached, type Viewport } from './click-cache';
 
 dotenv.config();
+
+export type ClickContext = {
+  gameId: string;
+  deviceType: DeviceType;
+};
 
 const VISION_MODEL = 'claude-sonnet-4-6';
 
@@ -12,9 +17,9 @@ const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 export async function getClickCoords(
   screenshotPath: string,
   prompt: string,
-  viewport: { width: number; height: number },
-  context: { gameId: string; deviceType: DeviceType }
-): Promise<{ x: number; y: number }> {
+  viewport: Viewport,
+  context: ClickContext,
+): Promise<Coords> {
   const cached = getCached(context.gameId, context.deviceType, viewport, prompt);
   if (cached) {
     console.log('Cache hit:', prompt);
@@ -50,7 +55,9 @@ export async function getClickCoords(
   });
 
   const text = response.content[0].type === 'text' ? response.content[0].text : '';
-  const match = text.match(/\{[^}]*"x"\s*:\s*\d+[^}]*"y"\s*:\s*\d+[^}]*\}|\{[^}]*"y"\s*:\s*\d+[^}]*"x"\s*:\s*\d+[^}]*\}/);
+  const match = text.match(
+    /\{[^}]*"x"\s*:\s*\d+[^}]*"y"\s*:\s*\d+[^}]*\}|\{[^}]*"y"\s*:\s*\d+[^}]*"x"\s*:\s*\d+[^}]*\}/,
+  );
   if (!match) {
     throw new Error(`Claude returned unexpected response: ${text}`);
   }
@@ -63,7 +70,7 @@ export async function getClickCoords(
   ) {
     throw new Error(`Claude returned invalid coordinates: ${match[0]}`);
   }
-  const coords = parsed as { x: number; y: number };
+  const coords = parsed as Coords;
   setCached(context.gameId, context.deviceType, viewport, prompt, coords);
   return coords;
 }

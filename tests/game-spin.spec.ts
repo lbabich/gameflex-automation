@@ -1,27 +1,30 @@
-import { test } from '@playwright/test';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import type { Page, TestInfo } from '@playwright/test';
-import * as path from 'path';
-import * as fs from 'fs';
-import { getClickCoords } from '../lib/claude-click';
+import { test } from '@playwright/test';
 import * as dotenv from 'dotenv';
+import { getClickCoords } from '../lib/claude-click';
+import type { DeviceType } from '../lib/click-cache';
+
+type Step = {
+  waitMs: number;
+  screenshotName: string;
+  clickPrompt: string | null;
+};
 
 dotenv.config();
 
 const GAME_URL = process.env.GAME_URL;
 if (!GAME_URL) {
-  throw new Error('GAME_URL environment variable is not set. See .env.example for setup instructions.');
+  throw new Error(
+    'GAME_URL environment variable is not set. See .env.example for setup instructions.',
+  );
 }
 
 const GAME_ID = new URL(GAME_URL).searchParams.get('gameid') ?? 'unknown-game';
 
-function deviceTypeFromProjectName(projectName: string): 'desktop' | 'mobile' {
+function deviceTypeFromProjectName(projectName: string): DeviceType {
   return /mobile/i.test(projectName) ? 'mobile' : 'desktop';
-}
-
-interface Step {
-  waitMs: number;
-  screenshotName: string;
-  clickPrompt: string | null;
 }
 
 const STEPS: Step[] = [
@@ -63,7 +66,10 @@ test('launch and spin 9 Masks of Fire', async ({ page }, testInfo: TestInfo) => 
 
     if (step.clickPrompt) {
       const viewport = page.viewportSize()!;
-      const coords = await getClickCoords(screenshotPath, step.clickPrompt, viewport, { gameId: GAME_ID, deviceType });
+      const coords = await getClickCoords(screenshotPath, step.clickPrompt, viewport, {
+        gameId: GAME_ID,
+        deviceType,
+      });
       console.log(`Clicking "${step.clickPrompt}" at`, coords);
       await page.mouse.click(coords.x, coords.y);
     }

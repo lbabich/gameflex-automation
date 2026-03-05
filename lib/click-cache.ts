@@ -1,18 +1,24 @@
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 
 export type DeviceType = 'desktop' | 'mobile';
 
-const CACHE_PATH = path.resolve('data', 'click-coords.json');
+export type Viewport = {
+  width: number;
+  height: number;
+};
 
-interface Coords {
+export type Coords = {
   x: number;
   y: number;
-}
+};
+
 type PromptMap = Record<string, Coords>;
 type ViewportMap = Record<string, PromptMap>;
 type DeviceMap = Record<string, ViewportMap>;
 type GameCache = Record<string, DeviceMap>;
+
+const CACHE_PATH = path.resolve('data', 'click-coords.json');
 
 function loadCache(): GameCache {
   try {
@@ -28,14 +34,14 @@ function saveCache(cache: GameCache): void {
   fs.writeFileSync(CACHE_PATH, JSON.stringify(cache, null, 2));
 }
 
-function viewportKey(viewport: { width: number; height: number }): string {
+function viewportKey(viewport: Viewport): string {
   return `${viewport.width}x${viewport.height}`;
 }
 
 export function getCached(
   gameId: string,
   deviceType: DeviceType,
-  viewport: { width: number; height: number },
+  viewport: Viewport,
   prompt: string,
 ): Coords | undefined {
   const cache = loadCache();
@@ -45,7 +51,7 @@ export function getCached(
 export function setCached(
   gameId: string,
   deviceType: DeviceType,
-  viewport: { width: number; height: number },
+  viewport: Viewport,
   prompt: string,
   coords: Coords,
 ): void {
