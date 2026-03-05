@@ -1,0 +1,16 @@
+{
+  "name": "gameflex-automation",
+  "scripts": {
+    "test": "npx playwright test",
+    "format": "biome format --write .",
+    "lint": "biome lint --write .",
+    "check": "biome check --write ."
+  },
+  "devDependencies": {
+    "@anthropic-ai/sdk": "latest",
+    "@biomejs/biome": "latest",
+    "@playwright/test": "latest",
+    "@types/node": "^25.3.3",
+    "dotenv": "latest"
+  }
+}
