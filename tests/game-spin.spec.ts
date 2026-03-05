@@ -80,7 +80,8 @@ for (const game of GAMES) {
     const deviceType = deviceTypeFromProjectName(testInfo.project.name);
     const viewport = page.viewportSize()!;
 
-    await page.goto(game.url);
+    const launchUrl = deviceType === 'mobile' ? (game.mobileUrl ?? game.url) : game.url;
+    await page.goto(launchUrl);
 
     const cached = getSteps(game.gameId, deviceType, viewport);
 

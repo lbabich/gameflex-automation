@@ -14,11 +14,7 @@ const SYSTEM = 'You are a visual analyst for browser-based slot games. Return ON
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-async function ask(
-  screenshotPath: string,
-  system: string,
-  userText: string,
-): Promise<unknown> {
+async function ask(screenshotPath: string, system: string, userText: string): Promise<unknown> {
   const base64Image = fs.readFileSync(screenshotPath).toString('base64');
 
   const response = await client.messages.create({
