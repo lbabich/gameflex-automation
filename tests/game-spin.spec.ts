@@ -12,7 +12,7 @@ import { GAMES } from './games';
 dotenv.config();
 
 const DISCOVERY_INITIAL_WAIT_MS = 8_000;
-const DISCOVERY_POLL_INTERVAL_MS = 3_000;
+const DISCOVERY_POLL_INTERVAL_MS = 1_000;
 const DISCOVERY_MAX_ATTEMPTS = 15;
 const POST_SPIN_WAIT_MS = 5_000;
 
@@ -31,7 +31,6 @@ async function snap(page: Page, name: string): Promise<string> {
 async function discoverSteps(
   page: Page,
   game: GameEntry,
-  _deviceType: DeviceType,
   viewport: { width: number; height: number },
 ): Promise<CachedStep[]> {
   await page.waitForTimeout(DISCOVERY_INITIAL_WAIT_MS);
@@ -61,8 +60,9 @@ async function discoverSteps(
     await page.waitForTimeout(DISCOVERY_POLL_INTERVAL_MS);
   }
 
+  await snap(page, `${game.gameId}/discovery-failed.png`);
   throw new Error(
-    `Could not find spin button for ${game.name} (${game.gameId}) after ${DISCOVERY_MAX_ATTEMPTS} attempts. See screenshots/${game.gameId}/ for last state.`,
+    `Could not find spin button for ${game.name} (${game.gameId}) after ${DISCOVERY_MAX_ATTEMPTS} attempts. See screenshots/${game.gameId}/discovery-failed.png`,
   );
 }
 
@@ -87,7 +87,7 @@ for (const game of GAMES) {
     if (cached) {
       await replaySteps(page, game, cached.steps);
     } else {
-      const steps = await discoverSteps(page, game, deviceType, viewport);
+      const steps = await discoverSteps(page, game, viewport);
       setSteps(game.gameId, deviceType, viewport, {
         discoveredAt: new Date().toISOString(),
         steps,
@@ -96,5 +96,8 @@ for (const game of GAMES) {
 
     await page.waitForTimeout(POST_SPIN_WAIT_MS);
     await snap(page, `${game.gameId}/final.png`);
+
+    // NOTE: No errors — clean up screenshots (kept on failure for debugging)
+    fs.rmSync(path.resolve('screenshots', game.gameId), { recursive: true, force: true });
   });
 }

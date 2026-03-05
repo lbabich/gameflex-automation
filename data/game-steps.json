@@ -2,18 +2,45 @@
   "13724": {
     "desktop": {
       "1280x720": {
-        "discoveredAt": "2026-03-05T10:56:54.115Z",
+        "discoveredAt": "2026-03-05T11:16:24.813Z",
         "steps": [
           {
             "waitMs": 8000,
             "x": 640,
-            "y": 672,
+            "y": 681,
             "label": "Continue button"
           },
           {
-            "waitMs": 3000,
+            "waitMs": 1000,
             "x": 641,
             "y": 665,
+            "label": "Large circular spin button with refresh/spin arrow icon"
+          }
+        ]
+      }
+    }
+  },
+  "37737": {
+    "desktop": {
+      "1280x720": {
+        "discoveredAt": "2026-03-05T11:18:39.961Z",
+        "steps": [
+          {
+            "waitMs": 8000,
+            "x": 640,
+            "y": 594,
+            "label": "Skip intro cutscene"
+          },
+          {
+            "waitMs": 1000,
+            "x": 641,
+            "y": 594,
+            "label": "Skip intro video"
+          },
+          {
+            "waitMs": 1000,
+            "x": 640,
+            "y": 598,
             "label": "Circular spin/refresh button with arrow icon"
           }
         ]
