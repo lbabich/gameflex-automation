@@ -13,6 +13,7 @@ export type TestResult = {
   status: 'passed' | 'failed' | 'skipped' | 'timedOut';
   duration: number;
   error?: string;
+  stdout: string[];
 };
 
 export type RunRecord = {

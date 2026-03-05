@@ -1,6 +1,8 @@
-import { spawn } from 'node:child_process';
+import { type ChildProcess, spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { GAMES } from '../tests/games';
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 export type RunStatus = 'running' | 'passed' | 'failed' | 'error';
 
@@ -10,6 +12,7 @@ export type TestResult = {
   status: 'passed' | 'failed' | 'skipped' | 'timedOut';
   duration: number;
   error?: string;
+  stdout: string[];
 };
 
 export type RunRecord = {
@@ -24,6 +27,35 @@ export type RunRecord = {
   rawOutput: string;
 };
 
+type SuiteNode = {
+  title?: string;
+  suites?: SuiteNode[];
+  specs?: SpecNode[];
+};
+
+type SpecNode = {
+  title?: string;
+  tests?: TestNode[];
+};
+
+type TestNode = {
+  title?: string;
+  projectName?: string;
+  results?: Array<{
+    status?: string;
+    duration?: number;
+    error?: { message?: string };
+    stdout?: Array<{ text?: string }>;
+  }>;
+};
+
+type ReportJson = {
+  suites?: SuiteNode[];
+  errors?: Array<{ message?: string }>;
+};
+
+// ─── Run store ────────────────────────────────────────────────────────────────
+
 const runs = new Map<string, RunRecord>();
 let activeRunId: string | null = null;
 
@@ -37,30 +69,11 @@ export function getRecentRuns(limit = 50): RunRecord[] {
     .slice(0, limit);
 }
 
+// ─── Report parsing ───────────────────────────────────────────────────────────
+
 function escapeRegex(str: string): string {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
-
-type SuiteNode = {
-  title?: string;
-  suites?: SuiteNode[];
-  specs?: SpecNode[];
-};
-
-type TestNode = {
-  title?: string;
-  projectName?: string;
-  results?: Array<{
-    status?: string;
-    duration?: number;
-    error?: { message?: string };
-  }>;
-};
-
-type SpecNode = {
-  title?: string;
-  tests?: TestNode[];
-};
 
 function flattenSpecs(suite: SuiteNode): SpecNode[] {
   const specs: SpecNode[] = [...(suite.specs ?? [])];
@@ -70,30 +83,46 @@ function flattenSpecs(suite: SuiteNode): SpecNode[] {
   return specs;
 }
 
-type ParsedReport = {
-  results: TestResult[];
-  playwrightErrors: string[];
-};
+function toTestResult(spec: SpecNode, test: TestNode): TestResult | null {
+  const result = test.results?.[0];
+  if (!result) return null;
 
-function parseJsonReport(raw: string): ParsedReport {
-  const jsonStart = raw.indexOf('{');
+  return {
+    title: spec.title ?? test.title ?? '(unknown)',
+    project: test.projectName ?? '',
+    status: result.status as TestResult['status'],
+    duration: result.duration ?? 0,
+    error: result.error?.message,
+    stdout: (result.stdout ?? [])
+      .map((e) => e.text ?? '')
+      .filter(Boolean)
+      .map((t) => t.trimEnd()),
+  };
+}
+
+function extractReportJson(raw: string): ReportJson | null {
+  // dotenv and other tools write to stdout before the JSON blob.
+  // The Playwright JSON report always starts with {"config": so we look for that.
+  const jsonStart = raw.indexOf('{"config":');
   if (jsonStart === -1) {
-    console.error('[runner] No JSON object found in stdout');
-    return { results: [], playwrightErrors: [] };
+    console.error('[runner] Could not find {"config": in stdout. First 300 chars:', raw.slice(0, 300));
+    return null;
   }
 
-  let report: { suites?: SuiteNode[]; errors?: Array<{ message?: string }> };
   try {
-    report = JSON.parse(raw.slice(jsonStart)) as typeof report;
+    return JSON.parse(raw.slice(jsonStart)) as ReportJson;
   } catch (err) {
     console.error('[runner] Failed to parse JSON report:', err);
-    return { results: [], playwrightErrors: [] };
+    console.error('[runner] Content at parse start:', raw.slice(jsonStart, jsonStart + 200));
+    return null;
   }
+}
 
-  const playwrightErrors = (report.errors ?? [])
-    .map((e) => e.message ?? '')
-    .filter(Boolean);
+function parseJsonReport(raw: string): { results: TestResult[]; playwrightErrors: string[] } {
+  const report = extractReportJson(raw);
+  if (!report) return { results: [], playwrightErrors: [] };
 
+  const playwrightErrors = (report.errors ?? []).map((e) => e.message ?? '').filter(Boolean);
   if (playwrightErrors.length > 0) {
     console.error('[runner] Playwright top-level errors:', playwrightErrors);
   }
@@ -102,40 +131,36 @@ function parseJsonReport(raw: string): ParsedReport {
   for (const suite of report.suites ?? []) {
     for (const spec of flattenSpecs(suite)) {
       for (const test of spec.tests ?? []) {
-        const result = test.results?.[0];
-        if (!result) continue;
-        const status = result.status as TestResult['status'];
-        results.push({
-          title: spec.title ?? test.title ?? '(unknown)',
-          project: test.projectName ?? '',
-          status,
-          duration: result.duration ?? 0,
-          error: result.error?.message,
-        });
+        const result = toTestResult(spec, test);
+        if (result) results.push(result);
       }
     }
   }
 
-  console.log(`[runner] Parsed ${results.length} test result(s), ${playwrightErrors.length} top-level error(s)`);
+  console.log(
+    `[runner] Parsed ${results.length} test result(s), ${playwrightErrors.length} top-level error(s)`,
+  );
   return { results, playwrightErrors };
 }
 
-export function startRun(gameIds: string[]): { runId: string } | { error: string } {
-  if (activeRunId !== null) {
-    return { error: 'A run is already in progress' };
-  }
+// ─── Process management ───────────────────────────────────────────────────────
 
-  const names = gameIds
+function resolveGameNames(gameIds: string[]): string[] {
+  return gameIds
     .map((id) => GAMES.find((g) => g.gameId === id)?.name)
     .filter((n): n is string => n !== undefined);
+}
 
-  if (names.length === 0) {
-    return { error: 'No valid game IDs provided' };
-  }
-
+function buildPlaywrightCommand(names: string[]): string {
   const grepPattern = names.map((n) => `spin: ${escapeRegex(n)}`).join('|');
-  const runId = randomUUID();
-  const record: RunRecord = {
+  // Quote the pattern so the shell treats it as a single argument.
+  // Double-quotes are safe on both cmd.exe and sh; escape any literal " inside.
+  const quotedPattern = `"${grepPattern.replace(/"/g, '\\"')}"`;
+  return `npx playwright test --reporter=json --grep ${quotedPattern}`;
+}
+
+function createRunRecord(runId: string, gameIds: string[]): RunRecord {
+  return {
     runId,
     gameIds,
     status: 'running',
@@ -144,49 +169,79 @@ export function startRun(gameIds: string[]): { runId: string } | { error: string
     playwrightErrors: [],
     rawOutput: '',
   };
-  runs.set(runId, record);
-  activeRunId = runId;
+}
 
-  // Quote the pattern so the shell treats it as a single argument.
-  // Double-quotes are safe on both cmd.exe and sh; escape any literal " inside.
-  const quotedPattern = `"${grepPattern.replace(/"/g, '\\"')}"`;
-  const cmd = `npx playwright test --reporter=json --grep ${quotedPattern}`;
-  console.log(`[runner] Starting run ${runId}`);
-  console.log(`[runner] Command: ${cmd}`);
+function finalizeRecord(record: RunRecord, code: number | null, raw: string): void {
+  const parsed = parseJsonReport(raw);
+  record.rawOutput = raw;
+  record.results = parsed.results;
+  record.playwrightErrors = parsed.playwrightErrors;
+  record.finishedAt = new Date().toISOString();
+  record.durationMs = new Date(record.finishedAt).getTime() - new Date(record.startedAt).getTime();
+  record.status = code === 0 ? 'passed' : 'failed';
+}
 
-  const child = spawn(cmd, {
-    stdio: ['ignore', 'pipe', 'inherit'],
-    env: { ...process.env, PW_HEADLESS: '1' },
-    shell: true,
+function attachProcessHandlers(child: ChildProcess, record: RunRecord): void {
+  const chunks: Buffer[] = [];
+  child.stdout!.on('data', (chunk: Buffer) => chunks.push(chunk));
+
+  let stderrBuf = '';
+  child.stderr!.on('data', (chunk: Buffer) => {
+    stderrBuf += chunk.toString('utf-8');
+    const lines = stderrBuf.split('\n');
+    stderrBuf = lines.pop() ?? '';
+    for (const line of lines) {
+      if (line.trim()) console.log(`[playwright] ${line}`);
+    }
   });
 
-  const chunks: Buffer[] = [];
-  child.stdout.on('data', (chunk: Buffer) => chunks.push(chunk));
-
   child.on('close', (code) => {
+    if (stderrBuf.trim()) console.log(`[playwright] ${stderrBuf}`);
     const raw = Buffer.concat(chunks).toString('utf-8');
     console.log(`[runner] Process exited with code ${code}, stdout length: ${raw.length}`);
-    const parsed = parseJsonReport(raw);
-    record.rawOutput = raw;
-    record.results = parsed.results;
-    record.playwrightErrors = parsed.playwrightErrors;
-    record.finishedAt = new Date().toISOString();
-    record.durationMs =
-      new Date(record.finishedAt).getTime() - new Date(record.startedAt).getTime();
-    record.status = code === 0 ? 'passed' : 'failed';
-    console.log(`[runner] Run ${runId} finished: ${record.status} in ${record.durationMs}ms`);
+    finalizeRecord(record, code, raw);
+    console.log(`[runner] Run ${record.runId} finished: ${record.status} in ${record.durationMs}ms`);
     activeRunId = null;
   });
 
   child.on('error', (err) => {
-    console.error(`[runner] Spawn error for run ${runId}:`, err);
+    console.error(`[runner] Spawn error for run ${record.runId}:`, err);
     record.rawOutput = err.message;
     record.finishedAt = new Date().toISOString();
-    record.durationMs =
-      new Date(record.finishedAt).getTime() - new Date(record.startedAt).getTime();
+    record.durationMs = new Date(record.finishedAt).getTime() - new Date(record.startedAt).getTime();
     record.status = 'error';
     activeRunId = null;
   });
+}
+
+// ─── Public API ───────────────────────────────────────────────────────────────
+
+export function startRun(gameIds: string[]): { runId: string } | { error: string } {
+  if (activeRunId !== null) {
+    return { error: 'A run is already in progress' };
+  }
+
+  const names = resolveGameNames(gameIds);
+  if (names.length === 0) {
+    return { error: 'No valid game IDs provided' };
+  }
+
+  const runId = randomUUID();
+  const record = createRunRecord(runId, gameIds);
+  runs.set(runId, record);
+  activeRunId = runId;
+
+  const cmd = buildPlaywrightCommand(names);
+  console.log(`[runner] Starting run ${runId}`);
+  console.log(`[runner] Command: ${cmd}`);
+
+  const child = spawn(cmd, {
+    stdio: ['ignore', 'pipe', 'pipe'],
+    env: { ...process.env, PW_HEADLESS: '1' },
+    shell: true,
+  });
+
+  attachProcessHandlers(child, record);
 
   return { runId };
 }

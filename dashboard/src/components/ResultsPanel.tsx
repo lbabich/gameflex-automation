@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { Fragment, useCallback, useEffect, useState } from 'react';
 import type { RunRecord, RunStatus, TestResult } from '../types';
 
 type Props = {
@@ -64,6 +64,15 @@ function formatElapsed(ms: number): string {
 
 export function ResultsPanel({ run, isLoading }: Props) {
   const [elapsedMs, setElapsedMs] = useState(0);
+  const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
+
+  const toggleRow = useCallback((i: number) => {
+    setExpandedRows((prev) => {
+      const next = new Set(prev);
+      next.has(i) ? next.delete(i) : next.add(i);
+      return next;
+    });
+  }, []);
 
   useEffect(() => {
     if (run?.status !== 'running') {
@@ -137,23 +146,44 @@ export function ResultsPanel({ run, isLoading }: Props) {
         <tbody>
           {run.results.length > 0
             ? run.results.map((result, i) => (
-                <tr key={i} className="border-b hover:bg-gray-50">
-                  <td className="py-2 px-3">
-                    <div>{result.title}</div>
-                    {result.error && (
-                      <div className="text-xs text-red-600 mt-1 font-mono whitespace-pre-wrap">
-                        {result.error}
+                <Fragment key={i}>
+                  <tr
+                    className={`border-b hover:bg-gray-50 ${result.stdout.length > 0 ? 'cursor-pointer' : ''}`}
+                    onClick={() => result.stdout.length > 0 && toggleRow(i)}
+                  >
+                    <td className="py-2 px-3">
+                      <div className="flex items-center gap-1">
+                        {result.stdout.length > 0 && (
+                          <span className="text-gray-400 text-xs select-none">
+                            {expandedRows.has(i) ? '▼' : '▶'}
+                          </span>
+                        )}
+                        {result.title}
                       </div>
-                    )}
-                  </td>
-                  <td className="py-2 px-3 text-gray-500">{result.project}</td>
-                  <td className="py-2 px-3">
-                    <StatusBadge status={result.status} />
-                  </td>
-                  <td className="py-2 px-3 text-right text-gray-500">
-                    {(result.duration / 1000).toFixed(1)}s
-                  </td>
-                </tr>
+                      {result.error && (
+                        <div className="text-xs text-red-600 mt-1 font-mono whitespace-pre-wrap">
+                          {result.error}
+                        </div>
+                      )}
+                    </td>
+                    <td className="py-2 px-3 text-gray-500">{result.project}</td>
+                    <td className="py-2 px-3">
+                      <StatusBadge status={result.status} />
+                    </td>
+                    <td className="py-2 px-3 text-right text-gray-500">
+                      {(result.duration / 1000).toFixed(1)}s
+                    </td>
+                  </tr>
+                  {expandedRows.has(i) && result.stdout.length > 0 && (
+                    <tr className="border-b bg-gray-50">
+                      <td colSpan={4} className="px-6 py-2">
+                        <pre className="text-xs text-gray-600 font-mono whitespace-pre-wrap leading-relaxed">
+                          {result.stdout.join('\n')}
+                        </pre>
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
               ))
             : isRunning && (
                 <>
