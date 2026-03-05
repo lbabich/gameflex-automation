@@ -8,28 +8,33 @@ export type Viewport = {
   height: number;
 };
 
-export type Coords = {
+export type CachedStep = {
+  waitMs: number;
   x: number;
   y: number;
+  label: string;
 };
 
-type PromptMap = Record<string, Coords>;
-type ViewportMap = Record<string, PromptMap>;
+export type GameSteps = {
+  discoveredAt: string;
+  steps: CachedStep[];
+};
+
+type ViewportMap = Record<string, GameSteps>;
 type DeviceMap = Record<string, ViewportMap>;
-type GameCache = Record<string, DeviceMap>;
+type StepCache = Record<string, DeviceMap>;
 
-const CACHE_PATH = path.resolve('data', 'click-coords.json');
+const CACHE_PATH = path.resolve('data', 'game-steps.json');
 
-function loadCache(): GameCache {
+function loadCache(): StepCache {
   try {
-    return JSON.parse(fs.readFileSync(CACHE_PATH, 'utf8')) as GameCache;
-  } catch (err) {
-    console.warn('click-cache: failed to load cache, starting fresh.', err);
+    return JSON.parse(fs.readFileSync(CACHE_PATH, 'utf8')) as StepCache;
+  } catch {
     return {};
   }
 }
 
-function saveCache(cache: GameCache): void {
+function saveCache(cache: StepCache): void {
   fs.mkdirSync(path.dirname(CACHE_PATH), { recursive: true });
   fs.writeFileSync(CACHE_PATH, JSON.stringify(cache, null, 2));
 }
@@ -38,31 +43,27 @@ function viewportKey(viewport: Viewport): string {
   return `${viewport.width}x${viewport.height}`;
 }
 
-export function getCached(
+export function getSteps(
   gameId: string,
   deviceType: DeviceType,
   viewport: Viewport,
-  prompt: string,
-): Coords | undefined {
+): GameSteps | undefined {
   const cache = loadCache();
-
-  return cache[gameId]?.[deviceType]?.[viewportKey(viewport)]?.[prompt];
+  return cache[gameId]?.[deviceType]?.[viewportKey(viewport)];
 }
 
-export function setCached(
+export function setSteps(
   gameId: string,
   deviceType: DeviceType,
   viewport: Viewport,
-  prompt: string,
-  coords: Coords,
+  steps: GameSteps,
 ): void {
   const cache = loadCache();
   const vk = viewportKey(viewport);
 
   cache[gameId] ??= {};
   cache[gameId][deviceType] ??= {};
-  cache[gameId][deviceType][vk] ??= {};
-  cache[gameId][deviceType][vk][prompt] = coords;
+  cache[gameId][deviceType][vk] = steps;
 
   saveCache(cache);
 }
