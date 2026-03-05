@@ -23,7 +23,7 @@
   "37737": {
     "desktop": {
       "1280x720": {
-        "discoveredAt": "2026-03-05T11:18:39.961Z",
+        "discoveredAt": "2026-03-05T14:32:19.854Z",
         "steps": [
           {
             "waitMs": 8000,
@@ -33,14 +33,14 @@
           },
           {
             "waitMs": 1000,
-            "x": 641,
-            "y": 594,
-            "label": "Skip intro video"
+            "x": 406,
+            "y": 346,
+            "label": "Click to Continue"
           },
           {
             "waitMs": 1000,
-            "x": 640,
-            "y": 598,
+            "x": 641,
+            "y": 609,
             "label": "Circular spin/refresh button with arrow icon"
           }
         ]

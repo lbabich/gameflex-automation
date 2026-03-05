@@ -14,10 +14,15 @@ dotenv.config();
 const DISCOVERY_INITIAL_WAIT_MS = 8_000;
 const DISCOVERY_POLL_INTERVAL_MS = 1_000;
 const DISCOVERY_MAX_ATTEMPTS = 15;
-const POST_SPIN_WAIT_MS = 5_000;
+const SPIN_END_TIMEOUT_MS = 15_000;
+const SPIN_END_POLL_INTERVAL_MS = 500;
 
-function deviceTypeFromProjectName(projectName: string): DeviceType {
-  return /mobile/i.test(projectName) ? 'mobile' : 'desktop';
+function deviceTypeFromUrl(url: string): DeviceType {
+  try {
+    return new URL(url).searchParams.get('channelid') === 'mobile' ? 'mobile' : 'desktop';
+  } catch {
+    return 'desktop';
+  }
 }
 
 async function snap(page: Page, name: string): Promise<string> {
@@ -77,10 +82,16 @@ async function replaySteps(page: Page, game: GameEntry, steps: CachedStep[]): Pr
 
 for (const game of GAMES) {
   test(`spin: ${game.name}`, async ({ page }, testInfo: TestInfo) => {
-    const deviceType = deviceTypeFromProjectName(testInfo.project.name);
-    const viewport = page.viewportSize()!;
+    const isProjectMobile = /mobile/i.test(testInfo.project.name);
+    const launchUrl = isProjectMobile ? (game.mobileUrl ?? game.url) : game.url;
+    const deviceType = deviceTypeFromUrl(launchUrl);
+    const projectDeviceType: DeviceType = isProjectMobile ? 'mobile' : 'desktop';
+    test.skip(
+      deviceType !== projectDeviceType,
+      `URL channelid=${deviceType}; skipping ${testInfo.project.name}`,
+    );
 
-    const launchUrl = deviceType === 'mobile' ? (game.mobileUrl ?? game.url) : game.url;
+    const viewport = page.viewportSize()!;
     await page.goto(launchUrl);
 
     const cached = getSteps(game.gameId, deviceType, viewport);
@@ -95,7 +106,10 @@ for (const game of GAMES) {
       });
     }
 
-    await page.waitForTimeout(POST_SPIN_WAIT_MS);
+    const spinEndDeadline = Date.now() + SPIN_END_TIMEOUT_MS;
+    while (Date.now() < spinEndDeadline) {
+      await page.waitForTimeout(SPIN_END_POLL_INTERVAL_MS);
+    }
     await snap(page, `${game.gameId}/final.png`);
 
     // NOTE: No errors — clean up screenshots (kept on failure for debugging)
