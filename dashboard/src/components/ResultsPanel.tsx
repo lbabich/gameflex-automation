@@ -10,10 +10,8 @@ function statusBannerClass(status: RunStatus): string {
   switch (status) {
     case 'running':
       return 'bg-yellow-50 text-yellow-800 border-yellow-300';
-    case 'passed':
+    case 'completed':
       return 'bg-green-50 text-green-800 border-green-300';
-    case 'failed':
-      return 'bg-red-50 text-red-800 border-red-300';
     case 'error':
       return 'bg-orange-50 text-orange-800 border-orange-300';
   }

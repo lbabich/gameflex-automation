@@ -2,9 +2,7 @@ import { type ChildProcess, spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { GAMES } from '../tests/games';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-export type RunStatus = 'running' | 'passed' | 'failed' | 'error';
+export type RunStatus = 'running' | 'completed' | 'error';
 
 export type TestResult = {
   title: string;
@@ -54,8 +52,6 @@ type ReportJson = {
   errors?: Array<{ message?: string }>;
 };
 
-// ─── Run store ────────────────────────────────────────────────────────────────
-
 const runs = new Map<string, RunRecord>();
 let activeRunId: string | null = null;
 
@@ -67,12 +63,6 @@ export function getRecentRuns(limit = 50): RunRecord[] {
   return [...runs.values()]
     .sort((a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime())
     .slice(0, limit);
-}
-
-// ─── Report parsing ───────────────────────────────────────────────────────────
-
-function escapeRegex(str: string): string {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 function flattenSpecs(suite: SuiteNode): SpecNode[] {
@@ -105,12 +95,16 @@ function extractReportJson(raw: string): ReportJson | null {
   // own line: "\n{\n  \"config\":...". Search for a '{' at the start of a line.
   // Fall back to a compact-JSON search, then to the first '{' as a last resort.
   const newlineIdx = raw.indexOf('\n{');
-  const jsonStart =
-    newlineIdx !== -1
-      ? newlineIdx + 1
-      : raw.indexOf('{"config":') !== -1
-        ? raw.indexOf('{"config":')
-        : raw.indexOf('{');
+
+  let jsonStart: number;
+
+  if (newlineIdx !== -1) {
+    jsonStart = newlineIdx + 1;
+  } else if (raw.includes('{"config":')) {
+    jsonStart = raw.indexOf('{"config":');
+  } else {
+    jsonStart = raw.indexOf('{');
+  }
 
   if (jsonStart === -1) {
     console.error('[runner] Could not find JSON in stdout. First 300 chars:', raw.slice(0, 300));
@@ -157,8 +151,6 @@ function parseJsonReport(raw: string): { results: TestResult[]; playwrightErrors
   return { results, playwrightErrors };
 }
 
-// ─── Process management ───────────────────────────────────────────────────────
-
 function resolveGameNames(gameIds: string[]): string[] {
   return gameIds
     .map((id) => GAMES.find((g) => g.gameId === id)?.name)
@@ -166,7 +158,7 @@ function resolveGameNames(gameIds: string[]): string[] {
 }
 
 function buildPlaywrightCommand(names: string[]): string {
-  const grepPattern = names.map((n) => `spin: ${escapeRegex(n)}`).join('|');
+  const grepPattern = names.map((n) => `spin: ${n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`).join('|');
   // Quote the pattern so the shell treats it as a single argument.
   // Double-quotes are safe on both cmd.exe and sh; escape any literal " inside.
   const quotedPattern = `"${grepPattern.replace(/"/g, '\\"')}"`;
@@ -192,15 +184,15 @@ function finalizeRecord(record: RunRecord, code: number | null, raw: string): vo
   record.playwrightErrors = parsed.playwrightErrors;
   record.finishedAt = new Date().toISOString();
   record.durationMs = new Date(record.finishedAt).getTime() - new Date(record.startedAt).getTime();
-  record.status = code === 0 ? 'passed' : 'failed';
+  record.status = 'completed';
 }
 
 function attachProcessHandlers(child: ChildProcess, record: RunRecord): void {
   const chunks: Buffer[] = [];
-  child.stdout!.on('data', (chunk: Buffer) => chunks.push(chunk));
+  child.stdout?.on('data', (chunk: Buffer) => chunks.push(chunk));
 
   let stderrBuf = '';
-  child.stderr!.on('data', (chunk: Buffer) => {
+  child.stderr?.on('data', (chunk: Buffer) => {
     stderrBuf += chunk.toString('utf-8');
     const lines = stderrBuf.split('\n');
     stderrBuf = lines.pop() ?? '';
@@ -212,9 +204,14 @@ function attachProcessHandlers(child: ChildProcess, record: RunRecord): void {
   child.on('close', (code) => {
     if (stderrBuf.trim()) console.log(`[playwright] ${stderrBuf}`);
     const raw = Buffer.concat(chunks).toString('utf-8');
-    console.log(`[runner] Process exited with code ${code}, stdout length: ${raw.length}`);
     finalizeRecord(record, code, raw);
-    console.log(`[runner] Run ${record.runId} finished: ${record.status} in ${record.durationMs}ms`);
+
+    const passed = record.results.filter((r) => r.status === 'passed').length;
+    const failed = record.results.filter((r) => r.status === 'failed').length;
+    const skipped = record.results.filter((r) => r.status === 'skipped').length;
+    console.log(
+      `[runner] Run ${record.runId} finished in ${record.durationMs}ms — ${passed} passed, ${failed} failed, ${skipped} skipped`,
+    );
     activeRunId = null;
   });
 
@@ -227,8 +224,6 @@ function attachProcessHandlers(child: ChildProcess, record: RunRecord): void {
     activeRunId = null;
   });
 }
-
-// ─── Public API ───────────────────────────────────────────────────────────────
 
 export function startRun(gameIds: string[]): { runId: string } | { error: string } {
   if (activeRunId !== null) {

@@ -5,7 +5,7 @@ export type GameEntry = {
   mobileUrl?: string;
 };
 
-export type RunStatus = 'running' | 'passed' | 'failed' | 'error';
+export type RunStatus = 'running' | 'completed' | 'error';
 
 export type TestResult = {
   title: string;
