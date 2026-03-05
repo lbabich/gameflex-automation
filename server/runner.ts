@@ -101,13 +101,23 @@ function toTestResult(spec: SpecNode, test: TestNode): TestResult | null {
 }
 
 function extractReportJson(raw: string): ReportJson | null {
-  // dotenv and other tools write to stdout before the JSON blob.
-  // The Playwright JSON report always starts with {"config": so we look for that.
-  const jsonStart = raw.indexOf('{"config":');
+  // Playwright pretty-prints its JSON output so the report object opens on its
+  // own line: "\n{\n  \"config\":...". Search for a '{' at the start of a line.
+  // Fall back to a compact-JSON search, then to the first '{' as a last resort.
+  const newlineIdx = raw.indexOf('\n{');
+  const jsonStart =
+    newlineIdx !== -1
+      ? newlineIdx + 1
+      : raw.indexOf('{"config":') !== -1
+        ? raw.indexOf('{"config":')
+        : raw.indexOf('{');
+
   if (jsonStart === -1) {
-    console.error('[runner] Could not find {"config": in stdout. First 300 chars:', raw.slice(0, 300));
+    console.error('[runner] Could not find JSON in stdout. First 300 chars:', raw.slice(0, 300));
     return null;
   }
+
+  console.log(`[runner] JSON start at index ${jsonStart}, first 60 chars: ${JSON.stringify(raw.slice(jsonStart, jsonStart + 60))}`);
 
   try {
     return JSON.parse(raw.slice(jsonStart)) as ReportJson;
@@ -127,9 +137,13 @@ function parseJsonReport(raw: string): { results: TestResult[]; playwrightErrors
     console.error('[runner] Playwright top-level errors:', playwrightErrors);
   }
 
+  console.log(`[runner] Suites found: ${report.suites?.length ?? 0}`);
+
   const results: TestResult[] = [];
   for (const suite of report.suites ?? []) {
-    for (const spec of flattenSpecs(suite)) {
+    const specs = flattenSpecs(suite);
+    console.log(`[runner] Suite "${suite.title}" → ${specs.length} spec(s)`);
+    for (const spec of specs) {
       for (const test of spec.tests ?? []) {
         const result = toTestResult(spec, test);
         if (result) results.push(result);
