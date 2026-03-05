@@ -30,6 +30,6 @@
     }
   },
   "files": {
-    "includes": ["**", "!node_modules", "!dist", "!screenshots", "!data"]
+    "includes": ["**", "!node_modules", "!dist", "!screenshots", "!data", "!dashboard"]
   }
 }

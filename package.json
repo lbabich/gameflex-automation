@@ -4,7 +4,9 @@
     "test": "npx playwright test",
     "format": "biome format --write .",
     "lint": "biome lint --write .",
-    "check": "biome check --write ."
+    "check": "biome check --write .",
+    "server": "tsx server/index.ts",
+    "dev": "concurrently \"npm run server\" \"npm run dev --prefix dashboard\""
   },
   "devDependencies": {
     "@anthropic-ai/sdk": "latest",
@@ -12,5 +14,11 @@
     "@playwright/test": "latest",
     "@types/node": "^25.3.3",
     "dotenv": "latest"
+  },
+  "dependencies": {
+    "@types/express": "^5.0.6",
+    "concurrently": "^9.2.1",
+    "express": "^5.2.1",
+    "tsx": "^4.21.0"
   }
 }

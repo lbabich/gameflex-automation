@@ -10,5 +10,5 @@
     "outDir": "./dist",
     "types": ["node"]
   },
-  "include": ["tests/**/*.ts", "lib/**/*.ts", "playwright.config.ts"]
+  "include": ["tests/**/*.ts", "lib/**/*.ts", "playwright.config.ts", "server/**/*.ts"]
 }

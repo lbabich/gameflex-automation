@@ -6,3 +6,5 @@ screenshots/
 .idea
 .playwright-mcp
 biome-out.txt
+dashboard/node_modules/
+dashboard/dist/
