@@ -45,6 +45,7 @@ export function getCached(
   prompt: string,
 ): Coords | undefined {
   const cache = loadCache();
+
   return cache[gameId]?.[deviceType]?.[viewportKey(viewport)]?.[prompt];
 }
 
@@ -57,9 +58,11 @@ export function setCached(
 ): void {
   const cache = loadCache();
   const vk = viewportKey(viewport);
+
   cache[gameId] ??= {};
   cache[gameId][deviceType] ??= {};
   cache[gameId][deviceType][vk] ??= {};
   cache[gameId][deviceType][vk][prompt] = coords;
+
   saveCache(cache);
 }

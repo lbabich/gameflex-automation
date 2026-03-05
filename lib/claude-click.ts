@@ -21,10 +21,12 @@ export async function getClickCoords(
   context: ClickContext,
 ): Promise<Coords> {
   const cached = getCached(context.gameId, context.deviceType, viewport, prompt);
+
   if (cached) {
     console.log('Cache hit:', prompt);
     return cached;
   }
+
   const imageData = fs.readFileSync(screenshotPath);
   const base64Image = imageData.toString('base64');
 
@@ -58,10 +60,13 @@ export async function getClickCoords(
   const match = text.match(
     /\{[^}]*"x"\s*:\s*\d+[^}]*"y"\s*:\s*\d+[^}]*\}|\{[^}]*"y"\s*:\s*\d+[^}]*"x"\s*:\s*\d+[^}]*\}/,
   );
+
   if (!match) {
     throw new Error(`Claude returned unexpected response: ${text}`);
   }
+
   const parsed: unknown = JSON.parse(match[0]);
+
   if (
     typeof parsed !== 'object' ||
     parsed === null ||
@@ -70,7 +75,9 @@ export async function getClickCoords(
   ) {
     throw new Error(`Claude returned invalid coordinates: ${match[0]}`);
   }
+
   const coords = parsed as Coords;
   setCached(context.gameId, context.deviceType, viewport, prompt, coords);
+
   return coords;
 }

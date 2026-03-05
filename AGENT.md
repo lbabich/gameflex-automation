@@ -40,6 +40,28 @@
   ): Promise<{ x: number; y: number }> { ... }
   ```
 
+- **Separate every logical step with a blank line** inside function bodies.
+  Use blank lines before and after `if` blocks, between unrelated statements, and always before `return`.
+  Closely related consecutive statements (e.g. `mkdir` + `writeFile`) may be kept together.
+
+  ```ts
+  // correct
+  const cache = loadCache();
+  const vk = viewportKey(viewport);
+
+  cache[gameId] ??= {};
+  cache[gameId][deviceType][vk][prompt] = coords;
+
+  saveCache(cache);
+
+  // incorrect
+  const cache = loadCache();
+  const vk = viewportKey(viewport);
+  cache[gameId] ??= {};
+  cache[gameId][deviceType][vk][prompt] = coords;
+  saveCache(cache);
+  ```
+
 ## Tooling
 
 - **Linter / Formatter:** [Biome](https://biomejs.dev/) v2.x

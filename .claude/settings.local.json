@@ -24,7 +24,8 @@
       "Bash(\"C:/dev/gameflex/gameflex-automation/node_modules/.bin/biome.cmd\":*)",
       "Bash(\"C:/dev/gameflex/gameflex-automation/node_modules/.bin/biome.cmd\" check:*)",
       "Bash(\"C:\\\\dev\\\\gameflex\\\\gameflex-automation\\\\biome-out.txt\":*)",
-      "Read(//c/Users/luke.babich/**)"
+      "Read(//c/Users/luke.babich/**)",
+      "Bash(git:*)"
     ]
   }
 }

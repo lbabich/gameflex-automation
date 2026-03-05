@@ -48,9 +48,13 @@ const STEPS: Step[] = [
 async function snap(page: Page, name: string): Promise<string> {
   const dir = path.resolve('screenshots');
   fs.mkdirSync(dir, { recursive: true });
+
   const file = path.join(dir, name);
+
   await page.screenshot({ path: file, fullPage: false });
+
   console.log('Screenshot saved:', file);
+
   return file;
 }
 
@@ -66,11 +70,14 @@ test('launch and spin 9 Masks of Fire', async ({ page }, testInfo: TestInfo) => 
 
     if (step.clickPrompt) {
       const viewport = page.viewportSize()!;
+
       const coords = await getClickCoords(screenshotPath, step.clickPrompt, viewport, {
         gameId: GAME_ID,
         deviceType,
       });
+
       console.log(`Clicking "${step.clickPrompt}" at`, coords);
+
       await page.mouse.click(coords.x, coords.y);
     }
   }
