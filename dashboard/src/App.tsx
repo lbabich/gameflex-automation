@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { AddGameModal } from './components/AddGameModal';
 import { GameSelector } from './components/GameSelector';
 import { ResultsPanel } from './components/ResultsPanel';
 import { RunButton } from './components/RunButton';
@@ -8,6 +9,7 @@ import { useSettings } from './hooks/useSettings';
 
 export default function App() {
   const [selectedGameIds, setSelectedGameIds] = useState<string[]>([]);
+  const [addGameOpen, setAddGameOpen] = useState(false);
   const [activeRunId, setActiveRunId] = useState<string | null>(null);
 
   const { data: games, isLoading: gamesLoading } = useGames();
@@ -50,7 +52,14 @@ export default function App() {
           running={isRunning}
           onClick={handleRun}
         />
-        <div className="mt-auto pt-4 border-t">
+        <div className="mt-auto pt-4 border-t flex flex-col gap-2">
+          <button
+            type="button"
+            onClick={() => setAddGameOpen(true)}
+            className="w-full px-3 py-2 rounded text-sm font-semibold text-blue-600 border border-blue-200 hover:bg-blue-50 transition-colors"
+          >
+            + Add Game
+          </button>
           <button
             type="button"
             onClick={toggle}
@@ -68,6 +77,8 @@ export default function App() {
       <main className="flex-1 p-6">
         <ResultsPanel run={run} isLoading={runLoading} />
       </main>
+
+      {addGameOpen && <AddGameModal onClose={() => setAddGameOpen(false)} />}
     </div>
   );
 }

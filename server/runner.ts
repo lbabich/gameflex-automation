@@ -1,6 +1,6 @@
 import { type ChildProcess, spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
-import { GAMES } from '../tests/games';
+import { readGames } from './games';
 
 export type RunStatus = 'running' | 'completed' | 'error';
 
@@ -161,8 +161,9 @@ function parseJsonReport(raw: string): { results: TestResult[]; playwrightErrors
 }
 
 function resolveGameNames(gameIds: string[]): string[] {
+  const games = readGames();
   return gameIds
-    .map((id) => GAMES.find((g) => g.gameId === id)?.name)
+    .map((id) => games.find((g) => g.gameId === id)?.name)
     .filter((n): n is string => n !== undefined);
 }
 

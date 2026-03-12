@@ -3,6 +3,7 @@ export type GameEntry = {
   name: string;
   url: string;
   mobileUrl?: string;
+  cached?: boolean;
 };
 
 export type RunStatus = 'running' | 'completed' | 'error';

@@ -1,5 +1,6 @@
 import express from 'express';
-import { GAMES } from '../tests/games';
+import { addGame, getCachedGameIds, readGames } from './games';
+import { buildGameUrls } from './url-builder';
 import { getHeadless, getRecentRuns, getRun, setHeadless, startRun } from './runner';
 
 const app = express();
@@ -32,7 +33,44 @@ app.patch('/api/settings', (req, res) => {
 });
 
 app.get('/api/games', (_req, res) => {
-  res.json(GAMES);
+  const games = readGames();
+  const cached = getCachedGameIds();
+  res.json(games.map((g) => ({ ...g, cached: cached.has(g.gameId) })));
+});
+
+app.post('/api/games', (req, res) => {
+  const { gameId, name, channel, mode } = req.body as {
+    gameId?: unknown;
+    name?: unknown;
+    channel?: unknown;
+    mode?: unknown;
+  };
+  if (typeof gameId !== 'string' || typeof name !== 'string') {
+    res.status(400).json({ error: 'gameId and name are required strings' });
+    return;
+  }
+  if (channel !== 'desktop' && channel !== 'mobile' && channel !== 'both') {
+    res.status(400).json({ error: 'channel must be desktop, mobile, or both' });
+    return;
+  }
+  if (mode !== 'demo' && mode !== 'real') {
+    res.status(400).json({ error: 'mode must be demo or real' });
+    return;
+  }
+  let urls: { url: string; mobileUrl?: string };
+  try {
+    urls = buildGameUrls(gameId, channel, mode);
+  } catch (err) {
+    res.status(500).json({ error: (err as Error).message });
+    return;
+  }
+  try {
+    addGame({ gameId, name, ...urls });
+  } catch (err) {
+    res.status(409).json({ error: (err as Error).message });
+    return;
+  }
+  res.status(201).json({ gameId });
 });
 
 app.post('/api/runs', (req, res) => {

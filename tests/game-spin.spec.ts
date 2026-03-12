@@ -5,7 +5,7 @@ import { test } from '@playwright/test';
 import * as dotenv from 'dotenv';
 import { detectNextClick, detectSpinButton } from '../lib/claude-vision';
 import type { CachedStep, DeviceType } from '../lib/step-cache';
-import { getSteps, setSteps } from '../lib/step-cache';
+import { clearSteps, getSteps, setSteps } from '../lib/step-cache';
 import type { GameEntry } from './games';
 import { GAMES } from './games';
 
@@ -37,6 +37,7 @@ async function discoverSteps(
   page: Page,
   game: GameEntry,
   viewport: { width: number; height: number },
+  waitForSpinEnd: () => Promise<boolean>,
 ): Promise<CachedStep[]> {
   await page.waitForTimeout(DISCOVERY_INITIAL_WAIT_MS);
 
@@ -48,10 +49,18 @@ async function discoverSteps(
     const spinResult = await detectSpinButton(screenshot, viewport);
 
     if (spinResult.found) {
-      const waitMs = steps.length === 0 ? DISCOVERY_INITIAL_WAIT_MS : DISCOVERY_POLL_INTERVAL_MS;
-      steps.push({ waitMs, x: spinResult.x, y: spinResult.y, label: spinResult.label });
       await page.mouse.click(spinResult.x, spinResult.y);
-      return steps;
+      const spun = await waitForSpinEnd();
+      if (spun) {
+        const waitMs = steps.length === 0 ? DISCOVERY_INITIAL_WAIT_MS : DISCOVERY_POLL_INTERVAL_MS;
+        steps.push({ waitMs, x: spinResult.x, y: spinResult.y, label: spinResult.label });
+        return steps;
+      }
+      console.log(
+        `[discover] "${spinResult.label}" at ${spinResult.x},${spinResult.y} — no gel.spin.end, not the real spin button`,
+      );
+      await page.waitForTimeout(DISCOVERY_POLL_INTERVAL_MS);
+      continue;
     }
 
     const nextResult = await detectNextClick(screenshot, viewport);
@@ -92,24 +101,50 @@ for (const game of GAMES) {
     );
 
     const viewport = page.viewportSize()!;
+
+    const consoleLog: string[] = [];
+    page.on('console', (msg) => {
+      const text = msg.text();
+      consoleLog.push(text);
+    });
+
+    async function waitForSpinEnd(): Promise<boolean> {
+      const deadline = Date.now() + SPIN_END_TIMEOUT_MS;
+      while (Date.now() < deadline) {
+        if (consoleLog.some((l) => l.includes('gel.spin.end'))) {
+          return true
+        }
+
+        await page.waitForTimeout(SPIN_END_POLL_INTERVAL_MS);
+      }
+      return false;
+    }
+
     await page.goto(launchUrl);
 
     const cached = getSteps(game.gameId, deviceType, viewport);
+    let spun = false;
 
     if (cached) {
       await replaySteps(page, game, cached.steps);
-    } else {
-      const steps = await discoverSteps(page, game, viewport);
+      spun = await waitForSpinEnd();
+      if (!spun) {
+        console.log(
+          `[test] Cached steps for ${game.name} did not produce gel.spin.end — clearing cache and re-discovering`,
+        );
+        clearSteps(game.gameId, deviceType, viewport);
+        await page.goto(launchUrl);
+      }
+    }
+
+    if (!spun) {
+      const steps = await discoverSteps(page, game, viewport, waitForSpinEnd);
       setSteps(game.gameId, deviceType, viewport, {
         discoveredAt: new Date().toISOString(),
         steps,
       });
     }
 
-    const spinEndDeadline = Date.now() + SPIN_END_TIMEOUT_MS;
-    while (Date.now() < spinEndDeadline) {
-      await page.waitForTimeout(SPIN_END_POLL_INTERVAL_MS);
-    }
     await snap(page, `${game.gameId}/final.png`);
 
     // NOTE: No errors — clean up screenshots (kept on failure for debugging)

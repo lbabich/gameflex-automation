@@ -67,3 +67,16 @@ export function setSteps(
 
   saveCache(cache);
 }
+
+export function clearSteps(
+  gameId: string,
+  deviceType: DeviceType,
+  viewport: Viewport,
+): void {
+  const cache = loadCache();
+  const vk = viewportKey(viewport);
+  if (cache[gameId]?.[deviceType]?.[vk]) {
+    delete cache[gameId][deviceType][vk];
+    saveCache(cache);
+  }
+}

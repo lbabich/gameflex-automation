@@ -35,6 +35,11 @@ export function GameSelector({ games, selected, onChange }: Props) {
             className="w-4 h-4"
           />
           <span className="text-sm">{game.name}</span>
+          {game.cached && (
+            <span className="ml-auto text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded">
+              cached
+            </span>
+          )}
         </label>
       ))}
     </div>
