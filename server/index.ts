@@ -1,7 +1,7 @@
 import express from 'express';
 import { addGame, getCachedGameIds, readGames } from './games';
-import { buildGameUrls } from './url-builder';
 import { getHeadless, getRecentRuns, getRun, setHeadless, startRun } from './runner';
+import { buildGameUrls } from './url-builder';
 
 const app = express();
 const PORT = 3001;
@@ -35,7 +35,11 @@ app.patch('/api/settings', (req, res) => {
 app.get('/api/games', (_req, res) => {
   const games = readGames();
   const cached = getCachedGameIds();
-  res.json(games.map((g) => ({ ...g, cached: cached.has(g.gameId) })));
+  res.json(
+    games.map((g) => {
+      return { ...g, cached: cached.has(g.gameId) };
+    }),
+  );
 });
 
 app.post('/api/games', (req, res) => {

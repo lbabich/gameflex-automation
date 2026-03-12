@@ -33,7 +33,9 @@ export function buildGameUrls(
 ): { url: string; mobileUrl?: string } {
   const games = readGames();
   const template = games[0]?.url;
-  if (!template) throw new Error('No template URL available — add at least one game first');
+  if (!template) {
+    throw new Error('No template URL available — add at least one game first');
+  }
 
   if (channel === 'desktop') {
     return { url: buildUrl(template, gameId, 'desktop', mode) };

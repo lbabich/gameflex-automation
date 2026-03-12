@@ -41,28 +41,67 @@
       }
     }
   },
-  "37737": {
+  "63174": {
     "desktop": {
       "1280x720": {
-        "discoveredAt": "2026-03-05T14:32:19.854Z",
+        "discoveredAt": "2026-03-12T15:53:20.161Z",
         "steps": [
           {
             "waitMs": 8000,
+            "x": 638,
+            "y": 629,
+            "label": "Continue button"
+          },
+          {
+            "waitMs": 1000,
+            "x": 314,
+            "y": 275,
+            "label": "circular button/overlay blocker"
+          },
+          {
+            "waitMs": 1000,
+            "x": 1065,
+            "y": 639,
+            "label": "Back arrow button to return to main game screen"
+          },
+          {
+            "waitMs": 1000,
+            "x": 1044,
+            "y": 365,
+            "label": "Green circular spin/refresh button"
+          }
+        ]
+      }
+    }
+  },
+  "63175": {
+    "desktop": {
+      "1280x720": {
+        "discoveredAt": "2026-03-12T15:51:06.667Z",
+        "steps": [
+          {
+            "waitMs": 8000,
+            "x": 638,
+            "y": 629,
+            "label": "Continue button"
+          },
+          {
+            "waitMs": 1000,
             "x": 640,
-            "y": 594,
-            "label": "Skip intro cutscene"
+            "y": 290,
+            "label": "BARN title screen overlay - click to continue"
           },
           {
             "waitMs": 1000,
-            "x": 406,
-            "y": 346,
-            "label": "Click to Continue"
+            "x": 1065,
+            "y": 638,
+            "label": "Back arrow button to return to main game screen"
           },
           {
             "waitMs": 1000,
-            "x": 641,
-            "y": 609,
-            "label": "Circular spin/refresh button with arrow icon"
+            "x": 1044,
+            "y": 371,
+            "label": "Green circular button"
           }
         ]
       }

@@ -70,7 +70,9 @@ export function getRun(runId: string): RunRecord | undefined {
 
 export function getRecentRuns(limit = 50): RunRecord[] {
   return [...runs.values()]
-    .sort((a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime())
+    .sort((a, b) => {
+      return new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime();
+    })
     .slice(0, limit);
 }
 
@@ -84,7 +86,9 @@ function flattenSpecs(suite: SuiteNode): SpecNode[] {
 
 function toTestResult(spec: SpecNode, test: TestNode): TestResult | null {
   const result = test.results?.[0];
-  if (!result) return null;
+  if (!result) {
+    return null;
+  }
 
   return {
     title: spec.title ?? test.title ?? '(unknown)',
@@ -93,9 +97,13 @@ function toTestResult(spec: SpecNode, test: TestNode): TestResult | null {
     duration: result.duration ?? 0,
     error: result.error?.message,
     stdout: (result.stdout ?? [])
-      .map((e) => e.text ?? '')
+      .map((e) => {
+        return e.text ?? '';
+      })
       .filter(Boolean)
-      .map((t) => t.trimEnd()),
+      .map((t) => {
+        return t.trimEnd();
+      }),
   };
 }
 
@@ -120,7 +128,9 @@ function extractReportJson(raw: string): ReportJson | null {
     return null;
   }
 
-  console.log(`[runner] JSON start at index ${jsonStart}, first 60 chars: ${JSON.stringify(raw.slice(jsonStart, jsonStart + 60))}`);
+  console.log(
+    `[runner] JSON start at index ${jsonStart}, first 60 chars: ${JSON.stringify(raw.slice(jsonStart, jsonStart + 60))}`,
+  );
 
   try {
     return JSON.parse(raw.slice(jsonStart)) as ReportJson;
@@ -133,9 +143,15 @@ function extractReportJson(raw: string): ReportJson | null {
 
 function parseJsonReport(raw: string): { results: TestResult[]; playwrightErrors: string[] } {
   const report = extractReportJson(raw);
-  if (!report) return { results: [], playwrightErrors: [] };
+  if (!report) {
+    return { results: [], playwrightErrors: [] };
+  }
 
-  const playwrightErrors = (report.errors ?? []).map((e) => e.message ?? '').filter(Boolean);
+  const playwrightErrors = (report.errors ?? [])
+    .map((e) => {
+      return e.message ?? '';
+    })
+    .filter(Boolean);
   if (playwrightErrors.length > 0) {
     console.error('[runner] Playwright top-level errors:', playwrightErrors);
   }
@@ -149,7 +165,9 @@ function parseJsonReport(raw: string): { results: TestResult[]; playwrightErrors
     for (const spec of specs) {
       for (const test of spec.tests ?? []) {
         const result = toTestResult(spec, test);
-        if (result) results.push(result);
+        if (result) {
+          results.push(result);
+        }
       }
     }
   }
@@ -163,12 +181,22 @@ function parseJsonReport(raw: string): { results: TestResult[]; playwrightErrors
 function resolveGameNames(gameIds: string[]): string[] {
   const games = readGames();
   return gameIds
-    .map((id) => games.find((g) => g.gameId === id)?.name)
-    .filter((n): n is string => n !== undefined);
+    .map((id) => {
+      return games.find((g) => {
+        return g.gameId === id;
+      })?.name;
+    })
+    .filter((n): n is string => {
+      return n !== undefined;
+    });
 }
 
 function buildPlaywrightCommand(names: string[]): string {
-  const grepPattern = names.map((n) => `spin: ${n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`).join('|');
+  const grepPattern = names
+    .map((n) => {
+      return `spin: ${n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`;
+    })
+    .join('|');
   // Quote the pattern so the shell treats it as a single argument.
   // Double-quotes are safe on both cmd.exe and sh; escape any literal " inside.
   const quotedPattern = `"${grepPattern.replace(/"/g, '\\"')}"`;
@@ -187,7 +215,7 @@ function createRunRecord(runId: string, gameIds: string[]): RunRecord {
   };
 }
 
-function finalizeRecord(record: RunRecord, code: number | null, raw: string): void {
+function finalizeRecord(record: RunRecord, _code: number | null, raw: string): void {
   const parsed = parseJsonReport(raw);
   record.rawOutput = raw;
   record.results = parsed.results;
@@ -199,7 +227,9 @@ function finalizeRecord(record: RunRecord, code: number | null, raw: string): vo
 
 function attachProcessHandlers(child: ChildProcess, record: RunRecord): void {
   const chunks: Buffer[] = [];
-  child.stdout?.on('data', (chunk: Buffer) => chunks.push(chunk));
+  child.stdout?.on('data', (chunk: Buffer) => {
+    return chunks.push(chunk);
+  });
 
   let stderrBuf = '';
   child.stderr?.on('data', (chunk: Buffer) => {
@@ -207,18 +237,28 @@ function attachProcessHandlers(child: ChildProcess, record: RunRecord): void {
     const lines = stderrBuf.split('\n');
     stderrBuf = lines.pop() ?? '';
     for (const line of lines) {
-      if (line.trim()) console.log(`[playwright] ${line}`);
+      if (line.trim()) {
+        console.log(`[playwright] ${line}`);
+      }
     }
   });
 
   child.on('close', (code) => {
-    if (stderrBuf.trim()) console.log(`[playwright] ${stderrBuf}`);
+    if (stderrBuf.trim()) {
+      console.log(`[playwright] ${stderrBuf}`);
+    }
     const raw = Buffer.concat(chunks).toString('utf-8');
     finalizeRecord(record, code, raw);
 
-    const passed = record.results.filter((r) => r.status === 'passed').length;
-    const failed = record.results.filter((r) => r.status === 'failed').length;
-    const skipped = record.results.filter((r) => r.status === 'skipped').length;
+    const passed = record.results.filter((r) => {
+      return r.status === 'passed';
+    }).length;
+    const failed = record.results.filter((r) => {
+      return r.status === 'failed';
+    }).length;
+    const skipped = record.results.filter((r) => {
+      return r.status === 'skipped';
+    }).length;
     console.log(
       `[runner] Run ${record.runId} finished in ${record.durationMs}ms — ${passed} passed, ${failed} failed, ${skipped} skipped`,
     );
@@ -229,7 +269,8 @@ function attachProcessHandlers(child: ChildProcess, record: RunRecord): void {
     console.error(`[runner] Spawn error for run ${record.runId}:`, err);
     record.rawOutput = err.message;
     record.finishedAt = new Date().toISOString();
-    record.durationMs = new Date(record.finishedAt).getTime() - new Date(record.startedAt).getTime();
+    record.durationMs =
+      new Date(record.finishedAt).getTime() - new Date(record.startedAt).getTime();
     record.status = 'error';
     activeRunId = null;
   });

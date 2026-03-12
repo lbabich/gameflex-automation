@@ -5,6 +5,8 @@ import type { Viewport } from './step-cache';
 
 dotenv.config();
 
+export type FailedButton = { x: number; y: number; label: string };
+
 export type SpinResult = { found: true; x: number; y: number; label: string } | { found: false };
 
 export type NextResult = { found: true; x: number; y: number; label: string } | { found: false };
@@ -49,25 +51,37 @@ async function ask(screenshotPath: string, system: string, userText: string): Pr
 export async function detectSpinButton(
   screenshotPath: string,
   viewport: Viewport,
+  failedButtons: FailedButton[] = [],
 ): Promise<SpinResult> {
   const { width: w, height: h } = viewport;
-  const result = await ask(
-    screenshotPath,
-    SYSTEM,
-    `Is the main spin button visible and unobstructed in this screenshot? It is typically a large circular button labeled SPIN or with a play/arrow icon, not greyed out or hidden behind a modal.\n\nRespond with exactly one of:\n  {"found": false}\n  {"found": true, "x": <number>, "y": <number>, "label": "<short description>"}\n\nImage dimensions: ${w}x${h}`,
-  );
+  let prompt = `Is the main spin button visible and unobstructed in this screenshot? It is typically a large circular button labeled SPIN or with a play/arrow icon, not greyed out or hidden behind a modal.\n\nRespond with exactly one of:\n  {"found": false}\n  {"found": true, "x": <number>, "y": <number>, "label": "<short description>"}\n\nImage dimensions: ${w}x${h}`;
+  if (failedButtons.length > 0) {
+    const list = failedButtons
+      .map((b) => {
+        return `- "${b.label}" at (${b.x}, ${b.y})`;
+      })
+      .join('\n');
+    prompt += `\n\nPreviously clicked buttons that looked like spin buttons but did NOT trigger a real spin (do NOT click these):\n${list}\nLook for a DIFFERENT spin trigger. If no other candidate exists, return {"found": false} — it is better to say not found than to repeat a known failure.`;
+  }
+  const result = await ask(screenshotPath, SYSTEM, prompt);
   return result as SpinResult;
 }
 
 export async function detectNextClick(
   screenshotPath: string,
   viewport: Viewport,
+  failedButtons: FailedButton[] = [],
 ): Promise<NextResult> {
   const { width: w, height: h } = viewport;
-  const result = await ask(
-    screenshotPath,
-    SYSTEM,
-    `The spin button is not yet accessible. What is the single most important element to click to progress — a dialog button (Continue, OK, Accept), close X, age/terms prompt, or overlay? If the screen appears fully interactive with no blockers (spin button may still be loading), return {"found": false}.\n\nRespond with:\n  {"found": false}\n  {"found": true, "x": <number>, "y": <number>, "label": "<short description>"}\n\nImage dimensions: ${w}x${h}`,
-  );
+  let prompt = `The spin button is not yet accessible. What is the single most important element to click to progress — a dialog button (Continue, OK, Accept), close X, age/terms prompt, or overlay? If the screen appears fully interactive with no blockers (spin button may still be loading), return {"found": false}.\n\nRespond with:\n  {"found": false}\n  {"found": true, "x": <number>, "y": <number>, "label": "<short description>"}\n\nImage dimensions: ${w}x${h}`;
+  if (failedButtons.length > 0) {
+    const list = failedButtons
+      .map((b) => {
+        return `- "${b.label}" at (${b.x}, ${b.y})`;
+      })
+      .join('\n');
+    prompt += `\n\nContext: The following buttons were clicked as spin candidates but did not trigger a spin:\n${list}\nFeel free to suggest clicking a Back/Cancel/navigation button or another UI path to reach a different game state where the real spin button may be accessible.`;
+  }
+  const result = await ask(screenshotPath, SYSTEM, prompt);
   return result as NextResult;
 }
