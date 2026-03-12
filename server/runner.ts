@@ -54,6 +54,15 @@ type ReportJson = {
 
 const runs = new Map<string, RunRecord>();
 let activeRunId: string | null = null;
+let headless = process.env.PW_HEADLESS !== '0';
+
+export function getHeadless(): boolean {
+  return headless;
+}
+
+export function setHeadless(v: boolean): void {
+  headless = v;
+}
 
 export function getRun(runId: string): RunRecord | undefined {
   return runs.get(runId);
@@ -246,7 +255,7 @@ export function startRun(gameIds: string[]): { runId: string } | { error: string
 
   const child = spawn(cmd, {
     stdio: ['ignore', 'pipe', 'pipe'],
-    env: { ...process.env, PW_HEADLESS: '1' },
+    env: { ...process.env, PW_HEADLESS: headless ? '1' : '0' },
     shell: true,
   });
 

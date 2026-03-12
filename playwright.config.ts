@@ -6,7 +6,7 @@ export default defineConfig({
   workers: 2,
   reporter: 'list',
   use: {
-    headless: process.env.PW_HEADLESS === '1',
+    headless: process.env.PW_HEADLESS !== '0',
   },
   projects: [
     {

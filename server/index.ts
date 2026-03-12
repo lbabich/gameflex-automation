@@ -1,6 +1,6 @@
 import express from 'express';
 import { GAMES } from '../tests/games';
-import { getRecentRuns, getRun, startRun } from './runner';
+import { getHeadless, getRecentRuns, getRun, setHeadless, startRun } from './runner';
 
 const app = express();
 const PORT = 3001;
@@ -8,13 +8,27 @@ const PORT = 3001;
 app.use(express.json());
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') {
     res.sendStatus(204);
     return;
   }
   next();
+});
+
+app.get('/api/settings', (_req, res) => {
+  res.json({ headless: getHeadless() });
+});
+
+app.patch('/api/settings', (req, res) => {
+  const { headless } = req.body as { headless?: unknown };
+  if (typeof headless !== 'boolean') {
+    res.status(400).json({ error: 'headless must be a boolean' });
+    return;
+  }
+  setHeadless(headless);
+  res.json({ headless: getHeadless() });
 });
 
 app.get('/api/games', (_req, res) => {

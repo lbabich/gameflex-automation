@@ -30,7 +30,8 @@
       "WebFetch(domain:github.com)",
       "WebFetch(domain:playwright.dev)",
       "WebFetch(domain:www.browserstack.com)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "WebFetch(domain:localhost)"
     ]
   }
 }

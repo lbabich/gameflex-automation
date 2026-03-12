@@ -4,6 +4,7 @@ import { ResultsPanel } from './components/ResultsPanel';
 import { RunButton } from './components/RunButton';
 import { useGames } from './hooks/useGames';
 import { useRun } from './hooks/useRun';
+import { useSettings } from './hooks/useSettings';
 
 export default function App() {
   const [selectedGameIds, setSelectedGameIds] = useState<string[]>([]);
@@ -11,6 +12,7 @@ export default function App() {
 
   const { data: games, isLoading: gamesLoading } = useGames();
   const { data: run, isLoading: runLoading } = useRun(activeRunId);
+  const { headless, toggle, isToggling } = useSettings();
 
   const isRunning = run?.status === 'running';
 
@@ -48,6 +50,19 @@ export default function App() {
           running={isRunning}
           onClick={handleRun}
         />
+        <div className="mt-auto pt-4 border-t">
+          <button
+            type="button"
+            onClick={toggle}
+            disabled={isToggling}
+            className="w-full flex items-center justify-between px-3 py-2 rounded text-sm bg-gray-100 hover:bg-gray-200 transition-colors disabled:opacity-50"
+          >
+            <span className="text-gray-700">Headless</span>
+            <span className={`text-xs font-semibold ${headless ? 'text-green-600' : 'text-orange-500'}`}>
+              {headless ? 'ON' : 'OFF'}
+            </span>
+          </button>
+        </div>
       </aside>
 
       <main className="flex-1 p-6">
