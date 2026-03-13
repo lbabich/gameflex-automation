@@ -7,10 +7,11 @@ import { buildGameUrls } from './url-builder';
 
 const app = express();
 const PORT = 3001;
+const CORS_ORIGIN = process.env.CORS_ORIGIN ?? 'http://localhost:5173';
 
 app.use(express.json());
 app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173');
+  res.setHeader('Access-Control-Allow-Origin', CORS_ORIGIN);
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') {
@@ -107,6 +108,13 @@ app.get('/api/runs/:id', (req, res) => {
 });
 
 app.get('/api/screenshots/:gameId/:filename', (req, res) => {
+  const safe = (s: string) => {
+    return /^[\w.-]+$/.test(s);
+  };
+  if (!safe(req.params.gameId) || !safe(req.params.filename)) {
+    res.status(400).send('Invalid path');
+    return;
+  }
   const filePath = path.resolve('screenshots', req.params.gameId, req.params.filename);
   if (!fs.existsSync(filePath)) {
     res.status(404).send('Not found');

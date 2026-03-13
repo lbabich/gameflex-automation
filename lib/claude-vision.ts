@@ -45,7 +45,11 @@ async function ask(screenshotPath: string, system: string, userText: string): Pr
   });
 
   const text = response.content[0].type === 'text' ? response.content[0].text : '';
-  return JSON.parse(text.trim());
+  try {
+    return JSON.parse(text.trim());
+  } catch {
+    throw new Error(`Claude returned non-JSON: ${text.slice(0, 200)}`);
+  }
 }
 
 export async function detectSpinButton(
@@ -63,8 +67,11 @@ export async function detectSpinButton(
       .join('\n');
     prompt += `\n\nPreviously clicked buttons that looked like spin buttons but did NOT trigger a real spin (do NOT click these):\n${list}\nLook for a DIFFERENT spin trigger. If no other candidate exists, return {"found": false} — it is better to say not found than to repeat a known failure.`;
   }
-  const result = await ask(screenshotPath, SYSTEM, prompt);
-  return result as SpinResult;
+  const result = (await ask(screenshotPath, SYSTEM, prompt)) as Record<string, unknown>;
+  if (result.found !== true && result.found !== false) {
+    throw new Error(`Unexpected response shape: ${JSON.stringify(result)}`);
+  }
+  return result as unknown as SpinResult;
 }
 
 export async function detectNextClick(
@@ -82,6 +89,9 @@ export async function detectNextClick(
       .join('\n');
     prompt += `\n\nContext: The following buttons were clicked as spin candidates but did not trigger a spin:\n${list}\nFeel free to suggest clicking a Back/Cancel/navigation button or another UI path to reach a different game state where the real spin button may be accessible.`;
   }
-  const result = await ask(screenshotPath, SYSTEM, prompt);
-  return result as NextResult;
+  const result = (await ask(screenshotPath, SYSTEM, prompt)) as Record<string, unknown>;
+  if (result.found !== true && result.found !== false) {
+    throw new Error(`Unexpected response shape: ${JSON.stringify(result)}`);
+  }
+  return result as unknown as NextResult;
 }

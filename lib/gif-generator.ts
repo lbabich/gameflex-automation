@@ -13,6 +13,7 @@ type GifEncoderInstance = {
 
 type GifEncoderConstructor = new (width: number, height: number) => GifEncoderInstance;
 
+// require() is intentional: gif-encoder-2 ships no ESM build or TypeScript declarations
 const GIFEncoder = require('gif-encoder-2') as GifEncoderConstructor;
 
 const GIF_WIDTH = 640;

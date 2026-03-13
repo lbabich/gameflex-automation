@@ -29,7 +29,8 @@ const CACHE_PATH = path.resolve('data', 'game-steps.json');
 function loadCache(): StepCache {
   try {
     return JSON.parse(fs.readFileSync(CACHE_PATH, 'utf8')) as StepCache;
-  } catch {
+  } catch (err) {
+    console.warn('[step-cache] Failed to load cache, starting fresh:', err);
     return {};
   }
 }

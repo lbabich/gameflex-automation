@@ -244,19 +244,19 @@ function createRunRecord(runId: string, gameIds: string[]): RunRecord {
   };
 }
 
-function finalizeRecord(record: RunRecord, _code: number | null, raw: string): void {
+function finalizeRecord(record: RunRecord, code: number | null, raw: string): void {
   const parsed = parseJsonReport(raw);
   record.rawOutput = raw;
   record.results = parsed.results;
   record.playwrightErrors = parsed.playwrightErrors;
   record.finishedAt = new Date().toISOString();
   record.durationMs = new Date(record.finishedAt).getTime() - new Date(record.startedAt).getTime();
-  record.status = 'completed';
+  record.status = code === 0 ? 'completed' : 'error';
 
   const games = readGames();
   for (const result of record.results) {
     const game = games.find((g) => {
-      return result.title === `spin: ${g.name}`;
+      return result.title === `spin: ${g.name}` || result.title.startsWith(`spin: ${g.name} `);
     });
     if (game) {
       const gifPath = path.resolve('screenshots', game.gameId, 'animated.gif');
@@ -292,18 +292,33 @@ function attachProcessHandlers(child: ChildProcess, record: RunRecord): void {
     const raw = Buffer.concat(chunks).toString('utf-8');
     finalizeRecord(record, code, raw);
 
-    const passed = record.results.filter((r) => {
-      return r.status === 'passed';
-    }).length;
-    const failed = record.results.filter((r) => {
-      return r.status === 'failed';
-    }).length;
-    const skipped = record.results.filter((r) => {
-      return r.status === 'skipped';
-    }).length;
+    let passed = 0,
+      failed = 0,
+      skipped = 0;
+    for (const r of record.results) {
+      if (r.status === 'passed') {
+        passed++;
+      } else if (r.status === 'failed') {
+        failed++;
+      } else if (r.status === 'skipped') {
+        skipped++;
+      }
+    }
     console.log(
       `[runner] Run ${record.runId} finished in ${record.durationMs}ms — ${passed} passed, ${failed} failed, ${skipped} skipped`,
     );
+
+    if (runs.size > 100) {
+      const oldest = [...runs.entries()]
+        .sort(([, a], [, b]) => {
+          return a.startedAt < b.startedAt ? -1 : 1;
+        })
+        .slice(0, runs.size - 100);
+      for (const [id] of oldest) {
+        runs.delete(id);
+      }
+    }
+
     activeRunId = null;
   });
 

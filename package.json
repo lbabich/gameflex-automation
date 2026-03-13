@@ -9,11 +9,11 @@
     "dev": "concurrently \"npm run server\" \"npm run dev --prefix dashboard\""
   },
   "devDependencies": {
-    "@anthropic-ai/sdk": "latest",
-    "@biomejs/biome": "latest",
-    "@playwright/test": "latest",
+    "@anthropic-ai/sdk": "^0.78.0",
+    "@biomejs/biome": "^2.4.5",
+    "@playwright/test": "^1.58.2",
     "@types/node": "^25.3.3",
-    "dotenv": "latest"
+    "dotenv": "^17.3.1"
   },
   "dependencies": {
     "@types/express": "^5.0.6",

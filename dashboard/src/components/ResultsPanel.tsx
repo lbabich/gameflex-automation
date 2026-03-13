@@ -1,6 +1,8 @@
 import { Fragment, useCallback, useEffect, useState } from 'react';
 import type { RunRecord, RunStatus, TestResult } from '../types';
 
+const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
+
 type Props = {
   run: RunRecord | undefined;
   isLoading: boolean;
@@ -143,18 +145,19 @@ export function ResultsPanel({ run, isLoading }: Props) {
         </thead>
         <tbody>
           {run.results.length > 0
-            ? run.results.map((result, i) => (
+            ? run.results.map((result, i) => {
+                const hasDetails = result.stdout.length > 0 || !!result.gifUrl || (result.steps?.length ?? 0) > 0;
+                return (
                 <Fragment key={i}>
                   <tr
-                    className={`border-b hover:bg-gray-50 ${result.stdout.length > 0 || !!result.gifUrl || (result.steps?.length ?? 0) > 0 ? 'cursor-pointer' : ''}`}
+                    className={`border-b hover:bg-gray-50 ${hasDetails ? 'cursor-pointer' : ''}`}
                     onClick={() => {
-                      const hasDetails = result.stdout.length > 0 || !!result.gifUrl || (result.steps?.length ?? 0) > 0;
                       if (hasDetails) toggleRow(i);
                     }}
                   >
                     <td className="py-2 px-3">
                       <div className="flex items-center gap-1">
-                        {(result.stdout.length > 0 || !!result.gifUrl || (result.steps?.length ?? 0) > 0) && (
+                        {hasDetails && (
                           <span className="text-gray-400 text-xs select-none">
                             {expandedRows.has(i) ? '▼' : '▶'}
                           </span>
@@ -180,7 +183,7 @@ export function ResultsPanel({ run, isLoading }: Props) {
                       <td colSpan={4} className="px-6 py-3">
                         {result.gifUrl && (
                           <img
-                            src={`http://localhost:3001${result.gifUrl}`}
+                            src={`${API_BASE}${result.gifUrl}`}
                             alt="Test replay"
                             className="rounded mb-3 max-w-full"
                             style={{ maxHeight: '240px' }}
@@ -210,7 +213,8 @@ export function ResultsPanel({ run, isLoading }: Props) {
                     </tr>
                   )}
                 </Fragment>
-              ))
+              );
+              })
             : isRunning && (
                 <>
                   <SkeletonRow />

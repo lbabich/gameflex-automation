@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import type { Page, TestInfo } from '@playwright/test';
+import type { ConsoleMessage, Page, TestInfo } from '@playwright/test';
 import { test } from '@playwright/test';
 import * as dotenv from 'dotenv';
 import type { FailedButton } from '../lib/claude-vision';
@@ -130,11 +130,19 @@ for (const game of GAMES) {
       `URL channelid=${deviceType}; skipping ${testInfo.project.name}`,
     );
 
+    // viewportSize() is guaranteed non-null after page.goto() is called below
     const viewport = page.viewportSize()!;
+
+    const isSpinStart = (msg: ConsoleMessage) => {
+      return msg.text().includes('gel.spin.start');
+    };
+    const isSpinEnd = (msg: ConsoleMessage) => {
+      return msg.text().includes('gel.spin.end');
+    };
 
     let spinStarted = false;
     page.on('console', (msg) => {
-      if (msg.text().includes('gel.spin.start')) {
+      if (isSpinStart(msg)) {
         spinStarted = true;
       }
     });
@@ -142,9 +150,7 @@ for (const game of GAMES) {
     async function waitForSpinStart(): Promise<boolean> {
       try {
         await page.waitForEvent('console', {
-          predicate: (msg) => {
-            return msg.text().includes('gel.spin.start');
-          },
+          predicate: isSpinStart,
           timeout: SPIN_START_TIMEOUT_MS,
         });
         return true;
@@ -176,9 +182,7 @@ for (const game of GAMES) {
     await test.step('Spin start: gel.spin.start', async () => {
       if (!spinStarted) {
         await page.waitForEvent('console', {
-          predicate: (msg) => {
-            return msg.text().includes('gel.spin.start');
-          },
+          predicate: isSpinStart,
           timeout: SPIN_START_TIMEOUT_MS,
         });
       }
@@ -186,9 +190,7 @@ for (const game of GAMES) {
 
     await test.step('Spin end: gel.spin.end', () => {
       return page.waitForEvent('console', {
-        predicate: (msg) => {
-          return msg.text().includes('gel.spin.end');
-        },
+        predicate: isSpinEnd,
         timeout: SPIN_END_WAIT_MS,
       });
     });
