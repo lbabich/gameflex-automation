@@ -96,6 +96,7 @@ export function getRecentRuns(limit = 50): RunRecord[] {
 
 function flattenSpecs(suite: SuiteNode): SpecNode[] {
   const specs: SpecNode[] = [...(suite.specs ?? [])];
+
   for (const child of suite.suites ?? []) {
     specs.push(...flattenSpecs(child));
   }
@@ -104,6 +105,7 @@ function flattenSpecs(suite: SuiteNode): SpecNode[] {
 
 function toTestResult(spec: SpecNode, test: TestNode): TestResult | null {
   const result = test.results?.[0];
+
   if (!result) {
     return null;
   }
@@ -172,6 +174,7 @@ function extractReportJson(raw: string): ReportJson | null {
 
 function parseJsonReport(raw: string): { results: TestResult[]; playwrightErrors: string[] } {
   const report = extractReportJson(raw);
+
   if (!report) {
     return { results: [], playwrightErrors: [] };
   }
@@ -181,6 +184,7 @@ function parseJsonReport(raw: string): { results: TestResult[]; playwrightErrors
       return e.message ?? '';
     })
     .filter(Boolean);
+
   if (playwrightErrors.length > 0) {
     console.error('[runner] Playwright top-level errors:', playwrightErrors);
   }
@@ -188,6 +192,7 @@ function parseJsonReport(raw: string): { results: TestResult[]; playwrightErrors
   console.log(`[runner] Suites found: ${report.suites?.length ?? 0}`);
 
   const results: TestResult[] = [];
+
   for (const suite of report.suites ?? []) {
     const specs = flattenSpecs(suite);
     console.log(`[runner] Suite "${suite.title}" → ${specs.length} spec(s)`);
@@ -229,6 +234,7 @@ function buildPlaywrightCommand(names: string[]): string {
   // Quote the pattern so the shell treats it as a single argument.
   // Double-quotes are safe on both cmd.exe and sh; escape any literal " inside.
   const quotedPattern = `"${grepPattern.replace(/"/g, '\\"')}"`;
+
   return `npx playwright test --reporter=json --grep ${quotedPattern}`;
 }
 
@@ -246,6 +252,7 @@ function createRunRecord(runId: string, gameIds: string[]): RunRecord {
 
 function finalizeRecord(record: RunRecord, code: number | null, raw: string): void {
   const parsed = parseJsonReport(raw);
+
   record.rawOutput = raw;
   record.results = parsed.results;
   record.playwrightErrors = parsed.playwrightErrors;
@@ -254,12 +261,15 @@ function finalizeRecord(record: RunRecord, code: number | null, raw: string): vo
   record.status = code === 0 ? 'completed' : 'error';
 
   const games = readGames();
+
   for (const result of record.results) {
     const game = games.find((g) => {
       return result.title === `spin: ${g.name}` || result.title.startsWith(`spin: ${g.name} `);
     });
+
     if (game) {
       const gifPath = path.resolve('screenshots', game.gameId, 'animated.gif');
+
       if (fs.existsSync(gifPath)) {
         result.gifUrl = `/api/screenshots/${game.gameId}/animated.gif`;
       }
@@ -269,11 +279,13 @@ function finalizeRecord(record: RunRecord, code: number | null, raw: string): vo
 
 function attachProcessHandlers(child: ChildProcess, record: RunRecord): void {
   const chunks: Buffer[] = [];
+
   child.stdout?.on('data', (chunk: Buffer) => {
     return chunks.push(chunk);
   });
 
   let stderrBuf = '';
+
   child.stderr?.on('data', (chunk: Buffer) => {
     stderrBuf += chunk.toString('utf-8');
     const lines = stderrBuf.split('\n');
@@ -289,12 +301,15 @@ function attachProcessHandlers(child: ChildProcess, record: RunRecord): void {
     if (stderrBuf.trim()) {
       console.log(`[playwright] ${stderrBuf}`);
     }
+
     const raw = Buffer.concat(chunks).toString('utf-8');
+
     finalizeRecord(record, code, raw);
 
     let passed = 0,
       failed = 0,
       skipped = 0;
+
     for (const r of record.results) {
       if (r.status === 'passed') {
         passed++;
@@ -304,6 +319,7 @@ function attachProcessHandlers(child: ChildProcess, record: RunRecord): void {
         skipped++;
       }
     }
+
     console.log(
       `[runner] Run ${record.runId} finished in ${record.durationMs}ms — ${passed} passed, ${failed} failed, ${skipped} skipped`,
     );
@@ -339,16 +355,19 @@ export function startRun(gameIds: string[]): { runId: string } | { error: string
   }
 
   const names = resolveGameNames(gameIds);
+
   if (names.length === 0) {
     return { error: 'No valid game IDs provided' };
   }
 
   const runId = randomUUID();
   const record = createRunRecord(runId, gameIds);
+
   runs.set(runId, record);
   activeRunId = runId;
 
   const cmd = buildPlaywrightCommand(names);
+
   console.log(`[runner] Starting run ${runId}`);
   console.log(`[runner] Command: ${cmd}`);
 

@@ -21,6 +21,7 @@ export function readGames(): GameEntry[] {
 
 export function addGame(entry: GameEntry): void {
   const games = readGames();
+
   if (
     games.some((g) => {
       return g.gameId === entry.gameId;
@@ -28,6 +29,7 @@ export function addGame(entry: GameEntry): void {
   ) {
     throw new Error(`Game with ID ${entry.gameId} already exists`);
   }
+
   games.push(entry);
   fs.mkdirSync(path.dirname(GAMES_PATH), { recursive: true });
   fs.writeFileSync(GAMES_PATH, JSON.stringify(games, null, 2));

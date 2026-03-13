@@ -20,14 +20,18 @@ export default function App() {
 
   async function handleRun() {
     if (selectedGameIds.length === 0 || isRunning) return;
+
     try {
       const res = await fetch('/api/runs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ gameIds: selectedGameIds }),
       });
+
       if (!res.ok) return;
+
       const data = (await res.json()) as { runId: string };
+
       setActiveRunId(data.runId);
     } catch {
       // ignore

@@ -24,6 +24,7 @@ export function AddGameModal({ onClose }: Props) {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+
     mutate(
       { ...fields, gameId: fields.gameId.trim(), name: fields.name.trim() },
       {

@@ -23,13 +23,17 @@ const GIF_DELAY_MS = 1000;
 function parseSortKey(filename: string): [number, number] {
   const base = path.basename(filename, '.png');
   const discoveryMatch = base.match(/^discovery-(\d+)$/);
+
   if (discoveryMatch) {
     return [0, Number.parseInt(discoveryMatch[1], 10)];
   }
+
   const stepMatch = base.match(/^step-(\d+)$/);
+
   if (stepMatch) {
     return [1, Number.parseInt(stepMatch[1], 10)];
   }
+
   if (base === 'final') {
     return [2, 0];
   }
@@ -56,6 +60,7 @@ export async function generateGif(gameId: string): Promise<string> {
   }
 
   const encoder = new GIFEncoder(GIF_WIDTH, GIF_HEIGHT);
+
   encoder.setDelay(GIF_DELAY_MS);
   encoder.setRepeat(0);
   encoder.start();
@@ -63,6 +68,7 @@ export async function generateGif(gameId: string): Promise<string> {
   for (const file of pngFiles) {
     const filePath = path.join(screenshotsDir, file);
     const image = await Jimp.read(filePath);
+
     image.resize({ w: GIF_WIDTH, h: GIF_HEIGHT });
     encoder.addFrame(new Uint8ClampedArray(image.bitmap.data.buffer));
   }
