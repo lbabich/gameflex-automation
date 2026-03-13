@@ -146,12 +146,15 @@ export function ResultsPanel({ run, isLoading }: Props) {
             ? run.results.map((result, i) => (
                 <Fragment key={i}>
                   <tr
-                    className={`border-b hover:bg-gray-50 ${result.stdout.length > 0 ? 'cursor-pointer' : ''}`}
-                    onClick={() => result.stdout.length > 0 && toggleRow(i)}
+                    className={`border-b hover:bg-gray-50 ${result.stdout.length > 0 || !!result.gifUrl || (result.steps?.length ?? 0) > 0 ? 'cursor-pointer' : ''}`}
+                    onClick={() => {
+                      const hasDetails = result.stdout.length > 0 || !!result.gifUrl || (result.steps?.length ?? 0) > 0;
+                      if (hasDetails) toggleRow(i);
+                    }}
                   >
                     <td className="py-2 px-3">
                       <div className="flex items-center gap-1">
-                        {result.stdout.length > 0 && (
+                        {(result.stdout.length > 0 || !!result.gifUrl || (result.steps?.length ?? 0) > 0) && (
                           <span className="text-gray-400 text-xs select-none">
                             {expandedRows.has(i) ? '▼' : '▶'}
                           </span>
@@ -172,12 +175,37 @@ export function ResultsPanel({ run, isLoading }: Props) {
                       {(result.duration / 1000).toFixed(1)}s
                     </td>
                   </tr>
-                  {expandedRows.has(i) && result.stdout.length > 0 && (
+                  {expandedRows.has(i) && (
                     <tr className="border-b bg-gray-50">
-                      <td colSpan={4} className="px-6 py-2">
-                        <pre className="text-xs text-gray-600 font-mono whitespace-pre-wrap leading-relaxed">
-                          {result.stdout.join('\n')}
-                        </pre>
+                      <td colSpan={4} className="px-6 py-3">
+                        {result.gifUrl && (
+                          <img
+                            src={`http://localhost:3001${result.gifUrl}`}
+                            alt="Test replay"
+                            className="rounded mb-3 max-w-full"
+                            style={{ maxHeight: '240px' }}
+                          />
+                        )}
+                        {result.steps && result.steps.length > 0 && (
+                          <div className="flex flex-col gap-1 mb-3">
+                            {result.steps.map((step, si) => (
+                              <div key={si} className="flex items-center gap-2 text-xs font-mono">
+                                <span className={step.error ? 'text-red-500' : 'text-green-600'}>
+                                  {step.error ? '✗' : '✓'}
+                                </span>
+                                <span className="flex-1 text-gray-700">{step.title}</span>
+                                <span className="text-gray-400">
+                                  {(step.duration / 1000).toFixed(1)}s
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {result.stdout.length > 0 && (
+                          <pre className="text-xs text-gray-600 font-mono whitespace-pre-wrap leading-relaxed">
+                            {result.stdout.join('\n')}
+                          </pre>
+                        )}
                       </td>
                     </tr>
                   )}

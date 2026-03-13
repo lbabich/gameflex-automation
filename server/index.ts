@@ -1,3 +1,5 @@
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import express from 'express';
 import { addGame, getCachedGameIds, readGames } from './games';
 import { getHeadless, getRecentRuns, getRun, setHeadless, startRun } from './runner';
@@ -102,6 +104,15 @@ app.get('/api/runs/:id', (req, res) => {
     return;
   }
   res.json(record);
+});
+
+app.get('/api/screenshots/:gameId/:filename', (req, res) => {
+  const filePath = path.resolve('screenshots', req.params.gameId, req.params.filename);
+  if (!fs.existsSync(filePath)) {
+    res.status(404).send('Not found');
+    return;
+  }
+  res.sendFile(filePath);
 });
 
 app.listen(PORT, () => {

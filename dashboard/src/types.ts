@@ -8,6 +8,12 @@ export type GameEntry = {
 
 export type RunStatus = 'running' | 'completed' | 'error';
 
+export type TestStep = {
+  title: string;
+  duration: number;
+  error?: string;
+};
+
 export type TestResult = {
   title: string;
   project: string;
@@ -15,6 +21,8 @@ export type TestResult = {
   duration: number;
   error?: string;
   stdout: string[];
+  steps?: TestStep[];
+  gifUrl?: string;
 };
 
 export type RunRecord = {

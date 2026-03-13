@@ -5,6 +5,7 @@ import { test } from '@playwright/test';
 import * as dotenv from 'dotenv';
 import type { FailedButton } from '../lib/claude-vision';
 import { detectNextClick, detectSpinButton } from '../lib/claude-vision';
+import { generateGif } from '../lib/gif-generator';
 import type { CachedStep, DeviceType } from '../lib/step-cache';
 import { getSteps, setSteps } from '../lib/step-cache';
 import type { GameEntry } from './games';
@@ -131,6 +132,13 @@ for (const game of GAMES) {
 
     const viewport = page.viewportSize()!;
 
+    let spinStarted = false;
+    page.on('console', (msg) => {
+      if (msg.text().includes('gel.spin.start')) {
+        spinStarted = true;
+      }
+    });
+
     async function waitForSpinStart(): Promise<boolean> {
       try {
         await page.waitForEvent('console', {
@@ -145,32 +153,50 @@ for (const game of GAMES) {
       }
     }
 
-    await page.goto(launchUrl);
+    await test.step('Navigate to game', () => {
+      return page.goto(launchUrl);
+    });
 
     const cached = getSteps(game.gameId, deviceType, viewport);
-    let spun = false;
 
     if (cached) {
-      await replaySteps(page, game, cached.steps);
-      spun = await waitForSpinStart();
-    }
-
-    if (!cached && !spun) {
-      const steps = await discoverSteps(page, game, viewport, waitForSpinStart);
-      setSteps(game.gameId, deviceType, viewport, {
-        discoveredAt: new Date().toISOString(),
-        steps,
+      await test.step(`Replay ${cached.steps.length} cached step(s)`, () => {
+        return replaySteps(page, game, cached.steps);
+      });
+    } else {
+      await test.step('Discover steps', async () => {
+        const steps = await discoverSteps(page, game, viewport, waitForSpinStart);
+        setSteps(game.gameId, deviceType, viewport, {
+          discoveredAt: new Date().toISOString(),
+          steps,
+        });
       });
     }
 
-    await page.waitForEvent('console', {
-      predicate: (msg) => msg.text().includes('gel.spin.end'),
-      timeout: SPIN_END_WAIT_MS,
+    await test.step('Spin start: gel.spin.start', async () => {
+      if (!spinStarted) {
+        await page.waitForEvent('console', {
+          predicate: (msg) => {
+            return msg.text().includes('gel.spin.start');
+          },
+          timeout: SPIN_START_TIMEOUT_MS,
+        });
+      }
+    });
+
+    await test.step('Spin end: gel.spin.end', () => {
+      return page.waitForEvent('console', {
+        predicate: (msg) => {
+          return msg.text().includes('gel.spin.end');
+        },
+        timeout: SPIN_END_WAIT_MS,
+      });
     });
 
     await snap(page, `${game.gameId}/final.png`);
 
-    // NOTE: No errors — clean up screenshots (kept on failure for debugging)
-    fs.rmSync(path.resolve('screenshots', game.gameId), { recursive: true, force: true });
+    await test.step('Generate GIF', () => {
+      return generateGif(game.gameId);
+    });
   });
 }

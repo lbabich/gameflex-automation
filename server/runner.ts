@@ -1,8 +1,23 @@
 import { type ChildProcess, spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import { readGames } from './games';
 
 export type RunStatus = 'running' | 'completed' | 'error';
+
+type StepNode = {
+  title?: string;
+  duration?: number;
+  error?: { message?: string };
+  steps?: StepNode[];
+};
+
+export type TestStep = {
+  title: string;
+  duration: number;
+  error?: string;
+};
 
 export type TestResult = {
   title: string;
@@ -11,6 +26,8 @@ export type TestResult = {
   duration: number;
   error?: string;
   stdout: string[];
+  steps?: TestStep[];
+  gifUrl?: string;
 };
 
 export type RunRecord = {
@@ -44,6 +61,7 @@ type TestNode = {
     duration?: number;
     error?: { message?: string };
     stdout?: Array<{ text?: string }>;
+    steps?: StepNode[];
   }>;
 };
 
@@ -103,6 +121,17 @@ function toTestResult(spec: SpecNode, test: TestNode): TestResult | null {
       .filter(Boolean)
       .map((t) => {
         return t.trimEnd();
+      }),
+    steps: (result.steps ?? [])
+      .map((s) => {
+        return {
+          title: s.title ?? '',
+          duration: s.duration ?? 0,
+          error: s.error?.message,
+        };
+      })
+      .filter((s) => {
+        return s.title;
       }),
   };
 }
@@ -223,6 +252,19 @@ function finalizeRecord(record: RunRecord, _code: number | null, raw: string): v
   record.finishedAt = new Date().toISOString();
   record.durationMs = new Date(record.finishedAt).getTime() - new Date(record.startedAt).getTime();
   record.status = 'completed';
+
+  const games = readGames();
+  for (const result of record.results) {
+    const game = games.find((g) => {
+      return result.title === `spin: ${g.name}`;
+    });
+    if (game) {
+      const gifPath = path.resolve('screenshots', game.gameId, 'animated.gif');
+      if (fs.existsSync(gifPath)) {
+        result.gifUrl = `/api/screenshots/${game.gameId}/animated.gif`;
+      }
+    }
+  }
 }
 
 function attachProcessHandlers(child: ChildProcess, record: RunRecord): void {
