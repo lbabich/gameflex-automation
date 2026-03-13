@@ -2,16 +2,16 @@
   "13724": {
     "desktop": {
       "1280x720": {
-        "discoveredAt": "2026-03-13T13:10:39.628Z",
+        "discoveredAt": "2026-03-13T16:33:26.287Z",
         "steps": [
           {
-            "waitMs": 15426,
+            "waitMs": 15268,
             "x": 640,
-            "y": 686,
+            "y": 683,
             "label": "Continue button"
           },
           {
-            "waitMs": 4213,
+            "waitMs": 5352,
             "x": 640,
             "y": 665,
             "label": "Circular spin button with rotating arrows"
@@ -20,58 +20,28 @@
       }
     }
   },
-  "65445": {
+  "37737": {
     "desktop": {
       "1280x720": {
-        "discoveredAt": "2026-03-13T13:54:14.804Z",
+        "discoveredAt": "2026-03-13T16:43:19.486Z",
         "steps": [
           {
-            "waitMs": 14582,
+            "waitMs": 14932,
             "x": 640,
-            "y": 360,
-            "label": "Game title splash screen - Eternal Link Princess' Empire"
+            "y": 594,
+            "label": "Skip intro cutscene button"
           },
           {
-            "waitMs": 7757,
+            "waitMs": 8167,
             "x": 640,
-            "y": 360,
-            "label": "Game title splash screen - click to progress"
+            "y": 594,
+            "label": "Skip intro cutscene button"
           },
           {
-            "waitMs": 8228,
+            "waitMs": 4688,
             "x": 640,
-            "y": 360,
-            "label": "Game title splash screen - Eternal Link Princess' Empire"
-          },
-          {
-            "waitMs": 12479,
-            "x": 640,
-            "y": 360,
-            "label": "Game title splash screen - Eternal Link Princess' Empire loading screen"
-          },
-          {
-            "waitMs": 9109,
-            "x": 640,
-            "y": 360,
-            "label": "Game title splash screen - Eternal Link Princess' Empire loading screen"
-          },
-          {
-            "waitMs": 8759,
-            "x": 640,
-            "y": 360,
-            "label": "Game title splash screen - Eternal Link Princess' Empire"
-          },
-          {
-            "waitMs": 5348,
-            "x": 1171,
-            "y": 375,
-            "label": "Play/triangle icon spin button"
-          },
-          {
-            "waitMs": 15748,
-            "x": 1173,
-            "y": 389,
-            "label": "Circular spin button with rotating arrows"
+            "y": 601,
+            "label": "Circular spin button with rotating arrow icon"
           }
         ]
       }

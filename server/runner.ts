@@ -1,4 +1,4 @@
-import { type ChildProcess, spawn } from 'node:child_process';
+import { type ChildProcess, execSync, spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
@@ -71,7 +71,9 @@ type ReportJson = {
 };
 
 const runs = new Map<string, RunRecord>();
-let activeRunId: string | null = null;
+const activeRunsByGame = new Map<string, string>();
+const activeProcessesByRunId = new Map<string, ChildProcess>();
+const lastRunIdByGame = new Map<string, string>();
 let headless = process.env.PW_HEADLESS !== '0';
 
 export function getHeadless(): boolean {
@@ -278,6 +280,8 @@ function finalizeRecord(record: RunRecord, code: number | null, raw: string): vo
 }
 
 function attachProcessHandlers(child: ChildProcess, record: RunRecord): void {
+  activeProcessesByRunId.set(record.runId, child);
+
   const chunks: Buffer[] = [];
 
   child.stdout?.on('data', (chunk: Buffer) => {
@@ -335,7 +339,11 @@ function attachProcessHandlers(child: ChildProcess, record: RunRecord): void {
       }
     }
 
-    activeRunId = null;
+    activeProcessesByRunId.delete(record.runId);
+
+    for (const id of record.gameIds) {
+      activeRunsByGame.delete(id);
+    }
   });
 
   child.on('error', (err) => {
@@ -345,13 +353,22 @@ function attachProcessHandlers(child: ChildProcess, record: RunRecord): void {
     record.durationMs =
       new Date(record.finishedAt).getTime() - new Date(record.startedAt).getTime();
     record.status = 'error';
-    activeRunId = null;
+
+    activeProcessesByRunId.delete(record.runId);
+
+    for (const id of record.gameIds) {
+      activeRunsByGame.delete(id);
+    }
   });
 }
 
 export function startRun(gameIds: string[]): { runId: string } | { error: string } {
-  if (activeRunId !== null) {
-    return { error: 'A run is already in progress' };
+  const conflicting = gameIds.filter((id) => {
+    return activeRunsByGame.has(id);
+  });
+
+  if (conflicting.length > 0) {
+    return { error: `Game(s) already running: ${conflicting.join(', ')}` };
   }
 
   const names = resolveGameNames(gameIds);
@@ -360,11 +377,34 @@ export function startRun(gameIds: string[]): { runId: string } | { error: string
     return { error: 'No valid game IDs provided' };
   }
 
+  const oldRunIds = new Set(
+    gameIds
+      .map((id) => {
+        return lastRunIdByGame.get(id);
+      })
+      .filter(Boolean) as string[],
+  );
+
+  for (const oldId of oldRunIds) {
+    const old = runs.get(oldId);
+
+    if (old && old.status !== 'running') {
+      runs.delete(oldId);
+    }
+  }
+
   const runId = randomUUID();
   const record = createRunRecord(runId, gameIds);
 
   runs.set(runId, record);
-  activeRunId = runId;
+
+  for (const id of gameIds) {
+    activeRunsByGame.set(id, runId);
+  }
+
+  for (const id of gameIds) {
+    lastRunIdByGame.set(id, runId);
+  }
 
   const cmd = buildPlaywrightCommand(names);
 
@@ -380,4 +420,20 @@ export function startRun(gameIds: string[]): { runId: string } | { error: string
   attachProcessHandlers(child, record);
 
   return { runId };
+}
+
+export function cancelRun(runId: string): boolean {
+  const child = activeProcessesByRunId.get(runId);
+
+  if (!child?.pid) {
+    return false;
+  }
+
+  try {
+    execSync(`taskkill /F /T /PID ${child.pid}`);
+  } catch {
+    child.kill();
+  }
+
+  return true;
 }

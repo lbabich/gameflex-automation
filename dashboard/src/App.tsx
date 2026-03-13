@@ -1,41 +1,85 @@
-import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { AddGameModal } from './components/AddGameModal';
+import { GameActionBar } from './components/GameActionBar';
 import { GameSelector } from './components/GameSelector';
+import { RecentRunsList } from './components/RecentRunsList';
 import { ResultsPanel } from './components/ResultsPanel';
-import { RunButton } from './components/RunButton';
 import { useGames } from './hooks/useGames';
+import { useRecentRuns } from './hooks/useRecentRuns';
 import { useRun } from './hooks/useRun';
 import { useSettings } from './hooks/useSettings';
 
 export default function App() {
-  const [selectedGameIds, setSelectedGameIds] = useState<string[]>([]);
+  const [selectedGameId, setSelectedGameId] = useState<string | null>(null);
   const [addGameOpen, setAddGameOpen] = useState(false);
-  const [activeRunId, setActiveRunId] = useState<string | null>(null);
+  const [viewRunId, setViewRunId] = useState<string | null>(null);
 
+  const queryClient = useQueryClient();
   const { data: games, isLoading: gamesLoading } = useGames();
-  const { data: run, isLoading: runLoading } = useRun(activeRunId);
+  const { data: run, isLoading: runLoading } = useRun(viewRunId);
+  const { data: recentRuns } = useRecentRuns();
   const { headless, toggle, isToggling } = useSettings();
 
-  const isRunning = run?.status === 'running';
+  const prevStatusRef = useRef<string | undefined>(undefined);
 
-  async function handleRun() {
-    if (selectedGameIds.length === 0 || isRunning) return;
-
-    try {
-      const res = await fetch('/api/runs', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ gameIds: selectedGameIds }),
-      });
-
-      if (!res.ok) return;
-
-      const data = (await res.json()) as { runId: string };
-
-      setActiveRunId(data.runId);
-    } catch {
-      // ignore
+  useEffect(() => {
+    if (prevStatusRef.current === 'running' && run?.status !== 'running') {
+      queryClient.invalidateQueries({ queryKey: ['runs'] });
     }
+
+    prevStatusRef.current = run?.status;
+  }, [run?.status, queryClient]);
+
+  const gameStatuses = useMemo(() => {
+    const result: Record<string, { isRunning: boolean; lastStatus: 'passed' | 'failed' | 'error' | null }> = {};
+
+    for (const game of games ?? []) {
+      const gameRuns = (recentRuns ?? []).filter((r) => r.gameIds.includes(game.gameId));
+      const running = gameRuns.some((r) => r.status === 'running');
+      const last = gameRuns.find((r) => r.status !== 'running');
+      let lastStatus: 'passed' | 'failed' | 'error' | null = null;
+
+      if (last) {
+        if (last.status === 'completed') {
+          lastStatus = last.results.some((r) => r.status === 'failed' || r.status === 'timedOut') ? 'failed' : 'passed';
+        } else {
+          lastStatus = 'error';
+        }
+      }
+
+      result[game.gameId] = { isRunning: running, lastStatus };
+    }
+
+    return result;
+  }, [games, recentRuns]);
+
+  const selectedGame = selectedGameId !== null
+    ? (games ?? []).find((g) => g.gameId === selectedGameId) ?? null
+    : null;
+
+  const selectedGameRuns = useMemo(
+    () => (recentRuns ?? []).filter((r) => selectedGameId ? r.gameIds.includes(selectedGameId) : true),
+    [recentRuns, selectedGameId],
+  );
+
+  const selectedGameIsRunning = selectedGameId !== null
+    ? (gameStatuses[selectedGameId]?.isRunning ?? false)
+    : false;
+
+  const selectedGameRunId = selectedGameId !== null
+    ? ((recentRuns ?? []).find((r) => r.gameIds.includes(selectedGameId) && r.status === 'running')?.runId ?? null)
+    : null;
+
+  function handleGameSelect(gameId: string) {
+    setSelectedGameId(gameId);
+    const found = (recentRuns ?? []).find((r) => r.gameIds.includes(gameId));
+    setViewRunId(found?.runId ?? null);
+  }
+
+  function handleRunComplete(runId: string) {
+    setViewRunId(runId);
+    queryClient.invalidateQueries({ queryKey: ['runs'] });
   }
 
   return (
@@ -47,15 +91,11 @@ export default function App() {
         ) : (
           <GameSelector
             games={games ?? []}
-            selected={selectedGameIds}
-            onChange={setSelectedGameIds}
+            selectedGameId={selectedGameId}
+            gameStatuses={gameStatuses}
+            onSelect={handleGameSelect}
           />
         )}
-        <RunButton
-          disabled={selectedGameIds.length === 0 || isRunning}
-          running={isRunning}
-          onClick={handleRun}
-        />
         <div className="mt-auto pt-4 border-t flex flex-col gap-2">
           <button
             type="button"
@@ -79,7 +119,28 @@ export default function App() {
       </aside>
 
       <main className="flex-1 p-6">
-        <ResultsPanel run={run} isLoading={runLoading} />
+        {selectedGame && (
+          <GameActionBar
+            game={selectedGame}
+            isRunning={selectedGameIsRunning}
+            runId={selectedGameRunId}
+            onRunComplete={handleRunComplete}
+          />
+        )}
+        {viewRunId !== null ? (
+          <ResultsPanel run={run} isLoading={runLoading} />
+        ) : (
+          <RecentRunsList
+            runs={selectedGameRuns}
+            games={games ?? []}
+            onSelect={setViewRunId}
+            emptyMessage={
+              selectedGame
+                ? `No runs yet for ${selectedGame.name}. Click Run Test to start.`
+                : 'Select a game to view its runs.'
+            }
+          />
+        )}
       </main>
 
       {addGameOpen && <AddGameModal onClose={() => setAddGameOpen(false)} />}

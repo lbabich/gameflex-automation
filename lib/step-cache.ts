@@ -18,6 +18,7 @@ export type CachedStep = {
 export type GameSteps = {
   discoveredAt: string;
   steps: CachedStep[];
+  partial?: boolean;
 };
 
 type ViewportMap = Record<string, GameSteps>;
@@ -75,6 +76,15 @@ export function clearSteps(gameId: string, deviceType: DeviceType, viewport: Vie
 
   if (cache[gameId]?.[deviceType]?.[vk]) {
     delete cache[gameId][deviceType][vk];
+    saveCache(cache);
+  }
+}
+
+export function clearAllSteps(gameId: string): void {
+  const cache = loadCache();
+
+  if (cache[gameId]) {
+    delete cache[gameId];
     saveCache(cache);
   }
 }

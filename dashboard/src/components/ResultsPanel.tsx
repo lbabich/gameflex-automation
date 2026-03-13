@@ -86,27 +86,6 @@ export function ResultsPanel({ run, isLoading }: Props) {
     return () => clearInterval(id);
   }, [run?.status, run?.startedAt]);
 
-  if (!run && !isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center h-full gap-3 text-gray-400">
-        <svg
-          className="w-12 h-12 text-gray-300"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={1.5}
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z"
-          />
-        </svg>
-        <p className="text-sm">Select games and click Run Tests to start.</p>
-      </div>
-    );
-  }
-
   if (isLoading && !run) {
     return <div className="p-4 text-gray-500 text-sm">Connecting...</div>;
   }

@@ -19,6 +19,16 @@ const DISCOVERY_MAX_ATTEMPTS = 20;
 const SPIN_START_TIMEOUT_MS = 10_000;
 const SPIN_END_WAIT_MS = 15_000;
 
+class DiscoveryError extends Error {
+  constructor(
+    message: string,
+    readonly partialSteps: CachedStep[],
+  ) {
+    super(message);
+    this.name = 'DiscoveryError';
+  }
+}
+
 function deviceTypeFromUrl(url: string): DeviceType {
   try {
     return new URL(url).searchParams.get('channelid') === 'mobile' ? 'mobile' : 'desktop';
@@ -90,8 +100,9 @@ async function discoverSteps(
   }
 
   await snap(page, `${game.gameId}/discovery-failed.png`);
-  throw new Error(
+  throw new DiscoveryError(
     `Could not find spin button for ${game.name} (${game.gameId}) after ${DISCOVERY_MAX_ATTEMPTS} attempts. See screenshots/${game.gameId}/discovery-failed.png`,
+    preSpinSteps,
   );
 }
 
@@ -172,40 +183,67 @@ for (const game of GAMES) {
 
     const cached = getSteps(game.gameId, deviceType, viewport);
 
-    if (cached) {
-      await test.step(`Replay ${cached.steps.length} cached step(s)`, () => {
-        return replaySteps(page, game, cached.steps);
+    let failure: Error | null = null;
+
+    try {
+      if (cached) {
+        await test.step(`Replay ${cached.steps.length} cached step(s)`, () => {
+          return replaySteps(page, game, cached.steps);
+        });
+      } else {
+        await test.step('Discover steps', async () => {
+          try {
+            const steps = await discoverSteps(page, game, viewport, waitForSpinStart);
+
+            setSteps(game.gameId, deviceType, viewport, {
+              discoveredAt: new Date().toISOString(),
+              steps,
+            });
+          } catch (err) {
+            if (err instanceof DiscoveryError && err.partialSteps.length > 0) {
+              setSteps(game.gameId, deviceType, viewport, {
+                discoveredAt: new Date().toISOString(),
+                steps: err.partialSteps,
+                partial: true,
+              });
+            }
+
+            throw err;
+          }
+        });
+      }
+
+      await test.step('Spin start: gel.spin.start', async () => {
+        if (!spinStarted) {
+          await page.waitForEvent('console', {
+            predicate: isSpinStart,
+            timeout: SPIN_START_TIMEOUT_MS,
+          });
+        }
       });
-    } else {
-      await test.step('Discover steps', async () => {
-        const steps = await discoverSteps(page, game, viewport, waitForSpinStart);
-        setSteps(game.gameId, deviceType, viewport, {
-          discoveredAt: new Date().toISOString(),
-          steps,
+
+      await test.step('Spin end: gel.spin.end', () => {
+        return page.waitForEvent('console', {
+          predicate: isSpinEnd,
+          timeout: SPIN_END_WAIT_MS,
         });
       });
+
+      await snap(page, `${game.gameId}/final.png`);
+    } catch (err) {
+      failure = err as Error;
     }
 
-    await test.step('Spin start: gel.spin.start', async () => {
-      if (!spinStarted) {
-        await page.waitForEvent('console', {
-          predicate: isSpinStart,
-          timeout: SPIN_START_TIMEOUT_MS,
-        });
+    await test.step('Generate GIF', async () => {
+      try {
+        await generateGif(game.gameId);
+      } catch (gifErr) {
+        console.warn('[generate-gif] Failed to generate GIF:', gifErr);
       }
     });
 
-    await test.step('Spin end: gel.spin.end', () => {
-      return page.waitForEvent('console', {
-        predicate: isSpinEnd,
-        timeout: SPIN_END_WAIT_MS,
-      });
-    });
-
-    await snap(page, `${game.gameId}/final.png`);
-
-    await test.step('Generate GIF', () => {
-      return generateGif(game.gameId);
-    });
+    if (failure) {
+      throw failure;
+    }
   });
 }

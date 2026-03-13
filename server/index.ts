@@ -1,8 +1,9 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import express from 'express';
+import { clearAllSteps } from '../lib/step-cache';
 import { addGame, getCachedGameIds, readGames } from './games';
-import { getHeadless, getRecentRuns, getRun, setHeadless, startRun } from './runner';
+import { cancelRun, getHeadless, getRecentRuns, getRun, setHeadless, startRun } from './runner';
 import { buildGameUrls } from './url-builder';
 
 const app = express();
@@ -12,7 +13,7 @@ const CORS_ORIGIN = process.env.CORS_ORIGIN ?? 'http://localhost:5173';
 app.use(express.json());
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', CORS_ORIGIN);
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') {
@@ -90,6 +91,14 @@ app.post('/api/games', (req, res) => {
   res.status(201).json({ gameId });
 });
 
+app.delete('/api/games/:gameId/steps', (req, res) => {
+  const { gameId } = req.params;
+
+  clearAllSteps(gameId);
+
+  res.sendStatus(204);
+});
+
 app.post('/api/runs', (req, res) => {
   const { gameIds } = req.body as { gameIds?: string[] };
 
@@ -110,6 +119,17 @@ app.post('/api/runs', (req, res) => {
 
 app.get('/api/runs', (_req, res) => {
   res.json(getRecentRuns(50));
+});
+
+app.delete('/api/runs/:id', (req, res) => {
+  const found = cancelRun(req.params.id);
+
+  if (!found) {
+    res.status(404).json({ error: 'Run not found or not active' });
+    return;
+  }
+
+  res.sendStatus(204);
 });
 
 app.get('/api/runs/:id', (req, res) => {
