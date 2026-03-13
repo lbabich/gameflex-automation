@@ -73,7 +73,7 @@ export async function detectNextClick(
   failedButtons: FailedButton[] = [],
 ): Promise<NextResult> {
   const { width: w, height: h } = viewport;
-  let prompt = `The spin button is not yet accessible. What is the single most important element to click to progress — a dialog button (Continue, OK, Accept), close X, age/terms prompt, or overlay? If the screen appears fully interactive with no blockers (spin button may still be loading), return {"found": false}.\n\nRespond with:\n  {"found": false}\n  {"found": true, "x": <number>, "y": <number>, "label": "<short description>"}\n\nImage dimensions: ${w}x${h}`;
+  let prompt = `The spin button is not yet accessible. What is the single most important element to click to progress — a dialog button (Continue, OK, Accept), close X, age/terms prompt, or overlay? If the screen appears fully interactive with no blockers (spin button may still be loading), return {"found": false}.\n\nDo NOT suggest clicking loading bars, progress indicators, loading spinners, or percentage counters — these are not interactive elements. If the game is still loading, return {"found": false}.\n\nRespond with:\n  {"found": false}\n  {"found": true, "x": <number>, "y": <number>, "label": "<short description>"}\n\nImage dimensions: ${w}x${h}`;
   if (failedButtons.length > 0) {
     const list = failedButtons
       .map((b) => {

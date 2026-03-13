@@ -1,95 +1,47 @@
 {
   "13724": {
-    "desktop": {
-      "1280x720": {
-        "discoveredAt": "2026-03-05T11:16:24.813Z",
-        "steps": [
-          {
-            "waitMs": 8000,
-            "x": 640,
-            "y": 681,
-            "label": "Continue button"
-          },
-          {
-            "waitMs": 1000,
-            "x": 641,
-            "y": 665,
-            "label": "Large circular spin button with refresh/spin arrow icon"
-          }
-        ]
-      }
-    }
+    "desktop": {}
   },
   "30495": {
-    "desktop": {
-      "1280x720": {
-        "discoveredAt": "2026-03-12T14:38:35.742Z",
-        "steps": [
-          {
-            "waitMs": 8000,
-            "x": 944,
-            "y": 355,
-            "label": "BONUS button - choose your feature dialog"
-          },
-          {
-            "waitMs": 1000,
-            "x": 638,
-            "y": 672,
-            "label": "Large circular blue spin/refresh button with arrow icon"
-          }
-        ]
-      }
-    }
+    "desktop": {}
   },
   "37737": {
-    "desktop": {
-      "1280x720": {
-        "discoveredAt": "2026-03-12T16:11:28.793Z",
-        "steps": [
-          {
-            "waitMs": 8000,
-            "x": 640,
-            "y": 594,
-            "label": "Skip intro cutscene"
-          },
-          {
-            "waitMs": 1000,
-            "x": 641,
-            "y": 594,
-            "label": "Skip intro video button"
-          },
-          {
-            "waitMs": 1000,
-            "x": 640,
-            "y": 597,
-            "label": "Circular spin/refresh button with arrow icon"
-          }
-        ]
-      }
-    }
+    "desktop": {}
   },
   "63174": {
     "desktop": {
       "1280x720": {
-        "discoveredAt": "2026-03-13T08:49:16.512Z",
+        "discoveredAt": "2026-03-13T10:28:19.438Z",
         "steps": [
           {
-            "waitMs": 8000,
+            "waitMs": 28258,
             "x": 638,
             "y": 629,
             "label": "Continue button"
           },
           {
-            "waitMs": 1000,
-            "x": 303,
-            "y": 275,
-            "label": "close overlay button (gray circle)"
+            "waitMs": 8307,
+            "x": 640,
+            "y": 320,
+            "label": "BARN title overlay - click to dismiss and proceed"
           },
           {
-            "waitMs": 1000,
+            "waitMs": 5363,
             "x": 1044,
-            "y": 371,
-            "label": "Green circular spin button"
+            "y": 267,
+            "label": "Orange circular play/spin button"
+          },
+          {
+            "waitMs": 17248,
+            "x": 1065,
+            "y": 638,
+            "label": "Back arrow button to return to main game screen"
+          },
+          {
+            "waitMs": 6740,
+            "x": 1044,
+            "y": 372,
+            "label": "Green circular button"
           }
         ]
       }
