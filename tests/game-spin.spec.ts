@@ -6,7 +6,7 @@ import * as dotenv from 'dotenv';
 import type { FailedButton } from '../lib/claude-vision';
 import { detectNextClick, detectSpinButton } from '../lib/claude-vision';
 import type { CachedStep, DeviceType } from '../lib/step-cache';
-import { clearSteps, getSteps, setSteps } from '../lib/step-cache';
+import { getSteps, setSteps } from '../lib/step-cache';
 import type { GameEntry } from './games';
 import { GAMES } from './games';
 
@@ -14,12 +14,9 @@ dotenv.config();
 
 const DISCOVERY_INITIAL_WAIT_MS = 8_000;
 const DISCOVERY_POLL_INTERVAL_MS = 1_000;
-const DISCOVERY_LAUNCH_RETRIES = 3;
-const DISCOVERY_ATTEMPTS_PER_LAUNCH = 10;
+const DISCOVERY_MAX_ATTEMPTS = 20;
 const SPIN_START_TIMEOUT_MS = 10_000;
-const SPIN_START_POLL_INTERVAL_MS = 500;
-const SPIN_END_TIMEOUT_MS = 15_000;
-const SPIN_END_POLL_INTERVAL_MS = 500;
+const SPIN_END_WAIT_MS = 15_000;
 
 function deviceTypeFromUrl(url: string): DeviceType {
   try {
@@ -40,71 +37,57 @@ async function snap(page: Page, name: string): Promise<string> {
 async function discoverSteps(
   page: Page,
   game: GameEntry,
-  launchUrl: string,
   viewport: { width: number; height: number },
-  consoleLog: string[],
-  waitForSpinStart: (fromIndex: number) => Promise<boolean>,
+  waitForSpinStart: () => Promise<boolean>,
 ): Promise<CachedStep[]> {
   const allFailedButtons: FailedButton[] = [];
+  const preSpinSteps: CachedStep[] = [];
 
-  for (let launch = 1; launch <= DISCOVERY_LAUNCH_RETRIES; launch++) {
-    if (launch > 1) {
-      console.log(
-        `[discover] Launch retry ${launch}/${DISCOVERY_LAUNCH_RETRIES}, reloading game...`,
-      );
-      await page.goto(launchUrl);
-    }
+  let lastClickTime = Date.now();
+  await page.waitForTimeout(DISCOVERY_INITIAL_WAIT_MS);
 
-    let lastClickTime = Date.now();
-    await page.waitForTimeout(DISCOVERY_INITIAL_WAIT_MS);
+  for (let attempt = 1; attempt <= DISCOVERY_MAX_ATTEMPTS; attempt++) {
+    const screenshot = await snap(page, `${game.gameId}/discovery-${attempt}.png`);
 
-    const preSpinSteps: CachedStep[] = [];
+    const spinResult = await detectSpinButton(screenshot, viewport, allFailedButtons);
 
-    for (let attempt = 1; attempt <= DISCOVERY_ATTEMPTS_PER_LAUNCH; attempt++) {
-      const screenshot = await snap(page, `${game.gameId}/discovery-${launch}-${attempt}.png`);
+    if (spinResult.found) {
+      const waitMs = Date.now() - lastClickTime;
+      await page.mouse.click(spinResult.x, spinResult.y);
+      lastClickTime = Date.now();
+      const spun = await waitForSpinStart();
 
-      const spinResult = await detectSpinButton(screenshot, viewport, allFailedButtons);
-
-      if (spinResult.found) {
-        const spinStartIdx = consoleLog.length;
-        const waitMs = Date.now() - lastClickTime;
-        await page.mouse.click(spinResult.x, spinResult.y);
-        lastClickTime = Date.now();
-        const spun = await waitForSpinStart(spinStartIdx);
-
-        if (spun) {
-          preSpinSteps.push({ waitMs, x: spinResult.x, y: spinResult.y, label: spinResult.label });
-          return preSpinSteps;
-        }
-
-        console.log(
-          `[discover] False positive: "${spinResult.label}" at ${spinResult.x},${spinResult.y} — recording as navigation step`,
-        );
-
+      if (spun) {
         preSpinSteps.push({ waitMs, x: spinResult.x, y: spinResult.y, label: spinResult.label });
-        allFailedButtons.push({ x: spinResult.x, y: spinResult.y, label: spinResult.label });
-        await page.waitForTimeout(DISCOVERY_POLL_INTERVAL_MS);
-        continue;
+        return preSpinSteps;
       }
 
-      const nextResult = await detectNextClick(screenshot, viewport, allFailedButtons);
+      console.log(
+        `[discover] False positive: "${spinResult.label}" at ${spinResult.x},${spinResult.y} — recording as navigation step`,
+      );
 
-      if (nextResult.found) {
-        const waitMs = Date.now() - lastClickTime;
-        preSpinSteps.push({ waitMs, x: nextResult.x, y: nextResult.y, label: nextResult.label });
-        await page.mouse.click(nextResult.x, nextResult.y);
-        lastClickTime = Date.now();
-      }
-
+      preSpinSteps.push({ waitMs, x: spinResult.x, y: spinResult.y, label: spinResult.label });
+      // Reset failed buttons — this click navigated to a new screen, so old positions are irrelevant
+      allFailedButtons.length = 0;
       await page.waitForTimeout(DISCOVERY_POLL_INTERVAL_MS);
+      continue;
     }
 
-    console.log(`[discover] Launch ${launch}/${DISCOVERY_LAUNCH_RETRIES} exhausted attempts`);
+    const nextResult = await detectNextClick(screenshot, viewport, allFailedButtons);
+
+    if (nextResult.found) {
+      const waitMs = Date.now() - lastClickTime;
+      preSpinSteps.push({ waitMs, x: nextResult.x, y: nextResult.y, label: nextResult.label });
+      await page.mouse.click(nextResult.x, nextResult.y);
+      lastClickTime = Date.now();
+    }
+
+    await page.waitForTimeout(DISCOVERY_POLL_INTERVAL_MS);
   }
 
   await snap(page, `${game.gameId}/discovery-failed.png`);
   throw new Error(
-    `Could not find spin button for ${game.name} (${game.gameId}) after ${DISCOVERY_LAUNCH_RETRIES} launches × ${DISCOVERY_ATTEMPTS_PER_LAUNCH} attempts. See screenshots/${game.gameId}/discovery-failed.png`,
+    `Could not find spin button for ${game.name} (${game.gameId}) after ${DISCOVERY_MAX_ATTEMPTS} attempts. See screenshots/${game.gameId}/discovery-failed.png`,
   );
 }
 
@@ -112,7 +95,9 @@ async function injectClickMarker(page: Page, x: number, y: number): Promise<void
   await page.evaluate(
     ({ x, y }) => {
       const existing = document.getElementById('__click_marker__');
-      if (existing) existing.remove();
+      if (existing) {
+        existing.remove();
+      }
       const marker = document.createElement('div');
       marker.id = '__click_marker__';
       marker.style.cssText = `position:fixed;left:${x - 15}px;top:${y - 15}px;width:30px;height:30px;border-radius:50%;background:rgba(255,0,0,0.6);border:3px solid red;z-index:2147483647;pointer-events:none;`;
@@ -146,83 +131,42 @@ for (const game of GAMES) {
 
     const viewport = page.viewportSize()!;
 
-    const consoleLog: string[] = [];
-
-    page.on('console', (msg) => {
-      const text = msg.text();
-      consoleLog.push(text);
-    });
-
-    async function waitForSpinStart(fromIndex: number): Promise<boolean> {
-      const deadline = Date.now() + SPIN_START_TIMEOUT_MS;
-      while (Date.now() < deadline) {
-        if (
-          consoleLog.slice(fromIndex).some((l) => {
-            return l.includes('gel.spin.start');
-          })
-        ) {
-          return true;
-        }
-        await page.waitForTimeout(SPIN_START_POLL_INTERVAL_MS);
+    async function waitForSpinStart(): Promise<boolean> {
+      try {
+        await page.waitForEvent('console', {
+          predicate: (msg) => {
+            return msg.text().includes('gel.spin.start');
+          },
+          timeout: SPIN_START_TIMEOUT_MS,
+        });
+        return true;
+      } catch {
+        return false;
       }
-      return false;
-    }
-
-    async function waitForSpinEnd(fromIndex: number): Promise<boolean> {
-      const deadline = Date.now() + SPIN_END_TIMEOUT_MS;
-      while (Date.now() < deadline) {
-        if (
-          consoleLog.slice(fromIndex).some((l) => {
-            return l.includes('gel.spin.end');
-          })
-        ) {
-          return true;
-        }
-        await page.waitForTimeout(SPIN_END_POLL_INTERVAL_MS);
-      }
-      return false;
     }
 
     await page.goto(launchUrl);
 
     const cached = getSteps(game.gameId, deviceType, viewport);
     let spun = false;
-    let spinIdx = 0;
 
     if (cached) {
-      spinIdx = consoleLog.length;
       await replaySteps(page, game, cached.steps);
-      spun = await waitForSpinStart(spinIdx);
-
-      // if (!spun) {
-      //   console.log(
-      //     `[test] Cached steps for ${game.name} did not produce gel.spin.start — clearing cache and re-discovering`,
-      //   );
-      //   clearSteps(game.gameId, deviceType, viewport);
-      //   await page.goto(launchUrl);
-      // }
+      spun = await waitForSpinStart();
     }
 
     if (!cached && !spun) {
-      spinIdx = consoleLog.length;
-      const steps = await discoverSteps(
-        page,
-        game,
-        launchUrl,
-        viewport,
-        consoleLog,
-        waitForSpinStart,
-      );
+      const steps = await discoverSteps(page, game, viewport, waitForSpinStart);
       setSteps(game.gameId, deviceType, viewport, {
         discoveredAt: new Date().toISOString(),
         steps,
       });
     }
 
-    const spinEnded = await waitForSpinEnd(spinIdx);
-    if (!spinEnded) {
-      console.log(`[test] gel.spin.end not received for ${game.name} within timeout`);
-    }
+    await page.waitForEvent('console', {
+      predicate: (msg) => msg.text().includes('gel.spin.end'),
+      timeout: SPIN_END_WAIT_MS,
+    });
 
     await snap(page, `${game.gameId}/final.png`);
 

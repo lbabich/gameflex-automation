@@ -54,7 +54,7 @@ export async function detectSpinButton(
   failedButtons: FailedButton[] = [],
 ): Promise<SpinResult> {
   const { width: w, height: h } = viewport;
-  let prompt = `Is the main spin button visible and unobstructed in this screenshot? It is typically a large circular button labeled SPIN or with a play/arrow icon, not greyed out or hidden behind a modal.\n\nRespond with exactly one of:\n  {"found": false}\n  {"found": true, "x": <number>, "y": <number>, "label": "<short description>"}\n\nImage dimensions: ${w}x${h}`;
+  let prompt = `Is the main spin button visible and unobstructed in this screenshot? It is typically a large circular button — most commonly with clockwise-rotating arrow or arrows around its edge (like a circular refresh/rotate icon), or a play/triangle icon in the centre, or labeled SPIN. It must be fully visible.\n\nRespond with exactly one of:\n  {"found": false}\n  {"found": true, "x": <number>, "y": <number>, "label": "<short description>"}\n\nImage dimensions: ${w}x${h}`;
   if (failedButtons.length > 0) {
     const list = failedButtons
       .map((b) => {
@@ -73,7 +73,7 @@ export async function detectNextClick(
   failedButtons: FailedButton[] = [],
 ): Promise<NextResult> {
   const { width: w, height: h } = viewport;
-  let prompt = `The spin button is not yet accessible. What is the single most important element to click to progress — a dialog button (Continue, OK, Accept), close X, age/terms prompt, or overlay? If the screen appears fully interactive with no blockers (spin button may still be loading), return {"found": false}.\n\nDo NOT suggest clicking loading bars, progress indicators, loading spinners, or percentage counters — these are not interactive elements. If the game is still loading, return {"found": false}.\n\nRespond with:\n  {"found": false}\n  {"found": true, "x": <number>, "y": <number>, "label": "<short description>"}\n\nImage dimensions: ${w}x${h}`;
+  let prompt = `The spin button is not yet accessible. What is the single most important element to click to progress — a dialog button (Continue, OK, Accept, Yes, No), close X, age/terms prompt, overlay, or promo/bonus intro screen? Also includes full-screen brand logo or game-title splash screens with no spin UI visible — if you see one, return the centre of the screen as the click target. If the screen appears fully interactive with no blockers and no splash (spin button may still be loading), return {"found": false}.\n\nDo NOT suggest clicking loading bars, progress indicators, loading spinners, or percentage counters — these are not interactive elements. If the game is still loading (spinner visible, assets loading), return {"found": false}.\n\nRespond with:\n  {"found": false}\n  {"found": true, "x": <number>, "y": <number>, "label": "<short description>"}\n\nImage dimensions: ${w}x${h}`;
   if (failedButtons.length > 0) {
     const list = failedButtons
       .map((b) => {

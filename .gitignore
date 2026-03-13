@@ -5,6 +5,6 @@ screenshots/
 .env
 .idea
 .playwright-mcp
-biome-out.txt
+*.txt
 dashboard/node_modules/
 dashboard/dist/

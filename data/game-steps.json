@@ -46,5 +46,56 @@
         ]
       }
     }
+  },
+  "65445": {
+    "desktop": {
+      "1280x720": {
+        "discoveredAt": "2026-03-13T12:51:20.353Z",
+        "steps": [
+          {
+            "waitMs": 22472,
+            "x": 640,
+            "y": 360,
+            "label": "Game title splash screen - Eternal Link Princess' Empire"
+          },
+          {
+            "waitMs": 9853,
+            "x": 640,
+            "y": 360,
+            "label": "Game title splash screen - Eternal Link Princess' Empire"
+          },
+          {
+            "waitMs": 9338,
+            "x": 640,
+            "y": 360,
+            "label": "Game title splash screen - Eternal Link Princess' Empire"
+          },
+          {
+            "waitMs": 15867,
+            "x": 640,
+            "y": 360,
+            "label": "Game title splash screen - Eternal Link Princess' Empire"
+          },
+          {
+            "waitMs": 11369,
+            "x": 640,
+            "y": 360,
+            "label": "Game title splash screen - Eternal Link Princess' Empire"
+          },
+          {
+            "waitMs": 4734,
+            "x": 1171,
+            "y": 374,
+            "label": "Play/triangle spin button"
+          },
+          {
+            "waitMs": 14704,
+            "x": 1173,
+            "y": 389,
+            "label": "Circular spin button with rotating arrow icon"
+          }
+        ]
+      }
+    }
   }
 }
