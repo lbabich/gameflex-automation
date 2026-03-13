@@ -41,43 +41,37 @@
       }
     }
   },
-  "63174": {
+  "37737": {
     "desktop": {
       "1280x720": {
-        "discoveredAt": "2026-03-12T15:53:20.161Z",
+        "discoveredAt": "2026-03-12T16:11:28.793Z",
         "steps": [
           {
             "waitMs": 8000,
-            "x": 638,
-            "y": 629,
-            "label": "Continue button"
+            "x": 640,
+            "y": 594,
+            "label": "Skip intro cutscene"
           },
           {
             "waitMs": 1000,
-            "x": 314,
-            "y": 275,
-            "label": "circular button/overlay blocker"
+            "x": 641,
+            "y": 594,
+            "label": "Skip intro video button"
           },
           {
             "waitMs": 1000,
-            "x": 1065,
-            "y": 639,
-            "label": "Back arrow button to return to main game screen"
-          },
-          {
-            "waitMs": 1000,
-            "x": 1044,
-            "y": 365,
-            "label": "Green circular spin/refresh button"
+            "x": 640,
+            "y": 597,
+            "label": "Circular spin/refresh button with arrow icon"
           }
         ]
       }
     }
   },
-  "63175": {
+  "63174": {
     "desktop": {
       "1280x720": {
-        "discoveredAt": "2026-03-12T15:51:06.667Z",
+        "discoveredAt": "2026-03-13T08:49:16.512Z",
         "steps": [
           {
             "waitMs": 8000,
@@ -87,21 +81,15 @@
           },
           {
             "waitMs": 1000,
-            "x": 640,
-            "y": 290,
-            "label": "BARN title screen overlay - click to continue"
-          },
-          {
-            "waitMs": 1000,
-            "x": 1065,
-            "y": 638,
-            "label": "Back arrow button to return to main game screen"
+            "x": 303,
+            "y": 275,
+            "label": "close overlay button (gray circle)"
           },
           {
             "waitMs": 1000,
             "x": 1044,
             "y": 371,
-            "label": "Green circular button"
+            "label": "Green circular spin button"
           }
         ]
       }

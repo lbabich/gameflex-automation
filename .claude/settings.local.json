@@ -32,7 +32,14 @@
       "WebFetch(domain:www.browserstack.com)",
       "Bash(curl:*)",
       "WebFetch(domain:localhost)",
-      "WebFetch(domain:biomejs.dev)"
+      "WebFetch(domain:biomejs.dev)",
+      "Bash(test:*)",
+      "Bash(\"C:/dev/gameflex/gameflex-automation/ss-list.txt\":*)",
+      "Bash(\"C:/dev/gameflex/gameflex-automation/ss-root.txt\":*)",
+      "Bash(\"C:/dev/gameflex/gameflex-automation/ss-find.txt\":*)",
+      "Bash(\"C:/dev/gameflex/gameflex-automation/test-output2-snap.txt\":*)",
+      "Bash(\"C:/dev/gameflex/gameflex-automation/ss-list2.txt\":*)",
+      "Bash(taskkill:*)"
     ]
   }
 }

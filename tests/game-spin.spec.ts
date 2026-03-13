@@ -16,6 +16,10 @@ const DISCOVERY_INITIAL_WAIT_MS = 8_000;
 const DISCOVERY_POLL_INTERVAL_MS = 1_000;
 const DISCOVERY_LAUNCH_RETRIES = 3;
 const DISCOVERY_ATTEMPTS_PER_LAUNCH = 10;
+const REPLAY_STEP_MIN_WAIT_MS = 6_000;
+// During discovery the first click fires after waitMs + ~5s API call time.
+// Replay has no API delay so we add a buffer to the first step only.
+const REPLAY_INITIAL_STEP_BUFFER_MS = 7_000;
 const SPIN_START_TIMEOUT_MS = 10_000;
 const SPIN_START_POLL_INTERVAL_MS = 500;
 const SPIN_END_TIMEOUT_MS = 15_000;
@@ -68,15 +72,17 @@ async function discoverSteps(
         const spinStartIdx = consoleLog.length;
         await page.mouse.click(spinResult.x, spinResult.y);
         const spun = await waitForSpinStart(spinStartIdx);
+
         if (spun) {
-          const waitMs =
-            preSpinSteps.length === 0 ? DISCOVERY_INITIAL_WAIT_MS : DISCOVERY_POLL_INTERVAL_MS;
+          const waitMs = preSpinSteps.length === 0 ? DISCOVERY_INITIAL_WAIT_MS : DISCOVERY_POLL_INTERVAL_MS;
           preSpinSteps.push({ waitMs, x: spinResult.x, y: spinResult.y, label: spinResult.label });
           return preSpinSteps;
         }
+
         console.log(
           `[discover] False positive: "${spinResult.label}" at ${spinResult.x},${spinResult.y} — no gel.spin.start`,
         );
+
         allFailedButtons.push({ x: spinResult.x, y: spinResult.y, label: spinResult.label });
         await page.waitForTimeout(DISCOVERY_POLL_INTERVAL_MS);
         continue;
@@ -105,7 +111,8 @@ async function discoverSteps(
 
 async function replaySteps(page: Page, game: GameEntry, steps: CachedStep[]): Promise<void> {
   for (let i = 0; i < steps.length; i++) {
-    await page.waitForTimeout(steps[i].waitMs);
+    const buffer = i === 0 ? REPLAY_INITIAL_STEP_BUFFER_MS : 0;
+    await page.waitForTimeout(Math.max(steps[i].waitMs + buffer, REPLAY_STEP_MIN_WAIT_MS));
     await snap(page, `${game.gameId}/step-${i + 1}.png`);
     console.log(`Clicking "${steps[i].label}" at ${steps[i].x},${steps[i].y}`);
     await page.mouse.click(steps[i].x, steps[i].y);
@@ -118,14 +125,13 @@ for (const game of GAMES) {
     const launchUrl = isProjectMobile ? (game.mobileUrl ?? game.url) : game.url;
     const deviceType = deviceTypeFromUrl(launchUrl);
     const projectDeviceType: DeviceType = isProjectMobile ? 'mobile' : 'desktop';
-    test.skip(
-      deviceType !== projectDeviceType,
-      `URL channelid=${deviceType}; skipping ${testInfo.project.name}`,
-    );
+
+    test.skip(deviceType !== projectDeviceType, `URL channelid=${deviceType}; skipping ${testInfo.project.name}`);
 
     const viewport = page.viewportSize()!;
 
     const consoleLog: string[] = [];
+
     page.on('console', (msg) => {
       const text = msg.text();
       consoleLog.push(text);
