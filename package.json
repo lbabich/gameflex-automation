@@ -6,7 +6,7 @@
     "lint": "biome lint --write .",
     "check": "biome check --write .",
     "server": "tsx src/server/index.ts",
-    "dev": "concurrently \"npm run server\" \"vite --root src/dashboard\""
+    "dev": "concurrently \"npm run server\" \"vite src/dashboard\""
   },
   "devDependencies": {
     "@anthropic-ai/sdk": "^0.78.0",

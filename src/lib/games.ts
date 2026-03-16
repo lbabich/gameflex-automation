@@ -8,7 +8,7 @@ export type GameEntry = {
   mobileUrl?: string;
 };
 
-const GAMES_PATH = path.resolve('data', 'games.json');
+const GAMES_PATH = path.resolve('src', 'data', 'games.json');
 
 export function readGames(): GameEntry[] {
   try {

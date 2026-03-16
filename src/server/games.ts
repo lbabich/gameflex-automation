@@ -7,8 +7,8 @@ export type { GameEntry } from '../lib/games';
 
 export { readGames };
 
-const GAMES_PATH = path.resolve('data', 'games.json');
-const STEPS_PATH = path.resolve('data', 'game-steps.json');
+const GAMES_PATH = path.resolve('src', 'data', 'games.json');
+const STEPS_PATH = path.resolve('src', 'data', 'game-steps.json');
 
 export function addGame(entry: GameEntry): void {
   const games = readGames();
