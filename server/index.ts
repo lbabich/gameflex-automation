@@ -1,8 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import express from 'express';
-import * as stepCache from '../lib/step-cache';
-import { addGame, getCachedGameIds, readGames } from './games';
+import { addGame, clearGameSteps, getCachedGameIds, readGames } from './games';
 import { cancelRun, getHeadless, getRecentRuns, getRun, setHeadless, startRun } from './runner';
 import { buildGameUrls } from './url-builder';
 
@@ -94,7 +93,7 @@ app.post('/api/games', (req, res) => {
 app.delete('/api/games/:gameId/steps', (req, res) => {
   const { gameId } = req.params;
 
-  stepCache.clearAllSteps(gameId);
+  clearGameSteps(gameId);
 
   res.sendStatus(204);
 });

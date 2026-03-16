@@ -1,6 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { readGames } from '../lib/games';
+import * as stepCache from '../lib/step-cache';
 
 export type { GameEntry } from '../lib/games';
 
@@ -32,4 +33,8 @@ export function getCachedGameIds(): Set<string> {
   } catch {
     return new Set();
   }
+}
+
+export function clearGameSteps(gameId: string) {
+  stepCache.clearAllSteps(gameId);
 }
