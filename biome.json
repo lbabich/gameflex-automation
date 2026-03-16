@@ -37,6 +37,6 @@
     }
   },
   "files": {
-    "includes": ["**", "!node_modules", "!dist", "!screenshots", "!data", "!dashboard"]
+    "includes": ["**", "!node_modules", "!dist", "!screenshots", "!data", "!src/dashboard"]
   }
 }

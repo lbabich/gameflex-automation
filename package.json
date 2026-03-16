@@ -6,7 +6,7 @@
     "lint": "biome lint --write .",
     "check": "biome check --write .",
     "server": "tsx src/server/index.ts",
-    "dev": "concurrently \"npm run server\" \"npm run dev --prefix dashboard\""
+    "dev": "concurrently \"npm run server\" \"npm run dev --prefix src/dashboard\""
   },
   "devDependencies": {
     "@anthropic-ai/sdk": "^0.78.0",

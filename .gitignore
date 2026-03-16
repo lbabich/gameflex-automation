@@ -6,5 +6,5 @@ screenshots/
 .idea
 .playwright-mcp
 *.txt
-dashboard/node_modules/
-dashboard/dist/
+src/dashboard/node_modules/
+src/dashboard/dist/
