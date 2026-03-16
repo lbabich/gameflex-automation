@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import Anthropic from '@anthropic-ai/sdk';
 import * as dotenv from 'dotenv';
-import type { Viewport } from './step-cache';
+import type { Viewport } from './types';
 
 dotenv.config();
 

@@ -1,25 +1,8 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import type { CachedStep, DeviceType, GameSteps, Viewport } from './types';
 
-export type DeviceType = 'desktop' | 'mobile';
-
-export type Viewport = {
-  width: number;
-  height: number;
-};
-
-export type CachedStep = {
-  waitMs: number;
-  x: number;
-  y: number;
-  label: string;
-};
-
-export type GameSteps = {
-  discoveredAt: string;
-  steps: CachedStep[];
-  partial?: boolean;
-};
+export type { CachedStep, DeviceType, GameSteps, Viewport };
 
 type ViewportMap = Record<string, GameSteps>;
 type DeviceMap = Record<string, ViewportMap>;

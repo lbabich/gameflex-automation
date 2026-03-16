@@ -1,7 +1,7 @@
 import type { Page } from '@playwright/test';
 import * as claudeVision from './claude-vision';
 import * as screenshot from './screenshot';
-import type * as stepCache from './step-cache';
+import type { CachedStep, Viewport } from './types';
 
 const DISCOVERY_INITIAL_WAIT_MS = 8_000;
 const DISCOVERY_POLL_INTERVAL_MS = 1_000;
@@ -12,7 +12,7 @@ export type Game = { gameId: string; name: string };
 export class DiscoveryError extends Error {
   constructor(
     message: string,
-    readonly partialSteps: stepCache.CachedStep[],
+    readonly partialSteps: CachedStep[],
   ) {
     super(message);
     this.name = 'DiscoveryError';
@@ -32,11 +32,11 @@ export class DiscoveryError extends Error {
 export async function discoverSteps(
   page: Page,
   game: Game,
-  viewport: stepCache.Viewport,
+  viewport: Viewport,
   waitForSpinStart: () => Promise<boolean>,
 ) {
   const allFailedButtons: claudeVision.FailedButton[] = [];
-  const preSpinSteps: stepCache.CachedStep[] = [];
+  const preSpinSteps: CachedStep[] = [];
 
   let lastClickTime = Date.now();
 
