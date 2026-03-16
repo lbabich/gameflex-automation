@@ -63,7 +63,7 @@ export async function detectSpinButton(
   failedButtons: FailedButton[] = [],
 ) {
   const { width: w, height: h } = viewport;
-  let prompt = `Is the main spin button visible and unobstructed in this screenshot? It is typically a large circular button — most commonly with clockwise-rotating arrow or arrows around its edge (like a circular refresh/rotate icon), or a play/triangle icon in the centre, or labeled SPIN. It must be fully visible.\n\nRespond with exactly one of:\n  {"found": false}\n  {"found": true, "x": <number>, "y": <number>, "label": "<short description>"}\n\nImage dimensions: ${w}x${h}`;
+  let prompt = `Is the main spin button visible and unobstructed in this screenshot? It is typically the most prominent interactive element on screen — generally the largest button visible. It is most commonly a large circular button with clockwise-rotating arrow or arrows around its edge (like a circular refresh/rotate icon), or a play/triangle icon in the centre, or labeled SPIN. It must be fully visible.\n\nRespond with exactly one of:\n  {"found": false}\n  {"found": true, "x": <number>, "y": <number>, "label": "<short description>"}\n\nImage dimensions: ${w}x${h}`;
 
   if (failedButtons.length > 0) {
     const list = failedButtons

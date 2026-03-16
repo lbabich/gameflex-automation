@@ -20,6 +20,27 @@
       }
     }
   },
+  "30495": {
+    "desktop": {
+      "1280x720": {
+        "discoveredAt": "2026-03-16T11:55:17.903Z",
+        "steps": [
+          {
+            "waitMs": 15985,
+            "x": 944,
+            "y": 360,
+            "label": "Choose Your Feature bonus selection overlay"
+          },
+          {
+            "waitMs": 4713,
+            "x": 638,
+            "y": 672,
+            "label": "Circular spin button with clockwise rotating arrow"
+          }
+        ]
+      }
+    }
+  },
   "37737": {
     "desktop": {
       "1280x720": {
