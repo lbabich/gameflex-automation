@@ -1,28 +1,27 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-export type NewGame = {
-  desktopGameId: string;
+export type GameUpdates = {
+  id: string;
+  name?: string;
+  desktopGameId?: string;
   mobileGameId?: string;
-  name: string;
-  channel: 'desktop' | 'mobile' | 'both';
-  mode: 'demo' | 'real';
 };
 
-export function useAddGame() {
+export function useUpdateGame() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (game: NewGame) => {
-      const res = await fetch('/api/games', {
-        method: 'POST',
+    mutationFn: async ({ id, ...updates }: GameUpdates) => {
+      const res = await fetch(`/api/games/${id}`, {
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(game),
+        body: JSON.stringify(updates),
       });
+
       if (!res.ok) {
         const body = (await res.json()) as { error?: string };
-        throw new Error(body.error ?? 'Failed to add game');
+        throw new Error(body.error ?? 'Failed to update game');
       }
-      return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['games'] });

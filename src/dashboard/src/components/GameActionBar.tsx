@@ -18,7 +18,7 @@ export function GameActionBar({ game, isRunning, runId, onRunComplete }: Props) 
       const res = await fetch('/api/runs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ gameIds: [game.gameId] }),
+        body: JSON.stringify({ gameIds: [game.id] }),
       });
 
       if (!res.ok) return;
@@ -42,7 +42,7 @@ export function GameActionBar({ game, isRunning, runId, onRunComplete }: Props) 
   }
 
   function handleReset() {
-    clearSteps.mutate(game.gameId);
+    clearSteps.mutate(game.id);
   }
 
   return (

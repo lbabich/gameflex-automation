@@ -3,7 +3,7 @@ import { readGames } from './games';
 export type Channel = 'desktop' | 'mobile' | 'both';
 export type PlayMode = 'demo' | 'real';
 
-function buildUrl(
+export function buildSingleUrl(
   template: string,
   gameId: string,
   channel: 'desktop' | 'mobile',
@@ -29,7 +29,8 @@ function buildUrl(
 }
 
 export function buildGameUrls(
-  gameId: string,
+  desktopGameId: string,
+  mobileGameId: string | undefined,
   channel: Channel,
   mode: PlayMode,
 ): { url: string; mobileUrl?: string } {
@@ -41,15 +42,23 @@ export function buildGameUrls(
   }
 
   if (channel === 'desktop') {
-    return { url: buildUrl(template, gameId, 'desktop', mode) };
+    return { url: buildSingleUrl(template, desktopGameId, 'desktop', mode) };
   }
 
   if (channel === 'mobile') {
-    return { url: buildUrl(template, gameId, 'mobile', mode) };
+    if (!mobileGameId) {
+      throw new Error('mobileGameId is required when channel is "mobile"');
+    }
+
+    return { url: buildSingleUrl(template, mobileGameId, 'mobile', mode) };
+  }
+
+  if (!mobileGameId) {
+    throw new Error('mobileGameId is required when channel is "both"');
   }
 
   return {
-    url: buildUrl(template, gameId, 'desktop', mode),
-    mobileUrl: buildUrl(template, gameId, 'mobile', mode),
+    url: buildSingleUrl(template, desktopGameId, 'desktop', mode),
+    mobileUrl: buildSingleUrl(template, mobileGameId, 'mobile', mode),
   };
 }

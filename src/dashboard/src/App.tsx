@@ -1,6 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AddGameModal } from './components/AddGameModal';
+import { EditGameModal } from './components/EditGameModal';
 import { GameActionBar } from './components/GameActionBar';
 import { GameSelector } from './components/GameSelector';
 import { RecentRunsList } from './components/RecentRunsList';
@@ -9,10 +10,12 @@ import { useGames } from './hooks/useGames';
 import { useRecentRuns } from './hooks/useRecentRuns';
 import { useRun } from './hooks/useRun';
 import { useSettings } from './hooks/useSettings';
+import type { GameEntry } from './types';
 
 export default function App() {
   const [selectedGameId, setSelectedGameId] = useState<string | null>(null);
   const [addGameOpen, setAddGameOpen] = useState(false);
+  const [editGame, setEditGame] = useState<GameEntry | null>(null);
   const [viewRunId, setViewRunId] = useState<string | null>(null);
 
   const queryClient = useQueryClient();
@@ -35,7 +38,7 @@ export default function App() {
     const result: Record<string, { isRunning: boolean; lastStatus: 'passed' | 'failed' | 'error' | null }> = {};
 
     for (const game of games ?? []) {
-      const gameRuns = (recentRuns ?? []).filter((r) => r.gameIds.includes(game.gameId));
+      const gameRuns = (recentRuns ?? []).filter((r) => r.gameIds.includes(game.id));
       const running = gameRuns.some((r) => r.status === 'running');
       const last = gameRuns.find((r) => r.status !== 'running');
       let lastStatus: 'passed' | 'failed' | 'error' | null = null;
@@ -48,14 +51,14 @@ export default function App() {
         }
       }
 
-      result[game.gameId] = { isRunning: running, lastStatus };
+      result[game.id] = { isRunning: running, lastStatus };
     }
 
     return result;
   }, [games, recentRuns]);
 
   const selectedGame = selectedGameId !== null
-    ? (games ?? []).find((g) => g.gameId === selectedGameId) ?? null
+    ? (games ?? []).find((g) => g.id === selectedGameId) ?? null
     : null;
 
   const selectedGameRuns = useMemo(
@@ -71,9 +74,9 @@ export default function App() {
     ? ((recentRuns ?? []).find((r) => r.gameIds.includes(selectedGameId) && r.status === 'running')?.runId ?? null)
     : null;
 
-  function handleGameSelect(gameId: string) {
-    setSelectedGameId(gameId);
-    const found = (recentRuns ?? []).find((r) => r.gameIds.includes(gameId));
+  function handleGameSelect(id: string) {
+    setSelectedGameId(id);
+    const found = (recentRuns ?? []).find((r) => r.gameIds.includes(id));
     setViewRunId(found?.runId ?? null);
   }
 
@@ -94,6 +97,7 @@ export default function App() {
             selectedGameId={selectedGameId}
             gameStatuses={gameStatuses}
             onSelect={handleGameSelect}
+            onEdit={setEditGame}
           />
         )}
         <div className="mt-auto pt-4 border-t flex flex-col gap-2">
@@ -144,6 +148,7 @@ export default function App() {
       </main>
 
       {addGameOpen && <AddGameModal onClose={() => setAddGameOpen(false)} />}
+      {editGame && <EditGameModal game={editGame} onClose={() => setEditGame(null)} />}
     </div>
   );
 }

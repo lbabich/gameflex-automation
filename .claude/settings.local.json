@@ -41,7 +41,8 @@
       "Bash(\"C:/dev/gameflex/gameflex-automation/ss-list2.txt\":*)",
       "Bash(taskkill:*)",
       "Bash(find:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(cd:*)"
     ]
   }
 }

@@ -6,7 +6,7 @@ type Props = {
 };
 
 const DEFAULTS: NewGame = {
-  gameId: '',
+  desktopGameId: '',
   name: '',
   channel: 'desktop',
   mode: 'demo',
@@ -26,7 +26,7 @@ export function AddGameModal({ onClose }: Props) {
     setError(null);
 
     mutate(
-      { ...fields, gameId: fields.gameId.trim(), name: fields.name.trim() },
+      { ...fields, desktopGameId: fields.desktopGameId.trim(), name: fields.name.trim() },
       {
         onSuccess: () => onClose(),
         onError: (err) => setError((err as Error).message),
@@ -44,12 +44,25 @@ export function AddGameModal({ onClose }: Props) {
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
 
           <label className="flex flex-col gap-1">
-            <span className="text-sm font-medium text-gray-700">Game ID</span>
+            <span className="text-sm font-medium text-gray-700">Desktop Game ID</span>
             <input
               type="text"
-              value={fields.gameId}
-              onChange={(e) => set('gameId', e.target.value)}
+              value={fields.desktopGameId}
+              onChange={(e) => set('desktopGameId', e.target.value)}
               required
+              placeholder="e.g. 13724"
+              className="border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </label>
+
+          <label className="flex flex-col gap-1">
+            <span className="text-sm font-medium text-gray-700">
+              Mobile Game ID <span className="text-gray-400 font-normal">(optional)</span>
+            </span>
+            <input
+              type="text"
+              value={fields.mobileGameId ?? ''}
+              onChange={(e) => set('mobileGameId', e.target.value || undefined)}
               placeholder="e.g. 13724"
               className="border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />

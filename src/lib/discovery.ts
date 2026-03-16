@@ -7,7 +7,7 @@ const DISCOVERY_INITIAL_WAIT_MS = 8_000;
 const DISCOVERY_POLL_INTERVAL_MS = 1_000;
 const DISCOVERY_MAX_ATTEMPTS = 20;
 
-export type Game = { gameId: string; name: string };
+export type Game = { id: string; desktopGameId: string; name: string };
 
 export class DiscoveryError extends Error {
   constructor(
@@ -43,7 +43,7 @@ export async function discoverSteps(
   await page.waitForTimeout(DISCOVERY_INITIAL_WAIT_MS);
 
   for (let attempt = 1; attempt <= DISCOVERY_MAX_ATTEMPTS; attempt++) {
-    const screenshotPath = await screenshot.snap(page, `${game.gameId}/discovery-${attempt}.png`);
+    const screenshotPath = await screenshot.snap(page, `${game.id}/discovery-${attempt}.png`);
 
     const spinResult = await claudeVision.detectSpinButton(
       screenshotPath,
@@ -92,9 +92,9 @@ export async function discoverSteps(
     await page.waitForTimeout(DISCOVERY_POLL_INTERVAL_MS);
   }
 
-  await screenshot.snap(page, `${game.gameId}/discovery-failed.png`);
+  await screenshot.snap(page, `${game.id}/discovery-failed.png`);
   throw new DiscoveryError(
-    `Could not find spin button for ${game.name} (${game.gameId}) after ${DISCOVERY_MAX_ATTEMPTS} attempts. See src/server/screenshots/${game.gameId}/discovery-failed.png`,
+    `Could not find spin button for ${game.name} (${game.desktopGameId}) after ${DISCOVERY_MAX_ATTEMPTS} attempts. See src/server/screenshots/${game.id}/discovery-failed.png`,
     preSpinSteps,
   );
 }

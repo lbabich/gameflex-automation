@@ -1,5 +1,7 @@
 export type GameEntry = {
-  gameId: string;
+  id: string;
+  desktopGameId: string;
+  mobileGameId?: string;
   name: string;
   url: string;
   mobileUrl?: string;

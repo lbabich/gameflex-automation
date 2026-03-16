@@ -219,7 +219,7 @@ function resolveGameNames(gameIds: string[]): string[] {
   return gameIds
     .map((id) => {
       return games.find((g) => {
-        return g.gameId === id;
+        return g.id === id;
       })?.name;
     })
     .filter((n): n is string => {
@@ -270,10 +270,10 @@ function finalizeRecord(record: RunRecord, code: number | null, raw: string): vo
     });
 
     if (game) {
-      const gifPath = path.resolve('src/server/screenshots', game.gameId, 'animated.gif');
+      const gifPath = path.resolve('src/server/screenshots', game.id, 'animated.gif');
 
       if (fs.existsSync(gifPath)) {
-        result.gifUrl = `/api/screenshots/${game.gameId}/animated.gif`;
+        result.gifUrl = `/api/screenshots/${game.id}/animated.gif`;
       }
     }
   }

@@ -2,6 +2,7 @@
   "name": "gameflex-automation",
   "scripts": {
     "test": "npx playwright test",
+    "test:unit": "vitest run",
     "format": "biome format --write .",
     "lint": "biome lint --write .",
     "check": "biome check --write .",
@@ -24,7 +25,8 @@
     "tailwindcss": "^3.4.17",
     "tsx": "^4.21.0",
     "typescript": "^5.8.3",
-    "vite": "^6.3.5"
+    "vite": "^6.3.5",
+    "vitest": "^4.1.0"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.80.5",

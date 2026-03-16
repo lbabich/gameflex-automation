@@ -72,7 +72,7 @@ for (const game of GAMES) {
       return page.goto(launchUrl);
     });
 
-    const cached = stepCache.getSteps(game.gameId, deviceType, viewport);
+    const cached = stepCache.getSteps(game.id, deviceType, viewport);
 
     let failure: Error | null = null;
 
@@ -86,13 +86,13 @@ for (const game of GAMES) {
           try {
             const steps = await discovery.discoverSteps(page, game, viewport, waitForSpinStart);
 
-            stepCache.setSteps(game.gameId, deviceType, viewport, {
+            stepCache.setSteps(game.id, deviceType, viewport, {
               discoveredAt: new Date().toISOString(),
               steps,
             });
           } catch (err) {
             if (err instanceof discovery.DiscoveryError && err.partialSteps.length > 0) {
-              stepCache.setSteps(game.gameId, deviceType, viewport, {
+              stepCache.setSteps(game.id, deviceType, viewport, {
                 discoveredAt: new Date().toISOString(),
                 steps: err.partialSteps,
                 partial: true,
@@ -120,14 +120,14 @@ for (const game of GAMES) {
         });
       });
 
-      await screenshot.snap(page, `${game.gameId}/final.png`);
+      await screenshot.snap(page, `${game.id}/final.png`);
     } catch (err) {
       failure = err as Error;
     }
 
     await test.step('Generate GIF', async () => {
       try {
-        await gifGenerator.generateGif(game.gameId);
+        await gifGenerator.generateGif(game.id);
       } catch (gifErr) {
         console.warn('[generate-gif] Failed to generate GIF:', gifErr);
       }

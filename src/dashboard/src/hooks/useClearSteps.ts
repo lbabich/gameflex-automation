@@ -4,8 +4,8 @@ export function useClearSteps() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (gameId: string) => {
-      const res = await fetch(`/api/games/${gameId}/steps`, {
+    mutationFn: async (id: string) => {
+      const res = await fetch(`/api/games/${id}/steps`, {
         method: 'DELETE',
       });
 

@@ -26,46 +26,31 @@ function viewportKey(viewport: Viewport) {
   return `${viewport.width}x${viewport.height}`;
 }
 
-export function getSteps(gameId: string, deviceType: DeviceType, viewport: Viewport) {
+export function getSteps(id: string, deviceType: DeviceType, viewport: Viewport) {
   const cache = loadCache();
-  return cache[gameId]?.[deviceType]?.[viewportKey(viewport)];
+  return cache[id]?.[deviceType]?.[viewportKey(viewport)];
 }
 
 /**
- * Merges `steps` into the cache at `[gameId][deviceType][viewportKey]`.
+ * Merges `steps` into the cache at `[id][deviceType][viewportKey]`.
  * Reads the cache file from disk on every call and writes it back after updating — no in-memory state.
  */
-export function setSteps(
-  gameId: string,
-  deviceType: DeviceType,
-  viewport: Viewport,
-  steps: GameSteps,
-) {
+export function setSteps(id: string, deviceType: DeviceType, viewport: Viewport, steps: GameSteps) {
   const cache = loadCache();
   const vk = viewportKey(viewport);
 
-  cache[gameId] ??= {};
-  cache[gameId][deviceType] ??= {};
-  cache[gameId][deviceType][vk] = steps;
+  cache[id] ??= {};
+  cache[id][deviceType] ??= {};
+  cache[id][deviceType][vk] = steps;
 
   saveCache(cache);
 }
 
-export function clearSteps(gameId: string, deviceType: DeviceType, viewport: Viewport) {
-  const cache = loadCache();
-  const vk = viewportKey(viewport);
-
-  if (cache[gameId]?.[deviceType]?.[vk]) {
-    delete cache[gameId][deviceType][vk];
-    saveCache(cache);
-  }
-}
-
-export function clearAllSteps(gameId: string) {
+export function clearAllSteps(id: string) {
   const cache = loadCache();
 
-  if (cache[gameId]) {
-    delete cache[gameId];
+  if (cache[id]) {
+    delete cache[id];
     saveCache(cache);
   }
 }

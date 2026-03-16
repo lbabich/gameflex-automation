@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import express from 'express';
-import { addGame, clearGameSteps, getCachedGameIds, readGames } from './games';
+import { addGame, clearGameSteps, getCachedGameIds, readGames, updateGame } from './games';
 import { cancelRun, getHeadless, getRecentRuns, getRun, setHeadless, startRun } from './runner';
 import { buildGameUrls } from './url-builder';
 
@@ -45,21 +45,27 @@ app.get('/api/games', (_req, res) => {
 
   res.json(
     games.map((g) => {
-      return { ...g, cached: cached.has(g.gameId) };
+      return { ...g, cached: cached.has(g.id) };
     }),
   );
 });
 
 app.post('/api/games', (req, res) => {
-  const { gameId, name, channel, mode } = req.body as {
-    gameId?: unknown;
+  const { desktopGameId, mobileGameId, name, channel, mode } = req.body as {
+    desktopGameId?: unknown;
+    mobileGameId?: unknown;
     name?: unknown;
     channel?: unknown;
     mode?: unknown;
   };
 
-  if (typeof gameId !== 'string' || typeof name !== 'string') {
-    res.status(400).json({ error: 'gameId and name are required strings' });
+  if (typeof desktopGameId !== 'string' || typeof name !== 'string') {
+    res.status(400).json({ error: 'desktopGameId and name are required strings' });
+    return;
+  }
+
+  if (mobileGameId !== undefined && typeof mobileGameId !== 'string') {
+    res.status(400).json({ error: 'mobileGameId must be a string' });
     return;
   }
 
@@ -76,24 +82,65 @@ app.post('/api/games', (req, res) => {
   let urls: { url: string; mobileUrl?: string };
 
   try {
-    urls = buildGameUrls(gameId, channel, mode);
+    urls = buildGameUrls(desktopGameId, mobileGameId as string | undefined, channel, mode);
   } catch (err) {
-    res.status(500).json({ error: (err as Error).message });
+    res.status(400).json({ error: (err as Error).message });
     return;
   }
+
   try {
-    addGame({ gameId, name, ...urls });
+    addGame({ desktopGameId, mobileGameId: mobileGameId as string | undefined, name, ...urls });
   } catch (err) {
     res.status(409).json({ error: (err as Error).message });
     return;
   }
-  res.status(201).json({ gameId });
+
+  res.status(201).json({ desktopGameId });
 });
 
-app.delete('/api/games/:gameId/steps', (req, res) => {
-  const { gameId } = req.params;
+app.patch('/api/games/:id', (req, res) => {
+  const { id } = req.params;
+  const { name, desktopGameId, mobileGameId } = req.body as {
+    name?: unknown;
+    desktopGameId?: unknown;
+    mobileGameId?: unknown;
+  };
 
-  clearGameSteps(gameId);
+  if (name !== undefined && typeof name !== 'string') {
+    res.status(400).json({ error: 'name must be a string' });
+    return;
+  }
+
+  if (desktopGameId !== undefined && typeof desktopGameId !== 'string') {
+    res.status(400).json({ error: 'desktopGameId must be a string' });
+    return;
+  }
+
+  if (mobileGameId !== undefined && typeof mobileGameId !== 'string') {
+    res.status(400).json({ error: 'mobileGameId must be a string' });
+    return;
+  }
+
+  try {
+    updateGame(id, {
+      name: name as string | undefined,
+      desktopGameId: desktopGameId as string | undefined,
+      mobileGameId: mobileGameId as string | undefined,
+    });
+  } catch (err) {
+    const msg = (err as Error).message;
+    const status = msg.includes('not found') ? 404 : 400;
+    res.status(status).json({ error: msg });
+    return;
+  }
+
+  res.sendStatus(204);
+});
+
+app.delete('/api/games/:id/steps', (req, res) => {
+  const { id } = req.params;
+
+  clearGameSteps(id);
 
   res.sendStatus(204);
 });
