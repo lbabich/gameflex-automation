@@ -152,7 +152,7 @@ app.get('/api/screenshots/:gameId/:filename', (req, res) => {
     return;
   }
 
-  const filePath = path.resolve('screenshots', req.params.gameId, req.params.filename);
+  const filePath = path.resolve('src/server/screenshots', req.params.gameId, req.params.filename);
 
   if (!fs.existsSync(filePath)) {
     res.status(404).send('Not found');

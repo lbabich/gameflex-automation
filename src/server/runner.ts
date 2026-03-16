@@ -270,7 +270,7 @@ function finalizeRecord(record: RunRecord, code: number | null, raw: string): vo
     });
 
     if (game) {
-      const gifPath = path.resolve('screenshots', game.gameId, 'animated.gif');
+      const gifPath = path.resolve('src/server/screenshots', game.gameId, 'animated.gif');
 
       if (fs.existsSync(gifPath)) {
         result.gifUrl = `/api/screenshots/${game.gameId}/animated.gif`;

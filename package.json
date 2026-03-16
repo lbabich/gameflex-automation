@@ -12,15 +12,15 @@
     "@anthropic-ai/sdk": "^0.78.0",
     "@biomejs/biome": "^2.4.5",
     "@playwright/test": "^1.58.2",
+    "@types/express": "^5.0.6",
     "@types/node": "^25.3.3",
-    "dotenv": "^17.3.1"
+    "concurrently": "^9.2.1",
+    "dotenv": "^17.3.1",
+    "tsx": "^4.21.0"
   },
   "dependencies": {
-    "@types/express": "^5.0.6",
-    "concurrently": "^9.2.1",
     "express": "^5.2.1",
     "gif-encoder-2": "^1.0.5",
-    "jimp": "^1.6.0",
-    "tsx": "^4.21.0"
+    "jimp": "^1.6.0"
   }
 }

@@ -94,7 +94,7 @@ export async function discoverSteps(
 
   await screenshot.snap(page, `${game.gameId}/discovery-failed.png`);
   throw new DiscoveryError(
-    `Could not find spin button for ${game.name} (${game.gameId}) after ${DISCOVERY_MAX_ATTEMPTS} attempts. See screenshots/${game.gameId}/discovery-failed.png`,
+    `Could not find spin button for ${game.name} (${game.gameId}) after ${DISCOVERY_MAX_ATTEMPTS} attempts. See src/server/screenshots/${game.gameId}/discovery-failed.png`,
     preSpinSteps,
   );
 }
