@@ -18,9 +18,37 @@ interface Step {
 }
 ```
 
-## Types at the top
+## Types and constants at the top
 
-Declare all types at the top of the file, after imports and before any constants or functions.
+All module-level `type` and `const` declarations belong at the top of the file, never
+interspersed between functions or classes. The expected order within a file is:
+
+1. Imports
+2. Side-effect calls (e.g. `dotenv.config()`)
+3. `type` declarations
+4. `const` declarations
+5. Everything else (functions, classes, exports)
+
+```ts
+// ✓ correct
+import { foo } from './foo';
+
+type Config = { debug: boolean };
+
+const MAX_RETRIES = 3;
+const DEFAULT_TIMEOUT_MS = 5_000;
+
+function doWork(config: Config): void { ... }
+
+// ✗ wrong — const buried after a function
+import { foo } from './foo';
+
+function helper(): void { ... }
+
+const MAX_RETRIES = 3;
+
+function doWork(): void { ... }
+```
 
 ## Named types only — no inline shapes
 
