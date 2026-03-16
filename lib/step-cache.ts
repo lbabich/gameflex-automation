@@ -1,8 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import type { CachedStep, DeviceType, GameSteps, Viewport } from './types';
-
-export type { CachedStep, DeviceType, GameSteps, Viewport };
+import type { DeviceType, GameSteps, Viewport } from './types';
 
 type ViewportMap = Record<string, GameSteps>;
 type DeviceMap = Record<string, ViewportMap>;

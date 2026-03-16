@@ -1,6 +1,6 @@
 import type { Page } from '@playwright/test';
 import * as screenshot from './screenshot';
-import type * as stepCache from './step-cache';
+import type { CachedStep } from './types';
 
 export type GameRef = { gameId: string };
 
@@ -23,7 +23,7 @@ async function injectClickMarker(page: Page, x: number, y: number) {
   );
 }
 
-export async function replaySteps(page: Page, game: GameRef, steps: stepCache.CachedStep[]) {
+export async function replaySteps(page: Page, game: GameRef, steps: CachedStep[]) {
   for (let i = 0; i < steps.length; i++) {
     await page.waitForTimeout(Math.max(steps[i].waitMs, 1_000));
     await injectClickMarker(page, steps[i].x, steps[i].y);

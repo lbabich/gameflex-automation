@@ -6,6 +6,7 @@ import * as gifGenerator from '../lib/gif-generator';
 import * as replay from '../lib/replay';
 import * as screenshot from '../lib/screenshot';
 import * as stepCache from '../lib/step-cache';
+import type { DeviceType } from '../lib/types';
 import { GAMES } from './games';
 
 dotenv.config();
@@ -13,7 +14,7 @@ dotenv.config();
 const SPIN_START_TIMEOUT_MS = 10_000;
 const SPIN_END_WAIT_MS = 15_000;
 
-function deviceTypeFromUrl(url: string): stepCache.DeviceType {
+function deviceTypeFromUrl(url: string): DeviceType {
   try {
     return new URL(url).searchParams.get('channelid') === 'mobile' ? 'mobile' : 'desktop';
   } catch {
@@ -26,7 +27,7 @@ for (const game of GAMES) {
     const isProjectMobile = /mobile/i.test(testInfo.project.name);
     const launchUrl = isProjectMobile ? (game.mobileUrl ?? game.url) : game.url;
     const deviceType = deviceTypeFromUrl(launchUrl);
-    const projectDeviceType: stepCache.DeviceType = isProjectMobile ? 'mobile' : 'desktop';
+    const projectDeviceType: DeviceType = isProjectMobile ? 'mobile' : 'desktop';
 
     test.skip(
       deviceType !== projectDeviceType,
