@@ -1,12 +1,11 @@
 import type { ConsoleMessage, TestInfo } from '@playwright/test';
 import { test } from '@playwright/test';
 import * as dotenv from 'dotenv';
-import { DiscoveryError, discoverSteps } from '../lib/discovery';
-import { generateGif } from '../lib/gif-generator';
-import { replaySteps } from '../lib/replay';
-import { snap } from '../lib/screenshot';
-import type { DeviceType } from '../lib/step-cache';
-import { getSteps, setSteps } from '../lib/step-cache';
+import * as discovery from '../lib/discovery';
+import * as gifGenerator from '../lib/gif-generator';
+import * as replay from '../lib/replay';
+import * as screenshot from '../lib/screenshot';
+import * as stepCache from '../lib/step-cache';
 import { GAMES } from './games';
 
 dotenv.config();
@@ -14,7 +13,7 @@ dotenv.config();
 const SPIN_START_TIMEOUT_MS = 10_000;
 const SPIN_END_WAIT_MS = 15_000;
 
-function deviceTypeFromUrl(url: string): DeviceType {
+function deviceTypeFromUrl(url: string): stepCache.DeviceType {
   try {
     return new URL(url).searchParams.get('channelid') === 'mobile' ? 'mobile' : 'desktop';
   } catch {
@@ -27,11 +26,18 @@ for (const game of GAMES) {
     const isProjectMobile = /mobile/i.test(testInfo.project.name);
     const launchUrl = isProjectMobile ? (game.mobileUrl ?? game.url) : game.url;
     const deviceType = deviceTypeFromUrl(launchUrl);
-    const projectDeviceType: DeviceType = isProjectMobile ? 'mobile' : 'desktop';
+    const projectDeviceType: stepCache.DeviceType = isProjectMobile ? 'mobile' : 'desktop';
 
-    test.skip(deviceType !== projectDeviceType, `URL channelid=${deviceType}; skipping ${testInfo.project.name}`);
+    test.skip(
+      deviceType !== projectDeviceType,
+      `URL channelid=${deviceType}; skipping ${testInfo.project.name}`,
+    );
 
-    const viewport = page.viewportSize()!;
+    const viewport = page.viewportSize();
+
+    if (!viewport) {
+      throw new Error('No viewport size available');
+    }
 
     const isSpinStart = (msg: ConsoleMessage) => {
       return msg.text().includes('gel.spin.start');
@@ -65,27 +71,27 @@ for (const game of GAMES) {
       return page.goto(launchUrl);
     });
 
-    const cached = getSteps(game.gameId, deviceType, viewport);
+    const cached = stepCache.getSteps(game.gameId, deviceType, viewport);
 
     let failure: Error | null = null;
 
     try {
       if (cached) {
         await test.step(`Replay ${cached.steps.length} cached step(s)`, () => {
-          return replaySteps(page, game, cached.steps);
+          return replay.replaySteps(page, game, cached.steps);
         });
       } else {
         await test.step('Discover steps', async () => {
           try {
-            const steps = await discoverSteps(page, game, viewport, waitForSpinStart);
+            const steps = await discovery.discoverSteps(page, game, viewport, waitForSpinStart);
 
-            setSteps(game.gameId, deviceType, viewport, {
+            stepCache.setSteps(game.gameId, deviceType, viewport, {
               discoveredAt: new Date().toISOString(),
               steps,
             });
           } catch (err) {
-            if (err instanceof DiscoveryError && err.partialSteps.length > 0) {
-              setSteps(game.gameId, deviceType, viewport, {
+            if (err instanceof discovery.DiscoveryError && err.partialSteps.length > 0) {
+              stepCache.setSteps(game.gameId, deviceType, viewport, {
                 discoveredAt: new Date().toISOString(),
                 steps: err.partialSteps,
                 partial: true,
@@ -113,14 +119,14 @@ for (const game of GAMES) {
         });
       });
 
-      await snap(page, `${game.gameId}/final.png`);
+      await screenshot.snap(page, `${game.gameId}/final.png`);
     } catch (err) {
       failure = err as Error;
     }
 
     await test.step('Generate GIF', async () => {
       try {
-        await generateGif(game.gameId);
+        await gifGenerator.generateGif(game.gameId);
       } catch (gifErr) {
         console.warn('[generate-gif] Failed to generate GIF:', gifErr);
       }

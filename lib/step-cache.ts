@@ -36,30 +36,30 @@ function loadCache(): StepCache {
   }
 }
 
-function saveCache(cache: StepCache): void {
+function saveCache(cache: StepCache) {
   fs.mkdirSync(path.dirname(CACHE_PATH), { recursive: true });
   fs.writeFileSync(CACHE_PATH, JSON.stringify(cache, null, 2));
 }
 
-function viewportKey(viewport: Viewport): string {
+function viewportKey(viewport: Viewport) {
   return `${viewport.width}x${viewport.height}`;
 }
 
-export function getSteps(
-  gameId: string,
-  deviceType: DeviceType,
-  viewport: Viewport,
-): GameSteps | undefined {
+export function getSteps(gameId: string, deviceType: DeviceType, viewport: Viewport) {
   const cache = loadCache();
   return cache[gameId]?.[deviceType]?.[viewportKey(viewport)];
 }
 
+/**
+ * Merges `steps` into the cache at `[gameId][deviceType][viewportKey]`.
+ * Reads the cache file from disk on every call and writes it back after updating — no in-memory state.
+ */
 export function setSteps(
   gameId: string,
   deviceType: DeviceType,
   viewport: Viewport,
   steps: GameSteps,
-): void {
+) {
   const cache = loadCache();
   const vk = viewportKey(viewport);
 
@@ -70,7 +70,7 @@ export function setSteps(
   saveCache(cache);
 }
 
-export function clearSteps(gameId: string, deviceType: DeviceType, viewport: Viewport): void {
+export function clearSteps(gameId: string, deviceType: DeviceType, viewport: Viewport) {
   const cache = loadCache();
   const vk = viewportKey(viewport);
 
@@ -80,7 +80,7 @@ export function clearSteps(gameId: string, deviceType: DeviceType, viewport: Vie
   }
 }
 
-export function clearAllSteps(gameId: string): void {
+export function clearAllSteps(gameId: string) {
   const cache = loadCache();
 
   if (cache[gameId]) {

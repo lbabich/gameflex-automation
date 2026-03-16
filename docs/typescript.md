@@ -67,3 +67,47 @@ function getClickCoords(
   context: { gameId: string; deviceType: DeviceType },
 ): Promise<{ x: number; y: number }> { ... }
 ```
+
+## Namespace import convention
+
+All imports from internal `lib/` modules use `import * as moduleName`. Functions and types are
+both accessed through the namespace.
+
+```ts
+// before
+import { snap } from '../lib/screenshot';
+import type { CachedStep } from '../lib/step-cache';
+
+// after
+import * as screenshot from '../lib/screenshot';
+import * as stepCache from '../lib/step-cache';
+
+// usage
+screenshot.snap(page, name);
+const steps: stepCache.CachedStep[] = [];
+```
+
+This makes every call site self-documenting — the module the function belongs to is visible
+without reading the imports.
+
+## Prefer inference over return types
+
+Do not annotate function return types when TypeScript can infer them correctly.
+Keep explicit annotations only when:
+
+- TypeScript would infer `any` but `unknown` (or a narrower type) is intended
+- A tuple type is required (e.g. `[number, number]`) — inference gives `number[]`
+- A catch branch would cause an imprecise union (e.g. `loadCache(): StepCache` where
+  the catch branch returns `{}` and inference would widen to `any`)
+
+```ts
+// correct — TypeScript infers Promise<string>
+export async function snap(page: Page, name: string) {
+  return path.resolve('screenshots', name);
+}
+
+// incorrect — redundant annotation
+export async function snap(page: Page, name: string): Promise<string> {
+  return path.resolve('screenshots', name);
+}
+```

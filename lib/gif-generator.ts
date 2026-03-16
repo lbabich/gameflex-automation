@@ -40,7 +40,13 @@ function parseSortKey(filename: string): [number, number] {
   return [3, 0];
 }
 
-export async function generateGif(gameId: string): Promise<string> {
+/**
+ * Encodes all PNG screenshots for `gameId` into an animated GIF at
+ * `screenshots/<gameId>/animated.gif`, then deletes the source PNGs.
+ * Returns the absolute path to the generated GIF.
+ * @throws if no PNG files exist in the screenshots directory
+ */
+export async function generateGif(gameId: string) {
   const screenshotsDir = path.resolve('screenshots', gameId);
   const gifPath = path.resolve(screenshotsDir, 'animated.gif');
 

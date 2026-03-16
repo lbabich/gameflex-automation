@@ -1,8 +1,10 @@
 import type { Page } from '@playwright/test';
-import { snap } from './screenshot';
-import type { CachedStep } from './step-cache';
+import * as screenshot from './screenshot';
+import type * as stepCache from './step-cache';
 
-async function injectClickMarker(page: Page, x: number, y: number): Promise<void> {
+export type GameRef = { gameId: string };
+
+async function injectClickMarker(page: Page, x: number, y: number) {
   await page.evaluate(
     ({ x, y }) => {
       const existing = document.getElementById('__click_marker__');
@@ -21,15 +23,11 @@ async function injectClickMarker(page: Page, x: number, y: number): Promise<void
   );
 }
 
-export async function replaySteps(
-  page: Page,
-  game: { gameId: string },
-  steps: CachedStep[],
-): Promise<void> {
+export async function replaySteps(page: Page, game: GameRef, steps: stepCache.CachedStep[]) {
   for (let i = 0; i < steps.length; i++) {
     await page.waitForTimeout(Math.max(steps[i].waitMs, 1_000));
     await injectClickMarker(page, steps[i].x, steps[i].y);
-    await snap(page, `${game.gameId}/step-${i + 1}.png`);
+    await screenshot.snap(page, `${game.gameId}/step-${i + 1}.png`);
     console.log(`Clicking "${steps[i].label}" at ${steps[i].x},${steps[i].y}`);
     await page.mouse.click(steps[i].x, steps[i].y);
   }

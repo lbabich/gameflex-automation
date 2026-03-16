@@ -53,11 +53,15 @@ async function ask(screenshotPath: string, system: string, userText: string): Pr
   }
 }
 
+/**
+ * Asks Claude Vision whether the main spin button is visible and unobstructed in the screenshot.
+ * Returns `{found: false}` if not visible or if only previously-failed buttons are candidates.
+ */
 export async function detectSpinButton(
   screenshotPath: string,
   viewport: Viewport,
   failedButtons: FailedButton[] = [],
-): Promise<SpinResult> {
+) {
   const { width: w, height: h } = viewport;
   let prompt = `Is the main spin button visible and unobstructed in this screenshot? It is typically a large circular button — most commonly with clockwise-rotating arrow or arrows around its edge (like a circular refresh/rotate icon), or a play/triangle icon in the centre, or labeled SPIN. It must be fully visible.\n\nRespond with exactly one of:\n  {"found": false}\n  {"found": true, "x": <number>, "y": <number>, "label": "<short description>"}\n\nImage dimensions: ${w}x${h}`;
 
@@ -79,11 +83,16 @@ export async function detectSpinButton(
   return result as unknown as SpinResult;
 }
 
+/**
+ * Asks Claude Vision what to click next when the spin button is not yet accessible —
+ * dialogs, overlays, splash screens, or age/terms prompts.
+ * Returns `{found: false}` when no blocker is present (spin button may still be loading).
+ */
 export async function detectNextClick(
   screenshotPath: string,
   viewport: Viewport,
   failedButtons: FailedButton[] = [],
-): Promise<NextResult> {
+) {
   const { width: w, height: h } = viewport;
   let prompt = `The spin button is not yet accessible. What is the single most important element to click to progress — a dialog button (Continue, OK, Accept, Yes, No), close X, age/terms prompt, overlay, or promo/bonus intro screen? Also includes full-screen brand logo or game-title splash screens with no spin UI visible — if you see one, return the centre of the screen as the click target. If the screen appears fully interactive with no blockers and no splash (spin button may still be loading), return {"found": false}.\n\nDo NOT suggest clicking loading bars, progress indicators, loading spinners, or percentage counters — these are not interactive elements. If the game is still loading (spinner visible, assets loading), return {"found": false}.\n\nRespond with:\n  {"found": false}\n  {"found": true, "x": <number>, "y": <number>, "label": "<short description>"}\n\nImage dimensions: ${w}x${h}`;
 

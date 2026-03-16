@@ -1,40 +1,55 @@
 import type { Page } from '@playwright/test';
-import type { FailedButton } from './claude-vision';
-import { detectNextClick, detectSpinButton } from './claude-vision';
-import { snap } from './screenshot';
-import type { CachedStep, Viewport } from './step-cache';
+import * as claudeVision from './claude-vision';
+import * as screenshot from './screenshot';
+import type * as stepCache from './step-cache';
 
 const DISCOVERY_INITIAL_WAIT_MS = 8_000;
 const DISCOVERY_POLL_INTERVAL_MS = 1_000;
 const DISCOVERY_MAX_ATTEMPTS = 20;
 
+export type Game = { gameId: string; name: string };
+
 export class DiscoveryError extends Error {
   constructor(
     message: string,
-    readonly partialSteps: CachedStep[],
+    readonly partialSteps: stepCache.CachedStep[],
   ) {
     super(message);
     this.name = 'DiscoveryError';
   }
 }
 
+/**
+ * Attempts up to 20 times to locate and click the spin button via Claude Vision,
+ * recording each navigation step in the returned array.
+ *
+ * The `waitForSpinStart` callback should wait up to ~10 s for a spin event and
+ * return `true` if one was detected, `false` on timeout.
+ *
+ * @throws {DiscoveryError} when the spin button is not found after all attempts;
+ *   `err.partialSteps` contains any navigation steps recorded before failure.
+ */
 export async function discoverSteps(
   page: Page,
-  game: { gameId: string; name: string },
-  viewport: Viewport,
+  game: Game,
+  viewport: stepCache.Viewport,
   waitForSpinStart: () => Promise<boolean>,
-): Promise<CachedStep[]> {
-  const allFailedButtons: FailedButton[] = [];
-  const preSpinSteps: CachedStep[] = [];
+) {
+  const allFailedButtons: claudeVision.FailedButton[] = [];
+  const preSpinSteps: stepCache.CachedStep[] = [];
 
   let lastClickTime = Date.now();
 
   await page.waitForTimeout(DISCOVERY_INITIAL_WAIT_MS);
 
   for (let attempt = 1; attempt <= DISCOVERY_MAX_ATTEMPTS; attempt++) {
-    const screenshot = await snap(page, `${game.gameId}/discovery-${attempt}.png`);
+    const screenshotPath = await screenshot.snap(page, `${game.gameId}/discovery-${attempt}.png`);
 
-    const spinResult = await detectSpinButton(screenshot, viewport, allFailedButtons);
+    const spinResult = await claudeVision.detectSpinButton(
+      screenshotPath,
+      viewport,
+      allFailedButtons,
+    );
 
     if (spinResult.found) {
       const waitMs = Date.now() - lastClickTime;
@@ -60,7 +75,11 @@ export async function discoverSteps(
       continue;
     }
 
-    const nextResult = await detectNextClick(screenshot, viewport, allFailedButtons);
+    const nextResult = await claudeVision.detectNextClick(
+      screenshotPath,
+      viewport,
+      allFailedButtons,
+    );
 
     if (nextResult.found) {
       const waitMs = Date.now() - lastClickTime;
@@ -73,7 +92,7 @@ export async function discoverSteps(
     await page.waitForTimeout(DISCOVERY_POLL_INTERVAL_MS);
   }
 
-  await snap(page, `${game.gameId}/discovery-failed.png`);
+  await screenshot.snap(page, `${game.gameId}/discovery-failed.png`);
   throw new DiscoveryError(
     `Could not find spin button for ${game.name} (${game.gameId}) after ${DISCOVERY_MAX_ATTEMPTS} attempts. See screenshots/${game.gameId}/discovery-failed.png`,
     preSpinSteps,

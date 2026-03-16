@@ -39,7 +39,8 @@
       "Bash(\"C:/dev/gameflex/gameflex-automation/ss-find.txt\":*)",
       "Bash(\"C:/dev/gameflex/gameflex-automation/test-output2-snap.txt\":*)",
       "Bash(\"C:/dev/gameflex/gameflex-automation/ss-list2.txt\":*)",
-      "Bash(taskkill:*)"
+      "Bash(taskkill:*)",
+      "Bash(find:*)"
     ]
   }
 }
