@@ -1,13 +1,5 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
+import { readGames } from '../lib/games';
 
-export type GameEntry = {
-  gameId: string;
-  name: string;
-  url: string;
-  mobileUrl?: string;
-};
+export type { GameEntry } from '../lib/games';
 
-export const GAMES: GameEntry[] = JSON.parse(
-  fs.readFileSync(path.resolve(__dirname, '../data/games.json'), 'utf8'),
-) as GameEntry[];
+export const GAMES = readGames();
