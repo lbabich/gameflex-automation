@@ -189,17 +189,22 @@ app.get('/api/runs/:id', (req, res) => {
   res.json(record);
 });
 
-app.get('/api/screenshots/:gameId/:filename', (req, res) => {
+app.get('/api/screenshots/:gameId/:deviceType/:filename', (req, res) => {
   const safe = (s: string) => {
     return /^[\w.-]+$/.test(s);
   };
 
-  if (!safe(req.params.gameId) || !safe(req.params.filename)) {
+  if (!safe(req.params.gameId) || !safe(req.params.deviceType) || !safe(req.params.filename)) {
     res.status(400).send('Invalid path');
     return;
   }
 
-  const filePath = path.resolve('src/server/screenshots', req.params.gameId, req.params.filename);
+  const filePath = path.resolve(
+    'src/server/screenshots',
+    req.params.gameId,
+    req.params.deviceType,
+    req.params.filename,
+  );
 
   if (!fs.existsSync(filePath)) {
     res.status(404).send('Not found');

@@ -79,12 +79,18 @@ for (const game of GAMES) {
     try {
       if (cached) {
         await test.step(`Replay ${cached.steps.length} cached step(s)`, () => {
-          return replay.replaySteps(page, game, cached.steps);
+          return replay.replaySteps(page, game, cached.steps, projectDeviceType);
         });
       } else {
         await test.step('Discover steps', async () => {
           try {
-            const steps = await discovery.discoverSteps(page, game, viewport, waitForSpinStart);
+            const steps = await discovery.discoverSteps(
+              page,
+              game,
+              viewport,
+              waitForSpinStart,
+              projectDeviceType,
+            );
 
             stepCache.setSteps(game.id, deviceType, viewport, {
               discoveredAt: new Date().toISOString(),
@@ -120,14 +126,14 @@ for (const game of GAMES) {
         });
       });
 
-      await screenshot.snap(page, `${game.id}/final.png`);
+      await screenshot.snap(page, `${game.id}/${projectDeviceType}/final.png`);
     } catch (err) {
       failure = err as Error;
     }
 
     await test.step('Generate GIF', async () => {
       try {
-        await gifGenerator.generateGif(game.id);
+        await gifGenerator.generateGif(game.id, projectDeviceType);
       } catch (gifErr) {
         console.warn('[generate-gif] Failed to generate GIF:', gifErr);
       }

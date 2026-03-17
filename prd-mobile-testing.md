@@ -2,7 +2,7 @@
 
 The automation suite has no way to run discovery or replay against mobile viewports. Games often have separate mobile game IDs and require `channelid=mobile` in the URL. There is also no way to edit a game's IDs after it has been added, and the game registry uses the mutable `gameId` field as its primary key, making in-place edits of IDs unsafe.
 
-## Solution
+## 
 
 Introduce a stable GUID as the primary key for every game entry. Add a separate `mobileGameId` field alongside the existing `gameId` (desktop). Wire up a Playwright mobile-chrome project using iPhone 14 emulation so discovery and replay run against the correct mobile viewport and URL. Add an Edit Game modal to the dashboard so users can update game IDs at any time; changing any ID clears the full cache for that game. Migrate all existing game entries to carry a generated GUID on first load.
 

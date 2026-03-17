@@ -1,6 +1,6 @@
 import * as crypto from 'node:crypto';
 import { afterAll, describe, expect, it } from 'vitest';
-import * as stepCache from '../../lib/step-cache.ts';
+import * as stepCache from '../../lib/step-cache';
 
 // Each test uses freshly-generated GUIDs so tests are isolated without
 // mocking the file path. Entries are cleaned up in the afterAll hook.
@@ -69,5 +69,4 @@ describe('step-cache', () => {
     expect(stepCache.getSteps(id, 'desktop', VP_DESK)).toBeUndefined();
     expect(stepCache.getSteps(id, 'mobile', VP_MOB)).toBeUndefined();
   });
-
 });

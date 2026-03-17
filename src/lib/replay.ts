@@ -1,6 +1,6 @@
 import type { Page } from '@playwright/test';
 import * as screenshot from './screenshot';
-import type { CachedStep } from './types';
+import type { CachedStep, DeviceType } from './types';
 
 export type GameRef = { id: string };
 
@@ -23,11 +23,16 @@ async function injectClickMarker(page: Page, x: number, y: number) {
   );
 }
 
-export async function replaySteps(page: Page, game: GameRef, steps: CachedStep[]) {
+export async function replaySteps(
+  page: Page,
+  game: GameRef,
+  steps: CachedStep[],
+  deviceType: DeviceType,
+) {
   for (let i = 0; i < steps.length; i++) {
     await page.waitForTimeout(Math.max(steps[i].waitMs, 1_000));
     await injectClickMarker(page, steps[i].x, steps[i].y);
-    await screenshot.snap(page, `${game.id}/step-${i + 1}.png`);
+    await screenshot.snap(page, `${game.id}/${deviceType}/step-${i + 1}.png`);
     console.log(`Clicking "${steps[i].label}" at ${steps[i].x},${steps[i].y}`);
     await page.mouse.click(steps[i].x, steps[i].y);
   }

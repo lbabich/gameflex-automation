@@ -1,5 +1,6 @@
 {
   "name": "gameflex-automation",
+  "type": "module",
   "scripts": {
     "test": "npx playwright test",
     "test:unit": "vitest run",

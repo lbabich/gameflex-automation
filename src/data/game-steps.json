@@ -1,1 +1,163 @@
-{}
+{
+  "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986": {
+    "desktop": {
+      "1280x720": {
+        "discoveredAt": "2026-03-17T09:08:03.720Z",
+        "steps": [
+          {
+            "waitMs": 20727,
+            "x": 771,
+            "y": 1168,
+            "label": "777 slot game icon/splash - tap to enter"
+          },
+          {
+            "waitMs": 6572,
+            "x": 771,
+            "y": 1172,
+            "label": "777 slot game icon / splash overlay"
+          },
+          {
+            "waitMs": 7554,
+            "x": 640,
+            "y": 711,
+            "label": "Black splash screen - click centre to progress"
+          },
+          {
+            "waitMs": 6576,
+            "x": 640,
+            "y": 690,
+            "label": "Continue button"
+          },
+          {
+            "waitMs": 5416,
+            "x": 641,
+            "y": 665,
+            "label": "Large circular spin button with rotating arrow icon"
+          }
+        ]
+      }
+    },
+    "mobile": {
+      "390x664": {
+        "discoveredAt": "2026-03-17T09:09:53.047Z",
+        "steps": [
+          {
+            "waitMs": 21890,
+            "x": 195,
+            "y": 332,
+            "label": "Black loading/splash screen - tap centre to progress"
+          },
+          {
+            "waitMs": 8230,
+            "x": 195,
+            "y": 332,
+            "label": "Black loading/splash screen - tap centre to progress"
+          },
+          {
+            "waitMs": 7325,
+            "x": 195,
+            "y": 332,
+            "label": "Black splash screen - click to progress"
+          },
+          {
+            "waitMs": 5829,
+            "x": 195,
+            "y": 332,
+            "label": "Black splash screen - click centre to progress"
+          },
+          {
+            "waitMs": 9060,
+            "x": 195,
+            "y": 332,
+            "label": "Black splash screen - tap to progress"
+          },
+          {
+            "waitMs": 6140,
+            "x": 195,
+            "y": 332,
+            "label": "Black splash screen - tap to progress"
+          },
+          {
+            "waitMs": 6192,
+            "x": 195,
+            "y": 332,
+            "label": "Black splash screen - click centre to progress"
+          },
+          {
+            "waitMs": 6281,
+            "x": 195,
+            "y": 332,
+            "label": "Black splash screen - click centre to progress"
+          },
+          {
+            "waitMs": 6272,
+            "x": 195,
+            "y": 332,
+            "label": "Black splash screen - tap to progress"
+          },
+          {
+            "waitMs": 7026,
+            "x": 195,
+            "y": 332,
+            "label": "Black splash screen - click to progress"
+          },
+          {
+            "waitMs": 7164,
+            "x": 195,
+            "y": 332,
+            "label": "black splash screen - tap to progress"
+          },
+          {
+            "waitMs": 7402,
+            "x": 195,
+            "y": 332,
+            "label": "Black splash screen - click center to progress"
+          },
+          {
+            "waitMs": 5769,
+            "x": 195,
+            "y": 332,
+            "label": "Black splash/loading screen - click centre to progress"
+          },
+          {
+            "waitMs": 6364,
+            "x": 195,
+            "y": 332,
+            "label": "Black splash screen - tap to progress"
+          },
+          {
+            "waitMs": 7804,
+            "x": 195,
+            "y": 332,
+            "label": "Black loading/splash screen - tap centre to progress"
+          },
+          {
+            "waitMs": 8023,
+            "x": 195,
+            "y": 332,
+            "label": "Black splash screen - click to progress"
+          },
+          {
+            "waitMs": 8975,
+            "x": 195,
+            "y": 332,
+            "label": "Black loading/splash screen - tap centre to progress"
+          },
+          {
+            "waitMs": 7114,
+            "x": 195,
+            "y": 332,
+            "label": "Black splash screen - click centre to progress"
+          },
+          {
+            "waitMs": 11301,
+            "x": 195,
+            "y": 332,
+            "label": "Black splash screen - click to progress"
+          }
+        ],
+        "partial": true
+      }
+    }
+  }
+}

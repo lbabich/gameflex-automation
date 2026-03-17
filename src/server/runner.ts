@@ -270,10 +270,11 @@ function finalizeRecord(record: RunRecord, code: number | null, raw: string): vo
     });
 
     if (game) {
-      const gifPath = path.resolve('src/server/screenshots', game.id, 'animated.gif');
+      const deviceType = result.project === 'mobile-chrome' ? 'mobile' : 'desktop';
+      const gifPath = path.resolve('src/server/screenshots', game.id, deviceType, 'animated.gif');
 
       if (fs.existsSync(gifPath)) {
-        result.gifUrl = `/api/screenshots/${game.id}/animated.gif`;
+        result.gifUrl = `/api/screenshots/${game.id}/${deviceType}/animated.gif`;
       }
     }
   }

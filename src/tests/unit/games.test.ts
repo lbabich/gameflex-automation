@@ -79,7 +79,6 @@ describe('readGames migration', () => {
     expect(onDisk[0].id, 'id should be persisted to disk').toBeTruthy();
     expect(onDisk[0].id).toBe(games[0].id);
   });
-
 });
 
 describe('updateGame', () => {

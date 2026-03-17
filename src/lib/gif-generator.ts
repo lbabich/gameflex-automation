@@ -1,6 +1,8 @@
 import * as fs from 'node:fs';
+import { createRequire } from 'node:module';
 import * as path from 'node:path';
 import { Jimp } from 'jimp';
+import type { DeviceType } from './types';
 
 type GifEncoderInstance = {
   setDelay(ms: number): void;
@@ -13,7 +15,8 @@ type GifEncoderInstance = {
 
 type GifEncoderConstructor = new (width: number, height: number) => GifEncoderInstance;
 
-// require() is intentional: gif-encoder-2 ships no ESM build or TypeScript declarations
+// gif-encoder-2 ships no ESM build or TypeScript declarations; createRequire loads it from ESM
+const require = createRequire(import.meta.url);
 const GIFEncoder = require('gif-encoder-2') as GifEncoderConstructor;
 
 const GIF_WIDTH = 640;
@@ -41,13 +44,13 @@ function parseSortKey(filename: string): [number, number] {
 }
 
 /**
- * Encodes all PNG screenshots for `gameId` into an animated GIF at
- * `src/server/screenshots/<gameId>/animated.gif`, then deletes the source PNGs.
+ * Encodes all PNG screenshots for `gameId`/`deviceType` into an animated GIF at
+ * `src/server/screenshots/<gameId>/<deviceType>/animated.gif`, then deletes the source PNGs.
  * Returns the absolute path to the generated GIF.
  * @throws if no PNG files exist in the screenshots directory
  */
-export async function generateGif(gameId: string) {
-  const screenshotsDir = path.resolve('src/server/screenshots', gameId);
+export async function generateGif(gameId: string, deviceType: DeviceType) {
+  const screenshotsDir = path.resolve('src/server/screenshots', gameId, deviceType);
   const gifPath = path.resolve(screenshotsDir, 'animated.gif');
 
   const pngFiles = fs
