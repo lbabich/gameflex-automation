@@ -33,13 +33,30 @@ export default function App() {
   }, [run?.status, queryClient]);
 
   const gameStatuses = useMemo(() => {
-    const result: Record<string, { isRunning: boolean; lastStatus: 'passed' | 'failed' | 'error' | null }> = {};
+    type DeviceStatus = 'passed' | 'failed' | 'error' | null;
+    type Status = { isRunning: boolean; lastStatus: DeviceStatus; desktopLastStatus: DeviceStatus; mobileLastStatus: DeviceStatus };
+    const result: Record<string, Status> = {};
+
+    function deviceStatus(completedRuns: typeof recentRuns, project: string): DeviceStatus {
+      for (const run of completedRuns ?? []) {
+        if (run.status !== 'completed') continue;
+
+        const testResult = run.results.find((r) => r.project === project && r.status !== 'skipped');
+
+        if (testResult) {
+          return (testResult.status === 'failed' || testResult.status === 'timedOut') ? 'failed' : 'passed';
+        }
+      }
+
+      return null;
+    }
 
     for (const game of games ?? []) {
       const gameRuns = (recentRuns ?? []).filter((r) => r.gameIds.includes(game.id));
       const running = gameRuns.some((r) => r.status === 'running');
-      const last = gameRuns.find((r) => r.status !== 'running');
-      let lastStatus: 'passed' | 'failed' | 'error' | null = null;
+      const completedRuns = gameRuns.filter((r) => r.status !== 'running');
+      const last = completedRuns[0];
+      let lastStatus: DeviceStatus = null;
 
       if (last) {
         if (last.status === 'completed') {
@@ -49,7 +66,12 @@ export default function App() {
         }
       }
 
-      result[game.id] = { isRunning: running, lastStatus };
+      result[game.id] = {
+        isRunning: running,
+        lastStatus,
+        desktopLastStatus: deviceStatus(completedRuns, 'chromium'),
+        mobileLastStatus: deviceStatus(completedRuns, 'mobile-chrome'),
+      };
     }
 
     return result;
@@ -118,7 +140,14 @@ export default function App() {
             onRunComplete={handleRunComplete}
           />
         )}
-        {selectedGame && <GameDeviceSettings game={selectedGame} isRunning={selectedGameIsRunning} />}
+        {selectedGame && (
+          <GameDeviceSettings
+            game={selectedGame}
+            isRunning={selectedGameIsRunning}
+            desktopLastStatus={gameStatuses[selectedGame.id]?.desktopLastStatus ?? null}
+            mobileLastStatus={gameStatuses[selectedGame.id]?.mobileLastStatus ?? null}
+          />
+        )}
         {viewRunId !== null ? (
           <ResultsPanel run={run} isLoading={runLoading} />
         ) : (

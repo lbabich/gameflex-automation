@@ -26,7 +26,14 @@ describe('addGame', () => {
   it('assigns a GUID when adding a game', () => {
     const desktopGameId = makeDesktopGameId();
 
-    addGame({ desktopGameId, name: 'Test Game', desktopEnabled: true, desktopPlaymode: 'demo', mobileEnabled: false, mobilePlaymode: 'demo' });
+    addGame({
+      desktopGameId,
+      name: 'Test Game',
+      desktopEnabled: true,
+      desktopPlaymode: 'demo',
+      mobileEnabled: false,
+      mobilePlaymode: 'demo',
+    });
 
     const updated = readGames();
     const added = updated.find((g) => {
@@ -42,10 +49,24 @@ describe('addGame', () => {
   it('throws when adding a duplicate desktopGameId', () => {
     const desktopGameId = makeDesktopGameId();
 
-    addGame({ desktopGameId, name: 'Original', desktopEnabled: true, desktopPlaymode: 'demo', mobileEnabled: false, mobilePlaymode: 'demo' });
+    addGame({
+      desktopGameId,
+      name: 'Original',
+      desktopEnabled: true,
+      desktopPlaymode: 'demo',
+      mobileEnabled: false,
+      mobilePlaymode: 'demo',
+    });
 
     expect(() => {
-      return addGame({ desktopGameId, name: 'Duplicate', desktopEnabled: true, desktopPlaymode: 'demo', mobileEnabled: false, mobilePlaymode: 'demo' });
+      return addGame({
+        desktopGameId,
+        name: 'Duplicate',
+        desktopEnabled: true,
+        desktopPlaymode: 'demo',
+        mobileEnabled: false,
+        mobilePlaymode: 'demo',
+      });
     }).toThrow(/already exists/);
   });
 });
@@ -79,7 +100,14 @@ describe('updateGame', () => {
   function addTestGame() {
     const desktopGameId = makeDesktopGameId();
 
-    addGame({ desktopGameId, name: 'Update Test', desktopEnabled: true, desktopPlaymode: 'demo', mobileEnabled: false, mobilePlaymode: 'demo' });
+    addGame({
+      desktopGameId,
+      name: 'Update Test',
+      desktopEnabled: true,
+      desktopPlaymode: 'demo',
+      mobileEnabled: false,
+      mobilePlaymode: 'demo',
+    });
 
     const found = readGames().find((g) => {
       return g.desktopGameId === desktopGameId;

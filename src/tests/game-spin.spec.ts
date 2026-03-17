@@ -122,6 +122,8 @@ for (const game of GAMES) {
             timeout: SPIN_START_TIMEOUT_MS,
           });
         }
+
+        await screenshot.snap(page, `${game.id}/${projectDeviceType}/spin-start.png`);
       });
 
       await test.step('Spin end: gel.spin.end', () => {
@@ -131,7 +133,11 @@ for (const game of GAMES) {
         });
       });
 
-      await screenshot.snap(page, `${game.id}/${projectDeviceType}/final.png`);
+      await screenshot.snap(page, `${game.id}/${projectDeviceType}/final-1.png`);
+      await page.waitForTimeout(1_500);
+      await screenshot.snap(page, `${game.id}/${projectDeviceType}/final-2.png`);
+      await page.waitForTimeout(1_500);
+      await screenshot.snap(page, `${game.id}/${projectDeviceType}/final-3.png`);
     } catch (err) {
       failure = err as Error;
     }

@@ -56,17 +56,6 @@ export function GameSelector({ games, selectedGameId, gameStatuses, onSelect, on
                   err
                 </span>
               )}
-              {!isRunning && lastStatus === null && game.cached && (
-                <span
-                  className={`text-xs font-semibold px-1.5 py-0.5 rounded flex-shrink-0 ${
-                    isSelected
-                      ? 'bg-blue-500 text-blue-100'
-                      : 'bg-green-100 text-green-700'
-                  }`}
-                >
-                  cached
-                </span>
-              )}
             </button>
             <button
               type="button"

@@ -5,7 +5,8 @@ export type GameEntry = {
   name: string;
   url: string;
   mobileUrl?: string;
-  cached?: boolean;
+  desktopCached?: boolean;
+  mobileCached?: boolean;
   desktopEnabled: boolean;
   desktopPlaymode: 'demo' | 'real';
   mobileEnabled: boolean;

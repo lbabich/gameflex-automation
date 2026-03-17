@@ -37,10 +37,17 @@ function parseSortKey(filename: string): [number, number] {
     return [1, Number.parseInt(stepMatch[1], 10)];
   }
 
-  if (base === 'final') {
+  if (base === 'spin-start') {
     return [2, 0];
   }
-  return [3, 0];
+
+  const finalMatch = base.match(/^final(?:-(\d+))?$/);
+
+  if (finalMatch) {
+    return [3, finalMatch[1] ? Number.parseInt(finalMatch[1], 10) : 0];
+  }
+
+  return [4, 0];
 }
 
 /**

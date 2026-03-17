@@ -78,12 +78,24 @@ export function updateGame(id: string, updates: GameUpdates): void {
   fs.writeFileSync(GAMES_PATH, JSON.stringify(games, null, 2));
 }
 
-export function getCachedGameIds(): Set<string> {
+export function getCachedDeviceMap(): Map<string, { desktop: boolean; mobile: boolean }> {
   try {
-    const cache = JSON.parse(fs.readFileSync(STEPS_PATH, 'utf8')) as Record<string, unknown>;
-    return new Set(Object.keys(cache));
+    const cache = JSON.parse(fs.readFileSync(STEPS_PATH, 'utf8')) as Record<
+      string,
+      Record<string, unknown>
+    >;
+    const result = new Map<string, { desktop: boolean; mobile: boolean }>();
+
+    for (const [gameId, devices] of Object.entries(cache)) {
+      result.set(gameId, {
+        desktop: 'desktop' in devices,
+        mobile: 'mobile' in devices,
+      });
+    }
+
+    return result;
   } catch {
-    return new Set();
+    return new Map();
   }
 }
 

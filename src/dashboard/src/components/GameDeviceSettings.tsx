@@ -2,9 +2,13 @@ import { useClearChannelSteps } from '../hooks/useClearChannelSteps';
 import { useUpdateGame } from '../hooks/useUpdateGame';
 import type { GameEntry } from '../types';
 
+type RunStatus = 'passed' | 'failed' | 'error' | null;
+
 type Props = {
   game: GameEntry;
   isRunning: boolean;
+  desktopLastStatus: RunStatus;
+  mobileLastStatus: RunStatus;
 };
 
 type DeviceCardProps = {
@@ -13,6 +17,8 @@ type DeviceCardProps = {
   playmode: 'demo' | 'real';
   isRunning: boolean;
   resetPending: boolean;
+  cached: boolean;
+  lastStatus: RunStatus;
   onToggleEnabled: () => void;
   onTogglePlaymode: (mode: 'demo' | 'real') => void;
   onReset: () => void;
@@ -24,6 +30,8 @@ function DeviceCard({
   playmode,
   isRunning,
   resetPending,
+  cached,
+  lastStatus,
   onToggleEnabled,
   onTogglePlaymode,
   onReset,
@@ -31,7 +39,29 @@ function DeviceCard({
   return (
     <div className="flex-1 border rounded-lg p-4 bg-white">
       <div className="flex items-center justify-between mb-3">
-        <span className="text-sm font-semibold text-gray-700">{label}</span>
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-semibold text-gray-700">{label}</span>
+          {cached && (
+            <span className="text-xs font-semibold px-1.5 py-0.5 rounded bg-blue-100 text-blue-700">
+              cached
+            </span>
+          )}
+          {lastStatus === 'passed' && (
+            <span className="text-xs font-semibold px-1.5 py-0.5 rounded bg-green-100 text-green-700">
+              pass
+            </span>
+          )}
+          {lastStatus === 'failed' && (
+            <span className="text-xs font-semibold px-1.5 py-0.5 rounded bg-red-100 text-red-700">
+              fail
+            </span>
+          )}
+          {lastStatus === 'error' && (
+            <span className="text-xs font-semibold px-1.5 py-0.5 rounded bg-yellow-100 text-yellow-700">
+              err
+            </span>
+          )}
+        </div>
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -77,7 +107,7 @@ function DeviceCard({
   );
 }
 
-export function GameDeviceSettings({ game, isRunning }: Props) {
+export function GameDeviceSettings({ game, isRunning, desktopLastStatus, mobileLastStatus }: Props) {
   const { mutate } = useUpdateGame();
   const clearChannel = useClearChannelSteps();
 
@@ -95,6 +125,8 @@ export function GameDeviceSettings({ game, isRunning }: Props) {
         playmode={game.desktopPlaymode}
         isRunning={isRunning}
         resetPending={clearChannel.isPending}
+        cached={game.desktopCached ?? false}
+        lastStatus={desktopLastStatus}
         onToggleEnabled={() => patch({ desktopEnabled: !game.desktopEnabled })}
         onTogglePlaymode={(mode) => patch({ desktopPlaymode: mode })}
         onReset={() => clearChannel.mutate({ id: game.id, deviceType: 'desktop' })}
@@ -105,6 +137,8 @@ export function GameDeviceSettings({ game, isRunning }: Props) {
         playmode={game.mobilePlaymode}
         isRunning={isRunning}
         resetPending={clearChannel.isPending}
+        cached={game.mobileCached ?? false}
+        lastStatus={mobileLastStatus}
         onToggleEnabled={() => patch({ mobileEnabled: !game.mobileEnabled })}
         onTogglePlaymode={(mode) => patch({ mobilePlaymode: mode })}
         onReset={() => clearChannel.mutate({ id: game.id, deviceType: 'mobile' })}

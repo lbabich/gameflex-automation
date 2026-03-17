@@ -5,7 +5,7 @@ import {
   addGame,
   clearGameChannelSteps,
   clearGameSteps,
-  getCachedGameIds,
+  getCachedDeviceMap,
   readGames,
   updateGame,
 } from './games';
@@ -31,11 +31,13 @@ app.use((req, res, next) => {
 
 app.get('/api/games', (_req, res) => {
   const games = readGames();
-  const cached = getCachedGameIds();
+  const deviceCache = getCachedDeviceMap();
 
   res.json(
     games.map((g) => {
-      return { ...g, cached: cached.has(g.id) };
+      const cache = deviceCache.get(g.id) ?? { desktop: false, mobile: false };
+
+      return { ...g, desktopCached: cache.desktop, mobileCached: cache.mobile };
     }),
   );
 });
