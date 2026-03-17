@@ -7,6 +7,7 @@ import * as replay from '../lib/replay';
 import * as screenshot from '../lib/screenshot';
 import * as stepCache from '../lib/step-cache';
 import type { DeviceType } from '../lib/types';
+import { buildSingleUrl } from '../server/url-builder';
 import { GAMES } from './games';
 
 dotenv.config();
@@ -14,19 +15,14 @@ dotenv.config();
 const SPIN_START_TIMEOUT_MS = 10_000;
 const SPIN_END_WAIT_MS = 15_000;
 
-function deviceTypeFromUrl(url: string): DeviceType {
-  try {
-    return new URL(url).searchParams.get('channelid') === 'mobile' ? 'mobile' : 'desktop';
-  } catch {
-    return 'desktop';
-  }
-}
-
 for (const game of GAMES) {
   test(`spin: ${game.name}`, async ({ page }, testInfo: TestInfo) => {
     const isProjectMobile = /mobile/i.test(testInfo.project.name);
-    const launchUrl = isProjectMobile ? (game.mobileUrl ?? game.url) : game.url;
-    const deviceType = deviceTypeFromUrl(launchUrl);
+    const channel: 'desktop' | 'mobile' = isProjectMobile ? 'mobile' : 'desktop';
+    const gameId =
+      channel === 'mobile' ? (game.mobileGameId ?? game.desktopGameId) : game.desktopGameId;
+    const launchUrl = buildSingleUrl(gameId, channel, game.playmode);
+    const deviceType: DeviceType = channel;
     const projectDeviceType: DeviceType = isProjectMobile ? 'mobile' : 'desktop';
 
     test.skip(

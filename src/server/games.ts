@@ -1,9 +1,9 @@
 import * as crypto from 'node:crypto';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import type { PlayMode } from '../lib/games';
 import { readGames } from '../lib/games';
 import * as stepCache from '../lib/step-cache';
-import { buildSingleUrl } from './url-builder';
 
 export type { GameEntry } from '../lib/games';
 
@@ -36,6 +36,7 @@ export type GameUpdates = {
   name?: string;
   desktopGameId?: string;
   mobileGameId?: string;
+  playmode?: PlayMode;
 };
 
 export function updateGame(id: string, updates: GameUpdates): void {
@@ -58,29 +59,12 @@ export function updateGame(id: string, updates: GameUpdates): void {
     stepCache.clearAllSteps(id);
   }
 
-  const newDesktopGameId = updates.desktopGameId ?? game.desktopGameId;
-  const newMobileGameId =
-    updates.mobileGameId !== undefined ? updates.mobileGameId : game.mobileGameId;
-
-  const mode = (new URL(game.url).searchParams.get('playmode') ??
-    'demo') as import('./url-builder').PlayMode;
-
-  const newUrl = buildSingleUrl(game.url, newDesktopGameId, 'desktop', mode);
-
-  let newMobileUrl: string | undefined;
-
-  if (newMobileGameId) {
-    const mobileTemplate = game.mobileUrl ?? game.url;
-    newMobileUrl = buildSingleUrl(mobileTemplate, newMobileGameId, 'mobile', mode);
-  }
-
   games[idx] = {
     ...game,
     name: updates.name ?? game.name,
-    desktopGameId: newDesktopGameId,
-    mobileGameId: newMobileGameId,
-    url: newUrl,
-    mobileUrl: newMobileUrl,
+    desktopGameId: updates.desktopGameId ?? game.desktopGameId,
+    mobileGameId: updates.mobileGameId !== undefined ? updates.mobileGameId : game.mobileGameId,
+    playmode: updates.playmode ?? game.playmode,
   };
 
   fs.mkdirSync(path.dirname(GAMES_PATH), { recursive: true });

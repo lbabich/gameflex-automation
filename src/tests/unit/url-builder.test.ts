@@ -1,43 +1,39 @@
 import { describe, expect, it } from 'vitest';
-import { buildGameUrls, buildSingleUrl } from '../../server/url-builder.ts';
+import { buildSingleUrl } from '../../server/url-builder.ts';
 
 // buildSingleUrl is a pure function — no file I/O, no mocking needed.
 
-const TEMPLATE =
-  'https://example.com/launch/?casinoid=TEST&lobbyurl=https%3A%2F%2Fexample.com%2Flobby%3Fchannelid%3Ddesktop&playmode=demo&channelid=desktop&gameid=00000';
-
 describe('buildSingleUrl', () => {
   it('sets gameid and channelid=desktop for desktop channel', () => {
-    const url = new URL(buildSingleUrl(TEMPLATE, '13724', 'desktop', 'demo'));
+    const url = new URL(buildSingleUrl('13724', 'desktop', 'demo'));
 
     expect(url.searchParams.get('gameid')).toBe('13724');
     expect(url.searchParams.get('channelid')).toBe('desktop');
   });
 
+  it('sets channelid=mobile for mobile channel', () => {
+    const url = new URL(buildSingleUrl('13725', 'mobile', 'demo'));
+
+    expect(url.searchParams.get('gameid')).toBe('13725');
+    expect(url.searchParams.get('channelid')).toBe('mobile');
+  });
+
   it('sets playmode', () => {
-    const url = new URL(buildSingleUrl(TEMPLATE, '13724', 'desktop', 'real'));
+    const url = new URL(buildSingleUrl('13724', 'desktop', 'real'));
 
     expect(url.searchParams.get('playmode')).toBe('real');
   });
 
-  it('updates channelid inside nested lobbyurl', () => {
-    const url = new URL(buildSingleUrl(TEMPLATE, '13724', 'mobile', 'demo'));
+  it('includes channelid inside nested lobbyurl', () => {
+    const url = new URL(buildSingleUrl('13724', 'mobile', 'demo'));
     const lobbyUrl = url.searchParams.get('lobbyurl') ?? '';
 
     expect(lobbyUrl).toContain('channelid=mobile');
   });
-});
 
-describe('buildGameUrls', () => {
-  it('throws when channel is mobile and mobileGameId is absent', () => {
-    expect(() => {
-      return buildGameUrls('13724', undefined, 'mobile', 'demo');
-    }).toThrow(/mobileGameId is required/);
-  });
+  it('uses the v2/load endpoint', () => {
+    const url = new URL(buildSingleUrl('13724', 'desktop', 'demo'));
 
-  it('throws when channel is both and mobileGameId is absent', () => {
-    expect(() => {
-      return buildGameUrls('13724', undefined, 'both', 'demo');
-    }).toThrow(/mobileGameId is required/);
+    expect(url.pathname).toContain('v2/load');
   });
 });

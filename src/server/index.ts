@@ -3,7 +3,6 @@ import * as path from 'node:path';
 import express from 'express';
 import { addGame, clearGameSteps, getCachedGameIds, readGames, updateGame } from './games';
 import { cancelRun, getHeadless, getRecentRuns, getRun, setHeadless, startRun } from './runner';
-import { buildGameUrls } from './url-builder';
 
 const app = express();
 const PORT = 3001;
@@ -79,17 +78,13 @@ app.post('/api/games', (req, res) => {
     return;
   }
 
-  let urls: { url: string; mobileUrl?: string };
-
   try {
-    urls = buildGameUrls(desktopGameId, mobileGameId as string | undefined, channel, mode);
-  } catch (err) {
-    res.status(400).json({ error: (err as Error).message });
-    return;
-  }
-
-  try {
-    addGame({ desktopGameId, mobileGameId: mobileGameId as string | undefined, name, ...urls });
+    addGame({
+      desktopGameId,
+      mobileGameId: mobileGameId as string | undefined,
+      name,
+      playmode: mode,
+    });
   } catch (err) {
     res.status(409).json({ error: (err as Error).message });
     return;
@@ -100,10 +95,11 @@ app.post('/api/games', (req, res) => {
 
 app.patch('/api/games/:id', (req, res) => {
   const { id } = req.params;
-  const { name, desktopGameId, mobileGameId } = req.body as {
+  const { name, desktopGameId, mobileGameId, playmode } = req.body as {
     name?: unknown;
     desktopGameId?: unknown;
     mobileGameId?: unknown;
+    playmode?: unknown;
   };
 
   if (name !== undefined && typeof name !== 'string') {
@@ -121,11 +117,17 @@ app.patch('/api/games/:id', (req, res) => {
     return;
   }
 
+  if (playmode !== undefined && playmode !== 'demo' && playmode !== 'real') {
+    res.status(400).json({ error: 'playmode must be demo or real' });
+    return;
+  }
+
   try {
     updateGame(id, {
       name: name as string | undefined,
       desktopGameId: desktopGameId as string | undefined,
       mobileGameId: mobileGameId as string | undefined,
+      playmode: playmode as 'demo' | 'real' | undefined,
     });
   } catch (err) {
     const msg = (err as Error).message;

@@ -25,11 +25,8 @@ function makeDesktopGameId() {
 describe('addGame', () => {
   it('assigns a GUID when adding a game', () => {
     const desktopGameId = makeDesktopGameId();
-    const games = readGames();
-    const firstUrl =
-      games[0]?.url ?? 'https://example.com/?gameid=0&playmode=demo&channelid=desktop';
 
-    addGame({ desktopGameId, name: 'Test Game', url: firstUrl });
+    addGame({ desktopGameId, name: 'Test Game', playmode: 'demo' });
 
     const updated = readGames();
     const added = updated.find((g) => {
@@ -44,26 +41,22 @@ describe('addGame', () => {
 
   it('throws when adding a duplicate desktopGameId', () => {
     const desktopGameId = makeDesktopGameId();
-    const games = readGames();
-    const firstUrl =
-      games[0]?.url ?? 'https://example.com/?gameid=0&playmode=demo&channelid=desktop';
 
-    addGame({ desktopGameId, name: 'Original', url: firstUrl });
+    addGame({ desktopGameId, name: 'Original', playmode: 'demo' });
 
     expect(() => {
-      return addGame({ desktopGameId, name: 'Duplicate', url: firstUrl });
+      return addGame({ desktopGameId, name: 'Duplicate', playmode: 'demo' });
     }).toThrow(/already exists/);
   });
 });
 
 describe('readGames migration', () => {
   it('assigns GUIDs to entries missing id and writes back', () => {
-    // Write a games.json with entries that have no id field
+    // Write a games.json with entries that have no id or playmode field
     const raw = JSON.stringify([
       {
         desktopGameId: makeDesktopGameId(),
         name: 'No ID Game',
-        url: 'https://example.com/?gameid=0&playmode=demo&channelid=desktop',
       },
     ]);
 
@@ -73,22 +66,20 @@ describe('readGames migration', () => {
 
     expect(games.length).toBe(1);
 
-    // Verify the file was written back with the id
+    // Verify the file was written back with the id and playmode
     const onDisk = JSON.parse(fs.readFileSync(GAMES_PATH, 'utf8')) as typeof games;
 
     expect(onDisk[0].id, 'id should be persisted to disk').toBeTruthy();
     expect(onDisk[0].id).toBe(games[0].id);
+    expect(onDisk[0].playmode).toBe('demo');
   });
 });
 
 describe('updateGame', () => {
   function addTestGame() {
     const desktopGameId = makeDesktopGameId();
-    const games = readGames();
-    const firstUrl =
-      games[0]?.url ?? 'https://example.com/?gameid=0&playmode=demo&channelid=desktop';
 
-    addGame({ desktopGameId, name: 'Update Test', url: firstUrl });
+    addGame({ desktopGameId, name: 'Update Test', playmode: 'demo' });
 
     const found = readGames().find((g) => {
       return g.desktopGameId === desktopGameId;

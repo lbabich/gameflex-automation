@@ -2,34 +2,16 @@
   "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986": {
     "desktop": {
       "1280x720": {
-        "discoveredAt": "2026-03-17T09:08:03.720Z",
+        "discoveredAt": "2026-03-17T10:41:31.155Z",
         "steps": [
           {
-            "waitMs": 20727,
-            "x": 771,
-            "y": 1168,
-            "label": "777 slot game icon/splash - tap to enter"
-          },
-          {
-            "waitMs": 6572,
-            "x": 771,
-            "y": 1172,
-            "label": "777 slot game icon / splash overlay"
-          },
-          {
-            "waitMs": 7554,
+            "waitMs": 15406,
             "x": 640,
-            "y": 711,
-            "label": "Black splash screen - click centre to progress"
-          },
-          {
-            "waitMs": 6576,
-            "x": 640,
-            "y": 690,
+            "y": 685,
             "label": "Continue button"
           },
           {
-            "waitMs": 5416,
+            "waitMs": 4739,
             "x": 641,
             "y": 665,
             "label": "Large circular spin button with rotating arrow icon"
@@ -38,122 +20,128 @@
       }
     },
     "mobile": {
-      "390x664": {
-        "discoveredAt": "2026-03-17T09:09:53.047Z",
+      "412x839": {
+        "discoveredAt": "2026-03-17T10:50:17.785Z",
         "steps": [
           {
-            "waitMs": 21890,
-            "x": 195,
-            "y": 332,
-            "label": "Black loading/splash screen - tap centre to progress"
+            "waitMs": 18351,
+            "x": 384,
+            "y": 1389,
+            "label": "Continue button"
           },
           {
-            "waitMs": 8230,
-            "x": 195,
-            "y": 332,
-            "label": "Black loading/splash screen - tap centre to progress"
+            "waitMs": 8687,
+            "x": 384,
+            "y": 1389,
+            "label": "Continue button"
           },
           {
-            "waitMs": 7325,
-            "x": 195,
-            "y": 332,
-            "label": "Black splash screen - click to progress"
+            "waitMs": 7684,
+            "x": 384,
+            "y": 1389,
+            "label": "Continue button"
           },
           {
-            "waitMs": 5829,
-            "x": 195,
-            "y": 332,
-            "label": "Black splash screen - click centre to progress"
+            "waitMs": 8581,
+            "x": 384,
+            "y": 1392,
+            "label": "Continue button"
           },
           {
-            "waitMs": 9060,
-            "x": 195,
-            "y": 332,
-            "label": "Black splash screen - tap to progress"
+            "waitMs": 11120,
+            "x": 384,
+            "y": 1390,
+            "label": "Continue button"
           },
           {
-            "waitMs": 6140,
-            "x": 195,
-            "y": 332,
-            "label": "Black splash screen - tap to progress"
+            "waitMs": 5826,
+            "x": 206,
+            "y": 748,
+            "label": "Large circular spin button with rotating arrows"
           },
           {
-            "waitMs": 6192,
-            "x": 195,
-            "y": 332,
-            "label": "Black splash screen - click centre to progress"
+            "waitMs": 15641,
+            "x": 206,
+            "y": 731,
+            "label": "Large circular spin button with rotating arrows"
           },
           {
-            "waitMs": 6281,
-            "x": 195,
-            "y": 332,
-            "label": "Black splash screen - click centre to progress"
+            "waitMs": 15400,
+            "x": 206,
+            "y": 731,
+            "label": "Large circular spin button with rotating arrows"
           },
           {
-            "waitMs": 6272,
-            "x": 195,
-            "y": 332,
-            "label": "Black splash screen - tap to progress"
+            "waitMs": 15444,
+            "x": 206,
+            "y": 743,
+            "label": "Large circular spin button with rotating arrows"
           },
           {
-            "waitMs": 7026,
-            "x": 195,
-            "y": 332,
-            "label": "Black splash screen - click to progress"
+            "waitMs": 16881,
+            "x": 206,
+            "y": 1222,
+            "label": "Large circular spin button with rotating arrows"
           },
           {
-            "waitMs": 7164,
-            "x": 195,
-            "y": 332,
-            "label": "black splash screen - tap to progress"
+            "waitMs": 17278,
+            "x": 206,
+            "y": 718,
+            "label": "Large circular spin button with rotating arrows"
           },
           {
-            "waitMs": 7402,
-            "x": 195,
-            "y": 332,
-            "label": "Black splash screen - click center to progress"
+            "waitMs": 19307,
+            "x": 206,
+            "y": 728,
+            "label": "Large circular spin button with rotating arrows"
           },
           {
-            "waitMs": 5769,
-            "x": 195,
-            "y": 332,
-            "label": "Black splash/loading screen - click centre to progress"
+            "waitMs": 15279,
+            "x": 206,
+            "y": 728,
+            "label": "Large circular spin button with rotating arrows"
           },
           {
-            "waitMs": 6364,
-            "x": 195,
-            "y": 332,
-            "label": "Black splash screen - tap to progress"
+            "waitMs": 15233,
+            "x": 206,
+            "y": 728,
+            "label": "Large circular spin button with rotating arrows"
           },
           {
-            "waitMs": 7804,
-            "x": 195,
-            "y": 332,
-            "label": "Black loading/splash screen - tap centre to progress"
+            "waitMs": 16361,
+            "x": 206,
+            "y": 731,
+            "label": "Large circular spin button with rotating arrows"
           },
           {
-            "waitMs": 8023,
-            "x": 195,
-            "y": 332,
-            "label": "Black splash screen - click to progress"
+            "waitMs": 15633,
+            "x": 206,
+            "y": 731,
+            "label": "Large circular spin button with rotating arrows"
           },
           {
-            "waitMs": 8975,
-            "x": 195,
-            "y": 332,
-            "label": "Black loading/splash screen - tap centre to progress"
+            "waitMs": 16949,
+            "x": 206,
+            "y": 718,
+            "label": "Large circular spin button with rotating arrows"
           },
           {
-            "waitMs": 7114,
-            "x": 195,
-            "y": 332,
-            "label": "Black splash screen - click centre to progress"
+            "waitMs": 15301,
+            "x": 206,
+            "y": 739,
+            "label": "Large circular spin button with rotating arrows"
           },
           {
-            "waitMs": 11301,
-            "x": 195,
-            "y": 332,
-            "label": "Black splash screen - click to progress"
+            "waitMs": 15699,
+            "x": 206,
+            "y": 1224,
+            "label": "Large circular spin button with rotating arrows"
+          },
+          {
+            "waitMs": 16820,
+            "x": 206,
+            "y": 1222,
+            "label": "Large circular spin button with rotating arrows"
           }
         ],
         "partial": true
