@@ -6,6 +6,8 @@ export type GameEntry = {
   url: string;
   mobileUrl?: string;
   cached?: boolean;
+  playmode: 'demo' | 'real';
+  channel: 'desktop' | 'mobile' | 'both';
 };
 
 export type RunStatus = 'running' | 'completed' | 'error';

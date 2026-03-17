@@ -1,6 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import express from 'express';
+import type { Channel } from '../lib/games';
 import { addGame, clearGameSteps, getCachedGameIds, readGames, updateGame } from './games';
 import { cancelRun, getHeadless, getRecentRuns, getRun, setHeadless, startRun } from './runner';
 
@@ -83,7 +84,8 @@ app.post('/api/games', (req, res) => {
       desktopGameId,
       mobileGameId: mobileGameId as string | undefined,
       name,
-      playmode: mode,
+      playmode: mode as 'demo' | 'real',
+      channel: channel as Channel,
     });
   } catch (err) {
     res.status(409).json({ error: (err as Error).message });
@@ -95,11 +97,12 @@ app.post('/api/games', (req, res) => {
 
 app.patch('/api/games/:id', (req, res) => {
   const { id } = req.params;
-  const { name, desktopGameId, mobileGameId, playmode } = req.body as {
+  const { name, desktopGameId, mobileGameId, playmode, channel } = req.body as {
     name?: unknown;
     desktopGameId?: unknown;
     mobileGameId?: unknown;
     playmode?: unknown;
+    channel?: unknown;
   };
 
   if (name !== undefined && typeof name !== 'string') {
@@ -122,12 +125,23 @@ app.patch('/api/games/:id', (req, res) => {
     return;
   }
 
+  if (
+    channel !== undefined &&
+    channel !== 'desktop' &&
+    channel !== 'mobile' &&
+    channel !== 'both'
+  ) {
+    res.status(400).json({ error: 'channel must be desktop, mobile, or both' });
+    return;
+  }
+
   try {
     updateGame(id, {
       name: name as string | undefined,
       desktopGameId: desktopGameId as string | undefined,
       mobileGameId: mobileGameId as string | undefined,
       playmode: playmode as 'demo' | 'real' | undefined,
+      channel: channel as Channel | undefined,
     });
   } catch (err) {
     const msg = (err as Error).message;

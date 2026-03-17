@@ -1,150 +1,41 @@
 {
   "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986": {
-    "desktop": {
+    "mobile": {
       "1280x720": {
-        "discoveredAt": "2026-03-17T10:41:31.155Z",
+        "discoveredAt": "2026-03-17T14:41:46.948Z",
         "steps": [
           {
-            "waitMs": 15406,
+            "waitMs": 14746,
             "x": 640,
-            "y": 685,
+            "y": 681,
             "label": "Continue button"
           },
           {
-            "waitMs": 4739,
+            "waitMs": 5278,
+            "x": 640,
+            "y": 645,
+            "label": "Large circular spin button with rotating arrows"
+          }
+        ]
+      }
+    },
+    "desktop": {
+      "1280x720": {
+        "discoveredAt": "2026-03-17T14:41:46.972Z",
+        "steps": [
+          {
+            "waitMs": 16119,
+            "x": 640,
+            "y": 683,
+            "label": "Continue button"
+          },
+          {
+            "waitMs": 5570,
             "x": 641,
             "y": 665,
             "label": "Large circular spin button with rotating arrow icon"
           }
         ]
-      }
-    },
-    "mobile": {
-      "412x839": {
-        "discoveredAt": "2026-03-17T10:50:17.785Z",
-        "steps": [
-          {
-            "waitMs": 18351,
-            "x": 384,
-            "y": 1389,
-            "label": "Continue button"
-          },
-          {
-            "waitMs": 8687,
-            "x": 384,
-            "y": 1389,
-            "label": "Continue button"
-          },
-          {
-            "waitMs": 7684,
-            "x": 384,
-            "y": 1389,
-            "label": "Continue button"
-          },
-          {
-            "waitMs": 8581,
-            "x": 384,
-            "y": 1392,
-            "label": "Continue button"
-          },
-          {
-            "waitMs": 11120,
-            "x": 384,
-            "y": 1390,
-            "label": "Continue button"
-          },
-          {
-            "waitMs": 5826,
-            "x": 206,
-            "y": 748,
-            "label": "Large circular spin button with rotating arrows"
-          },
-          {
-            "waitMs": 15641,
-            "x": 206,
-            "y": 731,
-            "label": "Large circular spin button with rotating arrows"
-          },
-          {
-            "waitMs": 15400,
-            "x": 206,
-            "y": 731,
-            "label": "Large circular spin button with rotating arrows"
-          },
-          {
-            "waitMs": 15444,
-            "x": 206,
-            "y": 743,
-            "label": "Large circular spin button with rotating arrows"
-          },
-          {
-            "waitMs": 16881,
-            "x": 206,
-            "y": 1222,
-            "label": "Large circular spin button with rotating arrows"
-          },
-          {
-            "waitMs": 17278,
-            "x": 206,
-            "y": 718,
-            "label": "Large circular spin button with rotating arrows"
-          },
-          {
-            "waitMs": 19307,
-            "x": 206,
-            "y": 728,
-            "label": "Large circular spin button with rotating arrows"
-          },
-          {
-            "waitMs": 15279,
-            "x": 206,
-            "y": 728,
-            "label": "Large circular spin button with rotating arrows"
-          },
-          {
-            "waitMs": 15233,
-            "x": 206,
-            "y": 728,
-            "label": "Large circular spin button with rotating arrows"
-          },
-          {
-            "waitMs": 16361,
-            "x": 206,
-            "y": 731,
-            "label": "Large circular spin button with rotating arrows"
-          },
-          {
-            "waitMs": 15633,
-            "x": 206,
-            "y": 731,
-            "label": "Large circular spin button with rotating arrows"
-          },
-          {
-            "waitMs": 16949,
-            "x": 206,
-            "y": 718,
-            "label": "Large circular spin button with rotating arrows"
-          },
-          {
-            "waitMs": 15301,
-            "x": 206,
-            "y": 739,
-            "label": "Large circular spin button with rotating arrows"
-          },
-          {
-            "waitMs": 15699,
-            "x": 206,
-            "y": 1224,
-            "label": "Large circular spin button with rotating arrows"
-          },
-          {
-            "waitMs": 16820,
-            "x": 206,
-            "y": 1222,
-            "label": "Large circular spin button with rotating arrows"
-          }
-        ],
-        "partial": true
       }
     }
   }

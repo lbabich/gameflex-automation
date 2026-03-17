@@ -20,7 +20,8 @@ export default defineConfig({
     {
       name: 'mobile',
       use: {
-        ...devices['Pixel 7'],
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1280, height: 720 },
       },
     },
   ],

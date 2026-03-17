@@ -4,12 +4,15 @@ import * as path from 'node:path';
 
 export type PlayMode = 'demo' | 'real';
 
+export type Channel = 'desktop' | 'mobile' | 'both';
+
 export type GameEntry = {
   id: string;
   desktopGameId: string;
   mobileGameId?: string;
   name: string;
   playmode: PlayMode;
+  channel: Channel;
 };
 
 const GAMES_PATH = path.resolve('src', 'data', 'games.json');
@@ -33,6 +36,11 @@ export function readGames(): GameEntry[] {
 
     if (!g.playmode) {
       g.playmode = 'demo';
+      dirty = true;
+    }
+
+    if (!g.channel) {
+      g.channel = 'both';
       dirty = true;
     }
   }

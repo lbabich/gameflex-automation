@@ -4,7 +4,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { readGames } from './games';
 
-export type RunStatus = 'running' | 'completed' | 'error';
+export type RunStatus = 'running' | 'completed' | 'error' | 'cancelled';
 
 type StepNode = {
   title?: string;
@@ -253,14 +253,17 @@ function createRunRecord(runId: string, gameIds: string[]): RunRecord {
 }
 
 function finalizeRecord(record: RunRecord, code: number | null, raw: string): void {
-  const parsed = parseJsonReport(raw);
-
   record.rawOutput = raw;
-  record.results = parsed.results;
-  record.playwrightErrors = parsed.playwrightErrors;
   record.finishedAt = new Date().toISOString();
   record.durationMs = new Date(record.finishedAt).getTime() - new Date(record.startedAt).getTime();
-  record.status = code === 0 ? 'completed' : 'error';
+
+  if (record.status !== 'cancelled') {
+    const parsed = parseJsonReport(raw);
+
+    record.results = parsed.results;
+    record.playwrightErrors = parsed.playwrightErrors;
+    record.status = code === 0 ? 'completed' : 'error';
+  }
 
   const games = readGames();
 
@@ -270,7 +273,7 @@ function finalizeRecord(record: RunRecord, code: number | null, raw: string): vo
     });
 
     if (game) {
-      const deviceType = result.project === 'mobile-chrome' ? 'mobile' : 'desktop';
+      const deviceType = /mobile/i.test(result.project) ? 'mobile' : 'desktop';
       const gifPath = path.resolve('src/server/screenshots', game.id, deviceType, 'animated.gif');
 
       if (fs.existsSync(gifPath)) {
@@ -428,6 +431,12 @@ export function cancelRun(runId: string): boolean {
 
   if (!child?.pid) {
     return false;
+  }
+
+  const record = runs.get(runId);
+
+  if (record) {
+    record.status = 'cancelled';
   }
 
   try {

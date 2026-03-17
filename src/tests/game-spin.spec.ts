@@ -26,8 +26,8 @@ for (const game of GAMES) {
     const projectDeviceType: DeviceType = isProjectMobile ? 'mobile' : 'desktop';
 
     test.skip(
-      deviceType !== projectDeviceType,
-      `URL channelid=${deviceType}; skipping ${testInfo.project.name}`,
+      game.channel !== 'both' && game.channel !== projectDeviceType,
+      `channel=${game.channel}; skipping ${testInfo.project.name}`,
     );
 
     const viewport = page.viewportSize();

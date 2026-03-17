@@ -1,7 +1,7 @@
 import * as crypto from 'node:crypto';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import type { PlayMode } from '../lib/games';
+import type { Channel, PlayMode } from '../lib/games';
 import { readGames } from '../lib/games';
 import * as stepCache from '../lib/step-cache';
 
@@ -37,6 +37,7 @@ export type GameUpdates = {
   desktopGameId?: string;
   mobileGameId?: string;
   playmode?: PlayMode;
+  channel?: Channel;
 };
 
 export function updateGame(id: string, updates: GameUpdates): void {
@@ -65,6 +66,7 @@ export function updateGame(id: string, updates: GameUpdates): void {
     desktopGameId: updates.desktopGameId ?? game.desktopGameId,
     mobileGameId: updates.mobileGameId !== undefined ? updates.mobileGameId : game.mobileGameId,
     playmode: updates.playmode ?? game.playmode,
+    channel: updates.channel ?? game.channel,
   };
 
   fs.mkdirSync(path.dirname(GAMES_PATH), { recursive: true });
