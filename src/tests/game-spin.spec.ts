@@ -3,6 +3,7 @@ import { test } from '@playwright/test';
 import * as dotenv from 'dotenv';
 import * as discovery from '../lib/discovery';
 import * as gifGenerator from '../lib/gif-generator';
+import * as operatorWallet from '../lib/operator-wallet';
 import * as replay from '../lib/replay';
 import * as screenshot from '../lib/screenshot';
 import * as stepCache from '../lib/step-cache';
@@ -21,14 +22,22 @@ for (const game of GAMES) {
     const channel: 'desktop' | 'mobile' = isProjectMobile ? 'mobile' : 'desktop';
     const gameId =
       channel === 'mobile' ? (game.mobileGameId ?? game.desktopGameId) : game.desktopGameId;
-    const launchUrl = buildSingleUrl(gameId, channel, game.playmode);
     const deviceType: DeviceType = channel;
     const projectDeviceType: DeviceType = isProjectMobile ? 'mobile' : 'desktop';
 
     test.skip(
-      game.channel !== 'both' && game.channel !== projectDeviceType,
-      `channel=${game.channel}; skipping ${testInfo.project.name}`,
+      isProjectMobile ? !game.mobileEnabled : !game.desktopEnabled,
+      `device disabled; skipping ${testInfo.project.name}`,
     );
+
+    const playmode = isProjectMobile ? game.mobilePlaymode : game.desktopPlaymode;
+
+    testInfo.annotations.push({ type: 'playmode', description: playmode });
+
+    const launchUrl =
+      playmode === 'real'
+        ? await operatorWallet.getGameLaunchUrl(gameId, channel)
+        : buildSingleUrl(gameId, channel, playmode);
 
     const viewport = page.viewportSize();
 

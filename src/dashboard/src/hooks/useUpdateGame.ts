@@ -5,8 +5,10 @@ export type GameUpdates = {
   name?: string;
   desktopGameId?: string;
   mobileGameId?: string;
-  playmode?: 'demo' | 'real';
-  channel?: 'desktop' | 'mobile' | 'both';
+  desktopEnabled?: boolean;
+  desktopPlaymode?: 'demo' | 'real';
+  mobileEnabled?: boolean;
+  mobilePlaymode?: 'demo' | 'real';
 };
 
 export function useUpdateGame() {

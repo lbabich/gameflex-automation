@@ -2,48 +2,76 @@ import * as crypto from 'node:crypto';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
-export type PlayMode = 'demo' | 'real';
-
-export type Channel = 'desktop' | 'mobile' | 'both';
-
 export type GameEntry = {
   id: string;
   desktopGameId: string;
   mobileGameId?: string;
   name: string;
-  playmode: PlayMode;
-  channel: Channel;
+  desktopEnabled: boolean;
+  desktopPlaymode: 'demo' | 'real';
+  mobileEnabled: boolean;
+  mobilePlaymode: 'demo' | 'real';
 };
 
 const GAMES_PATH = path.resolve('src', 'data', 'games.json');
 
 export function readGames(): GameEntry[] {
-  let games: GameEntry[];
+  let raw: unknown[];
 
   try {
-    games = JSON.parse(fs.readFileSync(GAMES_PATH, 'utf8')) as GameEntry[];
+    raw = JSON.parse(fs.readFileSync(GAMES_PATH, 'utf8')) as unknown[];
   } catch {
     return [];
   }
 
   let dirty = false;
 
-  for (const g of games) {
+  const games = raw.map((entry) => {
+    const g = entry as Record<string, unknown>;
+
     if (!g.id) {
       g.id = crypto.randomUUID();
       dirty = true;
     }
 
-    if (!g.playmode) {
-      g.playmode = 'demo';
+    const hasLegacyFields = 'channel' in g || 'playmode' in g;
+
+    if (hasLegacyFields) {
+      const channel = g.channel as string | undefined;
+      const playmode = (g.playmode as 'demo' | 'real' | undefined) ?? 'demo';
+
+      g.desktopEnabled = channel !== 'mobile';
+      g.mobileEnabled = channel === 'mobile' || channel === 'both';
+      g.desktopPlaymode = playmode;
+      g.mobilePlaymode = playmode;
+
+      delete g.channel;
+      delete g.playmode;
       dirty = true;
     }
 
-    if (!g.channel) {
-      g.channel = 'both';
+    if (g.desktopEnabled === undefined) {
+      g.desktopEnabled = true;
       dirty = true;
     }
-  }
+
+    if (!g.desktopPlaymode) {
+      g.desktopPlaymode = 'demo';
+      dirty = true;
+    }
+
+    if (g.mobileEnabled === undefined) {
+      g.mobileEnabled = false;
+      dirty = true;
+    }
+
+    if (!g.mobilePlaymode) {
+      g.mobilePlaymode = 'demo';
+      dirty = true;
+    }
+
+    return g as unknown as GameEntry;
+  });
 
   if (dirty) {
     fs.mkdirSync(path.dirname(GAMES_PATH), { recursive: true });

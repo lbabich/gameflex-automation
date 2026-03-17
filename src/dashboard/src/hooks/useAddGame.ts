@@ -4,8 +4,6 @@ export type NewGame = {
   desktopGameId: string;
   mobileGameId?: string;
   name: string;
-  channel: 'desktop' | 'mobile' | 'both';
-  mode: 'demo' | 'real';
 };
 
 export function useAddGame() {

@@ -1,6 +1,4 @@
-import type { PlayMode } from '../lib/games';
-
-export type { PlayMode };
+export type PlayMode = 'demo' | 'real';
 
 const BASE_URL = 'https://s009-gel.test-flex.us/gamelaunch/api/v2.0/game-launchers/gul/v2/load';
 

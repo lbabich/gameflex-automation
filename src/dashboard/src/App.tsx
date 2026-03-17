@@ -3,13 +3,13 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { AddGameModal } from './components/AddGameModal';
 import { EditGameModal } from './components/EditGameModal';
 import { GameActionBar } from './components/GameActionBar';
+import { GameDeviceSettings } from './components/GameDeviceSettings';
 import { GameSelector } from './components/GameSelector';
 import { RecentRunsList } from './components/RecentRunsList';
 import { ResultsPanel } from './components/ResultsPanel';
 import { useGames } from './hooks/useGames';
 import { useRecentRuns } from './hooks/useRecentRuns';
 import { useRun } from './hooks/useRun';
-import { useSettings } from './hooks/useSettings';
 import type { GameEntry } from './types';
 
 export default function App() {
@@ -22,8 +22,6 @@ export default function App() {
   const { data: games, isLoading: gamesLoading } = useGames();
   const { data: run, isLoading: runLoading } = useRun(viewRunId);
   const { data: recentRuns } = useRecentRuns();
-  const { headless, toggle, isToggling } = useSettings();
-
   const prevStatusRef = useRef<string | undefined>(undefined);
 
   useEffect(() => {
@@ -108,17 +106,6 @@ export default function App() {
           >
             + Add Game
           </button>
-          <button
-            type="button"
-            onClick={toggle}
-            disabled={isToggling}
-            className="w-full flex items-center justify-between px-3 py-2 rounded text-sm bg-gray-100 hover:bg-gray-200 transition-colors disabled:opacity-50"
-          >
-            <span className="text-gray-700">Headless</span>
-            <span className={`text-xs font-semibold ${headless ? 'text-green-600' : 'text-orange-500'}`}>
-              {headless ? 'ON' : 'OFF'}
-            </span>
-          </button>
         </div>
       </aside>
 
@@ -131,6 +118,7 @@ export default function App() {
             onRunComplete={handleRunComplete}
           />
         )}
+        {selectedGame && <GameDeviceSettings game={selectedGame} isRunning={selectedGameIsRunning} />}
         {viewRunId !== null ? (
           <ResultsPanel run={run} isLoading={runLoading} />
         ) : (

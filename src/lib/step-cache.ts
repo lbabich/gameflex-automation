@@ -54,3 +54,17 @@ export function clearAllSteps(id: string) {
     saveCache(cache);
   }
 }
+
+export function clearChannelSteps(id: string, deviceType: DeviceType) {
+  const cache = loadCache();
+
+  if (cache[id]?.[deviceType]) {
+    delete cache[id][deviceType];
+
+    if (Object.keys(cache[id]).length === 0) {
+      delete cache[id];
+    }
+
+    saveCache(cache);
+  }
+}

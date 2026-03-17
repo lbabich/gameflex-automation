@@ -1,39 +1,45 @@
 {
   "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986": {
-    "mobile": {
+    "desktop": {
       "1280x720": {
-        "discoveredAt": "2026-03-17T14:41:46.948Z",
+        "discoveredAt": "2026-03-17T15:33:17.598Z",
         "steps": [
           {
-            "waitMs": 14746,
+            "waitMs": 15371,
             "x": 640,
-            "y": 681,
+            "y": 684,
             "label": "Continue button"
           },
           {
-            "waitMs": 5278,
+            "waitMs": 5709,
             "x": 640,
-            "y": 645,
-            "label": "Large circular spin button with rotating arrows"
+            "y": 661,
+            "label": "Circular spin button with rotating arrows"
           }
         ]
       }
     },
-    "desktop": {
+    "mobile": {
       "1280x720": {
-        "discoveredAt": "2026-03-17T14:41:46.972Z",
+        "discoveredAt": "2026-03-17T15:35:05.827Z",
         "steps": [
           {
-            "waitMs": 16119,
+            "waitMs": 15374,
             "x": 640,
-            "y": 683,
+            "y": 661,
             "label": "Continue button"
           },
           {
-            "waitMs": 5570,
-            "x": 641,
-            "y": 665,
-            "label": "Large circular spin button with rotating arrow icon"
+            "waitMs": 8559,
+            "x": 640,
+            "y": 673,
+            "label": "Continue button"
+          },
+          {
+            "waitMs": 5364,
+            "x": 1192,
+            "y": 365,
+            "label": "Circular spin button with rotating arrows"
           }
         ]
       }

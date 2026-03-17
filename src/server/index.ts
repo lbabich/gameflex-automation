@@ -1,9 +1,15 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import express from 'express';
-import type { Channel } from '../lib/games';
-import { addGame, clearGameSteps, getCachedGameIds, readGames, updateGame } from './games';
-import { cancelRun, getHeadless, getRecentRuns, getRun, setHeadless, startRun } from './runner';
+import {
+  addGame,
+  clearGameChannelSteps,
+  clearGameSteps,
+  getCachedGameIds,
+  readGames,
+  updateGame,
+} from './games';
+import { cancelRun, getRecentRuns, getRun, startRun } from './runner';
 
 const app = express();
 const PORT = 3001;
@@ -23,22 +29,6 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/api/settings', (_req, res) => {
-  res.json({ headless: getHeadless() });
-});
-
-app.patch('/api/settings', (req, res) => {
-  const { headless } = req.body as { headless?: unknown };
-
-  if (typeof headless !== 'boolean') {
-    res.status(400).json({ error: 'headless must be a boolean' });
-    return;
-  }
-
-  setHeadless(headless);
-  res.json({ headless: getHeadless() });
-});
-
 app.get('/api/games', (_req, res) => {
   const games = readGames();
   const cached = getCachedGameIds();
@@ -51,12 +41,10 @@ app.get('/api/games', (_req, res) => {
 });
 
 app.post('/api/games', (req, res) => {
-  const { desktopGameId, mobileGameId, name, channel, mode } = req.body as {
+  const { desktopGameId, mobileGameId, name } = req.body as {
     desktopGameId?: unknown;
     mobileGameId?: unknown;
     name?: unknown;
-    channel?: unknown;
-    mode?: unknown;
   };
 
   if (typeof desktopGameId !== 'string' || typeof name !== 'string') {
@@ -69,23 +57,15 @@ app.post('/api/games', (req, res) => {
     return;
   }
 
-  if (channel !== 'desktop' && channel !== 'mobile' && channel !== 'both') {
-    res.status(400).json({ error: 'channel must be desktop, mobile, or both' });
-    return;
-  }
-
-  if (mode !== 'demo' && mode !== 'real') {
-    res.status(400).json({ error: 'mode must be demo or real' });
-    return;
-  }
-
   try {
     addGame({
       desktopGameId,
       mobileGameId: mobileGameId as string | undefined,
       name,
-      playmode: mode as 'demo' | 'real',
-      channel: channel as Channel,
+      desktopEnabled: true,
+      desktopPlaymode: 'demo',
+      mobileEnabled: false,
+      mobilePlaymode: 'demo',
     });
   } catch (err) {
     res.status(409).json({ error: (err as Error).message });
@@ -97,12 +77,22 @@ app.post('/api/games', (req, res) => {
 
 app.patch('/api/games/:id', (req, res) => {
   const { id } = req.params;
-  const { name, desktopGameId, mobileGameId, playmode, channel } = req.body as {
+  const {
+    name,
+    desktopGameId,
+    mobileGameId,
+    desktopEnabled,
+    desktopPlaymode,
+    mobileEnabled,
+    mobilePlaymode,
+  } = req.body as {
     name?: unknown;
     desktopGameId?: unknown;
     mobileGameId?: unknown;
-    playmode?: unknown;
-    channel?: unknown;
+    desktopEnabled?: unknown;
+    desktopPlaymode?: unknown;
+    mobileEnabled?: unknown;
+    mobilePlaymode?: unknown;
   };
 
   if (name !== undefined && typeof name !== 'string') {
@@ -120,18 +110,23 @@ app.patch('/api/games/:id', (req, res) => {
     return;
   }
 
-  if (playmode !== undefined && playmode !== 'demo' && playmode !== 'real') {
-    res.status(400).json({ error: 'playmode must be demo or real' });
+  if (desktopEnabled !== undefined && typeof desktopEnabled !== 'boolean') {
+    res.status(400).json({ error: 'desktopEnabled must be a boolean' });
     return;
   }
 
-  if (
-    channel !== undefined &&
-    channel !== 'desktop' &&
-    channel !== 'mobile' &&
-    channel !== 'both'
-  ) {
-    res.status(400).json({ error: 'channel must be desktop, mobile, or both' });
+  if (desktopPlaymode !== undefined && desktopPlaymode !== 'demo' && desktopPlaymode !== 'real') {
+    res.status(400).json({ error: 'desktopPlaymode must be demo or real' });
+    return;
+  }
+
+  if (mobileEnabled !== undefined && typeof mobileEnabled !== 'boolean') {
+    res.status(400).json({ error: 'mobileEnabled must be a boolean' });
+    return;
+  }
+
+  if (mobilePlaymode !== undefined && mobilePlaymode !== 'demo' && mobilePlaymode !== 'real') {
+    res.status(400).json({ error: 'mobilePlaymode must be demo or real' });
     return;
   }
 
@@ -140,8 +135,10 @@ app.patch('/api/games/:id', (req, res) => {
       name: name as string | undefined,
       desktopGameId: desktopGameId as string | undefined,
       mobileGameId: mobileGameId as string | undefined,
-      playmode: playmode as 'demo' | 'real' | undefined,
-      channel: channel as Channel | undefined,
+      desktopEnabled: desktopEnabled as boolean | undefined,
+      desktopPlaymode: desktopPlaymode as 'demo' | 'real' | undefined,
+      mobileEnabled: mobileEnabled as boolean | undefined,
+      mobilePlaymode: mobilePlaymode as 'demo' | 'real' | undefined,
     });
   } catch (err) {
     const msg = (err as Error).message;
@@ -157,6 +154,19 @@ app.delete('/api/games/:id/steps', (req, res) => {
   const { id } = req.params;
 
   clearGameSteps(id);
+
+  res.sendStatus(204);
+});
+
+app.delete('/api/games/:id/steps/:channel', (req, res) => {
+  const { id, channel } = req.params;
+
+  if (channel !== 'desktop' && channel !== 'mobile') {
+    res.status(400).json({ error: 'channel must be desktop or mobile' });
+    return;
+  }
+
+  clearGameChannelSteps(id, channel);
 
   res.sendStatus(204);
 });

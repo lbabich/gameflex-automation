@@ -11,8 +11,6 @@ export function EditGameModal({ game, onClose }: Props) {
   const [name, setName] = useState(game.name);
   const [desktopGameId, setDesktopGameId] = useState(game.desktopGameId);
   const [mobileGameId, setMobileGameId] = useState(game.mobileGameId ?? '');
-  const [playmode, setPlaymode] = useState(game.playmode);
-  const [channel, setChannel] = useState(game.channel);
   const [error, setError] = useState<string | null>(null);
   const { mutate, isPending } = useUpdateGame();
 
@@ -26,8 +24,6 @@ export function EditGameModal({ game, onClose }: Props) {
         name: name.trim(),
         desktopGameId: desktopGameId.trim(),
         mobileGameId: mobileGameId.trim() || undefined,
-        playmode,
-        channel,
       },
       {
         onSuccess: () => onClose(),
@@ -79,46 +75,6 @@ export function EditGameModal({ game, onClose }: Props) {
               className="border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </label>
-
-          <div className="flex flex-col gap-1">
-            <span className="text-sm font-medium text-gray-700">Channel</span>
-            <div className="flex gap-2">
-              {(['desktop', 'mobile', 'both'] as const).map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  onClick={() => setChannel(c)}
-                  className={`flex-1 py-1.5 rounded text-sm border capitalize transition-colors ${
-                    channel === c
-                      ? 'bg-blue-600 text-white border-blue-600'
-                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                  }`}
-                >
-                  {c}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <span className="text-sm font-medium text-gray-700">Mode</span>
-            <div className="flex gap-2">
-              {(['demo', 'real'] as const).map((m) => (
-                <button
-                  key={m}
-                  type="button"
-                  onClick={() => setPlaymode(m)}
-                  className={`flex-1 py-1.5 rounded text-sm border capitalize transition-colors ${
-                    playmode === m
-                      ? 'bg-blue-600 text-white border-blue-600'
-                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                  }`}
-                >
-                  {m}
-                </button>
-              ))}
-            </div>
-          </div>
 
           {(desktopGameId.trim() !== game.desktopGameId || (mobileGameId.trim() || undefined) !== game.mobileGameId) && (
             <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded px-3 py-2">

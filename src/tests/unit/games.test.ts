@@ -26,7 +26,7 @@ describe('addGame', () => {
   it('assigns a GUID when adding a game', () => {
     const desktopGameId = makeDesktopGameId();
 
-    addGame({ desktopGameId, name: 'Test Game', playmode: 'demo' });
+    addGame({ desktopGameId, name: 'Test Game', desktopEnabled: true, desktopPlaymode: 'demo', mobileEnabled: false, mobilePlaymode: 'demo' });
 
     const updated = readGames();
     const added = updated.find((g) => {
@@ -42,10 +42,10 @@ describe('addGame', () => {
   it('throws when adding a duplicate desktopGameId', () => {
     const desktopGameId = makeDesktopGameId();
 
-    addGame({ desktopGameId, name: 'Original', playmode: 'demo' });
+    addGame({ desktopGameId, name: 'Original', desktopEnabled: true, desktopPlaymode: 'demo', mobileEnabled: false, mobilePlaymode: 'demo' });
 
     expect(() => {
-      return addGame({ desktopGameId, name: 'Duplicate', playmode: 'demo' });
+      return addGame({ desktopGameId, name: 'Duplicate', desktopEnabled: true, desktopPlaymode: 'demo', mobileEnabled: false, mobilePlaymode: 'demo' });
     }).toThrow(/already exists/);
   });
 });
@@ -71,7 +71,7 @@ describe('readGames migration', () => {
 
     expect(onDisk[0].id, 'id should be persisted to disk').toBeTruthy();
     expect(onDisk[0].id).toBe(games[0].id);
-    expect(onDisk[0].playmode).toBe('demo');
+    expect(onDisk[0].desktopPlaymode).toBe('demo');
   });
 });
 
@@ -79,7 +79,7 @@ describe('updateGame', () => {
   function addTestGame() {
     const desktopGameId = makeDesktopGameId();
 
-    addGame({ desktopGameId, name: 'Update Test', playmode: 'demo' });
+    addGame({ desktopGameId, name: 'Update Test', desktopEnabled: true, desktopPlaymode: 'demo', mobileEnabled: false, mobilePlaymode: 'demo' });
 
     const found = readGames().find((g) => {
       return g.desktopGameId === desktopGameId;

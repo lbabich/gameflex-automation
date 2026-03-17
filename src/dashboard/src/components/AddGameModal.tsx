@@ -8,8 +8,6 @@ type Props = {
 const DEFAULTS: NewGame = {
   desktopGameId: '',
   name: '',
-  channel: 'desktop',
-  mode: 'demo',
 };
 
 export function AddGameModal({ onClose }: Props) {
@@ -79,46 +77,6 @@ export function AddGameModal({ onClose }: Props) {
               className="border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </label>
-
-          <div className="flex flex-col gap-1">
-            <span className="text-sm font-medium text-gray-700">Channel</span>
-            <div className="flex gap-2">
-              {(['desktop', 'mobile', 'both'] as const).map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  onClick={() => set('channel', c)}
-                  className={`flex-1 py-1.5 rounded text-sm border capitalize transition-colors ${
-                    fields.channel === c
-                      ? 'bg-blue-600 text-white border-blue-600'
-                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                  }`}
-                >
-                  {c}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <span className="text-sm font-medium text-gray-700">Mode</span>
-            <div className="flex gap-2">
-              {(['demo', 'real'] as const).map((m) => (
-                <button
-                  key={m}
-                  type="button"
-                  onClick={() => set('mode', m)}
-                  className={`flex-1 py-1.5 rounded text-sm border capitalize transition-colors ${
-                    fields.mode === m
-                      ? 'bg-blue-600 text-white border-blue-600'
-                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                  }`}
-                >
-                  {m}
-                </button>
-              ))}
-            </div>
-          </div>
 
           {error && <p className="text-sm text-red-600">{error}</p>}
 

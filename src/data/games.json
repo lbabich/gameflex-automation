@@ -4,35 +4,45 @@
     "desktopGameId": "13724",
     "mobileGameId": "13725",
     "name": "9 Masks of Fire",
-    "playmode": "demo",
-    "channel": "both"
+    "desktopEnabled": false,
+    "mobileEnabled": true,
+    "desktopPlaymode": "real",
+    "mobilePlaymode": "real"
   },
   {
     "id": "0ebed9bf-627d-45b9-8931-7c98ea53968f",
     "desktopGameId": "37737",
     "name": "Money Train 4",
-    "playmode": "demo",
-    "channel": "both"
+    "desktopEnabled": true,
+    "mobileEnabled": true,
+    "desktopPlaymode": "demo",
+    "mobilePlaymode": "demo"
   },
   {
     "id": "6733624c-554e-4081-a92f-4616af3317e5",
     "desktopGameId": "30495",
     "name": "Gold Blitz",
-    "playmode": "demo",
-    "channel": "both"
+    "desktopEnabled": true,
+    "mobileEnabled": true,
+    "desktopPlaymode": "demo",
+    "mobilePlaymode": "demo"
   },
   {
     "id": "b4c51f69-e28f-4c66-9b3c-0be918e9af91",
     "desktopGameId": "63174",
     "name": "Barn Busters",
-    "playmode": "demo",
-    "channel": "both"
+    "desktopEnabled": true,
+    "mobileEnabled": true,
+    "desktopPlaymode": "demo",
+    "mobilePlaymode": "demo"
   },
   {
     "id": "b334f577-df52-401b-b5db-d86559a07b3f",
     "desktopGameId": "65445",
     "name": "Eternal Link Princess Empire",
-    "playmode": "demo",
-    "channel": "both"
+    "desktopEnabled": true,
+    "mobileEnabled": true,
+    "desktopPlaymode": "demo",
+    "mobilePlaymode": "demo"
   }
 ]
