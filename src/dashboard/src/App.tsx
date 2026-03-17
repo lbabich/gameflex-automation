@@ -69,8 +69,8 @@ export default function App() {
       result[game.id] = {
         isRunning: running,
         lastStatus,
-        desktopLastStatus: deviceStatus(completedRuns, 'chromium'),
-        mobileLastStatus: deviceStatus(completedRuns, 'mobile-chrome'),
+        desktopLastStatus: deviceStatus(completedRuns, 'desktop'),
+        mobileLastStatus: deviceStatus(completedRuns, 'mobile'),
       };
     }
 
@@ -98,6 +98,16 @@ export default function App() {
     setSelectedGameId(id);
     const found = (recentRuns ?? []).find((r) => r.gameIds.includes(id));
     setViewRunId(found?.runId ?? null);
+  }
+
+  function handleRunSelect(runId: string) {
+    const run = (recentRuns ?? []).find((r) => r.runId === runId);
+
+    if (run?.gameIds[0] && !selectedGameId) {
+      setSelectedGameId(run.gameIds[0]);
+    }
+
+    setViewRunId(runId);
   }
 
   function handleRunComplete(runId: string) {
@@ -155,7 +165,7 @@ export default function App() {
           <RecentRunsList
             runs={selectedGameRuns}
             games={games ?? []}
-            onSelect={setViewRunId}
+            onSelect={handleRunSelect}
             emptyMessage={
               selectedGame
                 ? `No runs yet for ${selectedGame.name}. Click Run Test to start.`

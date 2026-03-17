@@ -25,11 +25,6 @@ for (const game of GAMES) {
     const deviceType: DeviceType = channel;
     const projectDeviceType: DeviceType = isProjectMobile ? 'mobile' : 'desktop';
 
-    test.skip(
-      isProjectMobile ? !game.mobileEnabled : !game.desktopEnabled,
-      `device disabled; skipping ${testInfo.project.name}`,
-    );
-
     const playmode = isProjectMobile ? game.mobilePlaymode : game.desktopPlaymode;
 
     testInfo.annotations.push({ type: 'playmode', description: playmode });
