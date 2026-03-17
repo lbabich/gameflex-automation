@@ -64,7 +64,7 @@ export function GameActionBar({ game, isRunning, runId, onRunComplete }: Props) 
             onClick={handleRun}
             className="px-3 py-1.5 rounded text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors"
           >
-            Run Test
+            Run Both
           </button>
         )}
         <button

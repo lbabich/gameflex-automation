@@ -217,7 +217,7 @@ function resolveGameNames(gameIds: string[]): string[] {
     });
 }
 
-function buildPlaywrightCommand(names: string[]): string {
+function buildPlaywrightCommand(names: string[], projects?: string[]): string {
   const grepPattern = names
     .map((n) => {
       return `spin: ${n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`;
@@ -227,7 +227,15 @@ function buildPlaywrightCommand(names: string[]): string {
   // Double-quotes are safe on both cmd.exe and sh; escape any literal " inside.
   const quotedPattern = `"${grepPattern.replace(/"/g, '\\"')}"`;
 
-  return `npx playwright test --reporter=json --grep ${quotedPattern}`;
+  const projectFlags = projects?.length
+    ? projects
+        .map((p) => {
+          return `--project ${p}`;
+        })
+        .join(' ')
+    : '';
+
+  return `npx playwright test --reporter=json --grep ${quotedPattern}${projectFlags ? ` ${projectFlags}` : ''}`;
 }
 
 function createRunRecord(runId: string, gameIds: string[]): RunRecord {
@@ -356,7 +364,10 @@ function attachProcessHandlers(child: ChildProcess, record: RunRecord): void {
   });
 }
 
-export function startRun(gameIds: string[]): { runId: string } | { error: string } {
+export function startRun(
+  gameIds: string[],
+  projects?: string[],
+): { runId: string } | { error: string } {
   const conflicting = gameIds.filter((id) => {
     return activeRunsByGame.has(id);
   });
@@ -400,7 +411,7 @@ export function startRun(gameIds: string[]): { runId: string } | { error: string
     lastRunIdByGame.set(id, runId);
   }
 
-  const cmd = buildPlaywrightCommand(names);
+  const cmd = buildPlaywrightCommand(names, projects);
 
   console.log(`[runner] Starting run ${runId}`);
   console.log(`[runner] Command: ${cmd}`);

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useClearChannelSteps } from '../hooks/useClearChannelSteps';
 import { useUpdateGame } from '../hooks/useUpdateGame';
 import type { GameEntry } from '../types';
@@ -9,30 +10,31 @@ type Props = {
   isRunning: boolean;
   desktopLastStatus: RunStatus;
   mobileLastStatus: RunStatus;
+  onRunComplete: (runId: string) => void;
 };
 
 type DeviceCardProps = {
   label: string;
-  enabled: boolean;
   playmode: 'demo' | 'real';
   isRunning: boolean;
   resetPending: boolean;
+  launchPending: boolean;
   cached: boolean;
   lastStatus: RunStatus;
-  onToggleEnabled: () => void;
+  onLaunch: () => void;
   onTogglePlaymode: (mode: 'demo' | 'real') => void;
   onReset: () => void;
 };
 
 function DeviceCard({
   label,
-  enabled,
   playmode,
   isRunning,
   resetPending,
+  launchPending,
   cached,
   lastStatus,
-  onToggleEnabled,
+  onLaunch,
   onTogglePlaymode,
   onReset,
 }: DeviceCardProps) {
@@ -73,14 +75,11 @@ function DeviceCard({
           </button>
           <button
             type="button"
-            onClick={onToggleEnabled}
-            className={`px-3 py-1 rounded text-xs font-semibold transition-colors ${
-              enabled
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 text-gray-500 hover:bg-gray-300'
-            }`}
+            onClick={onLaunch}
+            disabled={isRunning || launchPending}
+            className="px-3 py-1 rounded text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors disabled:opacity-50"
           >
-            {enabled ? 'Enabled' : 'Disabled'}
+            Launch
           </button>
         </div>
       </div>
@@ -89,14 +88,11 @@ function DeviceCard({
           <button
             key={m}
             type="button"
-            disabled={!enabled}
             onClick={() => onTogglePlaymode(m)}
             className={`flex-1 py-1 rounded text-xs border capitalize transition-colors ${
-              playmode === m && enabled
+              playmode === m
                 ? 'bg-blue-600 text-white border-blue-600'
-                : enabled
-                  ? 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                  : 'bg-gray-50 text-gray-300 border-gray-200 cursor-not-allowed'
+                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
             }`}
           >
             {m}
@@ -107,39 +103,68 @@ function DeviceCard({
   );
 }
 
-export function GameDeviceSettings({ game, isRunning, desktopLastStatus, mobileLastStatus }: Props) {
+export function GameDeviceSettings({
+  game,
+  isRunning,
+  desktopLastStatus,
+  mobileLastStatus,
+  onRunComplete,
+}: Props) {
   const { mutate } = useUpdateGame();
   const clearChannel = useClearChannelSteps();
+  const [pendingDevice, setPendingDevice] = useState<'desktop' | 'mobile' | null>(null);
 
   function patch(
-    updates: Partial<Pick<GameEntry, 'desktopEnabled' | 'desktopPlaymode' | 'mobileEnabled' | 'mobilePlaymode'>>,
+    updates: Partial<Pick<GameEntry, 'desktopPlaymode' | 'mobilePlaymode'>>,
   ) {
     mutate({ id: game.id, ...updates });
+  }
+
+  async function handleLaunch(project: 'desktop' | 'mobile') {
+    setPendingDevice(project);
+
+    try {
+      const res = await fetch('/api/runs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ gameIds: [game.id], projects: [project] }),
+      });
+
+      if (!res.ok) return;
+
+      const data = (await res.json()) as { runId: string };
+
+      onRunComplete(data.runId);
+    } catch {
+      // ignore
+    } finally {
+      setPendingDevice(null);
+    }
   }
 
   return (
     <div className="flex gap-3 mb-4">
       <DeviceCard
         label="Desktop"
-        enabled={game.desktopEnabled}
         playmode={game.desktopPlaymode}
         isRunning={isRunning}
         resetPending={clearChannel.isPending}
+        launchPending={pendingDevice === 'chromium'}
         cached={game.desktopCached ?? false}
         lastStatus={desktopLastStatus}
-        onToggleEnabled={() => patch({ desktopEnabled: !game.desktopEnabled })}
+        onLaunch={() => handleLaunch('desktop')}
         onTogglePlaymode={(mode) => patch({ desktopPlaymode: mode })}
         onReset={() => clearChannel.mutate({ id: game.id, deviceType: 'desktop' })}
       />
       <DeviceCard
         label="Mobile"
-        enabled={game.mobileEnabled}
         playmode={game.mobilePlaymode}
         isRunning={isRunning}
         resetPending={clearChannel.isPending}
+        launchPending={pendingDevice === 'mobile-chrome'}
         cached={game.mobileCached ?? false}
         lastStatus={mobileLastStatus}
-        onToggleEnabled={() => patch({ mobileEnabled: !game.mobileEnabled })}
+        onLaunch={() => handleLaunch('mobile')}
         onTogglePlaymode={(mode) => patch({ mobilePlaymode: mode })}
         onReset={() => clearChannel.mutate({ id: game.id, deviceType: 'mobile' })}
       />

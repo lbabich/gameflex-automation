@@ -146,6 +146,7 @@ export default function App() {
             isRunning={selectedGameIsRunning}
             desktopLastStatus={gameStatuses[selectedGame.id]?.desktopLastStatus ?? null}
             mobileLastStatus={gameStatuses[selectedGame.id]?.mobileLastStatus ?? null}
+            onRunComplete={handleRunComplete}
           />
         )}
         {viewRunId !== null ? (

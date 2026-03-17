@@ -174,14 +174,14 @@ app.delete('/api/games/:id/steps/:channel', (req, res) => {
 });
 
 app.post('/api/runs', (req, res) => {
-  const { gameIds } = req.body as { gameIds?: string[] };
+  const { gameIds, projects } = req.body as { gameIds?: string[]; projects?: string[] };
 
   if (!Array.isArray(gameIds) || gameIds.length === 0) {
     res.status(400).json({ error: 'gameIds must be a non-empty array' });
     return;
   }
 
-  const result = startRun(gameIds);
+  const result = startRun(gameIds, Array.isArray(projects) ? projects : undefined);
 
   if ('error' in result) {
     res.status(409).json(result);
