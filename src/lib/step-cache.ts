@@ -68,3 +68,17 @@ export function clearChannelSteps(id: string, deviceType: DeviceType) {
     saveCache(cache);
   }
 }
+
+export function getCachedDeviceMap(): Map<string, { desktop: boolean; mobile: boolean }> {
+  const cache = loadCache();
+  const result = new Map<string, { desktop: boolean; mobile: boolean }>();
+
+  for (const [gameId, devices] of Object.entries(cache)) {
+    result.set(gameId, {
+      desktop: 'desktop' in devices,
+      mobile: 'mobile' in devices,
+    });
+  }
+
+  return result;
+}

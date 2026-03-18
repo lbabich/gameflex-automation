@@ -1,6 +1,7 @@
 import * as crypto from 'node:crypto';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import * as stepCache from './step-cache';
 import type { PlayMode } from './types';
 
 export type GameEntry = {
@@ -12,6 +13,16 @@ export type GameEntry = {
   desktopPlaymode: PlayMode;
   mobileEnabled: boolean;
   mobilePlaymode: PlayMode;
+};
+
+export type GameUpdates = {
+  name?: string;
+  desktopGameId?: string;
+  mobileGameId?: string;
+  desktopEnabled?: boolean;
+  desktopPlaymode?: PlayMode;
+  mobileEnabled?: boolean;
+  mobilePlaymode?: PlayMode;
 };
 
 const GAMES_PATH = path.resolve('src', 'data', 'games.json');
@@ -80,4 +91,58 @@ export function readGames(): GameEntry[] {
   }
 
   return games;
+}
+
+export function addGame(entry: Omit<GameEntry, 'id'> & { id?: string }): void {
+  const games = readGames();
+
+  if (
+    games.some((g) => {
+      return g.desktopGameId === entry.desktopGameId;
+    })
+  ) {
+    throw new Error(`Game with ID ${entry.desktopGameId} already exists`);
+  }
+
+  const full = { ...entry, id: entry.id ?? crypto.randomUUID() };
+
+  games.push(full);
+  fs.mkdirSync(path.dirname(GAMES_PATH), { recursive: true });
+  fs.writeFileSync(GAMES_PATH, JSON.stringify(games, null, 2));
+}
+
+export function updateGame(id: string, updates: GameUpdates): void {
+  const games = readGames();
+  const idx = games.findIndex((g) => {
+    return g.id === id;
+  });
+
+  if (idx === -1) {
+    throw new Error(`Game ${id} not found`);
+  }
+
+  const game = games[idx];
+
+  const idChanged =
+    (updates.desktopGameId !== undefined && updates.desktopGameId !== game.desktopGameId) ||
+    (updates.mobileGameId !== undefined && updates.mobileGameId !== game.mobileGameId);
+
+  if (idChanged) {
+    stepCache.clearAllSteps(id);
+  }
+
+  games[idx] = {
+    ...game,
+    name: updates.name ?? game.name,
+    desktopGameId: updates.desktopGameId ?? game.desktopGameId,
+    mobileGameId: updates.mobileGameId !== undefined ? updates.mobileGameId : game.mobileGameId,
+    desktopEnabled:
+      updates.desktopEnabled !== undefined ? updates.desktopEnabled : game.desktopEnabled,
+    desktopPlaymode: updates.desktopPlaymode ?? game.desktopPlaymode,
+    mobileEnabled: updates.mobileEnabled !== undefined ? updates.mobileEnabled : game.mobileEnabled,
+    mobilePlaymode: updates.mobilePlaymode ?? game.mobilePlaymode,
+  };
+
+  fs.mkdirSync(path.dirname(GAMES_PATH), { recursive: true });
+  fs.writeFileSync(GAMES_PATH, JSON.stringify(games, null, 2));
 }

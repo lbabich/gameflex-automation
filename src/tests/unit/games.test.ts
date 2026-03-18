@@ -3,7 +3,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import * as stepCache from '../../lib/step-cache.ts';
-import { addGame, readGames, updateGame } from '../../server/games.ts';
+import { addGame, readGames, updateGame } from '../../lib/games.ts';
 
 const GAMES_PATH = path.resolve('src', 'data', 'games.json');
 
