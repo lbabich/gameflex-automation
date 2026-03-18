@@ -29,8 +29,3 @@ export class FileWriteError extends Data.TaggedError('FileWriteError')<{
   path: string;
   message: string;
 }> {}
-
-export class ConfigError extends Data.TaggedError('ConfigError')<{
-  key: string;
-  message: string;
-}> {}

@@ -35,7 +35,7 @@ type ReportJson = {
   errors?: Array<{ message?: string }>;
 };
 
-export function flattenSpecs(suite: SuiteNode): SpecNode[] {
+function flattenSpecs(suite: SuiteNode): SpecNode[] {
   const specs: SpecNode[] = [...(suite.specs ?? [])];
 
   for (const child of suite.suites ?? []) {
@@ -45,7 +45,7 @@ export function flattenSpecs(suite: SuiteNode): SpecNode[] {
   return specs;
 }
 
-export function toTestResult(spec: SpecNode, test: TestNode): TestResult | null {
+function toTestResult(spec: SpecNode, test: TestNode): TestResult | null {
   const result = test.results?.[0];
 
   if (!result) {

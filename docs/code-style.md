@@ -134,3 +134,26 @@ Exception: when `return` is the only statement in a function body, the blank lin
 | Multi-line function call | ✓ | ✓ |
 | Group of single-line calls (first/last line) | ✓ | ✓ |
 | `return` statement | ✓ | — |
+
+---
+
+## Effect service naming
+
+Effect services have two exports: the Tag (the interface) and the implementation (the Layer).
+
+| Export | Convention | Example |
+|--------|-----------|---------|
+| Tag / interface | `{Name}Service` | `FileService` |
+| Node.js implementation | `Node{Name}Service` | `NodeFileService` |
+| Test / in-memory implementation | `Test{Name}Service` | `TestFileService` |
+
+```ts
+// ✓ correct
+export class FileService extends Effect.Tag('FileService')<...>() {}
+export const NodeFileService = Layer.succeed(FileService, { ... })
+
+// ✗ wrong — don't use the Live suffix
+export const FileServiceLive = Layer.succeed(FileService, { ... })
+```
+
+The `Node` prefix signals that the implementation is Node.js-specific (disk, child processes, etc.). The `Test` prefix signals an in-memory fake used in unit tests.
