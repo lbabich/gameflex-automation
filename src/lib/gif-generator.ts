@@ -23,6 +23,8 @@ const GIF_WIDTH = 640;
 const GIF_HEIGHT = 360;
 const GIF_DELAY_MS = 1000;
 
+export const ANIMATED_GIF_FILENAME = 'animated.gif';
+
 function parseSortKey(filename: string): [number, number] {
   const base = path.basename(filename, '.png');
   const discoveryMatch = base.match(/^discovery-(\d+)$/);
