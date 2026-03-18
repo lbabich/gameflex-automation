@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { addGame, readGames, updateGame } from '../../lib/games';
 import * as stepCache from '../../lib/step-cache';
 import type { DeviceType, PlayMode } from '../../lib/types';
-import { DEVICE_TYPES, PLAY_MODES } from '../../lib/types';
+import { DEVICE_TYPES, PLAY_MODE, PLAY_MODES } from '../../lib/types';
 
 export const gamesRouter = Router();
 
@@ -42,9 +42,9 @@ gamesRouter.post('/', (req, res) => {
       mobileGameId: mobileGameId as string | undefined,
       name,
       desktopEnabled: true,
-      desktopPlaymode: 'demo',
+      desktopPlaymode: PLAY_MODE.DEMO,
       mobileEnabled: false,
-      mobilePlaymode: 'demo',
+      mobilePlaymode: PLAY_MODE.DEMO,
     });
   } catch (err) {
     res.status(409).json({ error: (err as Error).message });

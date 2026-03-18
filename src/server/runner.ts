@@ -3,6 +3,9 @@ import { randomUUID } from 'node:crypto';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { readGames } from '../lib/games';
+import { ANIMATED_GIF_FILENAME } from '../lib/gif-generator';
+import type { DeviceType } from '../lib/types';
+import { DEVICE_TYPE } from '../lib/types';
 import { parseJsonReport } from './report-parser';
 
 export type RunStatus = 'running' | 'completed' | 'error' | 'cancelled';
@@ -156,11 +159,18 @@ function finalizeRecord(record: RunRecord, code: number | null, raw: string): vo
     });
 
     if (game) {
-      const deviceType = /mobile/i.test(result.project) ? 'mobile' : 'desktop';
-      const gifPath = path.resolve('src/server/screenshots', game.id, deviceType, 'animated.gif');
+      const deviceType: DeviceType = /mobile/i.test(result.project)
+        ? DEVICE_TYPE.MOBILE
+        : DEVICE_TYPE.DESKTOP;
+      const gifPath = path.resolve(
+        'src/server/screenshots',
+        game.id,
+        deviceType,
+        ANIMATED_GIF_FILENAME,
+      );
 
       if (fs.existsSync(gifPath)) {
-        result.gifUrl = `/api/screenshots/${game.id}/${deviceType}/animated.gif`;
+        result.gifUrl = `/api/screenshots/${game.id}/${deviceType}/${ANIMATED_GIF_FILENAME}`;
       }
     }
   }

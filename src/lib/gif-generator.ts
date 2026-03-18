@@ -60,7 +60,7 @@ function parseSortKey(filename: string): [number, number] {
  */
 export async function generateGif(gameId: string, deviceType: DeviceType) {
   const screenshotsDir = path.resolve('src/server/screenshots', gameId, deviceType);
-  const gifPath = path.resolve(screenshotsDir, 'animated.gif');
+  const gifPath = path.resolve(screenshotsDir, ANIMATED_GIF_FILENAME);
 
   const pngFiles = fs
     .readdirSync(screenshotsDir)

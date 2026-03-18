@@ -3,6 +3,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as stepCache from './step-cache';
 import type { PlayMode } from './types';
+import { PLAY_MODE } from './types';
 
 export type GameEntry = {
   id: string;
@@ -50,7 +51,7 @@ export function readGames(): GameEntry[] {
 
     if (hasLegacyFields) {
       const channel = g.channel as string | undefined;
-      const playmode = (g.playmode as PlayMode | undefined) ?? 'demo';
+      const playmode = (g.playmode as PlayMode | undefined) ?? PLAY_MODE.DEMO;
 
       g.desktopEnabled = channel !== 'mobile';
       g.mobileEnabled = channel === 'mobile' || channel === 'both';
@@ -68,7 +69,7 @@ export function readGames(): GameEntry[] {
     }
 
     if (!g.desktopPlaymode) {
-      g.desktopPlaymode = 'demo';
+      g.desktopPlaymode = PLAY_MODE.DEMO;
       dirty = true;
     }
 
@@ -78,7 +79,7 @@ export function readGames(): GameEntry[] {
     }
 
     if (!g.mobilePlaymode) {
-      g.mobilePlaymode = 'demo';
+      g.mobilePlaymode = PLAY_MODE.DEMO;
       dirty = true;
     }
 
