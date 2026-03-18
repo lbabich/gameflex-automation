@@ -3,7 +3,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { readGames } from '../lib/games';
 import * as stepCache from '../lib/step-cache';
-import type { DeviceType } from '../lib/types';
+import type { DeviceType, PlayMode } from '../lib/types';
 
 export type { GameEntry } from '../lib/games';
 
@@ -37,9 +37,9 @@ export type GameUpdates = {
   desktopGameId?: string;
   mobileGameId?: string;
   desktopEnabled?: boolean;
-  desktopPlaymode?: 'demo' | 'real';
+  desktopPlaymode?: PlayMode;
   mobileEnabled?: boolean;
-  mobilePlaymode?: 'demo' | 'real';
+  mobilePlaymode?: PlayMode;
 };
 
 export function updateGame(id: string, updates: GameUpdates): void {
