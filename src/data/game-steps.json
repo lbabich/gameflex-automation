@@ -56,5 +56,33 @@
         ]
       }
     }
+  },
+  "1f63c593-2cf8-4d15-acfc-b58e959ca9fa": {
+    "desktop": {
+      "1280x720": {
+        "discoveredAt": "2024-01-01T00:00:00Z",
+        "steps": [
+          {
+            "waitMs": 1000,
+            "x": 100,
+            "y": 200,
+            "label": "desktop-spin"
+          }
+        ]
+      }
+    },
+    "mobile": {
+      "390x844": {
+        "discoveredAt": "2024-01-02T00:00:00Z",
+        "steps": [
+          {
+            "waitMs": 500,
+            "x": 50,
+            "y": 80,
+            "label": "mobile-spin"
+          }
+        ]
+      }
+    }
   }
 }

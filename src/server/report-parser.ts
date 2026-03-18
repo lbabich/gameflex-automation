@@ -114,7 +114,10 @@ export function extractReportJson(raw: string): ReportJson | null {
   }
 }
 
-export function parseJsonReport(raw: string): { results: TestResult[]; playwrightErrors: string[] } {
+export function parseJsonReport(raw: string): {
+  results: TestResult[];
+  playwrightErrors: string[];
+} {
   const report = extractReportJson(raw);
 
   if (!report) {
