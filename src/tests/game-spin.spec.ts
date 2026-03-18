@@ -19,7 +19,7 @@ const SPIN_END_WAIT_MS = 15_000;
 for (const game of GAMES) {
   test(`spin: ${game.name}`, async ({ page }, testInfo: TestInfo) => {
     const isProjectMobile = /mobile/i.test(testInfo.project.name);
-    const channel: 'desktop' | 'mobile' = isProjectMobile ? 'mobile' : 'desktop';
+    const channel: DeviceType = isProjectMobile ? 'mobile' : 'desktop';
     const gameId =
       channel === 'mobile' ? (game.mobileGameId ?? game.desktopGameId) : game.desktopGameId;
     const deviceType: DeviceType = channel;
@@ -135,6 +135,12 @@ for (const game of GAMES) {
       await screenshot.snap(page, `${game.id}/${projectDeviceType}/final-3.png`);
     } catch (err) {
       failure = err as Error;
+
+      await screenshot.snap(page, `${game.id}/${projectDeviceType}/failure-1.png`);
+      await page.waitForTimeout(3_000);
+      await screenshot.snap(page, `${game.id}/${projectDeviceType}/failure-2.png`);
+      await page.waitForTimeout(3_000);
+      await screenshot.snap(page, `${game.id}/${projectDeviceType}/failure-3.png`);
     }
 
     await test.step('Generate GIF', async () => {
