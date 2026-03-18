@@ -1,9 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
+import { QUERY_KEY } from '../queryKeys';
 import type { RunRecord } from '../types';
 
 export function useRecentRuns() {
   return useQuery<RunRecord[]>({
-    queryKey: ['runs'],
+    queryKey: QUERY_KEY.RUNS,
     queryFn: async () => {
       const res = await fetch('/api/runs');
 

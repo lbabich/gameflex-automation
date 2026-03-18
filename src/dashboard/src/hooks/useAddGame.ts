@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { QUERY_KEY } from '../queryKeys';
 
 export type NewGame = {
   desktopGameId: string;
@@ -23,7 +24,7 @@ export function useAddGame() {
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['games'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY.GAMES });
     },
   });
 }

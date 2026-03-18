@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useClearChannelSteps } from '../hooks/useClearChannelSteps';
 import { useUpdateGame } from '../hooks/useUpdateGame';
+import { DEVICE_TYPE } from '../types';
 import type { DeviceType, GameEntry, PlayMode } from '../types';
 
 type RunStatus = 'passed' | 'failed' | 'error' | null;
@@ -149,24 +150,24 @@ export function GameDeviceSettings({
         playmode={game.desktopPlaymode}
         isRunning={isRunning}
         resetPending={clearChannel.isPending}
-        launchPending={pendingDevice === 'chromium'}
+        launchPending={pendingDevice === DEVICE_TYPE.DESKTOP}
         cached={game.desktopCached ?? false}
         lastStatus={desktopLastStatus}
-        onLaunch={() => handleLaunch('desktop')}
+        onLaunch={() => handleLaunch(DEVICE_TYPE.DESKTOP)}
         onTogglePlaymode={(mode) => patch({ desktopPlaymode: mode })}
-        onReset={() => clearChannel.mutate({ id: game.id, deviceType: 'desktop' })}
+        onReset={() => clearChannel.mutate({ id: game.id, deviceType: DEVICE_TYPE.DESKTOP })}
       />
       <DeviceCard
         label="Mobile"
         playmode={game.mobilePlaymode}
         isRunning={isRunning}
         resetPending={clearChannel.isPending}
-        launchPending={pendingDevice === 'mobile-chrome'}
+        launchPending={pendingDevice === DEVICE_TYPE.MOBILE}
         cached={game.mobileCached ?? false}
         lastStatus={mobileLastStatus}
-        onLaunch={() => handleLaunch('mobile')}
+        onLaunch={() => handleLaunch(DEVICE_TYPE.MOBILE)}
         onTogglePlaymode={(mode) => patch({ mobilePlaymode: mode })}
-        onReset={() => clearChannel.mutate({ id: game.id, deviceType: 'mobile' })}
+        onReset={() => clearChannel.mutate({ id: game.id, deviceType: DEVICE_TYPE.MOBILE })}
       />
     </div>
   );

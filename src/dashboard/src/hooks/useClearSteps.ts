@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { QUERY_KEY } from '../queryKeys';
 
 export function useClearSteps() {
   const queryClient = useQueryClient();
@@ -14,7 +15,7 @@ export function useClearSteps() {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['games'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY.GAMES });
     },
   });
 }

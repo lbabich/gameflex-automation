@@ -10,6 +10,8 @@ import { ResultsPanel } from './components/ResultsPanel';
 import { useGames } from './hooks/useGames';
 import { useRecentRuns } from './hooks/useRecentRuns';
 import { useRun } from './hooks/useRun';
+import { QUERY_KEY } from './queryKeys';
+import { DEVICE_TYPE } from './types';
 import type { GameEntry } from './types';
 
 export default function App() {
@@ -26,7 +28,7 @@ export default function App() {
 
   useEffect(() => {
     if (prevStatusRef.current === 'running' && run?.status !== 'running') {
-      queryClient.invalidateQueries({ queryKey: ['runs'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY.RUNS });
     }
 
     prevStatusRef.current = run?.status;
@@ -69,8 +71,8 @@ export default function App() {
       result[game.id] = {
         isRunning: running,
         lastStatus,
-        desktopLastStatus: deviceStatus(completedRuns, 'desktop'),
-        mobileLastStatus: deviceStatus(completedRuns, 'mobile'),
+        desktopLastStatus: deviceStatus(completedRuns, DEVICE_TYPE.DESKTOP),
+        mobileLastStatus: deviceStatus(completedRuns, DEVICE_TYPE.MOBILE),
       };
     }
 
@@ -112,7 +114,7 @@ export default function App() {
 
   function handleRunComplete(runId: string) {
     setViewRunId(runId);
-    queryClient.invalidateQueries({ queryKey: ['runs'] });
+    queryClient.invalidateQueries({ queryKey: QUERY_KEY.RUNS });
   }
 
   return (

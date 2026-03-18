@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { QUERY_KEY } from '../queryKeys';
 import type { PlayMode } from '../types';
 
 export type GameUpdates = {
@@ -29,7 +30,7 @@ export function useUpdateGame() {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['games'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY.GAMES });
     },
   });
 }

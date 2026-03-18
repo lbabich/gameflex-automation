@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { QUERY_KEY } from '../queryKeys';
 import type { DeviceType } from '../types';
 
 export function useClearChannelSteps() {
@@ -15,7 +16,7 @@ export function useClearChannelSteps() {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['games'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY.GAMES });
     },
   });
 }
