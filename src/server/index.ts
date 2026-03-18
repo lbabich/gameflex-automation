@@ -1,6 +1,8 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import express from 'express';
+import type { DeviceType, PlayMode } from '../lib/types';
+import { DEVICE_TYPES, PLAY_MODES } from '../lib/types';
 import {
   addGame,
   clearGameChannelSteps,
@@ -117,7 +119,7 @@ app.patch('/api/games/:id', (req, res) => {
     return;
   }
 
-  if (desktopPlaymode !== undefined && desktopPlaymode !== 'demo' && desktopPlaymode !== 'real') {
+  if (desktopPlaymode !== undefined && !PLAY_MODES.includes(desktopPlaymode as PlayMode)) {
     res.status(400).json({ error: 'desktopPlaymode must be demo or real' });
     return;
   }
@@ -127,7 +129,7 @@ app.patch('/api/games/:id', (req, res) => {
     return;
   }
 
-  if (mobilePlaymode !== undefined && mobilePlaymode !== 'demo' && mobilePlaymode !== 'real') {
+  if (mobilePlaymode !== undefined && !PLAY_MODES.includes(mobilePlaymode as PlayMode)) {
     res.status(400).json({ error: 'mobilePlaymode must be demo or real' });
     return;
   }
@@ -138,9 +140,9 @@ app.patch('/api/games/:id', (req, res) => {
       desktopGameId: desktopGameId as string | undefined,
       mobileGameId: mobileGameId as string | undefined,
       desktopEnabled: desktopEnabled as boolean | undefined,
-      desktopPlaymode: desktopPlaymode as 'demo' | 'real' | undefined,
+      desktopPlaymode: desktopPlaymode as PlayMode | undefined,
       mobileEnabled: mobileEnabled as boolean | undefined,
-      mobilePlaymode: mobilePlaymode as 'demo' | 'real' | undefined,
+      mobilePlaymode: mobilePlaymode as PlayMode | undefined,
     });
   } catch (err) {
     const msg = (err as Error).message;
@@ -163,7 +165,7 @@ app.delete('/api/games/:id/steps', (req, res) => {
 app.delete('/api/games/:id/steps/:channel', (req, res) => {
   const { id, channel } = req.params;
 
-  if (channel !== 'desktop' && channel !== 'mobile') {
+  if (!DEVICE_TYPES.includes(channel as DeviceType)) {
     res.status(400).json({ error: 'channel must be desktop or mobile' });
     return;
   }
