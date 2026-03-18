@@ -1,6 +1,7 @@
 import * as crypto from 'node:crypto';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import type { PlayMode } from './types';
 
 export type GameEntry = {
   id: string;
@@ -8,9 +9,9 @@ export type GameEntry = {
   mobileGameId?: string;
   name: string;
   desktopEnabled: boolean;
-  desktopPlaymode: 'demo' | 'real';
+  desktopPlaymode: PlayMode;
   mobileEnabled: boolean;
-  mobilePlaymode: 'demo' | 'real';
+  mobilePlaymode: PlayMode;
 };
 
 const GAMES_PATH = path.resolve('src', 'data', 'games.json');
@@ -38,7 +39,7 @@ export function readGames(): GameEntry[] {
 
     if (hasLegacyFields) {
       const channel = g.channel as string | undefined;
-      const playmode = (g.playmode as 'demo' | 'real' | undefined) ?? 'demo';
+      const playmode = (g.playmode as PlayMode | undefined) ?? 'demo';
 
       g.desktopEnabled = channel !== 'mobile';
       g.mobileEnabled = channel === 'mobile' || channel === 'both';
