@@ -8,7 +8,9 @@ import * as replay from '../lib/replay';
 import * as screenshot from '../lib/screenshot';
 import * as stepCache from '../lib/step-cache';
 import type { DeviceType } from '../lib/types';
+import { DEVICE_TYPE, PLAY_MODE } from '../lib/types';
 import { buildSingleUrl } from '../server/url-builder';
+import { ANNOTATION, SPIN_EVENT } from './constants';
 import { GAMES } from './games';
 
 dotenv.config();
@@ -19,18 +21,22 @@ const SPIN_END_WAIT_MS = 15_000;
 for (const game of GAMES) {
   test(`spin: ${game.name}`, async ({ page }, testInfo: TestInfo) => {
     const isProjectMobile = /mobile/i.test(testInfo.project.name);
-    const channel: DeviceType = isProjectMobile ? 'mobile' : 'desktop';
+    const channel: DeviceType = isProjectMobile ? DEVICE_TYPE.MOBILE : DEVICE_TYPE.DESKTOP;
     const gameId =
-      channel === 'mobile' ? (game.mobileGameId ?? game.desktopGameId) : game.desktopGameId;
+      channel === DEVICE_TYPE.MOBILE
+        ? (game.mobileGameId ?? game.desktopGameId)
+        : game.desktopGameId;
     const deviceType: DeviceType = channel;
-    const projectDeviceType: DeviceType = isProjectMobile ? 'mobile' : 'desktop';
+    const projectDeviceType: DeviceType = isProjectMobile
+      ? DEVICE_TYPE.MOBILE
+      : DEVICE_TYPE.DESKTOP;
 
     const playmode = isProjectMobile ? game.mobilePlaymode : game.desktopPlaymode;
 
-    testInfo.annotations.push({ type: 'playmode', description: playmode });
+    testInfo.annotations.push({ type: ANNOTATION.PLAYMODE, description: playmode });
 
     const launchUrl =
-      playmode === 'real'
+      playmode === PLAY_MODE.REAL
         ? await operatorWallet.getGameLaunchUrl(gameId, channel)
         : buildSingleUrl(gameId, channel, playmode);
 
@@ -41,10 +47,10 @@ for (const game of GAMES) {
     }
 
     const isSpinStart = (msg: ConsoleMessage) => {
-      return msg.text().includes('gel.spin.start');
+      return msg.text().includes(SPIN_EVENT.START);
     };
     const isSpinEnd = (msg: ConsoleMessage) => {
-      return msg.text().includes('gel.spin.end');
+      return msg.text().includes(SPIN_EVENT.END);
     };
 
     let spinStarted = false;
@@ -110,7 +116,7 @@ for (const game of GAMES) {
         });
       }
 
-      await test.step('Spin start: gel.spin.start', async () => {
+      await test.step(`Spin start: ${SPIN_EVENT.START}`, async () => {
         if (!spinStarted) {
           await page.waitForEvent('console', {
             predicate: isSpinStart,
@@ -121,7 +127,7 @@ for (const game of GAMES) {
         await screenshot.snap(page, `${game.id}/${projectDeviceType}/spin-start.png`);
       });
 
-      await test.step('Spin end: gel.spin.end', () => {
+      await test.step(`Spin end: ${SPIN_EVENT.END}`, () => {
         return page.waitForEvent('console', {
           predicate: isSpinEnd,
           timeout: SPIN_END_WAIT_MS,
