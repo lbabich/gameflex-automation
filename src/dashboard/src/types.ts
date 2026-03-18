@@ -1,3 +1,7 @@
+export type DeviceType = 'desktop' | 'mobile';
+
+export type PlayMode = 'demo' | 'real';
+
 export type GameEntry = {
   id: string;
   desktopGameId: string;
@@ -8,9 +12,9 @@ export type GameEntry = {
   desktopCached?: boolean;
   mobileCached?: boolean;
   desktopEnabled: boolean;
-  desktopPlaymode: 'demo' | 'real';
+  desktopPlaymode: PlayMode;
   mobileEnabled: boolean;
-  mobilePlaymode: 'demo' | 'real';
+  mobilePlaymode: PlayMode;
 };
 
 export type RunStatus = 'running' | 'completed' | 'error';
