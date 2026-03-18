@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useClearChannelSteps } from '../hooks/useClearChannelSteps';
 import { useUpdateGame } from '../hooks/useUpdateGame';
-import type { GameEntry } from '../types';
+import type { DeviceType, GameEntry, PlayMode } from '../types';
 
 type RunStatus = 'passed' | 'failed' | 'error' | null;
 
@@ -15,14 +15,14 @@ type Props = {
 
 type DeviceCardProps = {
   label: string;
-  playmode: 'demo' | 'real';
+  playmode: PlayMode;
   isRunning: boolean;
   resetPending: boolean;
   launchPending: boolean;
   cached: boolean;
   lastStatus: RunStatus;
   onLaunch: () => void;
-  onTogglePlaymode: (mode: 'demo' | 'real') => void;
+  onTogglePlaymode: (mode: PlayMode) => void;
   onReset: () => void;
 };
 
@@ -112,7 +112,7 @@ export function GameDeviceSettings({
 }: Props) {
   const { mutate } = useUpdateGame();
   const clearChannel = useClearChannelSteps();
-  const [pendingDevice, setPendingDevice] = useState<'desktop' | 'mobile' | null>(null);
+  const [pendingDevice, setPendingDevice] = useState<DeviceType | null>(null);
 
   function patch(
     updates: Partial<Pick<GameEntry, 'desktopPlaymode' | 'mobilePlaymode'>>,
@@ -120,7 +120,7 @@ export function GameDeviceSettings({
     mutate({ id: game.id, ...updates });
   }
 
-  async function handleLaunch(project: 'desktop' | 'mobile') {
+  async function handleLaunch(project: DeviceType) {
     setPendingDevice(project);
 
     try {

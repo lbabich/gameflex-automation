@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import type { PlayMode } from '../types';
 
 export type GameUpdates = {
   id: string;
@@ -6,9 +7,9 @@ export type GameUpdates = {
   desktopGameId?: string;
   mobileGameId?: string;
   desktopEnabled?: boolean;
-  desktopPlaymode?: 'demo' | 'real';
+  desktopPlaymode?: PlayMode;
   mobileEnabled?: boolean;
-  mobilePlaymode?: 'demo' | 'real';
+  mobilePlaymode?: PlayMode;
 };
 
 export function useUpdateGame() {
