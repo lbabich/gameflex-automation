@@ -1,13 +1,15 @@
 import express from 'express';
-import { gamesRouter } from './routes/games';
-import { runsRouter } from './routes/runs';
+import { makeGamesRouter } from './routes/games';
+import { makeRunsRouter } from './routes/runs';
 import { screenshotsRouter } from './routes/screenshots';
+import { appRuntime } from './runtime';
 
 const app = express();
 const PORT = 3001;
 const CORS_ORIGIN = process.env.CORS_ORIGIN ?? 'http://localhost:5173';
 
 app.use(express.json());
+
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', CORS_ORIGIN);
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS');
@@ -21,8 +23,8 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/api/games', gamesRouter);
-app.use('/api/runs', runsRouter);
+app.use('/api/games', makeGamesRouter(appRuntime));
+app.use('/api/runs', makeRunsRouter(appRuntime));
 app.use('/api/screenshots', screenshotsRouter);
 
 app.listen(PORT, () => {

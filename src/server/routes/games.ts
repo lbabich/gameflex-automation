@@ -3,150 +3,155 @@ import { addGame, readGames, updateGame } from '../../lib/games';
 import * as stepCache from '../../lib/step-cache';
 import type { DeviceType, PlayMode } from '../../lib/types';
 import { DEVICE_TYPES, PLAY_MODE, PLAY_MODES } from '../../lib/types';
+import type { AppRuntime } from '../runtime';
 
-export const gamesRouter = Router();
+export function makeGamesRouter(_runtime: AppRuntime): Router {
+  const router = Router();
 
-gamesRouter.get('/', (_req, res) => {
-  const games = readGames();
-  const deviceCache = stepCache.getCachedDeviceMap();
+  router.get('/', (_req, res) => {
+    const games = readGames();
+    const deviceCache = stepCache.getCachedDeviceMap();
 
-  res.json(
-    games.map((g) => {
-      const cache = deviceCache.get(g.id) ?? { desktop: false, mobile: false };
+    res.json(
+      games.map((g) => {
+        const cache = deviceCache.get(g.id) ?? { desktop: false, mobile: false };
 
-      return { ...g, desktopCached: cache.desktop, mobileCached: cache.mobile };
-    }),
-  );
-});
+        return { ...g, desktopCached: cache.desktop, mobileCached: cache.mobile };
+      }),
+    );
+  });
 
-gamesRouter.post('/', (req, res) => {
-  const { desktopGameId, mobileGameId, name } = req.body as {
-    desktopGameId?: unknown;
-    mobileGameId?: unknown;
-    name?: unknown;
-  };
+  router.post('/', (req, res) => {
+    const { desktopGameId, mobileGameId, name } = req.body as {
+      desktopGameId?: unknown;
+      mobileGameId?: unknown;
+      name?: unknown;
+    };
 
-  if (typeof desktopGameId !== 'string' || typeof name !== 'string') {
-    res.status(400).json({ error: 'desktopGameId and name are required strings' });
-    return;
-  }
+    if (typeof desktopGameId !== 'string' || typeof name !== 'string') {
+      res.status(400).json({ error: 'desktopGameId and name are required strings' });
+      return;
+    }
 
-  if (mobileGameId !== undefined && typeof mobileGameId !== 'string') {
-    res.status(400).json({ error: 'mobileGameId must be a string' });
-    return;
-  }
+    if (mobileGameId !== undefined && typeof mobileGameId !== 'string') {
+      res.status(400).json({ error: 'mobileGameId must be a string' });
+      return;
+    }
 
-  try {
-    addGame({
-      desktopGameId,
-      mobileGameId: mobileGameId as string | undefined,
+    try {
+      addGame({
+        desktopGameId,
+        mobileGameId: mobileGameId as string | undefined,
+        name,
+        desktopEnabled: true,
+        desktopPlaymode: PLAY_MODE.DEMO,
+        mobileEnabled: false,
+        mobilePlaymode: PLAY_MODE.DEMO,
+      });
+    } catch (err) {
+      res.status(409).json({ error: (err as Error).message });
+      return;
+    }
+
+    res.status(201).json({ desktopGameId });
+  });
+
+  router.patch('/:id', (req, res) => {
+    const { id } = req.params;
+    const {
       name,
-      desktopEnabled: true,
-      desktopPlaymode: PLAY_MODE.DEMO,
-      mobileEnabled: false,
-      mobilePlaymode: PLAY_MODE.DEMO,
-    });
-  } catch (err) {
-    res.status(409).json({ error: (err as Error).message });
-    return;
-  }
+      desktopGameId,
+      mobileGameId,
+      desktopEnabled,
+      desktopPlaymode,
+      mobileEnabled,
+      mobilePlaymode,
+    } = req.body as {
+      name?: unknown;
+      desktopGameId?: unknown;
+      mobileGameId?: unknown;
+      desktopEnabled?: unknown;
+      desktopPlaymode?: unknown;
+      mobileEnabled?: unknown;
+      mobilePlaymode?: unknown;
+    };
 
-  res.status(201).json({ desktopGameId });
-});
+    if (name !== undefined && typeof name !== 'string') {
+      res.status(400).json({ error: 'name must be a string' });
+      return;
+    }
 
-gamesRouter.patch('/:id', (req, res) => {
-  const { id } = req.params;
-  const {
-    name,
-    desktopGameId,
-    mobileGameId,
-    desktopEnabled,
-    desktopPlaymode,
-    mobileEnabled,
-    mobilePlaymode,
-  } = req.body as {
-    name?: unknown;
-    desktopGameId?: unknown;
-    mobileGameId?: unknown;
-    desktopEnabled?: unknown;
-    desktopPlaymode?: unknown;
-    mobileEnabled?: unknown;
-    mobilePlaymode?: unknown;
-  };
+    if (desktopGameId !== undefined && typeof desktopGameId !== 'string') {
+      res.status(400).json({ error: 'desktopGameId must be a string' });
+      return;
+    }
 
-  if (name !== undefined && typeof name !== 'string') {
-    res.status(400).json({ error: 'name must be a string' });
-    return;
-  }
+    if (mobileGameId !== undefined && typeof mobileGameId !== 'string') {
+      res.status(400).json({ error: 'mobileGameId must be a string' });
+      return;
+    }
 
-  if (desktopGameId !== undefined && typeof desktopGameId !== 'string') {
-    res.status(400).json({ error: 'desktopGameId must be a string' });
-    return;
-  }
+    if (desktopEnabled !== undefined && typeof desktopEnabled !== 'boolean') {
+      res.status(400).json({ error: 'desktopEnabled must be a boolean' });
+      return;
+    }
 
-  if (mobileGameId !== undefined && typeof mobileGameId !== 'string') {
-    res.status(400).json({ error: 'mobileGameId must be a string' });
-    return;
-  }
+    if (desktopPlaymode !== undefined && !PLAY_MODES.includes(desktopPlaymode as PlayMode)) {
+      res.status(400).json({ error: 'desktopPlaymode must be demo or real' });
+      return;
+    }
 
-  if (desktopEnabled !== undefined && typeof desktopEnabled !== 'boolean') {
-    res.status(400).json({ error: 'desktopEnabled must be a boolean' });
-    return;
-  }
+    if (mobileEnabled !== undefined && typeof mobileEnabled !== 'boolean') {
+      res.status(400).json({ error: 'mobileEnabled must be a boolean' });
+      return;
+    }
 
-  if (desktopPlaymode !== undefined && !PLAY_MODES.includes(desktopPlaymode as PlayMode)) {
-    res.status(400).json({ error: 'desktopPlaymode must be demo or real' });
-    return;
-  }
+    if (mobilePlaymode !== undefined && !PLAY_MODES.includes(mobilePlaymode as PlayMode)) {
+      res.status(400).json({ error: 'mobilePlaymode must be demo or real' });
+      return;
+    }
 
-  if (mobileEnabled !== undefined && typeof mobileEnabled !== 'boolean') {
-    res.status(400).json({ error: 'mobileEnabled must be a boolean' });
-    return;
-  }
+    try {
+      updateGame(id, {
+        name: name as string | undefined,
+        desktopGameId: desktopGameId as string | undefined,
+        mobileGameId: mobileGameId as string | undefined,
+        desktopEnabled: desktopEnabled as boolean | undefined,
+        desktopPlaymode: desktopPlaymode as PlayMode | undefined,
+        mobileEnabled: mobileEnabled as boolean | undefined,
+        mobilePlaymode: mobilePlaymode as PlayMode | undefined,
+      });
+    } catch (err) {
+      const msg = (err as Error).message;
+      const status = msg.includes('not found') ? 404 : 400;
 
-  if (mobilePlaymode !== undefined && !PLAY_MODES.includes(mobilePlaymode as PlayMode)) {
-    res.status(400).json({ error: 'mobilePlaymode must be demo or real' });
-    return;
-  }
+      res.status(status).json({ error: msg });
+      return;
+    }
 
-  try {
-    updateGame(id, {
-      name: name as string | undefined,
-      desktopGameId: desktopGameId as string | undefined,
-      mobileGameId: mobileGameId as string | undefined,
-      desktopEnabled: desktopEnabled as boolean | undefined,
-      desktopPlaymode: desktopPlaymode as PlayMode | undefined,
-      mobileEnabled: mobileEnabled as boolean | undefined,
-      mobilePlaymode: mobilePlaymode as PlayMode | undefined,
-    });
-  } catch (err) {
-    const msg = (err as Error).message;
-    const status = msg.includes('not found') ? 404 : 400;
+    res.sendStatus(204);
+  });
 
-    res.status(status).json({ error: msg });
-    return;
-  }
+  router.delete('/:id/steps', (req, res) => {
+    const { id } = req.params;
 
-  res.sendStatus(204);
-});
+    stepCache.clearAllSteps(id);
 
-gamesRouter.delete('/:id/steps', (req, res) => {
-  const { id } = req.params;
+    res.sendStatus(204);
+  });
 
-  stepCache.clearAllSteps(id);
+  router.delete('/:id/steps/:channel', (req, res) => {
+    const { id, channel } = req.params;
 
-  res.sendStatus(204);
-});
+    if (!DEVICE_TYPES.includes(channel as DeviceType)) {
+      res.status(400).json({ error: 'channel must be desktop or mobile' });
+      return;
+    }
 
-gamesRouter.delete('/:id/steps/:channel', (req, res) => {
-  const { id, channel } = req.params;
+    stepCache.clearChannelSteps(id, channel as DeviceType);
 
-  if (!DEVICE_TYPES.includes(channel as DeviceType)) {
-    res.status(400).json({ error: 'channel must be desktop or mobile' });
-    return;
-  }
+    res.sendStatus(204);
+  });
 
-  stepCache.clearChannelSteps(id, channel as DeviceType);
-
-  res.sendStatus(204);
-});
+  return router;
+}

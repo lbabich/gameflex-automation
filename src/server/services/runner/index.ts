@@ -127,6 +127,7 @@ export const NodeRunnerService = Layer.effect(
 
             yield* finalizeRun(state, record, code, stdout);
           }).pipe(
+            Effect.provideService(FileService, fileService),
             Effect.catchAll((err) => {
               console.error('[runner] Background fiber error:', err);
 
@@ -178,6 +179,7 @@ export const NodeRunnerService = Layer.effect(
           }
 
           yield* saveRuns(state).pipe(
+            Effect.provideService(FileService, fileService),
             Effect.catchAll((err) => {
               console.error('[runner] Failed to persist cancellation:', err);
 
