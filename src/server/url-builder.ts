@@ -1,4 +1,4 @@
-import type { PlayMode } from '../lib/types';
+import type { DeviceType, PlayMode } from '../lib/types';
 
 export type { PlayMode };
 
@@ -9,11 +9,7 @@ const DEBUG_ACCESS_TOKEN =
 
 const LOBBY_BASE = 'https://s009-gel.test-flex.us/gamelaunch/test/gul';
 
-export function buildSingleUrl(
-  gameId: string,
-  channel: 'desktop' | 'mobile',
-  mode: PlayMode,
-): string {
+export function buildSingleUrl(gameId: string, channel: DeviceType, mode: PlayMode): string {
   const u = new URL(BASE_URL);
 
   u.searchParams.set('casinoid', 'S009-IFO-20');
