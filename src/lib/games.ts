@@ -28,7 +28,7 @@ export type GameUpdates = {
 
 const GAMES_PATH = path.resolve('src', 'data', 'games.json');
 
-export function readGames(): GameEntry[] {
+export function readGames() {
   let entries: unknown[];
 
   try {
@@ -94,7 +94,7 @@ export function readGames(): GameEntry[] {
   return games;
 }
 
-export function addGame(entry: Omit<GameEntry, 'id'> & { id?: string }): void {
+export function addGame(entry: Omit<GameEntry, 'id'> & { id?: string }) {
   const games = readGames();
 
   if (
@@ -112,7 +112,7 @@ export function addGame(entry: Omit<GameEntry, 'id'> & { id?: string }): void {
   fs.writeFileSync(GAMES_PATH, JSON.stringify(games, null, 2));
 }
 
-export function updateGame(id: string, updates: GameUpdates): void {
+export function updateGame(id: string, updates: GameUpdates) {
   const games = readGames();
   const index = games.findIndex((game) => {
     return game.id === id;

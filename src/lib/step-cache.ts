@@ -69,7 +69,7 @@ export function clearChannelSteps(id: string, deviceType: DeviceType) {
   }
 }
 
-export function getCachedDeviceMap(): Map<string, { desktop: boolean; mobile: boolean }> {
+export function getCachedDeviceMap() {
   const cache = loadCache();
   const result = new Map<string, { desktop: boolean; mobile: boolean }>();
 
