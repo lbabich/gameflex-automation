@@ -1,4 +1,4 @@
-export function buildPlaywrightCommand(names: string[], projects?: string[]): string {
+export function buildPlaywrightCommand(names: string[], projects?: string[]) {
   const grepPattern = names
     .map((name) => {
       return `spin: ${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`;

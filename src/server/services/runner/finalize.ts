@@ -47,7 +47,7 @@ function attachGifUrls(results: TestResult[]) {
   });
 }
 
-function logSummary(record: RunRecord): void {
+function logSummary(record: RunRecord) {
   let passed = 0;
   let failed = 0;
   let skipped = 0;
@@ -67,7 +67,7 @@ function logSummary(record: RunRecord): void {
   );
 }
 
-function trimMemory(runs: Map<string, RunRecord>): void {
+function trimMemory(runs: Map<string, RunRecord>) {
   if (runs.size <= 100) {
     return;
   }
