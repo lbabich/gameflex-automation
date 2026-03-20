@@ -2,14 +2,14 @@ import { Effect, Layer } from 'effect';
 import * as games from '../../lib/games';
 import * as stepCache from '../../lib/step-cache';
 import type * as libTypes from '../../lib/types';
-import { DuplicateGameIdError, GameNotFoundError } from '../errors';
+import { DuplicateGameIDError, GameNotFoundError } from '../errors';
 
 export class GamesService extends Effect.Tag('GamesService')<
   GamesService,
   {
     list: () => Effect.Effect<games.GameEntry[]>;
     getCachedDeviceMap: () => Effect.Effect<Map<string, { desktop: boolean; mobile: boolean }>>;
-    add: (entry: Omit<games.GameEntry, 'id'>) => Effect.Effect<void, DuplicateGameIdError>;
+    add: (entry: Omit<games.GameEntry, 'id'>) => Effect.Effect<void, DuplicateGameIDError>;
     update: (id: string, updates: games.GameUpdates) => Effect.Effect<void, GameNotFoundError>;
     clearAllSteps: (id: string) => Effect.Effect<void>;
     clearSteps: (id: string, deviceType: libTypes.DeviceType) => Effect.Effect<void>;
@@ -35,7 +35,7 @@ export const NodeGamesService = Layer.succeed(GamesService, {
         return games.addGame(entry);
       },
       catch: (_err) => {
-        return new DuplicateGameIdError({ desktopGameID: entry.desktopGameID });
+        return new DuplicateGameIDError({ desktopGameID: entry.desktopGameID });
       },
     });
   },

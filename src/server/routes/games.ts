@@ -65,7 +65,7 @@ export function makeGamesRouter(runtime: AppRuntime): Router {
             res.status(400).json({ error: 'desktopGameID and name are required strings' });
           });
         }),
-        Effect.catchTag('DuplicateGameIdError', (err) => {
+        Effect.catchTag('DuplicateGameIDError', (err) => {
           return Effect.sync(() => {
             res
               .status(409)
