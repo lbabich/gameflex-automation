@@ -28,7 +28,7 @@ export type TestResult = {
 };
 
 export type RunRecord = {
-  runId: string;
+  runID: string;
   gameIDs: string[];
   status: RunStatus;
   startedAt: string;
@@ -52,7 +52,7 @@ function loadRuns(): void {
     const data = JSON.parse(fs.readFileSync(RUNS_FILE, 'utf-8')) as RunRecord[];
 
     for (const run of data) {
-      runs.set(run.runId, run);
+      runs.set(run.runID, run);
     }
   } catch {
     // ignore corrupt file
@@ -63,8 +63,8 @@ loadRuns();
 const activeRunsByGame = new Map<string, string>();
 const activeProcessesByRunId = new Map<string, ChildProcess>();
 
-export function getRun(runId: string): RunRecord | undefined {
-  return runs.get(runId);
+export function getRun(runID: string): RunRecord | undefined {
+  return runs.get(runID);
 }
 
 export function getRecentRuns(limit = 50): RunRecord[] {
@@ -110,9 +110,9 @@ function buildPlaywrightCommand(names: string[], projects?: string[]): string {
   return `npx playwright test --reporter=json --grep ${quotedPattern}${projectFlags ? ` ${projectFlags}` : ''}`;
 }
 
-function createRunRecord(runId: string, gameIDs: string[]): RunRecord {
+function createRunRecord(runID: string, gameIDs: string[]): RunRecord {
   return {
-    runId,
+    runID,
     gameIDs,
     status: 'running',
     startedAt: new Date().toISOString(),
@@ -179,7 +179,7 @@ function finalizeRecord(record: RunRecord, code: number | null, raw: string): vo
 }
 
 function attachProcessHandlers(child: ChildProcess, record: RunRecord): void {
-  activeProcessesByRunId.set(record.runId, child);
+  activeProcessesByRunId.set(record.runID, child);
 
   const chunks: Buffer[] = [];
 
@@ -225,7 +225,7 @@ function attachProcessHandlers(child: ChildProcess, record: RunRecord): void {
     }
 
     console.log(
-      `[runner] Run ${record.runId} finished in ${record.durationMs}ms — ${passed} passed, ${failed} failed, ${skipped} skipped`,
+      `[runner] Run ${record.runID} finished in ${record.durationMs}ms — ${passed} passed, ${failed} failed, ${skipped} skipped`,
     );
 
     if (runs.size > 100) {
@@ -240,7 +240,7 @@ function attachProcessHandlers(child: ChildProcess, record: RunRecord): void {
       }
     }
 
-    activeProcessesByRunId.delete(record.runId);
+    activeProcessesByRunId.delete(record.runID);
 
     for (const id of record.gameIDs) {
       activeRunsByGame.delete(id);
@@ -248,14 +248,14 @@ function attachProcessHandlers(child: ChildProcess, record: RunRecord): void {
   });
 
   child.on('error', (err) => {
-    console.error(`[runner] Spawn error for run ${record.runId}:`, err);
+    console.error(`[runner] Spawn error for run ${record.runID}:`, err);
     record.rawOutput = err.message;
     record.finishedAt = new Date().toISOString();
     record.durationMs =
       new Date(record.finishedAt).getTime() - new Date(record.startedAt).getTime();
     record.status = 'error';
 
-    activeProcessesByRunId.delete(record.runId);
+    activeProcessesByRunId.delete(record.runID);
 
     for (const id of record.gameIDs) {
       activeRunsByGame.delete(id);
@@ -266,7 +266,7 @@ function attachProcessHandlers(child: ChildProcess, record: RunRecord): void {
 export function startRun(
   gameIDs: string[],
   projects?: string[],
-): { runId: string } | { error: string } {
+): { runID: string } | { error: string } {
   const conflicting = gameIDs.filter((id) => {
     return activeRunsByGame.has(id);
   });
@@ -281,18 +281,18 @@ export function startRun(
     return { error: 'No valid game IDs provided' };
   }
 
-  const runId = randomUUID();
-  const record = createRunRecord(runId, gameIDs);
+  const runID = randomUUID();
+  const record = createRunRecord(runID, gameIDs);
 
-  runs.set(runId, record);
+  runs.set(runID, record);
 
   for (const id of gameIDs) {
-    activeRunsByGame.set(id, runId);
+    activeRunsByGame.set(id, runID);
   }
 
   const cmd = buildPlaywrightCommand(names, projects);
 
-  console.log(`[runner] Starting run ${runId}`);
+  console.log(`[runner] Starting run ${runID}`);
   console.log(`[runner] Command: ${cmd}`);
 
   const child = spawn(cmd, {
@@ -302,17 +302,17 @@ export function startRun(
 
   attachProcessHandlers(child, record);
 
-  return { runId };
+  return { runID };
 }
 
-export function cancelRun(runId: string): boolean {
-  const child = activeProcessesByRunId.get(runId);
+export function cancelRun(runID: string): boolean {
+  const child = activeProcessesByRunId.get(runID);
 
   if (!child?.pid) {
     return false;
   }
 
-  const record = runs.get(runId);
+  const record = runs.get(runID);
 
   if (record) {
     record.status = 'cancelled';

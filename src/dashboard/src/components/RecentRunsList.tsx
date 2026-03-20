@@ -3,7 +3,7 @@ import type { GameEntry, RunRecord, RunStatus } from '../types';
 type Props = {
   runs: RunRecord[];
   games: GameEntry[];
-  onSelect: (runId: string) => void;
+  onSelect: (runID: string) => void;
   emptyMessage?: string;
 };
 
@@ -63,9 +63,9 @@ export function RecentRunsList({ runs, games, onSelect, emptyMessage }: Props) {
       <h2 className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Recent Runs</h2>
       {runs.map((run) => (
         <button
-          key={run.runId}
+          key={run.runID}
           type="button"
-          onClick={() => onSelect(run.runId)}
+          onClick={() => onSelect(run.runID)}
           className="w-full text-left bg-white border rounded px-4 py-3 hover:border-blue-400 hover:shadow-sm transition-all"
         >
           <div className="flex items-center justify-between gap-2">

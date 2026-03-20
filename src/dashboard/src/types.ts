@@ -47,7 +47,7 @@ export type TestResult = {
 };
 
 export type RunRecord = {
-  runId: string;
+  runID: string;
   gameIDs: string[];
   status: RunStatus;
   startedAt: string;

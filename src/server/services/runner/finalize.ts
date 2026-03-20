@@ -63,7 +63,7 @@ function logSummary(record: RunRecord): void {
   }
 
   console.log(
-    `[runner] Run ${record.runId} finished in ${record.durationMs}ms — ${passed} passed, ${failed} failed, ${skipped} skipped`,
+    `[runner] Run ${record.runID} finished in ${record.durationMs}ms — ${passed} passed, ${failed} failed, ${skipped} skipped`,
   );
 }
 
@@ -132,7 +132,7 @@ export function finalizeRun(state: RunnerState, record: RunRecord, code: number,
     logSummary(record);
     trimMemory(state.runs);
 
-    state.activeFibers.delete(record.runId);
+    state.activeFibers.delete(record.runID);
 
     for (const id of record.gameIDs) {
       state.activeRunsByGame.delete(id);

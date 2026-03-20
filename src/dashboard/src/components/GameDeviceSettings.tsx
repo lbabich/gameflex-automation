@@ -11,7 +11,7 @@ type Props = {
   isRunning: boolean;
   desktopLastStatus: RunStatus;
   mobileLastStatus: RunStatus;
-  onRunComplete: (runId: string) => void;
+  onRunComplete: (runID: string) => void;
 };
 
 type DeviceCardProps = {
@@ -133,9 +133,9 @@ export function GameDeviceSettings({
 
       if (!res.ok) return;
 
-      const data = (await res.json()) as { runId: string };
+      const data = (await res.json()) as { runID: string };
 
-      onRunComplete(data.runId);
+      onRunComplete(data.runID);
     } catch {
       // ignore
     } finally {

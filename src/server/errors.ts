@@ -9,7 +9,7 @@ export class DuplicateGameIdError extends Data.TaggedError('DuplicateGameIdError
 }> {}
 
 export class RunNotFoundError extends Data.TaggedError('RunNotFoundError')<{
-  runId: string;
+  runID: string;
 }> {}
 
 export class RunAlreadyActiveError extends Data.TaggedError('RunAlreadyActiveError')<{

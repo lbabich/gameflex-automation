@@ -4,11 +4,11 @@ import type { GameEntry } from '../types';
 type Props = {
   game: GameEntry;
   isRunning: boolean;
-  runId: string | null;
-  onRunComplete: (runId: string) => void;
+  runID: string | null;
+  onRunComplete: (runID: string) => void;
 };
 
-export function GameActionBar({ game, isRunning, runId, onRunComplete }: Props) {
+export function GameActionBar({ game, isRunning, runID, onRunComplete }: Props) {
   const clearSteps = useClearSteps();
 
   async function handleRun() {
@@ -23,19 +23,19 @@ export function GameActionBar({ game, isRunning, runId, onRunComplete }: Props) 
 
       if (!res.ok) return;
 
-      const data = (await res.json()) as { runId: string };
+      const data = (await res.json()) as { runID: string };
 
-      onRunComplete(data.runId);
+      onRunComplete(data.runID);
     } catch {
       // ignore
     }
   }
 
   async function handleCancel() {
-    if (!runId) return;
+    if (!runID) return;
 
     try {
-      await fetch(`/api/runs/${runId}`, { method: 'DELETE' });
+      await fetch(`/api/runs/${runID}`, { method: 'DELETE' });
     } catch {
       // ignore
     }
@@ -53,7 +53,7 @@ export function GameActionBar({ game, isRunning, runId, onRunComplete }: Props) 
           <button
             type="button"
             onClick={handleCancel}
-            disabled={!runId}
+            disabled={!runID}
             className="px-3 py-1.5 rounded text-sm font-semibold bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-50"
           >
             Cancel

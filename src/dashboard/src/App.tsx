@@ -18,11 +18,11 @@ export default function App() {
   const [selectedGameId, setSelectedGameId] = useState<string | null>(null);
   const [addGameOpen, setAddGameOpen] = useState(false);
   const [editGame, setEditGame] = useState<GameEntry | null>(null);
-  const [viewRunId, setViewRunId] = useState<string | null>(null);
+  const [viewRunID, setViewRunID] = useState<string | null>(null);
 
   const queryClient = useQueryClient();
   const { data: games, isLoading: gamesLoading } = useGames();
-  const { data: run, isLoading: runLoading } = useRun(viewRunId);
+  const { data: run, isLoading: runLoading } = useRun(viewRunID);
   const { data: recentRuns } = useRecentRuns();
   const prevStatusRef = useRef<string | undefined>(undefined);
 
@@ -92,28 +92,28 @@ export default function App() {
     ? (gameStatuses[selectedGameId]?.isRunning ?? false)
     : false;
 
-  const selectedGameRunId = selectedGameId !== null
-    ? ((recentRuns ?? []).find((r) => r.gameIDs.includes(selectedGameId) && r.status === 'running')?.runId ?? null)
+  const selectedGameRunID = selectedGameId !== null
+    ? ((recentRuns ?? []).find((r) => r.gameIDs.includes(selectedGameId) && r.status === 'running')?.runID ?? null)
     : null;
 
   function handleGameSelect(id: string) {
     setSelectedGameId(id);
     const found = (recentRuns ?? []).find((r) => r.gameIDs.includes(id));
-    setViewRunId(found?.runId ?? null);
+    setViewRunID(found?.runID ?? null);
   }
 
-  function handleRunSelect(runId: string) {
-    const run = (recentRuns ?? []).find((r) => r.runId === runId);
+  function handleRunSelect(runID: string) {
+    const run = (recentRuns ?? []).find((r) => r.runID === runID);
 
-    if (run?.gameIds[0] && !selectedGameId) {
+    if (run?.gameIDs[0] && !selectedGameId) {
       setSelectedGameId(run.gameIDs[0]);
     }
 
-    setViewRunId(runId);
+    setViewRunID(runID);
   }
 
-  function handleRunComplete(runId: string) {
-    setViewRunId(runId);
+  function handleRunComplete(runID: string) {
+    setViewRunID(runID);
     queryClient.invalidateQueries({ queryKey: QUERY_KEY.RUNS });
   }
 
@@ -148,7 +148,7 @@ export default function App() {
           <GameActionBar
             game={selectedGame}
             isRunning={selectedGameIsRunning}
-            runId={selectedGameRunId}
+            runID={selectedGameRunID}
             onRunComplete={handleRunComplete}
           />
         )}
@@ -161,7 +161,7 @@ export default function App() {
             onRunComplete={handleRunComplete}
           />
         )}
-        {viewRunId !== null ? (
+        {viewRunID !== null ? (
           <ResultsPanel run={run} isLoading={runLoading} />
         ) : (
           <RecentRunsList

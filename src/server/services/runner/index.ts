@@ -35,9 +35,9 @@ function resolveNames(gameIDs: string[]): { names: string[]; firstMissingId: str
   return { names, firstMissingId };
 }
 
-function createRecord(runId: string, gameIDs: string[]): RunRecord {
+function createRecord(runID: string, gameIDs: string[]): RunRecord {
   return {
-    runId,
+    runID,
     gameIDs,
     status: 'running',
     startedAt: new Date().toISOString(),
@@ -54,8 +54,8 @@ export class RunnerService extends Effect.Tag('RunnerService')<
       gameIDs: string[],
       projects?: string[],
     ) => Effect.Effect<RunRecord, RunAlreadyActiveError | GameNotFoundError>;
-    cancelRun: (runId: string) => Effect.Effect<void, RunNotFoundError>;
-    getRun: (runId: string) => Effect.Effect<RunRecord, RunNotFoundError>;
+    cancelRun: (runID: string) => Effect.Effect<void, RunNotFoundError>;
+    getRun: (runID: string) => Effect.Effect<RunRecord, RunNotFoundError>;
     getRecentRuns: (limit?: number) => Effect.Effect<RunRecord[]>;
   }
 >() {}
@@ -88,7 +88,7 @@ export const NodeRunnerService = Layer.effect(
     );
 
     for (const run of loadedRuns) {
-      state.runs.set(run.runId, run);
+      state.runs.set(run.runID, run);
     }
 
     return {
@@ -108,18 +108,18 @@ export const NodeRunnerService = Layer.effect(
             return yield* Effect.fail(new GameNotFoundError({ id: firstMissingId }));
           }
 
-          const runId = randomUUID();
-          const record = createRecord(runId, gameIDs);
+          const runID = randomUUID();
+          const record = createRecord(runID, gameIDs);
 
-          state.runs.set(runId, record);
+          state.runs.set(runID, record);
 
           for (const id of gameIDs) {
-            state.activeRunsByGame.set(id, runId);
+            state.activeRunsByGame.set(id, runID);
           }
 
           const cmd = buildPlaywrightCommand(names, projects);
 
-          console.log(`[runner] Starting run ${runId}`);
+          console.log(`[runner] Starting run ${runID}`);
           console.log(`[runner] Command: ${cmd}`);
 
           const background = Effect.gen(function* () {
@@ -138,7 +138,7 @@ export const NodeRunnerService = Layer.effect(
                   new Date(record.finishedAt).getTime() - new Date(record.startedAt).getTime();
               }
 
-              state.activeFibers.delete(record.runId);
+              state.activeFibers.delete(record.runID);
 
               for (const id of record.gameIDs) {
                 state.activeRunsByGame.delete(id);
@@ -150,19 +150,19 @@ export const NodeRunnerService = Layer.effect(
 
           const fiber = yield* Effect.forkDaemon(background);
 
-          state.activeFibers.set(runId, fiber);
+          state.activeFibers.set(runID, fiber);
 
           return record;
         });
       },
 
-      cancelRun: (runId) => {
+      cancelRun: (runID) => {
         return Effect.gen(function* () {
-          const fiber = state.activeFibers.get(runId);
-          const record = state.runs.get(runId);
+          const fiber = state.activeFibers.get(runID);
+          const record = state.runs.get(runID);
 
           if (!fiber || !record) {
-            return yield* Effect.fail(new RunNotFoundError({ runId }));
+            return yield* Effect.fail(new RunNotFoundError({ runID }));
           }
 
           record.status = 'cancelled';
@@ -172,7 +172,7 @@ export const NodeRunnerService = Layer.effect(
 
           yield* Fiber.interrupt(fiber);
 
-          state.activeFibers.delete(runId);
+          state.activeFibers.delete(runID);
 
           for (const id of record.gameIDs) {
             state.activeRunsByGame.delete(id);
@@ -189,12 +189,12 @@ export const NodeRunnerService = Layer.effect(
         });
       },
 
-      getRun: (runId) => {
+      getRun: (runID) => {
         return Effect.gen(function* () {
-          const record = state.runs.get(runId);
+          const record = state.runs.get(runID);
 
           if (!record) {
-            return yield* Effect.fail(new RunNotFoundError({ runId }));
+            return yield* Effect.fail(new RunNotFoundError({ runID }));
           }
 
           return record;
