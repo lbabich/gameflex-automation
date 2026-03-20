@@ -73,8 +73,8 @@ export function getCachedDeviceMap(): Map<string, { desktop: boolean; mobile: bo
   const cache = loadCache();
   const result = new Map<string, { desktop: boolean; mobile: boolean }>();
 
-  for (const [gameId, devices] of Object.entries(cache)) {
-    result.set(gameId, {
+  for (const [gameID, devices] of Object.entries(cache)) {
+    result.set(gameID, {
       desktop: 'desktop' in devices,
       mobile: 'mobile' in devices,
     });

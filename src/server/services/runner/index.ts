@@ -99,7 +99,7 @@ export const NodeRunnerService = Layer.effect(
           });
 
           if (conflicting.length > 0) {
-            return yield* Effect.fail(new RunAlreadyActiveError({ gameId: conflicting[0] ?? '' }));
+            return yield* Effect.fail(new RunAlreadyActiveError({ gameID: conflicting[0] ?? '' }));
           }
 
           const { names, firstMissingId } = resolveNames(gameIds);

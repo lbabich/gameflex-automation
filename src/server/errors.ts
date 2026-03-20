@@ -13,7 +13,7 @@ export class RunNotFoundError extends Data.TaggedError('RunNotFoundError')<{
 }> {}
 
 export class RunAlreadyActiveError extends Data.TaggedError('RunAlreadyActiveError')<{
-  gameId: string;
+  gameID: string;
 }> {}
 
 export class ParseError extends Data.TaggedError('ParseError')<{

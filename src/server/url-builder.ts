@@ -9,13 +9,13 @@ const DEBUG_ACCESS_TOKEN =
 
 const LOBBY_BASE = 'https://s009-gel.test-flex.us/gamelaunch/test/gul';
 
-export function buildSingleUrl(gameId: string, channel: DeviceType, mode: PlayMode): string {
+export function buildSingleUrl(gameID: string, channel: DeviceType, mode: PlayMode): string {
   const u = new URL(BASE_URL);
 
   u.searchParams.set('casinoid', 'S009-IFO-20');
   u.searchParams.set('sessiontoken', '');
   u.searchParams.set('languagecode', 'en');
-  u.searchParams.set('gameid', gameId);
+  u.searchParams.set('gameid', gameID);
   u.searchParams.set('tableid', 'undefined');
   u.searchParams.set('playmode', mode);
   u.searchParams.set('channelid', channel);

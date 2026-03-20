@@ -22,7 +22,7 @@ for (const game of GAMES) {
   test(`spin: ${game.name}`, async ({ page }, testInfo: TestInfo) => {
     const isProjectMobile = /mobile/i.test(testInfo.project.name);
     const channel: DeviceType = isProjectMobile ? DEVICE_TYPE.MOBILE : DEVICE_TYPE.DESKTOP;
-    const gameId =
+    const gameID =
       channel === DEVICE_TYPE.MOBILE
         ? (game.mobileGameID ?? game.desktopGameID)
         : game.desktopGameID;
@@ -37,8 +37,8 @@ for (const game of GAMES) {
 
     const launchUrl =
       playmode === PLAY_MODE.REAL
-        ? await operatorWallet.getGameLaunchUrl(gameId, channel)
-        : buildSingleUrl(gameId, channel, playmode);
+        ? await operatorWallet.getGameLaunchUrl(gameID, channel)
+        : buildSingleUrl(gameID, channel, playmode);
 
     const viewport = page.viewportSize();
 

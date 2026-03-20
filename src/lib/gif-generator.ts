@@ -58,8 +58,8 @@ function parseSortKey(filename: string): [number, number] {
  * Returns the absolute path to the generated GIF.
  * @throws if no PNG files exist in the screenshots directory
  */
-export async function generateGif(gameId: string, deviceType: DeviceType) {
-  const screenshotsDir = path.resolve('src/server/screenshots', gameId, deviceType);
+export async function generateGif(gameID: string, deviceType: DeviceType) {
+  const screenshotsDir = path.resolve('src/server/screenshots', gameID, deviceType);
   const gifPath = path.resolve(screenshotsDir, ANIMATED_GIF_FILENAME);
 
   const pngFiles = fs
