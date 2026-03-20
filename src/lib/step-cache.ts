@@ -11,8 +11,8 @@ const CACHE_PATH = path.resolve('src', 'data', 'game-steps.json');
 function loadCache(): StepCache {
   try {
     return JSON.parse(fs.readFileSync(CACHE_PATH, 'utf8')) as StepCache;
-  } catch (err) {
-    console.warn('[step-cache] Failed to load cache, starting fresh:', err);
+  } catch (error) {
+    console.warn('[step-cache] Failed to load cache, starting fresh:', error);
     return {};
   }
 }
@@ -37,11 +37,11 @@ export function getSteps(id: string, deviceType: DeviceType, viewport: Viewport)
  */
 export function setSteps(id: string, deviceType: DeviceType, viewport: Viewport, steps: GameSteps) {
   const cache = loadCache();
-  const vk = viewportKey(viewport);
+  const key = viewportKey(viewport);
 
   cache[id] ??= {};
   cache[id][deviceType] ??= {};
-  cache[id][deviceType][vk] = steps;
+  cache[id][deviceType][key] = steps;
 
   saveCache(cache);
 }

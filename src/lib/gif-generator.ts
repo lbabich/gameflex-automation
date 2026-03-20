@@ -64,8 +64,8 @@ export async function generateGif(gameId: string, deviceType: DeviceType) {
 
   const pngFiles = fs
     .readdirSync(screenshotsDir)
-    .filter((f) => {
-      return f.endsWith('.png');
+    .filter((filename) => {
+      return filename.endsWith('.png');
     })
     .sort((a, b) => {
       const [aGroup, aIdx] = parseSortKey(a);

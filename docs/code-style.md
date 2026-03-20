@@ -157,3 +157,30 @@ export const FileServiceLive = Layer.succeed(FileService, { ... })
 ```
 
 The `Node` prefix signals that the implementation is Node.js-specific (disk, child processes, etc.). The `Test` prefix signals an in-memory fake used in unit tests.
+
+---
+
+## Variable naming
+
+Use full, descriptive names. Never use single-character or opaque abbreviations.
+
+```ts
+// ✓ correct
+const game = gameList.find((entry) => entry.id === id);
+const url = new URL(BASE_URL);
+const response = await fetch(url.toString());
+const key = viewportKey(viewport);
+
+// ✗ wrong
+const g = gameList.find((e) => e.id === id);
+const u = new URL(BASE_URL);
+const res = await fetch(u.toString());
+const vk = viewportKey(viewport);
+```
+
+**Callback parameters** should reflect the element type: use `game`, `entry`, `filename`, `run`, `result`, `step`, `line` — not `g`, `e`, `f`, `r`, `s`, `t`.
+
+**Exceptions** (universally understood conventions that are fine to keep):
+- Sort comparators: `(a, b) => ...`
+- Intentionally ignored destructuring: `({ rawOutput: _raw, ...rest })`
+- Express route handler parameters: `req`, `res`, `next`

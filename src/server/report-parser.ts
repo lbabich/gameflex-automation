@@ -59,23 +59,23 @@ function toTestResult(spec: SpecNode, test: TestNode): TestResult | null {
     duration: result.duration ?? 0,
     error: result.error?.message,
     stdout: (result.stdout ?? [])
-      .map((e) => {
-        return e.text ?? '';
+      .map((entry) => {
+        return entry.text ?? '';
       })
       .filter(Boolean)
-      .map((t) => {
-        return t.trimEnd();
+      .map((line) => {
+        return line.trimEnd();
       }),
     steps: (result.steps ?? [])
-      .map((s): TestStep => {
+      .map((step): TestStep => {
         return {
-          title: s.title ?? '',
-          duration: s.duration ?? 0,
-          error: s.error?.message,
+          title: step.title ?? '',
+          duration: step.duration ?? 0,
+          error: step.error?.message,
         };
       })
-      .filter((s) => {
-        return s.title;
+      .filter((step) => {
+        return step.title;
       }),
   };
 }
@@ -107,8 +107,8 @@ export function extractReportJson(raw: string): ReportJson | null {
 
   try {
     return JSON.parse(raw.slice(jsonStart)) as ReportJson;
-  } catch (err) {
-    console.error('[runner] Failed to parse JSON report:', err);
+  } catch (error) {
+    console.error('[runner] Failed to parse JSON report:', error);
     console.error('[runner] Content at parse start:', raw.slice(jsonStart, jsonStart + 200));
     return null;
   }
@@ -125,8 +125,8 @@ export function parseJsonReport(raw: string): {
   }
 
   const playwrightErrors = (report.errors ?? [])
-    .map((e) => {
-      return e.message ?? '';
+    .map((error) => {
+      return error.message ?? '';
     })
     .filter(Boolean);
 

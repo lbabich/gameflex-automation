@@ -1,143 +1,118 @@
+import { Effect, Schema } from 'effect';
 import { Router } from 'express';
-import { addGame, readGames, updateGame } from '../../lib/games';
-import * as stepCache from '../../lib/step-cache';
-import type { DeviceType, PlayMode } from '../../lib/types';
-import { DEVICE_TYPES, PLAY_MODE, PLAY_MODES } from '../../lib/types';
+import type { DeviceType } from '../../lib/types';
+import { DEVICE_TYPES, PLAY_MODE } from '../../lib/types';
 import type { AppRuntime } from '../runtime';
+import { GamesService } from '../services/games';
 
-export function makeGamesRouter(_runtime: AppRuntime): Router {
+const PostBody = Schema.Struct({
+  desktopGameId: Schema.String,
+  mobileGameId: Schema.optional(Schema.String),
+  name: Schema.String,
+});
+
+const PatchBody = Schema.Struct({
+  name: Schema.optional(Schema.String),
+  desktopGameId: Schema.optional(Schema.String),
+  mobileGameId: Schema.optional(Schema.String),
+  desktopEnabled: Schema.optional(Schema.Boolean),
+  desktopPlaymode: Schema.optional(Schema.Literal('demo', 'real')),
+  mobileEnabled: Schema.optional(Schema.Boolean),
+  mobilePlaymode: Schema.optional(Schema.Literal('demo', 'real')),
+});
+
+export function makeGamesRouter(runtime: AppRuntime): Router {
   const router = Router();
 
   router.get('/', (_req, res) => {
-    const games = readGames();
-    const deviceCache = stepCache.getCachedDeviceMap();
+    void runtime.runPromise(
+      Effect.gen(function* () {
+        const gamesService = yield* GamesService;
+        const games = yield* gamesService.list();
+        const deviceCache = yield* gamesService.getCachedDeviceMap();
 
-    res.json(
-      games.map((g) => {
-        const cache = deviceCache.get(g.id) ?? { desktop: false, mobile: false };
+        res.json(
+          games.map((game) => {
+            const cache = deviceCache.get(game.id) ?? { desktop: false, mobile: false };
 
-        return { ...g, desktopCached: cache.desktop, mobileCached: cache.mobile };
+            return { ...game, desktopCached: cache.desktop, mobileCached: cache.mobile };
+          }),
+        );
       }),
     );
   });
 
   router.post('/', (req, res) => {
-    const { desktopGameId, mobileGameId, name } = req.body as {
-      desktopGameId?: unknown;
-      mobileGameId?: unknown;
-      name?: unknown;
-    };
+    void runtime.runPromise(
+      Effect.gen(function* () {
+        const body = yield* Schema.decodeUnknown(PostBody)(req.body);
+        const gamesService = yield* GamesService;
 
-    if (typeof desktopGameId !== 'string' || typeof name !== 'string') {
-      res.status(400).json({ error: 'desktopGameId and name are required strings' });
-      return;
-    }
+        yield* gamesService.add({
+          desktopGameId: body.desktopGameId,
+          mobileGameId: body.mobileGameId,
+          name: body.name,
+          desktopEnabled: true,
+          desktopPlaymode: PLAY_MODE.DEMO,
+          mobileEnabled: false,
+          mobilePlaymode: PLAY_MODE.DEMO,
+        });
 
-    if (mobileGameId !== undefined && typeof mobileGameId !== 'string') {
-      res.status(400).json({ error: 'mobileGameId must be a string' });
-      return;
-    }
-
-    try {
-      addGame({
-        desktopGameId,
-        mobileGameId: mobileGameId as string | undefined,
-        name,
-        desktopEnabled: true,
-        desktopPlaymode: PLAY_MODE.DEMO,
-        mobileEnabled: false,
-        mobilePlaymode: PLAY_MODE.DEMO,
-      });
-    } catch (err) {
-      res.status(409).json({ error: (err as Error).message });
-      return;
-    }
-
-    res.status(201).json({ desktopGameId });
+        res.status(201).json({ desktopGameId: body.desktopGameId });
+      }).pipe(
+        Effect.catchTag('ParseError', () => {
+          return Effect.sync(() => {
+            res.status(400).json({ error: 'desktopGameId and name are required strings' });
+          });
+        }),
+        Effect.catchTag('DuplicateGameIdError', (err) => {
+          return Effect.sync(() => {
+            res
+              .status(409)
+              .json({ error: `Game with desktopGameId '${err.desktopGameId}' already exists` });
+          });
+        }),
+      ),
+    );
   });
 
   router.patch('/:id', (req, res) => {
     const { id } = req.params;
-    const {
-      name,
-      desktopGameId,
-      mobileGameId,
-      desktopEnabled,
-      desktopPlaymode,
-      mobileEnabled,
-      mobilePlaymode,
-    } = req.body as {
-      name?: unknown;
-      desktopGameId?: unknown;
-      mobileGameId?: unknown;
-      desktopEnabled?: unknown;
-      desktopPlaymode?: unknown;
-      mobileEnabled?: unknown;
-      mobilePlaymode?: unknown;
-    };
 
-    if (name !== undefined && typeof name !== 'string') {
-      res.status(400).json({ error: 'name must be a string' });
-      return;
-    }
+    void runtime.runPromise(
+      Effect.gen(function* () {
+        const body = yield* Schema.decodeUnknown(PatchBody)(req.body);
+        const gamesService = yield* GamesService;
 
-    if (desktopGameId !== undefined && typeof desktopGameId !== 'string') {
-      res.status(400).json({ error: 'desktopGameId must be a string' });
-      return;
-    }
+        yield* gamesService.update(id, body);
 
-    if (mobileGameId !== undefined && typeof mobileGameId !== 'string') {
-      res.status(400).json({ error: 'mobileGameId must be a string' });
-      return;
-    }
-
-    if (desktopEnabled !== undefined && typeof desktopEnabled !== 'boolean') {
-      res.status(400).json({ error: 'desktopEnabled must be a boolean' });
-      return;
-    }
-
-    if (desktopPlaymode !== undefined && !PLAY_MODES.includes(desktopPlaymode as PlayMode)) {
-      res.status(400).json({ error: 'desktopPlaymode must be demo or real' });
-      return;
-    }
-
-    if (mobileEnabled !== undefined && typeof mobileEnabled !== 'boolean') {
-      res.status(400).json({ error: 'mobileEnabled must be a boolean' });
-      return;
-    }
-
-    if (mobilePlaymode !== undefined && !PLAY_MODES.includes(mobilePlaymode as PlayMode)) {
-      res.status(400).json({ error: 'mobilePlaymode must be demo or real' });
-      return;
-    }
-
-    try {
-      updateGame(id, {
-        name: name as string | undefined,
-        desktopGameId: desktopGameId as string | undefined,
-        mobileGameId: mobileGameId as string | undefined,
-        desktopEnabled: desktopEnabled as boolean | undefined,
-        desktopPlaymode: desktopPlaymode as PlayMode | undefined,
-        mobileEnabled: mobileEnabled as boolean | undefined,
-        mobilePlaymode: mobilePlaymode as PlayMode | undefined,
-      });
-    } catch (err) {
-      const msg = (err as Error).message;
-      const status = msg.includes('not found') ? 404 : 400;
-
-      res.status(status).json({ error: msg });
-      return;
-    }
-
-    res.sendStatus(204);
+        res.sendStatus(204);
+      }).pipe(
+        Effect.catchTag('ParseError', () => {
+          return Effect.sync(() => {
+            res.status(400).json({ error: 'Invalid field types' });
+          });
+        }),
+        Effect.catchTag('GameNotFoundError', (err) => {
+          return Effect.sync(() => {
+            res.status(404).json({ error: `Game '${err.id}' not found` });
+          });
+        }),
+      ),
+    );
   });
 
   router.delete('/:id/steps', (req, res) => {
     const { id } = req.params;
 
-    stepCache.clearAllSteps(id);
+    void runtime.runPromise(
+      Effect.gen(function* () {
+        const gamesService = yield* GamesService;
 
-    res.sendStatus(204);
+        yield* gamesService.clearAllSteps(id);
+        res.sendStatus(204);
+      }),
+    );
   });
 
   router.delete('/:id/steps/:channel', (req, res) => {
@@ -148,9 +123,14 @@ export function makeGamesRouter(_runtime: AppRuntime): Router {
       return;
     }
 
-    stepCache.clearChannelSteps(id, channel as DeviceType);
+    void runtime.runPromise(
+      Effect.gen(function* () {
+        const gamesService = yield* GamesService;
 
-    res.sendStatus(204);
+        yield* gamesService.clearSteps(id, channel as DeviceType);
+        res.sendStatus(204);
+      }),
+    );
   });
 
   return router;

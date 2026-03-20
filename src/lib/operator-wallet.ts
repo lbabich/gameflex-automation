@@ -8,19 +8,19 @@ const OPERATOR_WALLET_URL = 'https://operatorwallet.azurewebsites.net/api/launch
 const OPERATOR_ACCOUNT_ID = 'autotest';
 
 export async function getGameLaunchUrl(gameId: string, channel: DeviceType): Promise<string> {
-  const u = new URL(OPERATOR_WALLET_URL);
+  const url = new URL(OPERATOR_WALLET_URL);
 
-  u.searchParams.set('gameid', gameId);
-  u.searchParams.set('operatoraccountid', `${OPERATOR_ACCOUNT_ID}${channel}`);
-  u.searchParams.set('channel', channel);
+  url.searchParams.set('gameid', gameId);
+  url.searchParams.set('operatoraccountid', `${OPERATOR_ACCOUNT_ID}${channel}`);
+  url.searchParams.set('channel', channel);
 
-  const res = await fetch(u.toString());
+  const response = await fetch(url.toString());
 
-  if (!res.ok) {
-    throw new Error(`Operator wallet returned ${res.status} for game ${gameId}`);
+  if (!response.ok) {
+    throw new Error(`Operator wallet returned ${response.status} for game ${gameId}`);
   }
 
-  const body = (await res.json()) as { LaunchURL: string };
+  const body = (await response.json()) as { LaunchURL: string };
 
   return body.LaunchURL;
 }

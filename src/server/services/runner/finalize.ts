@@ -52,12 +52,12 @@ function logSummary(record: RunRecord): void {
   let failed = 0;
   let skipped = 0;
 
-  for (const r of record.results) {
-    if (r.status === 'passed') {
+  for (const result of record.results) {
+    if (result.status === 'passed') {
       passed++;
-    } else if (r.status === 'failed') {
+    } else if (result.status === 'failed') {
       failed++;
-    } else if (r.status === 'skipped') {
+    } else if (result.status === 'skipped') {
       skipped++;
     }
   }
@@ -87,8 +87,8 @@ export function saveRuns(state: RunnerState) {
   return Effect.gen(function* () {
     const fileService = yield* FileService;
 
-    const completed = [...state.runs.values()].filter((r) => {
-      return r.status !== 'running';
+    const completed = [...state.runs.values()].filter((run) => {
+      return run.status !== 'running';
     });
 
     const toSave = completed
@@ -104,15 +104,15 @@ export function saveRuns(state: RunnerState) {
   });
 }
 
-export function finalizeRun(state: RunnerState, record: RunRecord, code: number, raw: string) {
+export function finalizeRun(state: RunnerState, record: RunRecord, code: number, stdout: string) {
   return Effect.gen(function* () {
-    record.rawOutput = raw;
+    record.rawOutput = stdout;
     record.finishedAt = new Date().toISOString();
     record.durationMs =
       new Date(record.finishedAt).getTime() - new Date(record.startedAt).getTime();
 
     if (record.status !== 'cancelled') {
-      const parsed = parseJsonReport(raw);
+      const parsed = parseJsonReport(stdout);
 
       record.results = parsed.results;
       record.playwrightErrors = parsed.playwrightErrors;
@@ -122,8 +122,8 @@ export function finalizeRun(state: RunnerState, record: RunRecord, code: number,
     yield* attachGifUrls(record.results);
 
     yield* saveRuns(state).pipe(
-      Effect.catchAll((err) => {
-        console.error('[runner] Failed to persist run:', err);
+      Effect.catchAll((error) => {
+        console.error('[runner] Failed to persist run:', error);
 
         return Effect.succeed(undefined);
       }),

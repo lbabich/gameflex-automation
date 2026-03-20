@@ -29,61 +29,61 @@ export type GameUpdates = {
 const GAMES_PATH = path.resolve('src', 'data', 'games.json');
 
 export function readGames(): GameEntry[] {
-  let raw: unknown[];
+  let entries: unknown[];
 
   try {
-    raw = JSON.parse(fs.readFileSync(GAMES_PATH, 'utf8')) as unknown[];
+    entries = JSON.parse(fs.readFileSync(GAMES_PATH, 'utf8')) as unknown[];
   } catch {
     return [];
   }
 
   let dirty = false;
 
-  const games = raw.map((entry) => {
-    const g = entry as Record<string, unknown>;
+  const games = entries.map((entry) => {
+    const game = entry as Record<string, unknown>;
 
-    if (!g.id) {
-      g.id = crypto.randomUUID();
+    if (!game.id) {
+      game.id = crypto.randomUUID();
       dirty = true;
     }
 
-    const hasLegacyFields = 'channel' in g || 'playmode' in g;
+    const hasLegacyFields = 'channel' in game || 'playmode' in game;
 
     if (hasLegacyFields) {
-      const channel = g.channel as string | undefined;
-      const playmode = (g.playmode as PlayMode | undefined) ?? PLAY_MODE.DEMO;
+      const channel = game.channel as string | undefined;
+      const playmode = (game.playmode as PlayMode | undefined) ?? PLAY_MODE.DEMO;
 
-      g.desktopEnabled = channel !== 'mobile';
-      g.mobileEnabled = channel === 'mobile' || channel === 'both';
-      g.desktopPlaymode = playmode;
-      g.mobilePlaymode = playmode;
+      game.desktopEnabled = channel !== 'mobile';
+      game.mobileEnabled = channel === 'mobile' || channel === 'both';
+      game.desktopPlaymode = playmode;
+      game.mobilePlaymode = playmode;
 
-      delete g.channel;
-      delete g.playmode;
+      delete game.channel;
+      delete game.playmode;
       dirty = true;
     }
 
-    if (g.desktopEnabled === undefined) {
-      g.desktopEnabled = true;
+    if (game.desktopEnabled === undefined) {
+      game.desktopEnabled = true;
       dirty = true;
     }
 
-    if (!g.desktopPlaymode) {
-      g.desktopPlaymode = PLAY_MODE.DEMO;
+    if (!game.desktopPlaymode) {
+      game.desktopPlaymode = PLAY_MODE.DEMO;
       dirty = true;
     }
 
-    if (g.mobileEnabled === undefined) {
-      g.mobileEnabled = false;
+    if (game.mobileEnabled === undefined) {
+      game.mobileEnabled = false;
       dirty = true;
     }
 
-    if (!g.mobilePlaymode) {
-      g.mobilePlaymode = PLAY_MODE.DEMO;
+    if (!game.mobilePlaymode) {
+      game.mobilePlaymode = PLAY_MODE.DEMO;
       dirty = true;
     }
 
-    return g as unknown as GameEntry;
+    return game as unknown as GameEntry;
   });
 
   if (dirty) {
@@ -114,15 +114,15 @@ export function addGame(entry: Omit<GameEntry, 'id'> & { id?: string }): void {
 
 export function updateGame(id: string, updates: GameUpdates): void {
   const games = readGames();
-  const idx = games.findIndex((g) => {
-    return g.id === id;
+  const index = games.findIndex((game) => {
+    return game.id === id;
   });
 
-  if (idx === -1) {
+  if (index === -1) {
     throw new Error(`Game ${id} not found`);
   }
 
-  const game = games[idx];
+  const game = games[index];
 
   const idChanged =
     (updates.desktopGameId !== undefined && updates.desktopGameId !== game.desktopGameId) ||
@@ -132,7 +132,7 @@ export function updateGame(id: string, updates: GameUpdates): void {
     stepCache.clearAllSteps(id);
   }
 
-  games[idx] = {
+  games[index] = {
     ...game,
     name: updates.name ?? game.name,
     desktopGameId: updates.desktopGameId ?? game.desktopGameId,

@@ -1,7 +1,7 @@
 export function buildPlaywrightCommand(names: string[], projects?: string[]): string {
   const grepPattern = names
-    .map((n) => {
-      return `spin: ${n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`;
+    .map((name) => {
+      return `spin: ${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`;
     })
     .join('|');
 
@@ -9,8 +9,8 @@ export function buildPlaywrightCommand(names: string[], projects?: string[]): st
 
   const projectFlags = projects?.length
     ? projects
-        .map((p) => {
-          return `--project "${p}"`;
+        .map((project) => {
+          return `--project "${project}"`;
         })
         .join(' ')
     : '';

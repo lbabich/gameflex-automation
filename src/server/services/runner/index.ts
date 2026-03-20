@@ -21,8 +21,8 @@ function resolveNames(gameIds: string[]): { names: string[]; firstMissingId: str
   let firstMissingId: string | undefined;
 
   for (const id of gameIds) {
-    const game = gameList.find((g: games.GameEntry) => {
-      return g.id === id;
+    const game = gameList.find((entry: games.GameEntry) => {
+      return entry.id === id;
     });
 
     if (game) {
@@ -72,10 +72,10 @@ export const NodeRunnerService = Layer.effect(
     };
 
     const loadedRuns = yield* fileService.read(RUNS_FILE).pipe(
-      Effect.flatMap((raw) => {
+      Effect.flatMap((fileContent) => {
         return Effect.try({
           try: () => {
-            return JSON.parse(raw) as RunRecord[];
+            return JSON.parse(fileContent) as RunRecord[];
           },
           catch: () => {
             return new ParseError({ message: 'corrupt runs.json' });
@@ -128,8 +128,8 @@ export const NodeRunnerService = Layer.effect(
             yield* finalizeRun(state, record, code, stdout);
           }).pipe(
             Effect.provideService(FileService, fileService),
-            Effect.catchAll((err) => {
-              console.error('[runner] Background fiber error:', err);
+            Effect.catchAll((error) => {
+              console.error('[runner] Background fiber error:', error);
 
               if (record.status === 'running') {
                 record.status = 'error';
@@ -180,8 +180,8 @@ export const NodeRunnerService = Layer.effect(
 
           yield* saveRuns(state).pipe(
             Effect.provideService(FileService, fileService),
-            Effect.catchAll((err) => {
-              console.error('[runner] Failed to persist cancellation:', err);
+            Effect.catchAll((error) => {
+              console.error('[runner] Failed to persist cancellation:', error);
 
               return Effect.succeed(undefined);
             }),
