@@ -2,13 +2,14 @@ import * as fs from 'node:fs';
 import { Effect, Layer } from 'effect';
 import { FileReadError, FileWriteError } from '../errors';
 
-export type FileServiceApi = {
-  read: (path: string) => Effect.Effect<string, FileReadError>;
-  write: (path: string, content: string) => Effect.Effect<void, FileWriteError>;
-  exists: (path: string) => Effect.Effect<boolean>;
-};
-
-export class FileService extends Effect.Tag('FileService')<FileService, FileServiceApi>() {}
+export class FileService extends Effect.Tag('FileService')<
+  FileService,
+  {
+    read: (path: string) => Effect.Effect<string, FileReadError>;
+    write: (path: string, content: string) => Effect.Effect<void, FileWriteError>;
+    exists: (path: string) => Effect.Effect<boolean>;
+  }
+>() {}
 
 export const NodeFileService = Layer.succeed(FileService, {
   read: (path) => {

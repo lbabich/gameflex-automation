@@ -1,12 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { Effect, Fiber, Layer } from 'effect';
 import * as games from '../../../lib/games';
-import {
-  GameNotFoundError,
-  ParseError,
-  RunAlreadyActiveError,
-  RunNotFoundError,
-} from '../../errors';
+import { GameNotFoundError, RunAlreadyActiveError, RunNotFoundError } from '../../errors';
 import { FileService } from '../file';
 import { buildPlaywrightCommand } from './command';
 import { finalizeRun, RUNS_FILE, type RunnerState, saveRuns } from './finalize';
@@ -78,7 +73,7 @@ export const NodeRunnerService = Layer.effect(
             return JSON.parse(fileContent) as RunRecord[];
           },
           catch: () => {
-            return new ParseError({ message: 'corrupt runs.json' });
+            return null;
           },
         });
       }),
@@ -178,14 +173,7 @@ export const NodeRunnerService = Layer.effect(
             state.activeRunsByGame.delete(id);
           }
 
-          yield* saveRuns(state).pipe(
-            Effect.provideService(FileService, fileService),
-            Effect.catchAll((error) => {
-              console.error('[runner] Failed to persist cancellation:', error);
-
-              return Effect.succeed(undefined);
-            }),
-          );
+          yield* saveRuns(state).pipe(Effect.provideService(FileService, fileService));
         });
       },
 

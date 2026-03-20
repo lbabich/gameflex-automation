@@ -160,6 +160,35 @@ The `Node` prefix signals that the implementation is Node.js-specific (disk, chi
 
 ---
 
+## Effect error handling
+
+Handle errors as close to the failing code as possible. If every caller recovers the same way, encapsulate the recovery inside the function — don't push it to the call site.
+
+```ts
+// ✓ correct — recovery is an implementation detail of parseJsonReport
+export function parseJsonReport(raw: string) {
+  return Effect.gen(function* () {
+    const report = yield* extractReportJson(raw);
+    // ...
+  }).pipe(
+    Effect.catchAll(() => Effect.succeed({ results: [], playwrightErrors: [] })),
+  );
+}
+
+// ✗ wrong — caller forced to repeat the same recovery everywhere
+const parsed = yield* parseJsonReport(stdout).pipe(
+  Effect.catchTag('ParseError', () =>
+    Effect.succeed({ results: [], playwrightErrors: [] }),
+  ),
+);
+```
+
+Only surface an error when callers have meaningfully different responses to it — the canonical example is route handlers, where `GameNotFoundError` → 404 and `DuplicateGameIDError` → 409 are distinct outcomes that belong at the HTTP boundary.
+
+**`catchAll` vs `catchTag`:** Use `catchTag` only when you have multiple error types that need different recovery logic. Use `catchAll` when all errors recover the same way — adding tag specificity that provides no value is noise.
+
+---
+
 ## Variable naming
 
 Use full, descriptive names. Never use single-character or opaque abbreviations.

@@ -101,7 +101,13 @@ export function saveRuns(state: RunnerState) {
       });
 
     yield* fileService.write(RUNS_FILE, JSON.stringify(toSave, null, 2));
-  });
+  }).pipe(
+    Effect.catchAll((error) => {
+      console.error('[runner] Failed to save runs:', error);
+
+      return Effect.succeed(undefined);
+    }),
+  );
 }
 
 export function finalizeRun(state: RunnerState, record: RunRecord, code: number, stdout: string) {
@@ -112,7 +118,7 @@ export function finalizeRun(state: RunnerState, record: RunRecord, code: number,
       new Date(record.finishedAt).getTime() - new Date(record.startedAt).getTime();
 
     if (record.status !== 'cancelled') {
-      const parsed = parseJsonReport(stdout);
+      const parsed = yield* parseJsonReport(stdout);
 
       record.results = parsed.results;
       record.playwrightErrors = parsed.playwrightErrors;
@@ -121,13 +127,7 @@ export function finalizeRun(state: RunnerState, record: RunRecord, code: number,
 
     yield* attachGifUrls(record.results);
 
-    yield* saveRuns(state).pipe(
-      Effect.catchAll((error) => {
-        console.error('[runner] Failed to persist run:', error);
-
-        return Effect.succeed(undefined);
-      }),
-    );
+    yield* saveRuns(state);
 
     logSummary(record);
     trimMemory(state.runs);

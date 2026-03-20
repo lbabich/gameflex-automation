@@ -1,7 +1,5 @@
 import type { DeviceType, PlayMode } from '../lib/types';
 
-export type { PlayMode };
-
 const BASE_URL = 'https://s009-gel.test-flex.us/gamelaunch/api/v2.0/game-launchers/gul/v2/load';
 
 const DEBUG_ACCESS_TOKEN =
@@ -10,16 +8,16 @@ const DEBUG_ACCESS_TOKEN =
 const LOBBY_BASE = 'https://s009-gel.test-flex.us/gamelaunch/test/gul';
 
 export function buildSingleUrl(gameID: string, channel: DeviceType, mode: PlayMode): string {
-  const u = new URL(BASE_URL);
+  const url = new URL(BASE_URL);
 
-  u.searchParams.set('casinoid', 'S009-IFO-20');
-  u.searchParams.set('sessiontoken', '');
-  u.searchParams.set('languagecode', 'en');
-  u.searchParams.set('gameid', gameID);
-  u.searchParams.set('tableid', 'undefined');
-  u.searchParams.set('playmode', mode);
-  u.searchParams.set('channelid', channel);
-  u.searchParams.set('devicechannel', 'web');
+  url.searchParams.set('casinoid', 'S009-IFO-20');
+  url.searchParams.set('sessiontoken', '');
+  url.searchParams.set('languagecode', 'en');
+  url.searchParams.set('gameid', gameID);
+  url.searchParams.set('tableid', 'undefined');
+  url.searchParams.set('playmode', mode);
+  url.searchParams.set('channelid', channel);
+  url.searchParams.set('devicechannel', 'web');
 
   const lobby = new URL(LOBBY_BASE);
 
@@ -31,14 +29,14 @@ export function buildSingleUrl(gameID: string, channel: DeviceType, mode: PlayMo
   lobby.searchParams.set('search', 'masks');
   lobby.searchParams.set('launchtype', 'operator');
 
-  u.searchParams.set('lobbyurl', lobby.toString());
-  u.searchParams.set('currencycode', 'EUR');
-  u.searchParams.set('operatorconnector', 'default');
-  u.searchParams.set('regulationsenabled', 'false');
-  u.searchParams.set('reg_gamehistoryurl', 'undefined');
-  u.searchParams.set('reg_bonusurl', 'undefined');
-  u.searchParams.set('reg_responsibleurl', 'undefined');
-  u.searchParams.set('debugaccesstoken', DEBUG_ACCESS_TOKEN);
+  url.searchParams.set('lobbyurl', lobby.toString());
+  url.searchParams.set('currencycode', 'EUR');
+  url.searchParams.set('operatorconnector', 'default');
+  url.searchParams.set('regulationsenabled', 'false');
+  url.searchParams.set('reg_gamehistoryurl', 'undefined');
+  url.searchParams.set('reg_bonusurl', 'undefined');
+  url.searchParams.set('reg_responsibleurl', 'undefined');
+  url.searchParams.set('debugaccesstoken', DEBUG_ACCESS_TOKEN);
 
-  return u.toString();
+  return url.toString();
 }

@@ -1,4 +1,6 @@
-import type { TestResult, TestStep } from './runner';
+import { Effect } from 'effect';
+import { ParseError } from './errors';
+import type { TestResult, TestStep } from './services/runner';
 
 type StepNode = {
   title?: string;
@@ -80,12 +82,11 @@ function toTestResult(spec: SpecNode, test: TestNode): TestResult | null {
   };
 }
 
-export function extractReportJson(raw: string): ReportJson | null {
+function extractReportJson(raw: string): Effect.Effect<ReportJson, ParseError> {
   // Playwright pretty-prints its JSON output so the report object opens on its
   // own line: "\n{\n  \"config\":...". Search for a '{' at the start of a line.
   // Fall back to a compact-JSON search, then to the first '{' as a last resort.
   const newlineIdx = raw.indexOf('\n{');
-
   let jsonStart: number;
 
   if (newlineIdx !== -1) {
@@ -98,65 +99,69 @@ export function extractReportJson(raw: string): ReportJson | null {
 
   if (jsonStart === -1) {
     console.error('[runner] Could not find JSON in stdout. First 300 chars:', raw.slice(0, 300));
-    return null;
+
+    return Effect.fail(new ParseError({ message: 'No JSON found in playwright output' }));
   }
 
   console.log(
     `[runner] JSON start at index ${jsonStart}, first 60 chars: ${JSON.stringify(raw.slice(jsonStart, jsonStart + 60))}`,
   );
 
-  try {
-    return JSON.parse(raw.slice(jsonStart)) as ReportJson;
-  } catch (error) {
-    console.error('[runner] Failed to parse JSON report:', error);
-    console.error('[runner] Content at parse start:', raw.slice(jsonStart, jsonStart + 200));
-    return null;
-  }
+  return Effect.try({
+    try: () => {
+      return JSON.parse(raw.slice(jsonStart)) as ReportJson;
+    },
+    catch: (error) => {
+      console.error('[runner] Failed to parse JSON report:', error);
+      console.error('[runner] Content at parse start:', raw.slice(jsonStart, jsonStart + 200));
+
+      return new ParseError({ message: `Failed to parse playwright JSON: ${String(error)}` });
+    },
+  });
 }
 
-export function parseJsonReport(raw: string): {
-  results: TestResult[];
-  playwrightErrors: string[];
-} {
-  const report = extractReportJson(raw);
+export function parseJsonReport(raw: string) {
+  return Effect.gen(function* () {
+    const report = yield* extractReportJson(raw);
 
-  if (!report) {
-    return { results: [], playwrightErrors: [] };
-  }
+    const playwrightErrors = (report.errors ?? [])
+      .map((error) => {
+        return error.message ?? '';
+      })
+      .filter(Boolean);
 
-  const playwrightErrors = (report.errors ?? [])
-    .map((error) => {
-      return error.message ?? '';
-    })
-    .filter(Boolean);
+    if (playwrightErrors.length > 0) {
+      console.error('[runner] Playwright top-level errors:', playwrightErrors);
+    }
 
-  if (playwrightErrors.length > 0) {
-    console.error('[runner] Playwright top-level errors:', playwrightErrors);
-  }
+    console.log(`[runner] Suites found: ${report.suites?.length ?? 0}`);
 
-  console.log(`[runner] Suites found: ${report.suites?.length ?? 0}`);
+    const results: TestResult[] = [];
 
-  const results: TestResult[] = [];
+    for (const suite of report.suites ?? []) {
+      const specs = flattenSpecs(suite);
 
-  for (const suite of report.suites ?? []) {
-    const specs = flattenSpecs(suite);
+      console.log(`[runner] Suite "${suite.title}" → ${specs.length} spec(s)`);
 
-    console.log(`[runner] Suite "${suite.title}" → ${specs.length} spec(s)`);
+      for (const spec of specs) {
+        for (const test of spec.tests ?? []) {
+          const result = toTestResult(spec, test);
 
-    for (const spec of specs) {
-      for (const test of spec.tests ?? []) {
-        const result = toTestResult(spec, test);
-
-        if (result) {
-          results.push(result);
+          if (result) {
+            results.push(result);
+          }
         }
       }
     }
-  }
 
-  console.log(
-    `[runner] Parsed ${results.length} test result(s), ${playwrightErrors.length} top-level error(s)`,
+    console.log(
+      `[runner] Parsed ${results.length} test result(s), ${playwrightErrors.length} top-level error(s)`,
+    );
+
+    return { results, playwrightErrors };
+  }).pipe(
+    Effect.catchAll(() => {
+      return Effect.succeed({ results: [] as TestResult[], playwrightErrors: [] as string[] });
+    }),
   );
-
-  return { results, playwrightErrors };
 }
