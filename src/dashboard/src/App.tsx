@@ -15,7 +15,7 @@ import { DEVICE_TYPE } from './types';
 import type { GameEntry } from './types';
 
 export default function App() {
-  const [selectedGameId, setSelectedGameId] = useState<string | null>(null);
+  const [selectedGameID, setSelectedGameID] = useState<string | null>(null);
   const [addGameOpen, setAddGameOpen] = useState(false);
   const [editGame, setEditGame] = useState<GameEntry | null>(null);
   const [viewRunID, setViewRunID] = useState<string | null>(null);
@@ -79,25 +79,25 @@ export default function App() {
     return result;
   }, [games, recentRuns]);
 
-  const selectedGame = selectedGameId !== null
-    ? (games ?? []).find((g) => g.id === selectedGameId) ?? null
+  const selectedGame = selectedGameID !== null
+    ? (games ?? []).find((g) => g.id === selectedGameID) ?? null
     : null;
 
   const selectedGameRuns = useMemo(
-    () => (recentRuns ?? []).filter((r) => selectedGameId ? r.gameIDs.includes(selectedGameId) : true),
-    [recentRuns, selectedGameId],
+    () => (recentRuns ?? []).filter((r) => selectedGameID ? r.gameIDs.includes(selectedGameID) : true),
+    [recentRuns, selectedGameID],
   );
 
-  const selectedGameIsRunning = selectedGameId !== null
-    ? (gameStatuses[selectedGameId]?.isRunning ?? false)
+  const selectedGameIsRunning = selectedGameID !== null
+    ? (gameStatuses[selectedGameID]?.isRunning ?? false)
     : false;
 
-  const selectedGameRunID = selectedGameId !== null
-    ? ((recentRuns ?? []).find((r) => r.gameIDs.includes(selectedGameId) && r.status === 'running')?.runID ?? null)
+  const selectedGameRunID = selectedGameID !== null
+    ? ((recentRuns ?? []).find((r) => r.gameIDs.includes(selectedGameID) && r.status === 'running')?.runID ?? null)
     : null;
 
   function handleGameSelect(id: string) {
-    setSelectedGameId(id);
+    setSelectedGameID(id);
     const found = (recentRuns ?? []).find((r) => r.gameIDs.includes(id));
     setViewRunID(found?.runID ?? null);
   }
@@ -105,8 +105,8 @@ export default function App() {
   function handleRunSelect(runID: string) {
     const run = (recentRuns ?? []).find((r) => r.runID === runID);
 
-    if (run?.gameIDs[0] && !selectedGameId) {
-      setSelectedGameId(run.gameIDs[0]);
+    if (run?.gameIDs[0] && !selectedGameID) {
+      setSelectedGameID(run.gameIDs[0]);
     }
 
     setViewRunID(runID);
@@ -126,7 +126,7 @@ export default function App() {
         ) : (
           <GameSelector
             games={games ?? []}
-            selectedGameId={selectedGameId}
+            selectedGameID={selectedGameID}
             gameStatuses={gameStatuses}
             onSelect={handleGameSelect}
             onEdit={setEditGame}
