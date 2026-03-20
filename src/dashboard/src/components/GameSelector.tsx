@@ -7,20 +7,20 @@ type GameStatus = {
 
 type Props = {
   games: GameEntry[];
-  selectedGameId: string | null;
+  selectedGameID: string | null;
   gameStatuses: Record<string, GameStatus>;
   onSelect: (id: string) => void;
   onEdit: (game: GameEntry) => void;
 };
 
-export function GameSelector({ games, selectedGameId, gameStatuses, onSelect, onEdit }: Props) {
+export function GameSelector({ games, selectedGameID, gameStatuses, onSelect, onEdit }: Props) {
   return (
     <div className="flex flex-col gap-1 mb-4">
       {games.map((game) => {
         const status = gameStatuses[game.id];
         const isRunning = status?.isRunning ?? false;
         const lastStatus = status?.lastStatus ?? null;
-        const isSelected = game.id === selectedGameId;
+        const isSelected = game.id === selectedGameID;
 
         return (
           <div key={game.id} className="flex items-center gap-1">

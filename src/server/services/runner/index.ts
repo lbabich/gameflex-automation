@@ -15,10 +15,10 @@ import type { RunRecord } from './types';
 
 export type { RunRecord, RunStatus, TestResult, TestStep } from './types';
 
-function resolveNames(gameIDs: string[]): { names: string[]; firstMissingId: string | undefined } {
+function resolveNames(gameIDs: string[]): { names: string[]; firstMissingID: string | undefined } {
   const gameList = games.readGames();
   const names: string[] = [];
-  let firstMissingId: string | undefined;
+  let firstMissingID: string | undefined;
 
   for (const id of gameIDs) {
     const game = gameList.find((entry: games.GameEntry) => {
@@ -27,12 +27,12 @@ function resolveNames(gameIDs: string[]): { names: string[]; firstMissingId: str
 
     if (game) {
       names.push(game.name);
-    } else if (firstMissingId === undefined) {
-      firstMissingId = id;
+    } else if (firstMissingID === undefined) {
+      firstMissingID = id;
     }
   }
 
-  return { names, firstMissingId };
+  return { names, firstMissingID };
 }
 
 function createRecord(runID: string, gameIDs: string[]): RunRecord {
@@ -102,10 +102,10 @@ export const NodeRunnerService = Layer.effect(
             return yield* Effect.fail(new RunAlreadyActiveError({ gameID: conflicting[0] ?? '' }));
           }
 
-          const { names, firstMissingId } = resolveNames(gameIDs);
+          const { names, firstMissingID } = resolveNames(gameIDs);
 
-          if (firstMissingId !== undefined) {
-            return yield* Effect.fail(new GameNotFoundError({ id: firstMissingId }));
+          if (firstMissingID !== undefined) {
+            return yield* Effect.fail(new GameNotFoundError({ id: firstMissingID }));
           }
 
           const runID = randomUUID();

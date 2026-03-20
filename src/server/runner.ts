@@ -61,7 +61,7 @@ function loadRuns() {
 
 loadRuns();
 const activeRunsByGame = new Map<string, string>();
-const activeProcessesByRunId = new Map<string, ChildProcess>();
+const activeProcessesByRunID = new Map<string, ChildProcess>();
 
 export function getRun(runID: string) {
   return runs.get(runID);
@@ -179,7 +179,7 @@ function finalizeRecord(record: RunRecord, code: number | null, raw: string) {
 }
 
 function attachProcessHandlers(child: ChildProcess, record: RunRecord) {
-  activeProcessesByRunId.set(record.runID, child);
+  activeProcessesByRunID.set(record.runID, child);
 
   const chunks: Buffer[] = [];
 
@@ -240,7 +240,7 @@ function attachProcessHandlers(child: ChildProcess, record: RunRecord) {
       }
     }
 
-    activeProcessesByRunId.delete(record.runID);
+    activeProcessesByRunID.delete(record.runID);
 
     for (const id of record.gameIDs) {
       activeRunsByGame.delete(id);
@@ -255,7 +255,7 @@ function attachProcessHandlers(child: ChildProcess, record: RunRecord) {
       new Date(record.finishedAt).getTime() - new Date(record.startedAt).getTime();
     record.status = 'error';
 
-    activeProcessesByRunId.delete(record.runID);
+    activeProcessesByRunID.delete(record.runID);
 
     for (const id of record.gameIDs) {
       activeRunsByGame.delete(id);
@@ -263,10 +263,7 @@ function attachProcessHandlers(child: ChildProcess, record: RunRecord) {
   });
 }
 
-export function startRun(
-  gameIDs: string[],
-  projects?: string[],
-) {
+export function startRun(gameIDs: string[], projects?: string[]) {
   const conflicting = gameIDs.filter((id) => {
     return activeRunsByGame.has(id);
   });
@@ -306,7 +303,7 @@ export function startRun(
 }
 
 export function cancelRun(runID: string) {
-  const child = activeProcessesByRunId.get(runID);
+  const child = activeProcessesByRunID.get(runID);
 
   if (!child?.pid) {
     return false;

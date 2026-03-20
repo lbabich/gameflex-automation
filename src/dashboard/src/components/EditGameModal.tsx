@@ -10,7 +10,7 @@ type Props = {
 export function EditGameModal({ game, onClose }: Props) {
   const [name, setName] = useState(game.name);
   const [desktopGameID, setDesktopGameID] = useState(game.desktopGameID);
-  const [mobileGameID, setMobileGameId] = useState(game.mobileGameID ?? '');
+  const [mobileGameID, setMobileGameID] = useState(game.mobileGameID ?? '');
   const [error, setError] = useState<string | null>(null);
   const { mutate, isPending } = useUpdateGame();
 
@@ -70,7 +70,7 @@ export function EditGameModal({ game, onClose }: Props) {
             <input
               type="text"
               value={mobileGameID}
-              onChange={(e) => setMobileGameId(e.target.value)}
+              onChange={(e) => setMobileGameID(e.target.value)}
               placeholder="e.g. 13724"
               className="border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
