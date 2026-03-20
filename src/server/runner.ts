@@ -43,7 +43,7 @@ const RUNS_FILE = path.resolve('src/data/runs.json');
 
 const runs = new Map<string, RunRecord>();
 
-function loadRuns(): void {
+function loadRuns() {
   if (!fs.existsSync(RUNS_FILE)) {
     return;
   }
@@ -63,11 +63,11 @@ loadRuns();
 const activeRunsByGame = new Map<string, string>();
 const activeProcessesByRunId = new Map<string, ChildProcess>();
 
-export function getRun(runID: string): RunRecord | undefined {
+export function getRun(runID: string) {
   return runs.get(runID);
 }
 
-export function getRecentRuns(limit = 50): RunRecord[] {
+export function getRecentRuns(limit = 50) {
   return [...runs.values()]
     .sort((a, b) => {
       return new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime();
@@ -75,7 +75,7 @@ export function getRecentRuns(limit = 50): RunRecord[] {
     .slice(0, limit);
 }
 
-function resolveGameNames(gameIDs: string[]): string[] {
+function resolveGameNames(gameIDs: string[]) {
   const games = readGames();
 
   return gameIDs
@@ -89,7 +89,7 @@ function resolveGameNames(gameIDs: string[]): string[] {
     });
 }
 
-function buildPlaywrightCommand(names: string[], projects?: string[]): string {
+function buildPlaywrightCommand(names: string[], projects?: string[]) {
   const grepPattern = names
     .map((n) => {
       return `spin: ${n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`;
@@ -122,7 +122,7 @@ function createRunRecord(runID: string, gameIDs: string[]): RunRecord {
   };
 }
 
-function saveRuns(): void {
+function saveRuns() {
   const completed = [...runs.values()].filter((r) => {
     return r.status !== 'running';
   });
@@ -138,7 +138,7 @@ function saveRuns(): void {
   fs.writeFileSync(RUNS_FILE, JSON.stringify(toSave, null, 2));
 }
 
-function finalizeRecord(record: RunRecord, code: number | null, raw: string): void {
+function finalizeRecord(record: RunRecord, code: number | null, raw: string) {
   record.rawOutput = raw;
   record.finishedAt = new Date().toISOString();
   record.durationMs = new Date(record.finishedAt).getTime() - new Date(record.startedAt).getTime();
@@ -178,7 +178,7 @@ function finalizeRecord(record: RunRecord, code: number | null, raw: string): vo
   saveRuns();
 }
 
-function attachProcessHandlers(child: ChildProcess, record: RunRecord): void {
+function attachProcessHandlers(child: ChildProcess, record: RunRecord) {
   activeProcessesByRunId.set(record.runID, child);
 
   const chunks: Buffer[] = [];
@@ -266,7 +266,7 @@ function attachProcessHandlers(child: ChildProcess, record: RunRecord): void {
 export function startRun(
   gameIDs: string[],
   projects?: string[],
-): { runID: string } | { error: string } {
+) {
   const conflicting = gameIDs.filter((id) => {
     return activeRunsByGame.has(id);
   });
@@ -305,7 +305,7 @@ export function startRun(
   return { runID };
 }
 
-export function cancelRun(runID: string): boolean {
+export function cancelRun(runID: string) {
   const child = activeProcessesByRunId.get(runID);
 
   if (!child?.pid) {
