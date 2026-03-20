@@ -1,5 +1,7 @@
 # Effect Primitives Reference
 
+Full Effect documentation (LLM-optimised): https://effect.website/llms-full.txt
+
 Every Effect primitive used in this codebase, with a minimal example and a note on where it appears.
 
 ---

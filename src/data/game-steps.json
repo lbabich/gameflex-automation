@@ -1,39 +1,126 @@
 {
   "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986": {
-    "desktop": {
+    "mobile": {
       "1280x720": {
-        "discoveredAt": "2026-03-20T14:03:55.200Z",
+        "discoveredAt": "2026-03-20T16:23:53.327Z",
         "steps": [
           {
-            "waitMs": 15048,
+            "waitMs": 13445,
+            "x": 640,
+            "y": 661,
+            "label": "Continue button"
+          },
+          {
+            "waitMs": 6744,
+            "x": 640,
+            "y": 661,
+            "label": "Continue button"
+          },
+          {
+            "waitMs": 9608,
+            "x": 640,
+            "y": 661,
+            "label": "Continue button"
+          },
+          {
+            "waitMs": 7952,
+            "x": 640,
+            "y": 690,
+            "label": "Continue button"
+          },
+          {
+            "waitMs": 4931,
+            "x": 1184,
+            "y": 378,
+            "label": "Circular spin button with rotating arrows"
+          }
+        ]
+      }
+    },
+    "desktop": {
+      "1280x720": {
+        "discoveredAt": "2026-03-20T16:25:34.035Z",
+        "steps": [
+          {
+            "waitMs": 14251,
             "x": 640,
             "y": 684,
             "label": "Continue button"
           },
           {
-            "waitMs": 5037,
-            "x": 638,
-            "y": 681,
-            "label": "Large circular spin button with rotating arrows"
+            "waitMs": 5652,
+            "x": 640,
+            "y": 684,
+            "label": "Circular spin button with rotating arrow icon"
           }
         ]
       }
-    },
-    "mobile": {
+    }
+  },
+  "b334f577-df52-401b-b5db-d86559a07b3f": {
+    "desktop": {
       "1280x720": {
-        "discoveredAt": "2026-03-20T14:05:06.982Z",
+        "discoveredAt": "2026-03-20T16:27:41.966Z",
         "steps": [
           {
-            "waitMs": 24323,
+            "waitMs": 16490,
             "x": 640,
-            "y": 673,
-            "label": "Continue button"
+            "y": 360,
+            "label": "Game title splash screen - Eternal Link Princess' Empire"
           },
           {
-            "waitMs": 6558,
-            "x": 1184,
-            "y": 378,
-            "label": "Circular spin button with rotating arrows"
+            "waitMs": 8569,
+            "x": 640,
+            "y": 360,
+            "label": "Game title splash screen - Eternal Link Princess' Empire"
+          },
+          {
+            "waitMs": 6953,
+            "x": 640,
+            "y": 360,
+            "label": "Game title splash screen - Eternal Link Princess' Empire"
+          },
+          {
+            "waitMs": 7747,
+            "x": 640,
+            "y": 360,
+            "label": "Game title splash screen - Eternal Link Princess' Empire"
+          },
+          {
+            "waitMs": 7766,
+            "x": 640,
+            "y": 360,
+            "label": "Game title splash screen - Eternal Link Princess' Empire loading screen"
+          },
+          {
+            "waitMs": 7331,
+            "x": 640,
+            "y": 360,
+            "label": "Game title splash screen - Eternal Link Princess' Empire loading screen"
+          },
+          {
+            "waitMs": 6768,
+            "x": 640,
+            "y": 411,
+            "label": "Yes - sound dialog button"
+          },
+          {
+            "waitMs": 7518,
+            "x": 640,
+            "y": 360,
+            "label": "Game title splash screen - Eternal Link Princess' Empire"
+          },
+          {
+            "waitMs": 4082,
+            "x": 1165,
+            "y": 375,
+            "label": "Play/spin button with triangle icon"
+          },
+          {
+            "waitMs": 14482,
+            "x": 1173,
+            "y": 391,
+            "label": "Large circular spin button with rotating arrow icon"
           }
         ]
       }
