@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildSingleUrl } from '../../server/url-builder.ts';
+import { buildSingleUrl } from '../../server/url-builder';
 
 // buildSingleUrl is a pure function — no file I/O, no mocking needed.
 

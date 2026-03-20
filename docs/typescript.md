@@ -110,6 +110,22 @@ const steps: stepCache.CachedStep[] = [];
 This makes every call site self-documenting — the module the function belongs to is visible
 without reading the imports.
 
+## No `.ts` extension on imports
+
+Never include the `.ts` extension in import paths. TypeScript resolves modules without it.
+
+```ts
+// ✓ correct
+import { addGame } from '../../lib/games';
+import * as stepCache from '../../lib/step-cache';
+
+// ✗ wrong
+import { addGame } from '../../lib/games.ts';
+import * as stepCache from '../../lib/step-cache.ts';
+```
+
+---
+
 ## Prefer inference over return types
 
 Do not annotate function return types when TypeScript can infer them correctly.

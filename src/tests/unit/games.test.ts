@@ -2,8 +2,8 @@ import * as crypto from 'node:crypto';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { addGame, readGames, updateGame } from '../../lib/games.ts';
-import * as stepCache from '../../lib/step-cache.ts';
+import { addGame, readGames, updateGame } from '../../lib/games';
+import * as stepCache from '../../lib/step-cache';
 
 const GAMES_PATH = path.resolve('src', 'data', 'games.json');
 
