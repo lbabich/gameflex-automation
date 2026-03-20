@@ -189,7 +189,7 @@ export const NodeRunnerService = Layer.effect(
         });
       },
 
-      getRecentRuns: (limit = 50) => {
+      getRecentRuns: (limit = 10) => {
         return Effect.sync(() => {
           return [...state.runs.values()]
             .sort((a, b) => {

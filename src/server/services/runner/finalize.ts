@@ -1,3 +1,4 @@
+import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { Effect, type Fiber } from 'effect';
 import * as games from '../../../lib/games';
@@ -68,7 +69,7 @@ function logSummary(record: RunRecord) {
 }
 
 function trimMemory(runs: Map<string, RunRecord>) {
-  if (runs.size <= 100) {
+  if (runs.size <= 10) {
     return;
   }
 
@@ -76,7 +77,7 @@ function trimMemory(runs: Map<string, RunRecord>) {
     .sort(([, a], [, b]) => {
       return a.startedAt < b.startedAt ? -1 : 1;
     })
-    .slice(0, runs.size - 100);
+    .slice(0, runs.size - 10);
 
   for (const [id] of oldest) {
     runs.delete(id);
@@ -95,7 +96,7 @@ export function saveRuns(state: RunnerState) {
       .sort((a, b) => {
         return new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime();
       })
-      .slice(0, 100)
+      .slice(0, 10)
       .map(({ rawOutput: _raw, ...rest }) => {
         return rest;
       });
@@ -108,6 +109,46 @@ export function saveRuns(state: RunnerState) {
       return Effect.succeed(undefined);
     }),
   );
+}
+
+function attachScreenshotUrls(runID: string, results: TestResult[]) {
+  return Effect.sync(() => {
+    for (let i = 0; i < results.length; i++) {
+      const result = results[i];
+      const paths = result.screenshotPaths;
+
+      result.screenshotPaths = undefined;
+
+      if (!paths?.length) {
+        continue;
+      }
+
+      const destDir = path.resolve('src/server/screenshots', runID, 'failure');
+
+      try {
+        fs.mkdirSync(destDir, { recursive: true });
+      } catch {
+        continue;
+      }
+
+      const urls: string[] = [];
+
+      for (let j = 0; j < paths.length; j++) {
+        const srcPath = paths[j];
+        const filename = `${i}-${j}${path.extname(srcPath)}`;
+        const destPath = path.join(destDir, filename);
+
+        try {
+          fs.copyFileSync(srcPath, destPath);
+          urls.push(`/api/screenshots/${runID}/failure/${filename}`);
+        } catch (err) {
+          console.warn('[runner] Failed to copy failure screenshot:', err);
+        }
+      }
+
+      result.screenshotUrls = urls;
+    }
+  });
 }
 
 export function finalizeRun(state: RunnerState, record: RunRecord, code: number, stdout: string) {
@@ -126,6 +167,7 @@ export function finalizeRun(state: RunnerState, record: RunRecord, code: number,
     }
 
     yield* attachGifUrls(record.results);
+    yield* attachScreenshotUrls(record.runID, record.results);
 
     yield* saveRuns(state);
 

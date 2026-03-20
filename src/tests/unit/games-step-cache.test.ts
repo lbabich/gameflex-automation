@@ -6,10 +6,7 @@ import { addGame, readGames, updateGame } from '../../lib/games';
 import * as stepCache from '../../lib/step-cache';
 
 beforeEach(() => {
-  fs.writeFileSync(
-    path.resolve(process.env.GAMES_JSON_PATH ?? 'src/data/games.json'),
-    '[]',
-  );
+  fs.writeFileSync(path.resolve(process.env.GAMES_JSON_PATH ?? 'src/data/games.json'), '[]');
 });
 
 function makeDesktopGameID() {

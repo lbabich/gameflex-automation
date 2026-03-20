@@ -148,6 +148,11 @@ export function ResultsPanel({ run, isLoading }: Props) {
                           {result.error}
                         </div>
                       )}
+                      {result.failedStep && (
+                        <div className="text-xs text-red-500 mt-0.5 font-mono">
+                          ↳ failed at: {result.failedStep}
+                        </div>
+                      )}
                     </td>
                     <td className="py-2 px-3 text-gray-500">{result.project}</td>
                     <td className="py-2 px-3">
@@ -167,6 +172,21 @@ export function ResultsPanel({ run, isLoading }: Props) {
                             className="rounded mb-3 max-w-full"
                             style={{ maxHeight: '240px' }}
                           />
+                        )}
+                        {result.screenshotUrls && result.screenshotUrls.length > 0 && (
+                          <div className="flex flex-col gap-1 mb-3">
+                            {result.screenshotUrls.map((url, si) => (
+                              <a
+                                key={si}
+                                href={`${API_BASE}${url}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-xs text-blue-600 underline hover:text-blue-800"
+                              >
+                                Failure screenshot {si + 1}
+                              </a>
+                            ))}
+                          </div>
                         )}
                         {result.steps && result.steps.length > 0 && (
                           <div className="flex flex-col gap-1 mb-3">

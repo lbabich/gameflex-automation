@@ -36,7 +36,7 @@ export default function App() {
 
   const gameStatuses = useMemo(() => {
     type DeviceStatus = 'passed' | 'failed' | 'error' | null;
-    type Status = { isRunning: boolean; lastStatus: DeviceStatus; desktopLastStatus: DeviceStatus; mobileLastStatus: DeviceStatus };
+    type Status = { isRunning: boolean; desktopLastStatus: DeviceStatus; mobileLastStatus: DeviceStatus };
     const result: Record<string, Status> = {};
 
     function deviceStatus(completedRuns: typeof recentRuns, project: string): DeviceStatus {
@@ -57,20 +57,9 @@ export default function App() {
       const gameRuns = (recentRuns ?? []).filter((r) => r.gameIDs.includes(game.id));
       const running = gameRuns.some((r) => r.status === 'running');
       const completedRuns = gameRuns.filter((r) => r.status !== 'running');
-      const last = completedRuns[0];
-      let lastStatus: DeviceStatus = null;
-
-      if (last) {
-        if (last.status === 'completed') {
-          lastStatus = last.results.some((r) => r.status === 'failed' || r.status === 'timedOut') ? 'failed' : 'passed';
-        } else {
-          lastStatus = 'error';
-        }
-      }
 
       result[game.id] = {
         isRunning: running,
-        lastStatus,
         desktopLastStatus: deviceStatus(completedRuns, DEVICE_TYPE.DESKTOP),
         mobileLastStatus: deviceStatus(completedRuns, DEVICE_TYPE.MOBILE),
       };

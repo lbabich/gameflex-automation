@@ -12,9 +12,12 @@ export type TestResult = {
   status: 'passed' | 'failed' | 'skipped' | 'timedOut';
   duration: number;
   error?: string;
+  failedStep?: string;
   stdout: string[];
   steps?: TestStep[];
   gifUrl?: string;
+  screenshotUrls?: string[];
+  screenshotPaths?: string[];
 };
 
 export type RunRecord = {

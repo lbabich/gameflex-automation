@@ -126,6 +126,99 @@ describe('parseJsonReport', () => {
     expect(results).toHaveLength(1);
   });
 
+  it('sets failedStep to the title of the first step with an error', async () => {
+    const raw = `preamble\n${makeReport({
+      suites: [
+        {
+          title: 'game-spin.spec.ts',
+          suites: [],
+          specs: [
+            {
+              title: 'spin: Failing Game',
+              tests: [
+                {
+                  title: 'spin: Failing Game',
+                  projectName: 'chromium',
+                  results: [
+                    {
+                      status: 'failed',
+                      duration: 5000,
+                      error: { message: 'Step timed out' },
+                      stdout: [],
+                      steps: [
+                        { title: 'Navigate to game', duration: 100 },
+                        {
+                          title: 'Discover steps',
+                          duration: 4800,
+                          error: { message: 'Step timed out' },
+                        },
+                        { title: 'Click spin button', duration: 100 },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    })}`;
+
+    const { results } = await Effect.runPromise(parseJsonReport(raw));
+
+    expect(results).toHaveLength(1);
+    expect(results[0].failedStep).toBe('Discover steps');
+  });
+
+  it('leaves failedStep undefined when no step has an error', async () => {
+    const { results } = await Effect.runPromise(parseJsonReport(`preamble\n${makeReport()}`));
+
+    expect(results[0].failedStep).toBeUndefined();
+  });
+
+  it('extracts screenshot paths from png attachments', async () => {
+    const raw = `preamble\n${makeReport({
+      suites: [
+        {
+          title: 'game-spin.spec.ts',
+          suites: [],
+          specs: [
+            {
+              title: 'spin: Failing Game',
+              tests: [
+                {
+                  title: 'spin: Failing Game',
+                  projectName: 'chromium',
+                  results: [
+                    {
+                      status: 'failed',
+                      duration: 5000,
+                      error: { message: 'Timed out' },
+                      stdout: [],
+                      steps: [],
+                      attachments: [
+                        {
+                          name: 'screenshot',
+                          path: '/tmp/test-failed-1.png',
+                          contentType: 'image/png',
+                        },
+                        { name: 'trace', path: '/tmp/trace.zip', contentType: 'application/zip' },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    })}`;
+
+    const { results } = await Effect.runPromise(parseJsonReport(raw));
+
+    expect(results[0].screenshotPaths).toEqual(['/tmp/test-failed-1.png']);
+  });
+
   it('flattens specs from nested suites', async () => {
     const raw = `preamble\n${makeReport({
       suites: [

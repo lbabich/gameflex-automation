@@ -2,7 +2,6 @@ import type { GameEntry } from '../types';
 
 type GameStatus = {
   isRunning: boolean;
-  lastStatus: 'passed' | 'failed' | 'error' | null;
 };
 
 type Props = {
@@ -19,7 +18,6 @@ export function GameSelector({ games, selectedGameID, gameStatuses, onSelect, on
       {games.map((game) => {
         const status = gameStatuses[game.id];
         const isRunning = status?.isRunning ?? false;
-        const lastStatus = status?.lastStatus ?? null;
         const isSelected = game.id === selectedGameID;
 
         return (
@@ -40,21 +38,6 @@ export function GameSelector({ games, selectedGameID, gameStatuses, onSelect, on
                     isSelected ? 'border-white' : 'border-blue-600'
                   }`}
                 />
-              )}
-              {!isRunning && lastStatus === 'passed' && (
-                <span className="text-xs font-semibold px-1.5 py-0.5 rounded bg-green-100 text-green-700 flex-shrink-0">
-                  pass
-                </span>
-              )}
-              {!isRunning && lastStatus === 'failed' && (
-                <span className="text-xs font-semibold px-1.5 py-0.5 rounded bg-red-100 text-red-700 flex-shrink-0">
-                  fail
-                </span>
-              )}
-              {!isRunning && lastStatus === 'error' && (
-                <span className="text-xs font-semibold px-1.5 py-0.5 rounded bg-yellow-100 text-yellow-700 flex-shrink-0">
-                  err
-                </span>
               )}
             </button>
             <button

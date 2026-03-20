@@ -8,6 +8,7 @@ export default defineConfig({
   reporter: 'list',
   use: {
     headless: false,
+    screenshot: 'only-on-failure',
   },
   projects: [
     {

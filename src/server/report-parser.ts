@@ -29,6 +29,7 @@ type TestNode = {
     error?: { message?: string };
     stdout?: Array<{ text?: string }>;
     steps?: StepNode[];
+    attachments?: Array<{ name?: string; path?: string; contentType?: string }>;
   }>;
 };
 
@@ -54,12 +55,35 @@ function toTestResult(spec: SpecNode, test: TestNode): TestResult | null {
     return null;
   }
 
+  const steps = (result.steps ?? [])
+    .map((step): TestStep => {
+      return {
+        title: step.title ?? '',
+        duration: step.duration ?? 0,
+        error: step.error?.message,
+      };
+    })
+    .filter((step) => {
+      return step.title;
+    });
+
+  const screenshotPaths = (result.attachments ?? [])
+    .filter((a) => {
+      return a.contentType === 'image/png' && a.path;
+    })
+    .map((a) => {
+      return a.path as string;
+    });
+
   return {
     title: spec.title ?? test.title ?? '(unknown)',
     project: test.projectName ?? '',
     status: result.status as TestResult['status'],
     duration: result.duration ?? 0,
     error: result.error?.message,
+    failedStep: steps.find((step) => {
+      return step.error;
+    })?.title,
     stdout: (result.stdout ?? [])
       .map((entry) => {
         return entry.text ?? '';
@@ -68,17 +92,8 @@ function toTestResult(spec: SpecNode, test: TestNode): TestResult | null {
       .map((line) => {
         return line.trimEnd();
       }),
-    steps: (result.steps ?? [])
-      .map((step): TestStep => {
-        return {
-          title: step.title ?? '',
-          duration: step.duration ?? 0,
-          error: step.error?.message,
-        };
-      })
-      .filter((step) => {
-        return step.title;
-      }),
+    steps,
+    screenshotPaths,
   };
 }
 

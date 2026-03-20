@@ -47,7 +47,7 @@ export function makeRunsRouter(runtime: AppRuntime): Router {
     void runtime.runPromise(
       Effect.gen(function* () {
         const runnerService = yield* RunnerService;
-        const runs = yield* runnerService.getRecentRuns(50);
+        const runs = yield* runnerService.getRecentRuns();
 
         res.json(runs);
       }),
