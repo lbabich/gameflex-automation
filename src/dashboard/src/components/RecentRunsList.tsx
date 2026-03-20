@@ -30,7 +30,7 @@ function formatDuration(ms: number): string {
 }
 
 function resolveGameNames(run: RunRecord, games: GameEntry[]): string {
-  const names = run.gameIds
+  const names = run.gameIDs
     .map((id) => games.find((g) => g.id === id)?.name ?? id)
     .join(', ');
   return names;

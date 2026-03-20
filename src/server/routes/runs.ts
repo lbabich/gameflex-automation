@@ -6,14 +6,14 @@ export function makeRunsRouter(_runtime: AppRuntime): Router {
   const router = Router();
 
   router.post('/', (req, res) => {
-    const { gameIds, projects } = req.body as { gameIds?: string[]; projects?: string[] };
+    const { gameIDs, projects } = req.body as { gameIDs?: string[]; projects?: string[] };
 
-    if (!Array.isArray(gameIds) || gameIds.length === 0) {
-      res.status(400).json({ error: 'gameIds must be a non-empty array' });
+    if (!Array.isArray(gameIDs) || gameIDs.length === 0) {
+      res.status(400).json({ error: 'gameIDs must be a non-empty array' });
       return;
     }
 
-    const result = startRun(gameIds, Array.isArray(projects) ? projects : undefined);
+    const result = startRun(gameIDs, Array.isArray(projects) ? projects : undefined);
 
     if ('error' in result) {
       res.status(409).json(result);

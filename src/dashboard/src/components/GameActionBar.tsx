@@ -18,7 +18,7 @@ export function GameActionBar({ game, isRunning, runId, onRunComplete }: Props) 
       const res = await fetch('/api/runs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ gameIds: [game.id] }),
+        body: JSON.stringify({ gameIDs: [game.id] }),
       });
 
       if (!res.ok) return;

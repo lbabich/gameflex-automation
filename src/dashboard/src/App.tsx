@@ -54,7 +54,7 @@ export default function App() {
     }
 
     for (const game of games ?? []) {
-      const gameRuns = (recentRuns ?? []).filter((r) => r.gameIds.includes(game.id));
+      const gameRuns = (recentRuns ?? []).filter((r) => r.gameIDs.includes(game.id));
       const running = gameRuns.some((r) => r.status === 'running');
       const completedRuns = gameRuns.filter((r) => r.status !== 'running');
       const last = completedRuns[0];
@@ -84,7 +84,7 @@ export default function App() {
     : null;
 
   const selectedGameRuns = useMemo(
-    () => (recentRuns ?? []).filter((r) => selectedGameId ? r.gameIds.includes(selectedGameId) : true),
+    () => (recentRuns ?? []).filter((r) => selectedGameId ? r.gameIDs.includes(selectedGameId) : true),
     [recentRuns, selectedGameId],
   );
 
@@ -93,12 +93,12 @@ export default function App() {
     : false;
 
   const selectedGameRunId = selectedGameId !== null
-    ? ((recentRuns ?? []).find((r) => r.gameIds.includes(selectedGameId) && r.status === 'running')?.runId ?? null)
+    ? ((recentRuns ?? []).find((r) => r.gameIDs.includes(selectedGameId) && r.status === 'running')?.runId ?? null)
     : null;
 
   function handleGameSelect(id: string) {
     setSelectedGameId(id);
-    const found = (recentRuns ?? []).find((r) => r.gameIds.includes(id));
+    const found = (recentRuns ?? []).find((r) => r.gameIDs.includes(id));
     setViewRunId(found?.runId ?? null);
   }
 
@@ -106,7 +106,7 @@ export default function App() {
     const run = (recentRuns ?? []).find((r) => r.runId === runId);
 
     if (run?.gameIds[0] && !selectedGameId) {
-      setSelectedGameId(run.gameIds[0]);
+      setSelectedGameId(run.gameIDs[0]);
     }
 
     setViewRunId(runId);

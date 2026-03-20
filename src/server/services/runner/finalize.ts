@@ -134,7 +134,7 @@ export function finalizeRun(state: RunnerState, record: RunRecord, code: number,
 
     state.activeFibers.delete(record.runId);
 
-    for (const id of record.gameIds) {
+    for (const id of record.gameIDs) {
       state.activeRunsByGame.delete(id);
     }
   });

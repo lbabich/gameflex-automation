@@ -128,7 +128,7 @@ export function GameDeviceSettings({
       const res = await fetch('/api/runs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ gameIds: [game.id], projects: [project] }),
+        body: JSON.stringify({ gameIDs: [game.id], projects: [project] }),
       });
 
       if (!res.ok) return;

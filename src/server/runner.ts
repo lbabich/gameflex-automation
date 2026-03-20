@@ -29,7 +29,7 @@ export type TestResult = {
 
 export type RunRecord = {
   runId: string;
-  gameIds: string[];
+  gameIDs: string[];
   status: RunStatus;
   startedAt: string;
   finishedAt?: string;
@@ -75,10 +75,10 @@ export function getRecentRuns(limit = 50): RunRecord[] {
     .slice(0, limit);
 }
 
-function resolveGameNames(gameIds: string[]): string[] {
+function resolveGameNames(gameIDs: string[]): string[] {
   const games = readGames();
 
-  return gameIds
+  return gameIDs
     .map((id) => {
       return games.find((g) => {
         return g.id === id;
@@ -110,10 +110,10 @@ function buildPlaywrightCommand(names: string[], projects?: string[]): string {
   return `npx playwright test --reporter=json --grep ${quotedPattern}${projectFlags ? ` ${projectFlags}` : ''}`;
 }
 
-function createRunRecord(runId: string, gameIds: string[]): RunRecord {
+function createRunRecord(runId: string, gameIDs: string[]): RunRecord {
   return {
     runId,
-    gameIds,
+    gameIDs,
     status: 'running',
     startedAt: new Date().toISOString(),
     results: [],
@@ -242,7 +242,7 @@ function attachProcessHandlers(child: ChildProcess, record: RunRecord): void {
 
     activeProcessesByRunId.delete(record.runId);
 
-    for (const id of record.gameIds) {
+    for (const id of record.gameIDs) {
       activeRunsByGame.delete(id);
     }
   });
@@ -257,17 +257,17 @@ function attachProcessHandlers(child: ChildProcess, record: RunRecord): void {
 
     activeProcessesByRunId.delete(record.runId);
 
-    for (const id of record.gameIds) {
+    for (const id of record.gameIDs) {
       activeRunsByGame.delete(id);
     }
   });
 }
 
 export function startRun(
-  gameIds: string[],
+  gameIDs: string[],
   projects?: string[],
 ): { runId: string } | { error: string } {
-  const conflicting = gameIds.filter((id) => {
+  const conflicting = gameIDs.filter((id) => {
     return activeRunsByGame.has(id);
   });
 
@@ -275,18 +275,18 @@ export function startRun(
     return { error: `Game(s) already running: ${conflicting.join(', ')}` };
   }
 
-  const names = resolveGameNames(gameIds);
+  const names = resolveGameNames(gameIDs);
 
   if (names.length === 0) {
     return { error: 'No valid game IDs provided' };
   }
 
   const runId = randomUUID();
-  const record = createRunRecord(runId, gameIds);
+  const record = createRunRecord(runId, gameIDs);
 
   runs.set(runId, record);
 
-  for (const id of gameIds) {
+  for (const id of gameIDs) {
     activeRunsByGame.set(id, runId);
   }
 
