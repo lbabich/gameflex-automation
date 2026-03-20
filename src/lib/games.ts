@@ -26,13 +26,17 @@ export type GameUpdates = {
   mobilePlaymode?: PlayMode;
 };
 
-const GAMES_PATH = path.resolve('src', 'data', 'games.json');
+function gamesPath() {
+  return process.env.GAMES_JSON_PATH
+    ? path.resolve(process.env.GAMES_JSON_PATH)
+    : path.resolve('src', 'data', 'games.json');
+}
 
 export function readGames() {
   let entries: unknown[];
 
   try {
-    entries = JSON.parse(fs.readFileSync(GAMES_PATH, 'utf8')) as unknown[];
+    entries = JSON.parse(fs.readFileSync(gamesPath(), 'utf8')) as unknown[];
   } catch {
     return [];
   }
@@ -44,6 +48,18 @@ export function readGames() {
 
     if (!game.id) {
       game.id = crypto.randomUUID();
+      dirty = true;
+    }
+
+    if ('desktopGameId' in game && !('desktopGameID' in game)) {
+      game.desktopGameID = game.desktopGameId;
+      delete game.desktopGameId;
+      dirty = true;
+    }
+
+    if ('mobileGameId' in game && !('mobileGameID' in game)) {
+      game.mobileGameID = game.mobileGameId;
+      delete game.mobileGameId;
       dirty = true;
     }
 
@@ -87,8 +103,8 @@ export function readGames() {
   });
 
   if (dirty) {
-    fs.mkdirSync(path.dirname(GAMES_PATH), { recursive: true });
-    fs.writeFileSync(GAMES_PATH, JSON.stringify(games, null, 2));
+    fs.mkdirSync(path.dirname(gamesPath()), { recursive: true });
+    fs.writeFileSync(gamesPath(), JSON.stringify(games, null, 2));
   }
 
   return games;
@@ -108,8 +124,8 @@ export function addGame(entry: Omit<GameEntry, 'id'> & { id?: string }) {
   const full = { ...entry, id: entry.id ?? crypto.randomUUID() };
 
   games.push(full);
-  fs.mkdirSync(path.dirname(GAMES_PATH), { recursive: true });
-  fs.writeFileSync(GAMES_PATH, JSON.stringify(games, null, 2));
+  fs.mkdirSync(path.dirname(gamesPath()), { recursive: true });
+  fs.writeFileSync(gamesPath(), JSON.stringify(games, null, 2));
 }
 
 export function updateGame(id: string, updates: GameUpdates) {
@@ -144,6 +160,6 @@ export function updateGame(id: string, updates: GameUpdates) {
     mobilePlaymode: updates.mobilePlaymode ?? game.mobilePlaymode,
   };
 
-  fs.mkdirSync(path.dirname(GAMES_PATH), { recursive: true });
-  fs.writeFileSync(GAMES_PATH, JSON.stringify(games, null, 2));
+  fs.mkdirSync(path.dirname(gamesPath()), { recursive: true });
+  fs.writeFileSync(gamesPath(), JSON.stringify(games, null, 2));
 }

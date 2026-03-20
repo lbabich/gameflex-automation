@@ -1,7 +1,7 @@
 import { Effect, Schema } from 'effect';
 import { Router } from 'express';
 import type { AppRuntime } from '../runtime';
-import { RunnerService } from '../services/runner';
+import { RunnerService } from '../services/runner/runner.service';
 
 const PostBody = Schema.Struct({
   gameIDs: Schema.NonEmptyArray(Schema.String),

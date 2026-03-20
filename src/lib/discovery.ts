@@ -1,6 +1,7 @@
-import type { Page } from '@playwright/test';
+import type { ConsoleMessage, Page } from '@playwright/test';
 import * as claudeVision from './claude-vision';
 import * as screenshot from './screenshot';
+import { SPIN_EVENT, SPIN_START_TIMEOUT_MS } from './spin-config';
 import type { CachedStep, DeviceType, Viewport } from './types';
 
 const DISCOVERY_INITIAL_WAIT_MS = 8_000;
@@ -19,6 +20,23 @@ export class DiscoveryError extends Error {
   }
 }
 
+function isSpinStart(msg: ConsoleMessage) {
+  return msg.text().includes(SPIN_EVENT.START);
+}
+
+async function waitForSpinStart(page: Page): Promise<boolean> {
+  try {
+    await page.waitForEvent('console', {
+      predicate: isSpinStart,
+      timeout: SPIN_START_TIMEOUT_MS,
+    });
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Attempts up to 20 times to locate and click the spin button via Claude Vision,
  * recording each navigation step in the returned array.
@@ -33,7 +51,6 @@ export async function discoverSteps(
   page: Page,
   game: Game,
   viewport: Viewport,
-  waitForSpinStart: () => Promise<boolean>,
   deviceType: DeviceType,
 ) {
   const allFailedButtons: claudeVision.FailedButton[] = [];
@@ -60,7 +77,7 @@ export async function discoverSteps(
 
       await page.mouse.click(spinResult.x, spinResult.y);
       lastClickTime = Date.now();
-      const spun = await waitForSpinStart();
+      const spun = await waitForSpinStart(page);
 
       if (spun) {
         preSpinSteps.push({ waitMs, x: spinResult.x, y: spinResult.y, label: spinResult.label });

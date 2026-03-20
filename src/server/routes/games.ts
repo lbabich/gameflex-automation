@@ -3,7 +3,7 @@ import { Router } from 'express';
 import type { DeviceType } from '../../lib/types';
 import { DEVICE_TYPES, PLAY_MODE } from '../../lib/types';
 import type { AppRuntime } from '../runtime';
-import { GamesService } from '../services/games';
+import { GamesService } from '../services/games.service';
 
 const PostBody = Schema.Struct({
   desktopGameID: Schema.String,

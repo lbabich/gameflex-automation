@@ -1,9 +1,41 @@
 {
-  "b8ee5674-3453-41bb-9156-19e2f6985e0a": {
+  "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986": {
+    "desktop": {
+      "1280x720": {
+        "discoveredAt": "2026-03-20T14:03:55.200Z",
+        "steps": [
+          {
+            "waitMs": 15048,
+            "x": 640,
+            "y": 684,
+            "label": "Continue button"
+          },
+          {
+            "waitMs": 5037,
+            "x": 638,
+            "y": 681,
+            "label": "Large circular spin button with rotating arrows"
+          }
+        ]
+      }
+    },
     "mobile": {
-      "390x844": {
-        "discoveredAt": "2026-03-20T10:52:41.722Z",
-        "steps": []
+      "1280x720": {
+        "discoveredAt": "2026-03-20T14:05:06.982Z",
+        "steps": [
+          {
+            "waitMs": 24323,
+            "x": 640,
+            "y": 673,
+            "label": "Continue button"
+          },
+          {
+            "waitMs": 6558,
+            "x": 1184,
+            "y": 378,
+            "label": "Circular spin button with rotating arrows"
+          }
+        ]
       }
     }
   }

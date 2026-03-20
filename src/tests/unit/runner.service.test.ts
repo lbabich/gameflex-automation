@@ -1,10 +1,13 @@
 import { randomUUID } from 'node:crypto';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import { Effect, Layer, ManagedRuntime } from 'effect';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { addGame, readGames } from '../../lib/games';
 import { GameNotFoundError, RunNotFoundError } from '../../server/errors';
-import { FileService } from '../../server/services/file';
-import type { RunRecord } from '../../server/services/runner';
-import { NodeRunnerService, RunnerService } from '../../server/services/runner';
+import { FileService } from '../../server/services/file.service';
+import type { RunRecord } from '../../server/services/runner/runner.service';
+import { NodeRunnerService, RunnerService } from '../../server/services/runner/runner.service';
 
 function makeTestRuntime(runsJson = '[]') {
   const testFileService = Layer.succeed(FileService, {
@@ -128,6 +131,94 @@ describe('RunnerService', () => {
 
       expect(runs[0].runID).toBe('run-b');
       expect(runs[1].runID).toBe('run-a');
+    });
+
+    it('respects the limit parameter', async () => {
+      const runs = Array.from({ length: 5 }, (_, i) => {
+        return makeRunRecord({
+          runID: `run-${i}`,
+          startedAt: `2024-01-0${i + 1}T00:00:00.000Z`,
+        });
+      });
+
+      const runtime = makeTestRuntime(JSON.stringify(runs));
+
+      const result = await runtime.runPromise(
+        Effect.gen(function* () {
+          const service = yield* RunnerService;
+
+          return yield* service.getRecentRuns(3);
+        }),
+      );
+
+      expect(result).toHaveLength(3);
+    });
+  });
+
+  describe('startRun + cancelRun', () => {
+    const GAMES_PATH = path.resolve(process.env.GAMES_JSON_PATH ?? 'src/data/games.json');
+
+    let testGameID: string;
+
+    beforeEach(() => {
+      fs.writeFileSync(GAMES_PATH, '[]');
+
+      const desktopGameID = `test-${randomUUID()}`;
+
+      addGame({
+        desktopGameID,
+        name: 'Runner Test Game',
+        desktopEnabled: true,
+        desktopPlaymode: 'demo',
+        mobileEnabled: false,
+        mobilePlaymode: 'demo',
+      });
+
+      const game = readGames().find((g) => {
+        return g.desktopGameID === desktopGameID;
+      });
+
+      if (!game) {
+        throw new Error('test game not found after addGame');
+      }
+
+      testGameID = game.id;
+    });
+
+    it('startRun returns a record with running status', async () => {
+      const runtime = makeTestRuntime();
+
+      const record = await runtime.runPromise(
+        Effect.gen(function* () {
+          const service = yield* RunnerService;
+
+          return yield* service.startRun([testGameID]);
+        }),
+      );
+
+      expect(record.runID).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+      );
+      expect(record.gameIDs).toEqual([testGameID]);
+      expect(record.status).toBe('running');
+    });
+
+    it('cancelRun sets status to cancelled', async () => {
+      const runtime = makeTestRuntime();
+
+      await runtime.runPromise(
+        Effect.gen(function* () {
+          const service = yield* RunnerService;
+
+          const record = yield* service.startRun([testGameID]);
+
+          yield* service.cancelRun(record.runID);
+
+          const updated = yield* service.getRun(record.runID);
+
+          expect(updated.status).toBe('cancelled');
+        }),
+      );
     });
   });
 });

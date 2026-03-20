@@ -2,21 +2,23 @@ import type { ConsoleMessage, TestInfo } from '@playwright/test';
 import { test } from '@playwright/test';
 import * as dotenv from 'dotenv';
 import * as discovery from '../lib/discovery';
+import { readGames } from '../lib/games';
 import * as gifGenerator from '../lib/gif-generator';
 import * as operatorWallet from '../lib/operator-wallet';
 import * as replay from '../lib/replay';
 import * as screenshot from '../lib/screenshot';
+import { SPIN_END_WAIT_MS, SPIN_EVENT, SPIN_START_TIMEOUT_MS } from '../lib/spin-config';
 import * as stepCache from '../lib/step-cache';
 import type { DeviceType } from '../lib/types';
 import { DEVICE_TYPE, PLAY_MODE } from '../lib/types';
 import { buildSingleUrl } from '../server/url-builder';
-import { ANNOTATION, SPIN_EVENT } from './constants';
-import { GAMES } from './games';
+import { ANNOTATION } from './constants';
+
+export type { GameEntry } from '../lib/games';
+
+export const GAMES = readGames();
 
 dotenv.config();
-
-const SPIN_START_TIMEOUT_MS = 10_000;
-const SPIN_END_WAIT_MS = 15_000;
 
 for (const game of GAMES) {
   test(`spin: ${game.name}`, async ({ page }, testInfo: TestInfo) => {
@@ -49,6 +51,7 @@ for (const game of GAMES) {
     const isSpinStart = (msg: ConsoleMessage) => {
       return msg.text().includes(SPIN_EVENT.START);
     };
+
     const isSpinEnd = (msg: ConsoleMessage) => {
       return msg.text().includes(SPIN_EVENT.END);
     };
@@ -60,19 +63,6 @@ for (const game of GAMES) {
         spinStarted = true;
       }
     });
-
-    async function waitForSpinStart(): Promise<boolean> {
-      try {
-        await page.waitForEvent('console', {
-          predicate: isSpinStart,
-          timeout: SPIN_START_TIMEOUT_MS,
-        });
-
-        return true;
-      } catch {
-        return false;
-      }
-    }
 
     await test.step('Navigate to game', () => {
       return page.goto(launchUrl);
@@ -90,13 +80,7 @@ for (const game of GAMES) {
       } else {
         await test.step('Discover steps', async () => {
           try {
-            const steps = await discovery.discoverSteps(
-              page,
-              game,
-              viewport,
-              waitForSpinStart,
-              projectDeviceType,
-            );
+            const steps = await discovery.discoverSteps(page, game, viewport, projectDeviceType);
 
             stepCache.setSteps(game.id, deviceType, viewport, {
               discoveredAt: new Date().toISOString(),

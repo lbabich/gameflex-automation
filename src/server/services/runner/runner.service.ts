@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { Effect, Fiber, Layer } from 'effect';
 import * as games from '../../../lib/games';
 import { GameNotFoundError, RunAlreadyActiveError, RunNotFoundError } from '../../errors';
-import { FileService } from '../file';
+import { FileService } from '../file.service';
 import { buildPlaywrightCommand } from './command';
 import { finalizeRun, RUNS_FILE, type RunnerState, saveRuns } from './finalize';
 import { spawnProcess } from './process';

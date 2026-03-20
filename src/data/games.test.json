@@ -1,0 +1,11 @@
+[
+  {
+    "desktopGameID": "test-50130faa-b12a-4634-a8cc-0aafe305a21c",
+    "name": "Updated Name",
+    "desktopEnabled": true,
+    "desktopPlaymode": "demo",
+    "mobileEnabled": false,
+    "mobilePlaymode": "demo",
+    "id": "842b5eb3-6bf0-479f-9f45-1813f74fb99b"
+  }
+]

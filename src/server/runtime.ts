@@ -1,8 +1,8 @@
 import { Layer, ManagedRuntime } from 'effect';
-import { NodeConfigService } from './services/config';
-import { NodeFileService } from './services/file';
-import { NodeGamesService } from './services/games';
-import { NodeRunnerService } from './services/runner';
+import { NodeConfigService } from './services/config.service';
+import { NodeFileService } from './services/file.service';
+import { NodeGamesService } from './services/games.service';
+import { NodeRunnerService } from './services/runner/runner.service';
 
 const AppLayer = Layer.mergeAll(
   NodeFileService,

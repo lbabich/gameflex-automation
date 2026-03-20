@@ -4,7 +4,7 @@ import * as games from '../../../lib/games';
 import * as gifGenerator from '../../../lib/gif-generator';
 import * as libTypes from '../../../lib/types';
 import { parseJsonReport } from '../../report-parser';
-import { FileService } from '../file';
+import { FileService } from '../file.service';
 import type { RunRecord, TestResult } from './types';
 
 export const RUNS_FILE = path.resolve('src/data/runs.json');
