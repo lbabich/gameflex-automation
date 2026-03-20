@@ -5,7 +5,7 @@ import type { PlayMode } from '../types';
 export type GameUpdates = {
   id: string;
   name?: string;
-  desktopGameId?: string;
+  desktopGameID?: string;
   mobileGameId?: string;
   desktopEnabled?: boolean;
   desktopPlaymode?: PlayMode;

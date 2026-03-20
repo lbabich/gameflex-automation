@@ -35,7 +35,7 @@ export const NodeGamesService = Layer.succeed(GamesService, {
         return games.addGame(entry);
       },
       catch: (_err) => {
-        return new DuplicateGameIdError({ desktopGameId: entry.desktopGameId });
+        return new DuplicateGameIdError({ desktopGameID: entry.desktopGameID });
       },
     });
   },

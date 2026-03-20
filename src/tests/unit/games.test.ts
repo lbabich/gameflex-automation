@@ -17,17 +17,17 @@ afterAll(() => {
   fs.writeFileSync(GAMES_PATH, originalGames);
 });
 
-function makeDesktopGameId() {
+function makeDesktopGameID() {
   // Use a unique numeric-style ID unlikely to collide with real games
   return `test-${crypto.randomUUID()}`;
 }
 
 describe('addGame', () => {
   it('assigns a GUID when adding a game', () => {
-    const desktopGameId = makeDesktopGameId();
+    const desktopGameID = makeDesktopGameID();
 
     addGame({
-      desktopGameId,
+      desktopGameID,
       name: 'Test Game',
       desktopEnabled: true,
       desktopPlaymode: 'demo',
@@ -37,7 +37,7 @@ describe('addGame', () => {
 
     const updated = readGames();
     const added = updated.find((g) => {
-      return g.desktopGameId === desktopGameId;
+      return g.desktopGameID === desktopGameID;
     });
 
     expect(added, 'added game should be in games.json').toBeTruthy();
@@ -46,11 +46,11 @@ describe('addGame', () => {
     );
   });
 
-  it('throws when adding a duplicate desktopGameId', () => {
-    const desktopGameId = makeDesktopGameId();
+  it('throws when adding a duplicate desktopGameID', () => {
+    const desktopGameID = makeDesktopGameID();
 
     addGame({
-      desktopGameId,
+      desktopGameID,
       name: 'Original',
       desktopEnabled: true,
       desktopPlaymode: 'demo',
@@ -60,7 +60,7 @@ describe('addGame', () => {
 
     expect(() => {
       return addGame({
-        desktopGameId,
+        desktopGameID,
         name: 'Duplicate',
         desktopEnabled: true,
         desktopPlaymode: 'demo',
@@ -76,7 +76,7 @@ describe('readGames migration', () => {
     // Write a games.json with entries that have no id or playmode field
     const raw = JSON.stringify([
       {
-        desktopGameId: makeDesktopGameId(),
+        desktopGameID: makeDesktopGameID(),
         name: 'No ID Game',
       },
     ]);
@@ -98,10 +98,10 @@ describe('readGames migration', () => {
 
 describe('updateGame', () => {
   function addTestGame() {
-    const desktopGameId = makeDesktopGameId();
+    const desktopGameID = makeDesktopGameID();
 
     addGame({
-      desktopGameId,
+      desktopGameID,
       name: 'Update Test',
       desktopEnabled: true,
       desktopPlaymode: 'demo',
@@ -110,17 +110,17 @@ describe('updateGame', () => {
     });
 
     const found = readGames().find((g) => {
-      return g.desktopGameId === desktopGameId;
+      return g.desktopGameID === desktopGameID;
     });
 
     if (!found) {
-      throw new Error(`addTestGame: ${desktopGameId} not found after addGame`);
+      throw new Error(`addTestGame: ${desktopGameID} not found after addGame`);
     }
 
     return found;
   }
 
-  it('clears the cache when desktopGameId changes', () => {
+  it('clears the cache when desktopGameID changes', () => {
     const game = addTestGame();
     const VP = { width: 1280, height: 720 };
     const steps = { discoveredAt: new Date().toISOString(), steps: [] };
@@ -132,7 +132,7 @@ describe('updateGame', () => {
       'cache should exist before update',
     ).toBeTruthy();
 
-    updateGame(game.id, { desktopGameId: makeDesktopGameId() });
+    updateGame(game.id, { desktopGameID: makeDesktopGameID() });
 
     expect(
       stepCache.getSteps(game.id, 'desktop', VP),
@@ -152,7 +152,7 @@ describe('updateGame', () => {
       'cache should exist before update',
     ).toBeTruthy();
 
-    updateGame(game.id, { mobileGameId: makeDesktopGameId() });
+    updateGame(game.id, { mobileGameId: makeDesktopGameID() });
 
     expect(
       stepCache.getSteps(game.id, 'mobile', VP),

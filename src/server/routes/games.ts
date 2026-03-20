@@ -6,14 +6,14 @@ import type { AppRuntime } from '../runtime';
 import { GamesService } from '../services/games';
 
 const PostBody = Schema.Struct({
-  desktopGameId: Schema.String,
+  desktopGameID: Schema.String,
   mobileGameId: Schema.optional(Schema.String),
   name: Schema.String,
 });
 
 const PatchBody = Schema.Struct({
   name: Schema.optional(Schema.String),
-  desktopGameId: Schema.optional(Schema.String),
+  desktopGameID: Schema.optional(Schema.String),
   mobileGameId: Schema.optional(Schema.String),
   desktopEnabled: Schema.optional(Schema.Boolean),
   desktopPlaymode: Schema.optional(Schema.Literal('demo', 'real')),
@@ -49,7 +49,7 @@ export function makeGamesRouter(runtime: AppRuntime): Router {
         const gamesService = yield* GamesService;
 
         yield* gamesService.add({
-          desktopGameId: body.desktopGameId,
+          desktopGameID: body.desktopGameID,
           mobileGameId: body.mobileGameId,
           name: body.name,
           desktopEnabled: true,
@@ -58,18 +58,18 @@ export function makeGamesRouter(runtime: AppRuntime): Router {
           mobilePlaymode: PLAY_MODE.DEMO,
         });
 
-        res.status(201).json({ desktopGameId: body.desktopGameId });
+        res.status(201).json({ desktopGameID: body.desktopGameID });
       }).pipe(
         Effect.catchTag('ParseError', () => {
           return Effect.sync(() => {
-            res.status(400).json({ error: 'desktopGameId and name are required strings' });
+            res.status(400).json({ error: 'desktopGameID and name are required strings' });
           });
         }),
         Effect.catchTag('DuplicateGameIdError', (err) => {
           return Effect.sync(() => {
             res
               .status(409)
-              .json({ error: `Game with desktopGameId '${err.desktopGameId}' already exists` });
+              .json({ error: `Game with desktopGameID '${err.desktopGameID}' already exists` });
           });
         }),
       ),

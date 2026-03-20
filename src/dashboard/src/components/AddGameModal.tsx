@@ -6,7 +6,7 @@ type Props = {
 };
 
 const DEFAULTS: NewGame = {
-  desktopGameId: '',
+  desktopGameID: '',
   name: '',
 };
 
@@ -24,7 +24,7 @@ export function AddGameModal({ onClose }: Props) {
     setError(null);
 
     mutate(
-      { ...fields, desktopGameId: fields.desktopGameId.trim(), name: fields.name.trim() },
+      { ...fields, desktopGameID: fields.desktopGameID.trim(), name: fields.name.trim() },
       {
         onSuccess: () => onClose(),
         onError: (err) => setError((err as Error).message),
@@ -45,8 +45,8 @@ export function AddGameModal({ onClose }: Props) {
             <span className="text-sm font-medium text-gray-700">Desktop Game ID</span>
             <input
               type="text"
-              value={fields.desktopGameId}
-              onChange={(e) => set('desktopGameId', e.target.value)}
+              value={fields.desktopGameID}
+              onChange={(e) => set('desktopGameID', e.target.value)}
               required
               placeholder="e.g. 13724"
               className="border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"

@@ -14,7 +14,7 @@ export const PLAY_MODE = {
 
 export type GameEntry = {
   id: string;
-  desktopGameId: string;
+  desktopGameID: string;
   mobileGameId?: string;
   name: string;
   url: string;

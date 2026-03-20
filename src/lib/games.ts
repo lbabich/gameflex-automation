@@ -7,7 +7,7 @@ import { PLAY_MODE } from './types';
 
 export type GameEntry = {
   id: string;
-  desktopGameId: string;
+  desktopGameID: string;
   mobileGameId?: string;
   name: string;
   desktopEnabled: boolean;
@@ -18,7 +18,7 @@ export type GameEntry = {
 
 export type GameUpdates = {
   name?: string;
-  desktopGameId?: string;
+  desktopGameID?: string;
   mobileGameId?: string;
   desktopEnabled?: boolean;
   desktopPlaymode?: PlayMode;
@@ -99,10 +99,10 @@ export function addGame(entry: Omit<GameEntry, 'id'> & { id?: string }): void {
 
   if (
     games.some((g) => {
-      return g.desktopGameId === entry.desktopGameId;
+      return g.desktopGameID === entry.desktopGameID;
     })
   ) {
-    throw new Error(`Game with ID ${entry.desktopGameId} already exists`);
+    throw new Error(`Game with ID ${entry.desktopGameID} already exists`);
   }
 
   const full = { ...entry, id: entry.id ?? crypto.randomUUID() };
@@ -125,7 +125,7 @@ export function updateGame(id: string, updates: GameUpdates): void {
   const game = games[index];
 
   const idChanged =
-    (updates.desktopGameId !== undefined && updates.desktopGameId !== game.desktopGameId) ||
+    (updates.desktopGameID !== undefined && updates.desktopGameID !== game.desktopGameID) ||
     (updates.mobileGameId !== undefined && updates.mobileGameId !== game.mobileGameId);
 
   if (idChanged) {
@@ -135,7 +135,7 @@ export function updateGame(id: string, updates: GameUpdates): void {
   games[index] = {
     ...game,
     name: updates.name ?? game.name,
-    desktopGameId: updates.desktopGameId ?? game.desktopGameId,
+    desktopGameID: updates.desktopGameID ?? game.desktopGameID,
     mobileGameId: updates.mobileGameId !== undefined ? updates.mobileGameId : game.mobileGameId,
     desktopEnabled:
       updates.desktopEnabled !== undefined ? updates.desktopEnabled : game.desktopEnabled,

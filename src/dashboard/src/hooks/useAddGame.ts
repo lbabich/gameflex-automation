@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { QUERY_KEY } from '../queryKeys';
 
 export type NewGame = {
-  desktopGameId: string;
+  desktopGameID: string;
   mobileGameId?: string;
   name: string;
 };

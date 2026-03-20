@@ -5,7 +5,7 @@ export class GameNotFoundError extends Data.TaggedError('GameNotFoundError')<{
 }> {}
 
 export class DuplicateGameIdError extends Data.TaggedError('DuplicateGameIdError')<{
-  desktopGameId: string;
+  desktopGameID: string;
 }> {}
 
 export class RunNotFoundError extends Data.TaggedError('RunNotFoundError')<{
