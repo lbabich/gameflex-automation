@@ -18,6 +18,26 @@ interface Step {
 }
 ```
 
+## Acronym casing — `ID` not `Id`
+
+Capitalize multi-letter abbreviations in full. `ID` is an abbreviation, so it is always uppercase when used as a suffix.
+
+```ts
+// correct
+type RunRecord = { runID: string; gameIDs: string[] };
+type GameEntry = { desktopGameID: string; mobileGameID?: string };
+
+// incorrect — treat Id as if only one letter is abbreviated
+type RunRecord = { runId: string; gameIds: string[] };
+```
+
+Standalone `id` fields (where the field IS the identifier, not a reference to one) stay lowercase, per JavaScript convention.
+
+```ts
+// correct — this field IS the object's own identifier
+type GameEntry = { id: string; desktopGameID: string };
+```
+
 ## Types and constants at the top
 
 All module-level `type` and `const` declarations belong at the top of the file, never
@@ -38,16 +58,16 @@ type Config = { debug: boolean };
 const MAX_RETRIES = 3;
 const DEFAULT_TIMEOUT_MS = 5_000;
 
-function doWork(config: Config): void { ... }
+function doWork(config: Config) { ... }
 
 // ✗ wrong — const buried after a function
 import { foo } from './foo';
 
-function helper(): void { ... }
+function helper() { ... }
 
 const MAX_RETRIES = 3;
 
-function doWork(): void { ... }
+function doWork() { ... }
 ```
 
 ## Named types only — no inline shapes
@@ -57,7 +77,7 @@ Every object shape in a function signature or return type must have a named `typ
 ```ts
 // correct
 type Viewport = { width: number; height: number };
-type ClickContext = { gameId: string; deviceType: DeviceType };
+type ClickContext = { gameID: string; deviceType: DeviceType };
 
 function getClickCoords(viewport: Viewport, context: ClickContext): Promise<Coords> { ... }
 
