@@ -3,7 +3,7 @@ import { QUERY_KEY } from '../queryKeys';
 
 export type NewGame = {
   desktopGameID: string;
-  mobileGameId?: string;
+  mobileGameID?: string;
   name: string;
 };
 

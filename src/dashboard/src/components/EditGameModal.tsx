@@ -10,7 +10,7 @@ type Props = {
 export function EditGameModal({ game, onClose }: Props) {
   const [name, setName] = useState(game.name);
   const [desktopGameID, setDesktopGameID] = useState(game.desktopGameID);
-  const [mobileGameId, setMobileGameId] = useState(game.mobileGameId ?? '');
+  const [mobileGameID, setMobileGameId] = useState(game.mobileGameID ?? '');
   const [error, setError] = useState<string | null>(null);
   const { mutate, isPending } = useUpdateGame();
 
@@ -23,7 +23,7 @@ export function EditGameModal({ game, onClose }: Props) {
         id: game.id,
         name: name.trim(),
         desktopGameID: desktopGameID.trim(),
-        mobileGameId: mobileGameId.trim() || undefined,
+        mobileGameID: mobileGameID.trim() || undefined,
       },
       {
         onSuccess: () => onClose(),
@@ -69,14 +69,14 @@ export function EditGameModal({ game, onClose }: Props) {
             </span>
             <input
               type="text"
-              value={mobileGameId}
+              value={mobileGameID}
               onChange={(e) => setMobileGameId(e.target.value)}
               placeholder="e.g. 13724"
               className="border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </label>
 
-          {(desktopGameID.trim() !== game.desktopGameID || (mobileGameId.trim() || undefined) !== game.mobileGameId) && (
+          {(desktopGameID.trim() !== game.desktopGameID || (mobileGameID.trim() || undefined) !== game.mobileGameID) && (
             <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded px-3 py-2">
               Changing a game ID will clear all cached steps for this game.
             </p>

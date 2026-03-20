@@ -140,7 +140,7 @@ describe('updateGame', () => {
     ).toBeUndefined();
   });
 
-  it('clears the cache when mobileGameId changes', () => {
+  it('clears the cache when mobileGameID changes', () => {
     const game = addTestGame();
     const VP = { width: 390, height: 844 };
     const steps = { discoveredAt: new Date().toISOString(), steps: [] };
@@ -152,7 +152,7 @@ describe('updateGame', () => {
       'cache should exist before update',
     ).toBeTruthy();
 
-    updateGame(game.id, { mobileGameId: makeDesktopGameID() });
+    updateGame(game.id, { mobileGameID: makeDesktopGameID() });
 
     expect(
       stepCache.getSteps(game.id, 'mobile', VP),

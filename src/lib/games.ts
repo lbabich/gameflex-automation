@@ -8,7 +8,7 @@ import { PLAY_MODE } from './types';
 export type GameEntry = {
   id: string;
   desktopGameID: string;
-  mobileGameId?: string;
+  mobileGameID?: string;
   name: string;
   desktopEnabled: boolean;
   desktopPlaymode: PlayMode;
@@ -19,7 +19,7 @@ export type GameEntry = {
 export type GameUpdates = {
   name?: string;
   desktopGameID?: string;
-  mobileGameId?: string;
+  mobileGameID?: string;
   desktopEnabled?: boolean;
   desktopPlaymode?: PlayMode;
   mobileEnabled?: boolean;
@@ -126,7 +126,7 @@ export function updateGame(id: string, updates: GameUpdates): void {
 
   const idChanged =
     (updates.desktopGameID !== undefined && updates.desktopGameID !== game.desktopGameID) ||
-    (updates.mobileGameId !== undefined && updates.mobileGameId !== game.mobileGameId);
+    (updates.mobileGameID !== undefined && updates.mobileGameID !== game.mobileGameID);
 
   if (idChanged) {
     stepCache.clearAllSteps(id);
@@ -136,7 +136,7 @@ export function updateGame(id: string, updates: GameUpdates): void {
     ...game,
     name: updates.name ?? game.name,
     desktopGameID: updates.desktopGameID ?? game.desktopGameID,
-    mobileGameId: updates.mobileGameId !== undefined ? updates.mobileGameId : game.mobileGameId,
+    mobileGameID: updates.mobileGameID !== undefined ? updates.mobileGameID : game.mobileGameID,
     desktopEnabled:
       updates.desktopEnabled !== undefined ? updates.desktopEnabled : game.desktopEnabled,
     desktopPlaymode: updates.desktopPlaymode ?? game.desktopPlaymode,

@@ -7,14 +7,14 @@ import { GamesService } from '../services/games';
 
 const PostBody = Schema.Struct({
   desktopGameID: Schema.String,
-  mobileGameId: Schema.optional(Schema.String),
+  mobileGameID: Schema.optional(Schema.String),
   name: Schema.String,
 });
 
 const PatchBody = Schema.Struct({
   name: Schema.optional(Schema.String),
   desktopGameID: Schema.optional(Schema.String),
-  mobileGameId: Schema.optional(Schema.String),
+  mobileGameID: Schema.optional(Schema.String),
   desktopEnabled: Schema.optional(Schema.Boolean),
   desktopPlaymode: Schema.optional(Schema.Literal('demo', 'real')),
   mobileEnabled: Schema.optional(Schema.Boolean),
@@ -50,7 +50,7 @@ export function makeGamesRouter(runtime: AppRuntime): Router {
 
         yield* gamesService.add({
           desktopGameID: body.desktopGameID,
-          mobileGameId: body.mobileGameId,
+          mobileGameID: body.mobileGameID,
           name: body.name,
           desktopEnabled: true,
           desktopPlaymode: PLAY_MODE.DEMO,

@@ -59,8 +59,8 @@ export function AddGameModal({ onClose }: Props) {
             </span>
             <input
               type="text"
-              value={fields.mobileGameId ?? ''}
-              onChange={(e) => set('mobileGameId', e.target.value || undefined)}
+              value={fields.mobileGameID ?? ''}
+              onChange={(e) => set('mobileGameID', e.target.value || undefined)}
               placeholder="e.g. 13724"
               className="border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />

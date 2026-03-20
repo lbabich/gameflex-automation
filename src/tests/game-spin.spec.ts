@@ -24,7 +24,7 @@ for (const game of GAMES) {
     const channel: DeviceType = isProjectMobile ? DEVICE_TYPE.MOBILE : DEVICE_TYPE.DESKTOP;
     const gameId =
       channel === DEVICE_TYPE.MOBILE
-        ? (game.mobileGameId ?? game.desktopGameID)
+        ? (game.mobileGameID ?? game.desktopGameID)
         : game.desktopGameID;
     const deviceType: DeviceType = channel;
     const projectDeviceType: DeviceType = isProjectMobile
