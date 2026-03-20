@@ -1,52 +1,96 @@
+import { Effect, Schema } from 'effect';
 import { Router } from 'express';
-import { cancelRun, getRecentRuns, getRun, startRun } from '../runner';
 import type { AppRuntime } from '../runtime';
+import { RunnerService } from '../services/runner';
 
-export function makeRunsRouter(_runtime: AppRuntime): Router {
+const PostBody = Schema.Struct({
+  gameIDs: Schema.NonEmptyArray(Schema.String),
+  projects: Schema.optional(Schema.Array(Schema.String)),
+});
+
+export function makeRunsRouter(runtime: AppRuntime): Router {
   const router = Router();
 
   router.post('/', (req, res) => {
-    const { gameIDs, projects } = req.body as { gameIDs?: string[]; projects?: string[] };
+    void runtime.runPromise(
+      Effect.gen(function* () {
+        const body = yield* Schema.decodeUnknown(PostBody)(req.body);
+        const runnerService = yield* RunnerService;
 
-    if (!Array.isArray(gameIDs) || gameIDs.length === 0) {
-      res.status(400).json({ error: 'gameIDs must be a non-empty array' });
-      return;
-    }
+        const record = yield* runnerService.startRun(
+          [...body.gameIDs],
+          body.projects ? [...body.projects] : undefined,
+        );
 
-    const result = startRun(gameIDs, Array.isArray(projects) ? projects : undefined);
-
-    if ('error' in result) {
-      res.status(409).json(result);
-      return;
-    }
-
-    res.status(201).json(result);
+        res.status(201).json(record);
+      }).pipe(
+        Effect.catchTag('ParseError', () => {
+          return Effect.sync(() => {
+            res.status(400).json({ error: 'gameIDs must be a non-empty array of strings' });
+          });
+        }),
+        Effect.catchTag('RunAlreadyActiveError', (error) => {
+          return Effect.sync(() => {
+            res.status(409).json({ error: `Run already active for game '${error.gameID}'` });
+          });
+        }),
+        Effect.catchTag('GameNotFoundError', (error) => {
+          return Effect.sync(() => {
+            res.status(404).json({ error: `Game '${error.id}' not found` });
+          });
+        }),
+      ),
+    );
   });
 
   router.get('/', (_req, res) => {
-    res.json(getRecentRuns(50));
+    void runtime.runPromise(
+      Effect.gen(function* () {
+        const runnerService = yield* RunnerService;
+        const runs = yield* runnerService.getRecentRuns(50);
+
+        res.json(runs);
+      }),
+    );
   });
 
   router.get('/:id', (req, res) => {
-    const record = getRun(req.params.id);
+    const { id } = req.params;
 
-    if (!record) {
-      res.status(404).json({ error: 'Run not found' });
-      return;
-    }
+    void runtime.runPromise(
+      Effect.gen(function* () {
+        const runnerService = yield* RunnerService;
+        const record = yield* runnerService.getRun(id);
 
-    res.json(record);
+        res.json(record);
+      }).pipe(
+        Effect.catchTag('RunNotFoundError', () => {
+          return Effect.sync(() => {
+            res.status(404).json({ error: 'Run not found' });
+          });
+        }),
+      ),
+    );
   });
 
   router.delete('/:id', (req, res) => {
-    const found = cancelRun(req.params.id);
+    const { id } = req.params;
 
-    if (!found) {
-      res.status(404).json({ error: 'Run not found or not active' });
-      return;
-    }
+    void runtime.runPromise(
+      Effect.gen(function* () {
+        const runnerService = yield* RunnerService;
 
-    res.sendStatus(204);
+        yield* runnerService.cancelRun(id);
+
+        res.sendStatus(204);
+      }).pipe(
+        Effect.catchTag('RunNotFoundError', () => {
+          return Effect.sync(() => {
+            res.status(404).json({ error: 'Run not found or not active' });
+          });
+        }),
+      ),
+    );
   });
 
   return router;
