@@ -27,9 +27,9 @@ describe('FileService', () => {
 
     const result = await runtime.runPromise(
       Effect.gen(function* () {
-        const service = yield* FileService;
+        const SUT = yield* FileService;
 
-        return yield* service.read(tempPath as string);
+        return yield* SUT.read(tempPath as string);
       }),
     );
 
@@ -37,15 +37,15 @@ describe('FileService', () => {
   });
 
   it('read fails with FileReadError for a nonexistent file', async () => {
-    const error = await runtime.runPromise(
+    const result = await runtime.runPromise(
       Effect.gen(function* () {
-        const service = yield* FileService;
+        const SUT = yield* FileService;
 
-        return yield* Effect.flip(service.read('/nonexistent/path/that/does/not/exist'));
+        return yield* Effect.flip(SUT.read('/nonexistent/path/that/does/not/exist'));
       }),
     );
 
-    expect(error).toBeInstanceOf(FileReadError);
+    expect(result).toBeInstanceOf(FileReadError);
   });
 
   it('write creates a file with the given content', async () => {
@@ -55,13 +55,15 @@ describe('FileService', () => {
 
     await runtime.runPromise(
       Effect.gen(function* () {
-        const service = yield* FileService;
+        const SUT = yield* FileService;
 
-        yield* service.write(tempPath as string, content);
+        yield* SUT.write(tempPath as string, content);
       }),
     );
 
-    expect(fs.readFileSync(tempPath, 'utf8')).toBe(content);
+    const result = fs.readFileSync(tempPath, 'utf8');
+
+    expect(result).toBe(content);
   });
 
   it('exists returns true for an existing file', async () => {
@@ -71,9 +73,9 @@ describe('FileService', () => {
 
     const result = await runtime.runPromise(
       Effect.gen(function* () {
-        const service = yield* FileService;
+        const SUT = yield* FileService;
 
-        return yield* service.exists(tempPath as string);
+        return yield* SUT.exists(tempPath as string);
       }),
     );
 
@@ -83,9 +85,9 @@ describe('FileService', () => {
   it('exists returns false for a nonexistent path', async () => {
     const result = await runtime.runPromise(
       Effect.gen(function* () {
-        const service = yield* FileService;
+        const SUT = yield* FileService;
 
-        return yield* service.exists('/nonexistent/path/that/does/not/exist');
+        return yield* SUT.exists('/nonexistent/path/that/does/not/exist');
       }),
     );
 

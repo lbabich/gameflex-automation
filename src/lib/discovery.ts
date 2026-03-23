@@ -1,10 +1,9 @@
 import type { ConsoleMessage, Page } from '@playwright/test';
 import * as claudeVision from './claude-vision';
+import * as gelEvents from './gel-events';
 import * as screenshot from './screenshot';
-import { SPIN_EVENT, SPIN_START_TIMEOUT_MS } from './spin-config';
 import type { CachedStep, DeviceType, Viewport } from './types';
 
-const DISCOVERY_INITIAL_WAIT_MS = 8_000;
 const DISCOVERY_POLL_INTERVAL_MS = 1_000;
 const DISCOVERY_MAX_ATTEMPTS = 20;
 
@@ -21,14 +20,14 @@ export class DiscoveryError extends Error {
 }
 
 function isSpinStart(msg: ConsoleMessage) {
-  return msg.text().includes(SPIN_EVENT.START);
+  return msg.text().includes(gelEvents.GEL_EVENT.SPIN_START);
 }
 
 async function waitForSpinStart(page: Page): Promise<boolean> {
   try {
     await page.waitForEvent('console', {
       predicate: isSpinStart,
-      timeout: SPIN_START_TIMEOUT_MS,
+      timeout: gelEvents.SPIN_START_TIMEOUT_MS,
     });
 
     return true;
@@ -47,18 +46,23 @@ async function waitForSpinStart(page: Page): Promise<boolean> {
  * @throws {DiscoveryError} when the spin button is not found after all attempts;
  *   `err.partialSteps` contains any navigation steps recorded before failure.
  */
+export type DiscoverResult = {
+  steps: CachedStep[];
+  gameReady: gelEvents.GameReadyResult;
+};
+
 export async function discoverSteps(
   page: Page,
   game: Game,
   viewport: Viewport,
   deviceType: DeviceType,
-) {
+): Promise<DiscoverResult> {
+  const gameReady = await gelEvents.waitForGameReady(page);
+
   const allFailedButtons: claudeVision.FailedButton[] = [];
   const preSpinSteps: CachedStep[] = [];
 
   let lastClickTime = Date.now();
-
-  await page.waitForTimeout(DISCOVERY_INITIAL_WAIT_MS);
 
   for (let attempt = 1; attempt <= DISCOVERY_MAX_ATTEMPTS; attempt++) {
     const screenshotPath = await screenshot.snap(
@@ -82,7 +86,7 @@ export async function discoverSteps(
       if (spun) {
         preSpinSteps.push({ waitMs, x: spinResult.x, y: spinResult.y, label: spinResult.label });
 
-        return preSpinSteps;
+        return { steps: preSpinSteps, gameReady };
       }
 
       console.log(

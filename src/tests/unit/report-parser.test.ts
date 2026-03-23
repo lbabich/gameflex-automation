@@ -39,24 +39,23 @@ function makeReport(overrides: object = {}): string {
 
 describe('parseJsonReport', () => {
   it('parses a passing test result correctly', async () => {
+    const SUT = parseJsonReport;
     const raw = `preamble\n${makeReport()}`;
-    const { results, playwrightErrors } = await Effect.runPromise(parseJsonReport(raw));
+    const result = await Effect.runPromise(SUT(raw));
 
-    expect(playwrightErrors).toHaveLength(0);
-    expect(results).toHaveLength(1);
-
-    const result = results[0];
-
-    expect(result.title).toBe('spin: Test Game');
-    expect(result.project).toBe('chromium');
-    expect(result.status).toBe('passed');
-    expect(result.duration).toBe(12345);
-    expect(result.stdout).toEqual(['some output']);
-    expect(result.steps).toHaveLength(1);
-    expect(result.steps?.[0].title).toBe('Navigate to game');
+    expect(result.playwrightErrors).toHaveLength(0);
+    expect(result.results).toHaveLength(1);
+    expect(result.results[0].title).toBe('spin: Test Game');
+    expect(result.results[0].project).toBe('chromium');
+    expect(result.results[0].status).toBe('passed');
+    expect(result.results[0].duration).toBe(12345);
+    expect(result.results[0].stdout).toEqual(['some output']);
+    expect(result.results[0].steps).toHaveLength(1);
+    expect(result.results[0].steps?.[0].title).toBe('Navigate to game');
   });
 
   it('parses a failed test result and surfaces the error message', async () => {
+    const SUT = parseJsonReport;
     const raw = `preamble\n${makeReport({
       suites: [
         {
@@ -86,47 +85,52 @@ describe('parseJsonReport', () => {
       ],
     })}`;
 
-    const { results } = await Effect.runPromise(parseJsonReport(raw));
+    const result = await Effect.runPromise(SUT(raw));
 
-    expect(results).toHaveLength(1);
-    expect(results[0].status).toBe('failed');
-    expect(results[0].error).toBe('Discovery timed out');
+    expect(result.results).toHaveLength(1);
+    expect(result.results[0].status).toBe('failed');
+    expect(result.results[0].error).toBe('Discovery timed out');
   });
 
   it('surfaces top-level Playwright errors', async () => {
+    const SUT = parseJsonReport;
     const raw = `preamble\n${makeReport({
       suites: [],
       errors: [{ message: 'Global setup failed' }],
     })}`;
 
-    const { results, playwrightErrors } = await Effect.runPromise(parseJsonReport(raw));
+    const result = await Effect.runPromise(SUT(raw));
 
-    expect(results).toHaveLength(0);
-    expect(playwrightErrors).toEqual(['Global setup failed']);
+    expect(result.results).toHaveLength(0);
+    expect(result.playwrightErrors).toEqual(['Global setup failed']);
   });
 
   it('returns empty results when the raw string has no JSON', async () => {
-    const { results, playwrightErrors } = await Effect.runPromise(parseJsonReport('no json'));
+    const SUT = parseJsonReport;
+    const result = await Effect.runPromise(SUT('no json'));
 
-    expect(results).toHaveLength(0);
-    expect(playwrightErrors).toHaveLength(0);
+    expect(result.results).toHaveLength(0);
+    expect(result.playwrightErrors).toHaveLength(0);
   });
 
   it('extracts JSON from a pretty-printed output (newline before {)', async () => {
+    const SUT = parseJsonReport;
     const raw = `some playwright preamble\n${makeReport()}`;
-    const { results } = await Effect.runPromise(parseJsonReport(raw));
+    const result = await Effect.runPromise(SUT(raw));
 
-    expect(results).toHaveLength(1);
+    expect(result.results).toHaveLength(1);
   });
 
   it('extracts JSON from compact output without leading newline', async () => {
+    const SUT = parseJsonReport;
     const raw = makeReport();
-    const { results } = await Effect.runPromise(parseJsonReport(raw));
+    const result = await Effect.runPromise(SUT(raw));
 
-    expect(results).toHaveLength(1);
+    expect(result.results).toHaveLength(1);
   });
 
   it('sets failedStep to the title of the first step with an error', async () => {
+    const SUT = parseJsonReport;
     const raw = `preamble\n${makeReport({
       suites: [
         {
@@ -164,19 +168,21 @@ describe('parseJsonReport', () => {
       ],
     })}`;
 
-    const { results } = await Effect.runPromise(parseJsonReport(raw));
+    const result = await Effect.runPromise(SUT(raw));
 
-    expect(results).toHaveLength(1);
-    expect(results[0].failedStep).toBe('Discover steps');
+    expect(result.results).toHaveLength(1);
+    expect(result.results[0].failedStep).toBe('Discover steps');
   });
 
   it('leaves failedStep undefined when no step has an error', async () => {
-    const { results } = await Effect.runPromise(parseJsonReport(`preamble\n${makeReport()}`));
+    const SUT = parseJsonReport;
+    const result = await Effect.runPromise(SUT(`preamble\n${makeReport()}`));
 
-    expect(results[0].failedStep).toBeUndefined();
+    expect(result.results[0].failedStep).toBeUndefined();
   });
 
   it('extracts screenshot paths from png attachments', async () => {
+    const SUT = parseJsonReport;
     const raw = `preamble\n${makeReport({
       suites: [
         {
@@ -214,12 +220,13 @@ describe('parseJsonReport', () => {
       ],
     })}`;
 
-    const { results } = await Effect.runPromise(parseJsonReport(raw));
+    const result = await Effect.runPromise(SUT(raw));
 
-    expect(results[0].screenshotPaths).toEqual(['/tmp/test-failed-1.png']);
+    expect(result.results[0].screenshotPaths).toEqual(['/tmp/test-failed-1.png']);
   });
 
   it('flattens specs from nested suites', async () => {
+    const SUT = parseJsonReport;
     const raw = `preamble\n${makeReport({
       suites: [
         {
@@ -247,9 +254,9 @@ describe('parseJsonReport', () => {
       ],
     })}`;
 
-    const { results } = await Effect.runPromise(parseJsonReport(raw));
+    const result = await Effect.runPromise(SUT(raw));
 
-    expect(results).toHaveLength(1);
-    expect(results[0].title).toBe('spin: Nested Game');
+    expect(result.results).toHaveLength(1);
+    expect(result.results[0].title).toBe('spin: Nested Game');
   });
 });

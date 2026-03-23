@@ -29,18 +29,18 @@ describe('GamesService', () => {
   it('list returns games that have been added', async () => {
     const entry = makeEntry();
 
-    const games = await runtime.runPromise(
+    const result = await runtime.runPromise(
       Effect.gen(function* () {
-        const service = yield* GamesService;
+        const SUT = yield* GamesService;
 
-        yield* service.add(entry);
+        yield* SUT.add(entry);
 
-        return yield* service.list();
+        return yield* SUT.list();
       }),
     );
 
     expect(
-      games.some((game) => {
+      result.some((game) => {
         return game.desktopGameID === entry.desktopGameID;
       }),
     ).toBe(true);
@@ -49,29 +49,29 @@ describe('GamesService', () => {
   it('add fails with DuplicateGameIDError for a duplicate desktopGameID', async () => {
     const entry = makeEntry();
 
-    const error = await runtime.runPromise(
+    const result = await runtime.runPromise(
       Effect.gen(function* () {
-        const service = yield* GamesService;
+        const SUT = yield* GamesService;
 
-        yield* service.add(entry);
+        yield* SUT.add(entry);
 
-        return yield* Effect.flip(service.add(entry));
+        return yield* Effect.flip(SUT.add(entry));
       }),
     );
 
-    expect(error).toBeInstanceOf(DuplicateGameIDError);
+    expect(result).toBeInstanceOf(DuplicateGameIDError);
   });
 
   it('update fails with GameNotFoundError for an unknown id', async () => {
-    const error = await runtime.runPromise(
+    const result = await runtime.runPromise(
       Effect.gen(function* () {
-        const service = yield* GamesService;
+        const SUT = yield* GamesService;
 
-        return yield* Effect.flip(service.update('nonexistent', { name: 'New Name' }));
+        return yield* Effect.flip(SUT.update('nonexistent', { name: 'New Name' }));
       }),
     );
 
-    expect(error).toBeInstanceOf(GameNotFoundError);
+    expect(result).toBeInstanceOf(GameNotFoundError);
   });
 
   it('getCachedDeviceMap returns desktop: true for a game with desktop steps', async () => {
@@ -81,11 +81,11 @@ describe('GamesService', () => {
 
     const [gameID, deviceMap] = await runtime.runPromise(
       Effect.gen(function* () {
-        const service = yield* GamesService;
+        const SUT = yield* GamesService;
 
-        yield* service.add(entry);
+        yield* SUT.add(entry);
 
-        const list = yield* service.list();
+        const list = yield* SUT.list();
 
         const game = list.find((g) => {
           return g.desktopGameID === entry.desktopGameID;
@@ -97,11 +97,11 @@ describe('GamesService', () => {
 
         stepCache.setSteps(game.id, 'desktop', VP, cacheEntry);
 
-        const map = yield* service.getCachedDeviceMap();
+        const result = yield* SUT.getCachedDeviceMap();
 
         stepCache.clearAllSteps(game.id);
 
-        return [game.id, map] as const;
+        return [game.id, result] as const;
       }),
     );
 
@@ -116,11 +116,11 @@ describe('GamesService', () => {
 
     const gameID = await runtime.runPromise(
       Effect.gen(function* () {
-        const service = yield* GamesService;
+        const SUT = yield* GamesService;
 
-        yield* service.add(entry);
+        yield* SUT.add(entry);
 
-        const list = yield* service.list();
+        const list = yield* SUT.list();
 
         const game = list.find((g) => {
           return g.desktopGameID === entry.desktopGameID;
@@ -139,9 +139,9 @@ describe('GamesService', () => {
 
     await runtime.runPromise(
       Effect.gen(function* () {
-        const service = yield* GamesService;
+        const SUT = yield* GamesService;
 
-        yield* service.clearAllSteps(gameID);
+        yield* SUT.clearAllSteps(gameID);
       }),
     );
 
@@ -157,11 +157,11 @@ describe('GamesService', () => {
 
     const gameID = await runtime.runPromise(
       Effect.gen(function* () {
-        const service = yield* GamesService;
+        const SUT = yield* GamesService;
 
-        yield* service.add(entry);
+        yield* SUT.add(entry);
 
-        const list = yield* service.list();
+        const list = yield* SUT.list();
 
         const game = list.find((g) => {
           return g.desktopGameID === entry.desktopGameID;
@@ -180,9 +180,9 @@ describe('GamesService', () => {
 
     await runtime.runPromise(
       Effect.gen(function* () {
-        const service = yield* GamesService;
+        const SUT = yield* GamesService;
 
-        yield* service.clearSteps(gameID, 'desktop');
+        yield* SUT.clearSteps(gameID, 'desktop');
       }),
     );
 

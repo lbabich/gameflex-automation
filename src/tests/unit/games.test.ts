@@ -17,9 +17,10 @@ function makeDesktopGameID() {
 
 describe('addGame', () => {
   it('assigns a GUID when adding a game', () => {
+    const SUT = addGame;
     const desktopGameID = makeDesktopGameID();
 
-    addGame({
+    SUT({
       desktopGameID,
       name: 'Test Game',
       desktopEnabled: true,
@@ -28,8 +29,8 @@ describe('addGame', () => {
       mobilePlaymode: 'demo',
     });
 
-    const updated = readGames();
-    const added = updated.find((g) => {
+    const result = readGames();
+    const added = result.find((g) => {
       return g.desktopGameID === desktopGameID;
     });
 
@@ -40,9 +41,10 @@ describe('addGame', () => {
   });
 
   it('throws when adding a duplicate desktopGameID', () => {
+    const SUT = addGame;
     const desktopGameID = makeDesktopGameID();
 
-    addGame({
+    SUT({
       desktopGameID,
       name: 'Original',
       desktopEnabled: true,
@@ -52,7 +54,7 @@ describe('addGame', () => {
     });
 
     expect(() => {
-      return addGame({
+      return SUT({
         desktopGameID,
         name: 'Duplicate',
         desktopEnabled: true,
@@ -66,6 +68,8 @@ describe('addGame', () => {
 
 describe('readGames migration', () => {
   it('assigns GUIDs to entries missing id and writes back', () => {
+    const SUT = readGames;
+
     // Write a games.json with entries that have no id or playmode field
     const raw = JSON.stringify([
       {
@@ -76,21 +80,22 @@ describe('readGames migration', () => {
 
     fs.writeFileSync(GAMES_PATH, raw);
 
-    const games = readGames();
+    const result = SUT();
 
-    expect(games.length).toBe(1);
+    expect(result.length).toBe(1);
 
     // Verify the file was written back with the id and playmode
-    const onDisk = JSON.parse(fs.readFileSync(GAMES_PATH, 'utf8')) as typeof games;
+    const onDisk = JSON.parse(fs.readFileSync(GAMES_PATH, 'utf8')) as typeof result;
 
     expect(onDisk[0].id, 'id should be persisted to disk').toBeTruthy();
-    expect(onDisk[0].id).toBe(games[0].id);
+    expect(onDisk[0].id).toBe(result[0].id);
     expect(onDisk[0].desktopPlaymode).toBe('demo');
   });
 });
 
 describe('updateGame', () => {
   it('updates game fields in games.json', () => {
+    const SUT = updateGame;
     const desktopGameID = makeDesktopGameID();
 
     addGame({
@@ -102,20 +107,20 @@ describe('updateGame', () => {
       mobilePlaymode: 'demo',
     });
 
-    const before = readGames().find((g) => {
+    const existing = readGames().find((g) => {
       return g.desktopGameID === desktopGameID;
     });
 
-    if (!before) {
+    if (!existing) {
       throw new Error('game not found after addGame');
     }
 
-    updateGame(before.id, { name: 'Updated Name' });
+    SUT(existing.id, { name: 'Updated Name' });
 
-    const after = readGames().find((g) => {
-      return g.id === before.id;
+    const result = readGames().find((g) => {
+      return g.id === existing.id;
     });
 
-    expect(after?.name).toBe('Updated Name');
+    expect(result?.name).toBe('Updated Name');
   });
 });

@@ -1,9 +1,7 @@
 [
   {
     "runID": "485a1741-bffa-45b6-bb03-4193ed46dea9",
-    "gameIDs": [
-      "b334f577-df52-401b-b5db-d86559a07b3f"
-    ],
+    "gameIDs": ["b334f577-df52-401b-b5db-d86559a07b3f"],
     "status": "completed",
     "startedAt": "2026-03-20T16:26:04.109Z",
     "results": [
@@ -60,9 +58,7 @@
   },
   {
     "runID": "fb831da1-5b2a-4ae5-b383-f704381f47f6",
-    "gameIDs": [
-      "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"
-    ],
+    "gameIDs": ["9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"],
     "status": "completed",
     "startedAt": "2026-03-20T16:25:04.467Z",
     "results": [
@@ -110,9 +106,7 @@
   },
   {
     "runID": "26bb381f-4115-49af-823a-72312dca5d4b",
-    "gameIDs": [
-      "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"
-    ],
+    "gameIDs": ["9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"],
     "status": "error",
     "startedAt": "2026-03-20T16:22:22.290Z",
     "results": [
@@ -158,9 +152,7 @@
           }
         ],
         "gifUrl": "/api/screenshots/9d8a0d44-5fcf-4b66-b4a2-80961c8ba986/mobile/animated.gif",
-        "screenshotUrls": [
-          "/api/screenshots/26bb381f-4115-49af-823a-72312dca5d4b/failure/0-0.png"
-        ]
+        "screenshotUrls": ["/api/screenshots/26bb381f-4115-49af-823a-72312dca5d4b/failure/0-0.png"]
       }
     ],
     "playwrightErrors": [],
@@ -169,9 +161,7 @@
   },
   {
     "runID": "3e84ab46-25f0-4b86-95f2-b37918860f7b",
-    "gameIDs": [
-      "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"
-    ],
+    "gameIDs": ["9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"],
     "status": "error",
     "startedAt": "2026-03-20T14:04:20.303Z",
     "results": [
@@ -222,9 +212,7 @@
   },
   {
     "runID": "8a5f409d-37f6-4edc-ada0-0a5457158253",
-    "gameIDs": [
-      "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"
-    ],
+    "gameIDs": ["9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"],
     "status": "completed",
     "startedAt": "2026-03-20T14:03:21.535Z",
     "results": [
@@ -272,9 +260,7 @@
   },
   {
     "runID": "be6e85c4-b4de-4142-996f-e90c6c19e539",
-    "gameIDs": [
-      "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"
-    ],
+    "gameIDs": ["9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"],
     "status": "completed",
     "startedAt": "2026-03-20T14:02:11.369Z",
     "results": [
@@ -322,9 +308,7 @@
   },
   {
     "runID": "f8184eff-7e9c-44b2-8d56-3d4a58e0699c",
-    "gameIDs": [
-      "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"
-    ],
+    "gameIDs": ["9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"],
     "status": "error",
     "startedAt": "2026-03-20T13:59:47.909Z",
     "results": [
@@ -377,9 +361,7 @@
   },
   {
     "runID": "bcfb2a09-3e09-4619-baea-0728d8cd3350",
-    "gameIDs": [
-      "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"
-    ],
+    "gameIDs": ["9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"],
     "status": "error",
     "startedAt": "2026-03-20T13:51:15.914Z",
     "results": [
@@ -439,9 +421,7 @@
   },
   {
     "runID": "ba946a34-f802-48ec-811e-576e8d128146",
-    "gameIDs": [
-      "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"
-    ],
+    "gameIDs": ["9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"],
     "status": "cancelled",
     "startedAt": "2026-03-20T13:49:03.832Z",
     "results": [],
@@ -451,9 +431,7 @@
   },
   {
     "runID": "2b3cd6aa-af46-43b6-83f9-0471332b1ba4",
-    "gameIDs": [
-      "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"
-    ],
+    "gameIDs": ["9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"],
     "status": "error",
     "startedAt": "2026-03-20T13:40:57.984Z",
     "results": [

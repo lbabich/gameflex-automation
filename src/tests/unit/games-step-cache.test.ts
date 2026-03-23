@@ -38,46 +38,45 @@ function addTestGame() {
 
 describe('updateGame + stepCache integration', () => {
   it('clears the cache when desktopGameID changes', () => {
+    const SUT = updateGame;
     const game = addTestGame();
     const VP = { width: 1280, height: 720 };
     const steps = { discoveredAt: new Date().toISOString(), steps: [] };
 
     stepCache.setSteps(game.id, 'desktop', VP, steps);
 
-    expect(
-      stepCache.getSteps(game.id, 'desktop', VP),
-      'cache should exist before update',
-    ).toBeTruthy();
+    const resultBefore = stepCache.getSteps(game.id, 'desktop', VP);
 
-    updateGame(game.id, { desktopGameID: makeDesktopGameID() });
+    expect(resultBefore, 'cache should exist before update').toBeTruthy();
 
-    expect(
-      stepCache.getSteps(game.id, 'desktop', VP),
-      'cache should be cleared after ID change',
-    ).toBeUndefined();
+    SUT(game.id, { desktopGameID: makeDesktopGameID() });
+
+    const result = stepCache.getSteps(game.id, 'desktop', VP);
+
+    expect(result, 'cache should be cleared after ID change').toBeUndefined();
   });
 
   it('clears the cache when mobileGameID changes', () => {
+    const SUT = updateGame;
     const game = addTestGame();
     const VP = { width: 390, height: 844 };
     const steps = { discoveredAt: new Date().toISOString(), steps: [] };
 
     stepCache.setSteps(game.id, 'mobile', VP, steps);
 
-    expect(
-      stepCache.getSteps(game.id, 'mobile', VP),
-      'cache should exist before update',
-    ).toBeTruthy();
+    const resultBefore = stepCache.getSteps(game.id, 'mobile', VP);
 
-    updateGame(game.id, { mobileGameID: makeDesktopGameID() });
+    expect(resultBefore, 'cache should exist before update').toBeTruthy();
 
-    expect(
-      stepCache.getSteps(game.id, 'mobile', VP),
-      'cache should be cleared after mobile ID change',
-    ).toBeUndefined();
+    SUT(game.id, { mobileGameID: makeDesktopGameID() });
+
+    const result = stepCache.getSteps(game.id, 'mobile', VP);
+
+    expect(result, 'cache should be cleared after mobile ID change').toBeUndefined();
   });
 
   it('does not clear the cache when only name changes', () => {
+    const SUT = updateGame;
     const game = addTestGame();
     const VP = { width: 1280, height: 720 };
     const steps = {
@@ -87,12 +86,11 @@ describe('updateGame + stepCache integration', () => {
 
     stepCache.setSteps(game.id, 'desktop', VP, steps);
 
-    updateGame(game.id, { name: 'New Name' });
+    SUT(game.id, { name: 'New Name' });
 
-    expect(
-      stepCache.getSteps(game.id, 'desktop', VP),
-      'cache should survive a name-only update',
-    ).toEqual(steps);
+    const result = stepCache.getSteps(game.id, 'desktop', VP);
+
+    expect(result, 'cache should survive a name-only update').toEqual(steps);
 
     // Cleanup
     stepCache.clearAllSteps(game.id);

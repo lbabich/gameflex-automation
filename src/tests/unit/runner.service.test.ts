@@ -45,9 +45,9 @@ describe('RunnerService', () => {
 
       const result = await runtime.runPromise(
         Effect.gen(function* () {
-          const service = yield* RunnerService;
+          const SUT = yield* RunnerService;
 
-          return yield* service.getRun('stored-run');
+          return yield* SUT.getRun('stored-run');
         }),
       );
 
@@ -57,15 +57,15 @@ describe('RunnerService', () => {
     it('fails with RunNotFoundError for an unknown run id', async () => {
       const runtime = makeTestRuntime();
 
-      const error = await runtime.runPromise(
+      const result = await runtime.runPromise(
         Effect.gen(function* () {
-          const service = yield* RunnerService;
+          const SUT = yield* RunnerService;
 
-          return yield* Effect.flip(service.getRun('nonexistent'));
+          return yield* Effect.flip(SUT.getRun('nonexistent'));
         }),
       );
 
-      expect(error).toBeInstanceOf(RunNotFoundError);
+      expect(result).toBeInstanceOf(RunNotFoundError);
     });
   });
 
@@ -73,15 +73,15 @@ describe('RunnerService', () => {
     it('fails with RunNotFoundError for an unknown run id', async () => {
       const runtime = makeTestRuntime();
 
-      const error = await runtime.runPromise(
+      const result = await runtime.runPromise(
         Effect.gen(function* () {
-          const service = yield* RunnerService;
+          const SUT = yield* RunnerService;
 
-          return yield* Effect.flip(service.cancelRun('nonexistent'));
+          return yield* Effect.flip(SUT.cancelRun('nonexistent'));
         }),
       );
 
-      expect(error).toBeInstanceOf(RunNotFoundError);
+      expect(result).toBeInstanceOf(RunNotFoundError);
     });
   });
 
@@ -89,15 +89,15 @@ describe('RunnerService', () => {
     it('fails with GameNotFoundError for an unknown game id', async () => {
       const runtime = makeTestRuntime();
 
-      const error = await runtime.runPromise(
+      const result = await runtime.runPromise(
         Effect.gen(function* () {
-          const service = yield* RunnerService;
+          const SUT = yield* RunnerService;
 
-          return yield* Effect.flip(service.startRun([randomUUID()]));
+          return yield* Effect.flip(SUT.startRun([randomUUID()]));
         }),
       );
 
-      expect(error).toBeInstanceOf(GameNotFoundError);
+      expect(result).toBeInstanceOf(GameNotFoundError);
     });
   });
 
@@ -105,15 +105,15 @@ describe('RunnerService', () => {
     it('returns an empty array when no runs exist', async () => {
       const runtime = makeTestRuntime();
 
-      const runs = await runtime.runPromise(
+      const result = await runtime.runPromise(
         Effect.gen(function* () {
-          const service = yield* RunnerService;
+          const SUT = yield* RunnerService;
 
-          return yield* service.getRecentRuns();
+          return yield* SUT.getRecentRuns();
         }),
       );
 
-      expect(runs).toHaveLength(0);
+      expect(result).toHaveLength(0);
     });
 
     it('returns runs sorted newest first', async () => {
@@ -121,16 +121,16 @@ describe('RunnerService', () => {
       const runB = makeRunRecord({ runID: 'run-b', startedAt: '2024-01-02T00:00:00.000Z' });
       const runtime = makeTestRuntime(JSON.stringify([runA, runB]));
 
-      const runs = await runtime.runPromise(
+      const result = await runtime.runPromise(
         Effect.gen(function* () {
-          const service = yield* RunnerService;
+          const SUT = yield* RunnerService;
 
-          return yield* service.getRecentRuns();
+          return yield* SUT.getRecentRuns();
         }),
       );
 
-      expect(runs[0].runID).toBe('run-b');
-      expect(runs[1].runID).toBe('run-a');
+      expect(result[0].runID).toBe('run-b');
+      expect(result[1].runID).toBe('run-a');
     });
 
     it('respects the limit parameter', async () => {
@@ -145,9 +145,9 @@ describe('RunnerService', () => {
 
       const result = await runtime.runPromise(
         Effect.gen(function* () {
-          const service = yield* RunnerService;
+          const SUT = yield* RunnerService;
 
-          return yield* service.getRecentRuns(3);
+          return yield* SUT.getRecentRuns(3);
         }),
       );
 
@@ -188,19 +188,19 @@ describe('RunnerService', () => {
     it('startRun returns a record with running status', async () => {
       const runtime = makeTestRuntime();
 
-      const record = await runtime.runPromise(
+      const result = await runtime.runPromise(
         Effect.gen(function* () {
-          const service = yield* RunnerService;
+          const SUT = yield* RunnerService;
 
-          return yield* service.startRun([testGameID]);
+          return yield* SUT.startRun([testGameID]);
         }),
       );
 
-      expect(record.runID).toMatch(
+      expect(result.runID).toMatch(
         /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
       );
-      expect(record.gameIDs).toEqual([testGameID]);
-      expect(record.status).toBe('running');
+      expect(result.gameIDs).toEqual([testGameID]);
+      expect(result.status).toBe('running');
     });
 
     it('cancelRun sets status to cancelled', async () => {
@@ -208,15 +208,15 @@ describe('RunnerService', () => {
 
       await runtime.runPromise(
         Effect.gen(function* () {
-          const service = yield* RunnerService;
+          const SUT = yield* RunnerService;
 
-          const record = yield* service.startRun([testGameID]);
+          const runRecord = yield* SUT.startRun([testGameID]);
 
-          yield* service.cancelRun(record.runID);
+          yield* SUT.cancelRun(runRecord.runID);
 
-          const updated = yield* service.getRun(record.runID);
+          const result = yield* SUT.getRun(runRecord.runID);
 
-          expect(updated.status).toBe('cancelled');
+          expect(result.status).toBe('cancelled');
         }),
       );
     });

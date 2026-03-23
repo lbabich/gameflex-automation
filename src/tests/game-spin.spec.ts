@@ -3,11 +3,12 @@ import { test } from '@playwright/test';
 import * as dotenv from 'dotenv';
 import * as discovery from '../lib/discovery';
 import { readGames } from '../lib/games';
+import type * as gelEvents from '../lib/gel-events';
+import { GEL_EVENT, SPIN_END_WAIT_MS, SPIN_START_TIMEOUT_MS } from '../lib/gel-events';
 import * as gifGenerator from '../lib/gif-generator';
 import * as operatorWallet from '../lib/operator-wallet';
 import * as replay from '../lib/replay';
 import * as screenshot from '../lib/screenshot';
-import { SPIN_END_WAIT_MS, SPIN_EVENT, SPIN_START_TIMEOUT_MS } from '../lib/spin-config';
 import * as stepCache from '../lib/step-cache';
 import type { DeviceType } from '../lib/types';
 import { DEVICE_TYPE, PLAY_MODE } from '../lib/types';
@@ -49,11 +50,11 @@ for (const game of GAMES) {
     }
 
     const isSpinStart = (msg: ConsoleMessage) => {
-      return msg.text().includes(SPIN_EVENT.START);
+      return msg.text().includes(GEL_EVENT.SPIN_START);
     };
 
     const isSpinEnd = (msg: ConsoleMessage) => {
-      return msg.text().includes(SPIN_EVENT.END);
+      return msg.text().includes(GEL_EVENT.SPIN_END);
     };
 
     let spinStarted = false;
@@ -71,20 +72,23 @@ for (const game of GAMES) {
     const cached = stepCache.getSteps(game.id, deviceType, viewport);
 
     let failure: Error | null = null;
+    let gameReady: gelEvents.GameReadyResult | null = null;
 
     try {
       if (cached) {
-        await test.step(`Replay ${cached.steps.length} cached step(s)`, () => {
+        gameReady = await test.step(`Replay ${cached.steps.length} cached step(s)`, () => {
           return replay.replaySteps(page, game, cached.steps, projectDeviceType);
         });
       } else {
         await test.step('Discover steps', async () => {
           try {
-            const steps = await discovery.discoverSteps(page, game, viewport, projectDeviceType);
+            const result = await discovery.discoverSteps(page, game, viewport, projectDeviceType);
+
+            gameReady = result.gameReady;
 
             stepCache.setSteps(game.id, deviceType, viewport, {
               discoveredAt: new Date().toISOString(),
-              steps,
+              steps: result.steps,
             });
           } catch (err) {
             if (err instanceof discovery.DiscoveryError && err.partialSteps.length > 0) {
@@ -100,7 +104,18 @@ for (const game of GAMES) {
         });
       }
 
-      await test.step(`Spin start: ${SPIN_EVENT.START}`, async () => {
+      if (gameReady) {
+        testInfo.annotations.push({
+          type: ANNOTATION.LOAD_TIME_MS,
+          description: String(gameReady.loadTimeMs),
+        });
+        testInfo.annotations.push({
+          type: ANNOTATION.HAD_LOAD_PROGRESS,
+          description: String(gameReady.hadLoadProgress),
+        });
+      }
+
+      await test.step(`Spin start: ${GEL_EVENT.SPIN_START}`, async () => {
         if (!spinStarted) {
           await page.waitForEvent('console', {
             predicate: isSpinStart,
@@ -111,7 +126,7 @@ for (const game of GAMES) {
         await screenshot.snap(page, `${game.id}/${projectDeviceType}/spin-start.png`);
       });
 
-      await test.step(`Spin end: ${SPIN_EVENT.END}`, () => {
+      await test.step(`Spin end: ${GEL_EVENT.SPIN_END}`, () => {
         return page.waitForEvent('console', {
           predicate: isSpinEnd,
           timeout: SPIN_END_WAIT_MS,

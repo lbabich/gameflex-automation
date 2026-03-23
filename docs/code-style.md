@@ -189,6 +189,73 @@ Only surface an error when callers have meaningfully different responses to it �
 
 ---
 
+## Test variable naming
+
+Every unit test uses three standard names:
+
+| Name | Role |
+|------|------|
+| `SUT` | The system under test — assigned at the top of each `it` block |
+| domain name (e.g. `steps`, `entry`) | Input data that also serves as the expected value |
+| `result` | Whatever the SUT returned; always the variable passed to `expect()` |
+
+```ts
+// ✓ correct
+it('round-trips steps by GUID', () => {
+  const SUT = stepCache;
+  const steps = { discoveredAt: '2024-01-01T00:00:00Z', steps: [] };
+
+  SUT.setSteps(id, 'desktop', VP, steps);
+
+  const result = SUT.getSteps(id, 'desktop', VP);
+
+  expect(result).toEqual(steps);
+});
+
+// ✗ wrong — SUT not defined, result has an ambiguous name
+it('round-trips steps by GUID', () => {
+  const steps = { discoveredAt: '2024-01-01T00:00:00Z', steps: [] };
+
+  stepCache.setSteps(id, 'desktop', VP, steps);
+
+  const cached = stepCache.getSteps(id, 'desktop', VP);
+
+  expect(cached).toEqual(steps);
+});
+```
+
+**Effect service tests** — yield the service as `SUT`:
+
+```ts
+// ✓ correct
+const result = await runtime.runPromise(
+  Effect.gen(function* () {
+    const SUT = yield* FileService;
+
+    return yield* SUT.read(path);
+  }),
+);
+
+expect(result).toBe('hello world');
+```
+
+**Error tests** — the value from `Effect.flip` is still named `result`:
+
+```ts
+// ✓ correct
+const result = await runtime.runPromise(
+  Effect.gen(function* () {
+    const SUT = yield* GamesService;
+
+    return yield* Effect.flip(SUT.add(duplicate));
+  }),
+);
+
+expect(result).toBeInstanceOf(DuplicateGameIDError);
+```
+
+---
+
 ## Variable naming
 
 Use full, descriptive names. Never use single-character or opaque abbreviations.

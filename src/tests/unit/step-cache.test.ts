@@ -26,20 +26,22 @@ describe('step-cache', () => {
   });
 
   it('round-trips steps by GUID', () => {
+    const SUT = stepCache;
     const id = makeId();
     const steps = {
       discoveredAt: '2024-01-01T00:00:00Z',
       steps: [{ waitMs: 100, x: 10, y: 20, label: 'spin' }],
     };
 
-    stepCache.setSteps(id, 'desktop', VP_DESK, steps);
+    SUT.setSteps(id, 'desktop', VP_DESK, steps);
 
-    const result = stepCache.getSteps(id, 'desktop', VP_DESK);
+    const result = SUT.getSteps(id, 'desktop', VP_DESK);
 
     expect(result).toEqual(steps);
   });
 
   it('keeps desktop and mobile steps separate under the same GUID', () => {
+    const SUT = stepCache;
     const id = makeId();
     const desktopSteps = {
       discoveredAt: '2024-01-01T00:00:00Z',
@@ -50,23 +52,30 @@ describe('step-cache', () => {
       steps: [{ waitMs: 500, x: 50, y: 80, label: 'mobile-spin' }],
     };
 
-    stepCache.setSteps(id, 'desktop', VP_DESK, desktopSteps);
-    stepCache.setSteps(id, 'mobile', VP_MOB, mobileSteps);
+    SUT.setSteps(id, 'desktop', VP_DESK, desktopSteps);
+    SUT.setSteps(id, 'mobile', VP_MOB, mobileSteps);
 
-    expect(stepCache.getSteps(id, 'desktop', VP_DESK)).toEqual(desktopSteps);
-    expect(stepCache.getSteps(id, 'mobile', VP_MOB)).toEqual(mobileSteps);
+    const resultDesktop = SUT.getSteps(id, 'desktop', VP_DESK);
+    const resultMobile = SUT.getSteps(id, 'mobile', VP_MOB);
+
+    expect(resultDesktop).toEqual(desktopSteps);
+    expect(resultMobile).toEqual(mobileSteps);
   });
 
   it('clearAllSteps removes all device type entries for a GUID', () => {
+    const SUT = stepCache;
     const id = makeId();
     const steps = { discoveredAt: '2024-01-01T00:00:00Z', steps: [] };
 
-    stepCache.setSteps(id, 'desktop', VP_DESK, steps);
-    stepCache.setSteps(id, 'mobile', VP_MOB, steps);
+    SUT.setSteps(id, 'desktop', VP_DESK, steps);
+    SUT.setSteps(id, 'mobile', VP_MOB, steps);
 
-    stepCache.clearAllSteps(id);
+    SUT.clearAllSteps(id);
 
-    expect(stepCache.getSteps(id, 'desktop', VP_DESK)).toBeUndefined();
-    expect(stepCache.getSteps(id, 'mobile', VP_MOB)).toBeUndefined();
+    const resultDesktop = SUT.getSteps(id, 'desktop', VP_DESK);
+    const resultMobile = SUT.getSteps(id, 'mobile', VP_MOB);
+
+    expect(resultDesktop).toBeUndefined();
+    expect(resultMobile).toBeUndefined();
   });
 });

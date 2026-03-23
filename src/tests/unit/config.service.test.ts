@@ -14,9 +14,9 @@ describe('ConfigService', () => {
 
     const result = await runtime.runPromise(
       Effect.gen(function* () {
-        const service = yield* ConfigService;
+        const SUT = yield* ConfigService;
 
-        return service.corsOrigin;
+        return SUT.corsOrigin;
       }),
     );
 
@@ -30,9 +30,9 @@ describe('ConfigService', () => {
 
     const result = await runtime.runPromise(
       Effect.gen(function* () {
-        const service = yield* ConfigService;
+        const SUT = yield* ConfigService;
 
-        return service.corsOrigin;
+        return SUT.corsOrigin;
       }),
     );
 
