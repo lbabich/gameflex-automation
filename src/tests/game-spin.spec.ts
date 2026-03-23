@@ -4,7 +4,12 @@ import * as dotenv from 'dotenv';
 import * as discovery from '../lib/discovery';
 import { readGames } from '../lib/games';
 import type * as gelEvents from '../lib/gel-events';
-import { GEL_EVENT, SPIN_END_WAIT_MS, SPIN_START_TIMEOUT_MS } from '../lib/gel-events';
+import {
+  GEL_EVENT,
+  POST_SPIN_BUFFER_MS,
+  SPIN_END_WAIT_MS,
+  SPIN_START_TIMEOUT_MS,
+} from '../lib/gel-events';
 import * as gifGenerator from '../lib/gif-generator';
 import * as operatorWallet from '../lib/operator-wallet';
 import * as replay from '../lib/replay';
@@ -133,6 +138,7 @@ for (const game of GAMES) {
         });
       });
 
+      await page.waitForTimeout(POST_SPIN_BUFFER_MS);
       await screenshot.snap(page, `${game.id}/${projectDeviceType}/final-1.png`);
       await page.waitForTimeout(1_500);
       await screenshot.snap(page, `${game.id}/${projectDeviceType}/final-2.png`);

@@ -90,19 +90,19 @@
     },
     "mobile": {
       "1280x720": {
-        "discoveredAt": "2026-03-23T11:34:17.680Z",
+        "discoveredAt": "2026-03-23T11:46:27.548Z",
         "steps": [
           {
-            "waitMs": 7255,
+            "waitMs": 8378,
             "x": 640,
             "y": 684,
             "label": "Continue button"
           },
           {
-            "waitMs": 4211,
+            "waitMs": 6029,
             "x": 641,
             "y": 681,
-            "label": "Large circular spin button with rotating arrows"
+            "label": "Circular spin button with rotating arrow icon"
           }
         ]
       }
