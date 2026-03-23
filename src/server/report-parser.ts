@@ -30,6 +30,7 @@ type TestNode = {
     stdout?: Array<{ text?: string }>;
     steps?: StepNode[];
     attachments?: Array<{ name?: string; path?: string; contentType?: string }>;
+    annotations?: Array<{ type?: string; description?: string }>;
   }>;
 };
 
@@ -75,6 +76,14 @@ function toTestResult(spec: SpecNode, test: TestNode): TestResult | null {
       return a.path as string;
     });
 
+  const annotations: Record<string, string> = {};
+
+  for (const annotation of result.annotations ?? []) {
+    if (annotation.type) {
+      annotations[annotation.type] = annotation.description ?? '';
+    }
+  }
+
   return {
     title: spec.title ?? test.title ?? '(unknown)',
     project: test.projectName ?? '',
@@ -94,6 +103,7 @@ function toTestResult(spec: SpecNode, test: TestNode): TestResult | null {
       }),
     steps,
     screenshotPaths,
+    annotations: Object.keys(annotations).length > 0 ? annotations : undefined,
   };
 }
 

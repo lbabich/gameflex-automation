@@ -18,6 +18,7 @@ export type TestResult = {
   gifUrl?: string;
   screenshotUrls?: string[];
   screenshotPaths?: string[];
+  annotations?: Record<string, string>;
 };
 
 export type RunRecord = {

@@ -188,9 +188,32 @@ export function ResultsPanel({ run, isLoading }: Props) {
                             ))}
                           </div>
                         )}
-                        {result.steps && result.steps.length > 0 && (
+                        {(result.steps?.length || result.annotations) && (
                           <div className="flex flex-col gap-1 mb-3">
-                            {result.steps.map((step, si) => (
+                            {result.annotations?.['had-load-progress'] !== undefined && (
+                              <div className="flex items-center gap-2 text-xs font-mono">
+                                <span
+                                  className={
+                                    result.annotations['had-load-progress'] === 'true'
+                                      ? 'text-green-600'
+                                      : 'text-red-500'
+                                  }
+                                >
+                                  {result.annotations['had-load-progress'] === 'true' ? '✓' : '✗'}
+                                </span>
+                                <span className="flex-1 text-gray-700">gel.load.progress</span>
+                              </div>
+                            )}
+                            {result.annotations?.['load-time-ms'] !== undefined && (
+                              <div className="flex items-center gap-2 text-xs font-mono">
+                                <span className="text-green-600">✓</span>
+                                <span className="flex-1 text-gray-700">gel.ready</span>
+                                <span className="text-gray-400">
+                                  {result.annotations['load-time-ms']}ms
+                                </span>
+                              </div>
+                            )}
+                            {result.steps?.map((step, si) => (
                               <div key={si} className="flex items-center gap-2 text-xs font-mono">
                                 <span className={step.error ? 'text-red-500' : 'text-green-600'}>
                                   {step.error ? '✗' : '✓'}
