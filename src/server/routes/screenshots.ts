@@ -5,8 +5,8 @@ import { Router } from 'express';
 export const screenshotsRouter = Router();
 
 screenshotsRouter.get('/:gameID/:deviceType/:filename', (req, res) => {
-  const safe = (s: string) => {
-    return /^[\w.-]+$/.test(s);
+  const safe = (segment: string) => {
+    return /^[\w.-]+$/.test(segment);
   };
 
   if (!safe(req.params.gameID) || !safe(req.params.deviceType) || !safe(req.params.filename)) {

@@ -87,8 +87,8 @@ describe('GamesService', () => {
 
         const list = yield* SUT.list();
 
-        const game = list.find((g) => {
-          return g.desktopGameID === entry.desktopGameID;
+        const game = list.find((item) => {
+          return item.desktopGameID === entry.desktopGameID;
         });
 
         if (!game) {
@@ -122,8 +122,8 @@ describe('GamesService', () => {
 
         const list = yield* SUT.list();
 
-        const game = list.find((g) => {
-          return g.desktopGameID === entry.desktopGameID;
+        const game = list.find((item) => {
+          return item.desktopGameID === entry.desktopGameID;
         });
 
         if (!game) {
@@ -163,8 +163,8 @@ describe('GamesService', () => {
 
         const list = yield* SUT.list();
 
-        const game = list.find((g) => {
-          return g.desktopGameID === entry.desktopGameID;
+        const game = list.find((item) => {
+          return item.desktopGameID === entry.desktopGameID;
         });
 
         if (!game) {

@@ -114,8 +114,8 @@ export function addGame(entry: Omit<GameEntry, 'id'> & { id?: string }) {
   const games = readGames();
 
   if (
-    games.some((g) => {
-      return g.desktopGameID === entry.desktopGameID;
+    games.some((game) => {
+      return game.desktopGameID === entry.desktopGameID;
     })
   ) {
     throw new Error(`Game with ID ${entry.desktopGameID} already exists`);

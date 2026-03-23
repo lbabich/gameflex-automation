@@ -69,11 +69,11 @@ function toTestResult(spec: SpecNode, test: TestNode): TestResult | null {
     });
 
   const screenshotPaths = (result.attachments ?? [])
-    .filter((a) => {
-      return a.contentType === 'image/png' && a.path;
+    .filter((attachment) => {
+      return attachment.contentType === 'image/png' && attachment.path;
     })
-    .map((a) => {
-      return a.path as string;
+    .map((attachment) => {
+      return attachment.path as string;
     });
 
   const annotations: Record<string, string> = {};

@@ -25,8 +25,8 @@ function addTestGame() {
     mobilePlaymode: 'demo',
   });
 
-  const found = readGames().find((g) => {
-    return g.desktopGameID === desktopGameID;
+  const found = readGames().find((game) => {
+    return game.desktopGameID === desktopGameID;
   });
 
   if (!found) {

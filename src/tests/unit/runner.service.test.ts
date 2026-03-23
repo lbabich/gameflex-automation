@@ -174,8 +174,8 @@ describe('RunnerService', () => {
         mobilePlaymode: 'demo',
       });
 
-      const game = readGames().find((g) => {
-        return g.desktopGameID === desktopGameID;
+      const game = readGames().find((entry) => {
+        return entry.desktopGameID === desktopGameID;
       });
 
       if (!game) {

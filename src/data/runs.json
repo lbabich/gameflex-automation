@@ -1,5 +1,186 @@
 [
   {
+    "runID": "8e4215cd-8c4b-4337-8002-a1ddaaba2356",
+    "gameIDs": [
+      "b4c51f69-e28f-4c66-9b3c-0be918e9af91"
+    ],
+    "status": "completed",
+    "startedAt": "2026-03-23T13:20:42.975Z",
+    "results": [
+      {
+        "title": "spin: Barn Busters",
+        "project": "desktop",
+        "status": "passed",
+        "duration": 54091,
+        "stdout": [
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b4c51f69-e28f-4c66-9b3c-0be918e9af91\\desktop\\discovery-1.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b4c51f69-e28f-4c66-9b3c-0be918e9af91\\desktop\\discovery-2.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b4c51f69-e28f-4c66-9b3c-0be918e9af91\\desktop\\discovery-3.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b4c51f69-e28f-4c66-9b3c-0be918e9af91\\desktop\\spin-start.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b4c51f69-e28f-4c66-9b3c-0be918e9af91\\desktop\\final-1.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b4c51f69-e28f-4c66-9b3c-0be918e9af91\\desktop\\final-2.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b4c51f69-e28f-4c66-9b3c-0be918e9af91\\desktop\\final-3.png"
+        ],
+        "steps": [
+          {
+            "title": "Navigate to game",
+            "duration": 455
+          },
+          {
+            "title": "Discover steps",
+            "duration": 38116
+          },
+          {
+            "title": "Spin start: gel.spin.start",
+            "duration": 234
+          },
+          {
+            "title": "Spin end: gel.spin.end",
+            "duration": 2158
+          },
+          {
+            "title": "Generate GIF",
+            "duration": 3323
+          }
+        ],
+        "annotations": {
+          "playmode": "demo",
+          "load-time-ms": "7744",
+          "had-load-progress": "false"
+        },
+        "gifUrl": "/api/screenshots/b4c51f69-e28f-4c66-9b3c-0be918e9af91/desktop/animated.gif"
+      }
+    ],
+    "playwrightErrors": [],
+    "finishedAt": "2026-03-23T13:21:50.437Z",
+    "durationMs": 67462
+  },
+  {
+    "runID": "93e05cd7-150b-44f7-b102-c34a8fde2b72",
+    "gameIDs": [
+      "b4c51f69-e28f-4c66-9b3c-0be918e9af91"
+    ],
+    "status": "cancelled",
+    "startedAt": "2026-03-23T13:20:31.527Z",
+    "results": [],
+    "playwrightErrors": [],
+    "finishedAt": "2026-03-23T13:20:39.294Z",
+    "durationMs": 7767
+  },
+  {
+    "runID": "d26fdf17-b0b8-4122-94bf-0838b4337f7e",
+    "gameIDs": [
+      "b4c51f69-e28f-4c66-9b3c-0be918e9af91"
+    ],
+    "status": "error",
+    "startedAt": "2026-03-23T13:15:25.386Z",
+    "results": [
+      {
+        "title": "spin: Barn Busters",
+        "project": "desktop",
+        "status": "failed",
+        "duration": 163414,
+        "error": "DiscoveryError: Could not find spin button for Barn Busters (63174) after 20 attempts. See src/server/screenshots/b4c51f69-e28f-4c66-9b3c-0be918e9af91/desktop/discovery-failed.png",
+        "failedStep": "Discover steps",
+        "stdout": [
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b4c51f69-e28f-4c66-9b3c-0be918e9af91\\desktop\\discovery-1.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b4c51f69-e28f-4c66-9b3c-0be918e9af91\\desktop\\discovery-2.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b4c51f69-e28f-4c66-9b3c-0be918e9af91\\desktop\\discovery-3.png",
+          "[discover] False positive: \"Orange circular spin button with play triangle icon\" at 1044,267 — recording as navigation step",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b4c51f69-e28f-4c66-9b3c-0be918e9af91\\desktop\\discovery-4.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b4c51f69-e28f-4c66-9b3c-0be918e9af91\\desktop\\discovery-5.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b4c51f69-e28f-4c66-9b3c-0be918e9af91\\desktop\\discovery-6.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b4c51f69-e28f-4c66-9b3c-0be918e9af91\\desktop\\discovery-7.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b4c51f69-e28f-4c66-9b3c-0be918e9af91\\desktop\\discovery-8.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b4c51f69-e28f-4c66-9b3c-0be918e9af91\\desktop\\discovery-9.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b4c51f69-e28f-4c66-9b3c-0be918e9af91\\desktop\\discovery-10.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b4c51f69-e28f-4c66-9b3c-0be918e9af91\\desktop\\discovery-11.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b4c51f69-e28f-4c66-9b3c-0be918e9af91\\desktop\\discovery-12.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b4c51f69-e28f-4c66-9b3c-0be918e9af91\\desktop\\discovery-13.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b4c51f69-e28f-4c66-9b3c-0be918e9af91\\desktop\\discovery-14.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b4c51f69-e28f-4c66-9b3c-0be918e9af91\\desktop\\discovery-15.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b4c51f69-e28f-4c66-9b3c-0be918e9af91\\desktop\\discovery-16.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b4c51f69-e28f-4c66-9b3c-0be918e9af91\\desktop\\discovery-17.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b4c51f69-e28f-4c66-9b3c-0be918e9af91\\desktop\\discovery-18.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b4c51f69-e28f-4c66-9b3c-0be918e9af91\\desktop\\discovery-19.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b4c51f69-e28f-4c66-9b3c-0be918e9af91\\desktop\\discovery-20.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b4c51f69-e28f-4c66-9b3c-0be918e9af91\\desktop\\discovery-failed.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b4c51f69-e28f-4c66-9b3c-0be918e9af91\\desktop\\failure-1.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b4c51f69-e28f-4c66-9b3c-0be918e9af91\\desktop\\failure-2.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b4c51f69-e28f-4c66-9b3c-0be918e9af91\\desktop\\failure-3.png"
+        ],
+        "steps": [
+          {
+            "title": "Navigate to game",
+            "duration": 1599
+          },
+          {
+            "title": "Discover steps",
+            "duration": 150288,
+            "error": "DiscoveryError: Could not find spin button for Barn Busters (63174) after 20 attempts. See src/server/screenshots/b4c51f69-e28f-4c66-9b3c-0be918e9af91/desktop/discovery-failed.png"
+          },
+          {
+            "title": "Generate GIF",
+            "duration": 4364
+          }
+        ],
+        "annotations": {
+          "playmode": "demo"
+        },
+        "gifUrl": "/api/screenshots/b4c51f69-e28f-4c66-9b3c-0be918e9af91/desktop/animated.gif",
+        "screenshotUrls": [
+          "/api/screenshots/d26fdf17-b0b8-4122-94bf-0838b4337f7e/failure/0-0.png"
+        ]
+      },
+      {
+        "title": "spin: Barn Busters",
+        "project": "mobile",
+        "status": "passed",
+        "duration": 48767,
+        "stdout": [
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b4c51f69-e28f-4c66-9b3c-0be918e9af91\\mobile\\discovery-1.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b4c51f69-e28f-4c66-9b3c-0be918e9af91\\mobile\\discovery-2.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b4c51f69-e28f-4c66-9b3c-0be918e9af91\\mobile\\discovery-3.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b4c51f69-e28f-4c66-9b3c-0be918e9af91\\mobile\\spin-start.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b4c51f69-e28f-4c66-9b3c-0be918e9af91\\mobile\\final-1.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b4c51f69-e28f-4c66-9b3c-0be918e9af91\\mobile\\final-2.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b4c51f69-e28f-4c66-9b3c-0be918e9af91\\mobile\\final-3.png"
+        ],
+        "steps": [
+          {
+            "title": "Navigate to game",
+            "duration": 1548
+          },
+          {
+            "title": "Discover steps",
+            "duration": 30739
+          },
+          {
+            "title": "Spin start: gel.spin.start",
+            "duration": 346
+          },
+          {
+            "title": "Spin end: gel.spin.end",
+            "duration": 2048
+          },
+          {
+            "title": "Generate GIF",
+            "duration": 4285
+          }
+        ],
+        "annotations": {
+          "playmode": "demo",
+          "load-time-ms": "8276",
+          "had-load-progress": "false"
+        },
+        "gifUrl": "/api/screenshots/b4c51f69-e28f-4c66-9b3c-0be918e9af91/mobile/animated.gif"
+      }
+    ],
+    "playwrightErrors": [],
+    "finishedAt": "2026-03-23T13:19:10.640Z",
+    "durationMs": 225254
+  },
+  {
     "runID": "6facc9c7-9a5a-41ce-b8d4-0cb66bb822f9",
     "gameIDs": [
       "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"
@@ -425,176 +606,5 @@
     "playwrightErrors": [],
     "finishedAt": "2026-03-23T11:08:15.461Z",
     "durationMs": 62932
-  },
-  {
-    "runID": "8d93d50a-b53c-4fed-adca-05a5cb38ddd8",
-    "gameIDs": [
-      "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"
-    ],
-    "status": "completed",
-    "startedAt": "2026-03-23T11:03:23.812Z",
-    "results": [
-      {
-        "title": "spin: 9 Masks of Fire",
-        "project": "desktop",
-        "status": "passed",
-        "duration": 45913,
-        "stdout": [
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\step-1.png",
-          "Clicking \"Continue button\" at 640,681",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\step-2.png",
-          "Clicking \"Circular spin button with rotating arrow icon\" at 640,672",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\spin-start.png",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\final-1.png",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\final-2.png",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\final-3.png"
-        ],
-        "steps": [
-          {
-            "title": "Navigate to game",
-            "duration": 670
-          },
-          {
-            "title": "Replay 2 cached step(s)",
-            "duration": 30598
-          },
-          {
-            "title": "Spin start: gel.spin.start",
-            "duration": 367
-          },
-          {
-            "title": "Spin end: gel.spin.end",
-            "duration": 4246
-          },
-          {
-            "title": "Generate GIF",
-            "duration": 4889
-          }
-        ],
-        "annotations": {
-          "playmode": "real",
-          "load-time-ms": "4858",
-          "had-load-progress": "false"
-        },
-        "gifUrl": "/api/screenshots/9d8a0d44-5fcf-4b66-b4a2-80961c8ba986/desktop/animated.gif"
-      }
-    ],
-    "playwrightErrors": [],
-    "finishedAt": "2026-03-23T11:04:22.910Z",
-    "durationMs": 59098
-  },
-  {
-    "runID": "90852cf9-83ee-4276-8782-1ff1797246b2",
-    "gameIDs": [
-      "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"
-    ],
-    "status": "completed",
-    "startedAt": "2026-03-23T11:01:39.363Z",
-    "results": [
-      {
-        "title": "spin: 9 Masks of Fire",
-        "project": "desktop",
-        "status": "passed",
-        "duration": 47520,
-        "stdout": [
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\step-1.png",
-          "Clicking \"Continue button\" at 640,681",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\step-2.png",
-          "Clicking \"Circular spin button with rotating arrow icon\" at 640,672",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\spin-start.png",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\final-1.png",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\final-2.png",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\final-3.png"
-        ],
-        "steps": [
-          {
-            "title": "Navigate to game",
-            "duration": 560
-          },
-          {
-            "title": "Replay 2 cached step(s)",
-            "duration": 31938
-          },
-          {
-            "title": "Spin start: gel.spin.start",
-            "duration": 371
-          },
-          {
-            "title": "Spin end: gel.spin.end",
-            "duration": 3400
-          },
-          {
-            "title": "Generate GIF",
-            "duration": 4875
-          }
-        ],
-        "annotations": {
-          "playmode": "real",
-          "load-time-ms": "6157",
-          "had-load-progress": "false"
-        },
-        "gifUrl": "/api/screenshots/9d8a0d44-5fcf-4b66-b4a2-80961c8ba986/desktop/animated.gif"
-      }
-    ],
-    "playwrightErrors": [],
-    "finishedAt": "2026-03-23T11:03:20.537Z",
-    "durationMs": 101174
-  },
-  {
-    "runID": "6249e7d5-f454-425f-b518-1c565e64cab4",
-    "gameIDs": [
-      "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"
-    ],
-    "status": "completed",
-    "startedAt": "2026-03-23T10:53:50.853Z",
-    "results": [
-      {
-        "title": "spin: 9 Masks of Fire",
-        "project": "desktop",
-        "status": "passed",
-        "duration": 49000,
-        "stdout": [
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\step-1.png",
-          "Clicking \"Continue button\" at 640,681",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\step-2.png",
-          "Clicking \"Circular spin button with rotating arrow icon\" at 640,672",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\spin-start.png",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\final-1.png",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\final-2.png",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\final-3.png"
-        ],
-        "steps": [
-          {
-            "title": "Navigate to game",
-            "duration": 440
-          },
-          {
-            "title": "Replay 2 cached step(s)",
-            "duration": 32404
-          },
-          {
-            "title": "Spin start: gel.spin.start",
-            "duration": 611
-          },
-          {
-            "title": "Spin end: gel.spin.end",
-            "duration": 4378
-          },
-          {
-            "title": "Generate GIF",
-            "duration": 4912
-          }
-        ],
-        "annotations": {
-          "playmode": "real",
-          "load-time-ms": "6049",
-          "had-load-progress": "false"
-        },
-        "gifUrl": "/api/screenshots/9d8a0d44-5fcf-4b66-b4a2-80961c8ba986/desktop/animated.gif"
-      }
-    ],
-    "playwrightErrors": [],
-    "finishedAt": "2026-03-23T10:54:55.149Z",
-    "durationMs": 64296
   }
 ]

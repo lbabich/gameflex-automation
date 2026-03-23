@@ -14,7 +14,7 @@ export function useRecentRuns() {
     },
     staleTime: 0,
     refetchInterval: (query) => {
-      return query.state.data?.some((r) => r.status === 'running') ? 1500 : false;
+      return query.state.data?.some((run) => run.status === 'running') ? 1500 : false;
     },
   });
 }

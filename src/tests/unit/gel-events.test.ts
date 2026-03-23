@@ -78,8 +78,8 @@ describe('waitForGameReady', () => {
 
     // Small delay so Date.now() advances before gel.ready resolves,
     // confirming loadTimeMs is measured rather than hardcoded to zero.
-    await new Promise((r) => {
-      return setTimeout(r, 5);
+    await new Promise((resolve) => {
+      return setTimeout(resolve, 5);
     });
     emit('gel.ready');
 
@@ -114,8 +114,8 @@ describe('waitForGameReady', () => {
     const { page } = makePageStub();
     const SUT = gelEvents;
 
-    const result = await SUT.waitForGameReady(page as never, SHORT_TIMEOUT).catch((e) => {
-      return e;
+    const result = await SUT.waitForGameReady(page as never, SHORT_TIMEOUT).catch((err) => {
+      return err;
     });
 
     expect(result).toBeInstanceOf(SUT.SlowLoadError);

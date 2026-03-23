@@ -107,5 +107,57 @@
         ]
       }
     }
+  },
+  "b4c51f69-e28f-4c66-9b3c-0be918e9af91": {
+    "mobile": {
+      "1280x720": {
+        "discoveredAt": "2026-03-23T13:16:59.378Z",
+        "steps": [
+          {
+            "waitMs": 9262,
+            "x": 638,
+            "y": 636,
+            "label": "Continue button"
+          },
+          {
+            "waitMs": 7969,
+            "x": 640,
+            "y": 360,
+            "label": "BARN game title splash screen"
+          },
+          {
+            "waitMs": 5094,
+            "x": 1207,
+            "y": 371,
+            "label": "Large green circular spin button with rotating arrows"
+          }
+        ]
+      }
+    },
+    "desktop": {
+      "1280x720": {
+        "discoveredAt": "2026-03-23T13:21:34.354Z",
+        "steps": [
+          {
+            "waitMs": 9568,
+            "x": 638,
+            "y": 629,
+            "label": "Continue button"
+          },
+          {
+            "waitMs": 14776,
+            "x": 640,
+            "y": 360,
+            "label": "BARN game title splash screen - click to proceed"
+          },
+          {
+            "waitMs": 5899,
+            "x": 1044,
+            "y": 371,
+            "label": "Circular spin button with rotating arrows"
+          }
+        ]
+      }
+    }
   }
 }

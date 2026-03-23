@@ -30,8 +30,8 @@ describe('addGame', () => {
     });
 
     const result = readGames();
-    const added = result.find((g) => {
-      return g.desktopGameID === desktopGameID;
+    const added = result.find((game) => {
+      return game.desktopGameID === desktopGameID;
     });
 
     expect(added, 'added game should be in games.json').toBeTruthy();
@@ -107,8 +107,8 @@ describe('updateGame', () => {
       mobilePlaymode: 'demo',
     });
 
-    const existing = readGames().find((g) => {
-      return g.desktopGameID === desktopGameID;
+    const existing = readGames().find((game) => {
+      return game.desktopGameID === desktopGameID;
     });
 
     if (!existing) {
@@ -117,8 +117,8 @@ describe('updateGame', () => {
 
     SUT(existing.id, { name: 'Updated Name' });
 
-    const result = readGames().find((g) => {
-      return g.id === existing.id;
+    const result = readGames().find((game) => {
+      return game.id === existing.id;
     });
 
     expect(result?.name).toBe('Updated Name');

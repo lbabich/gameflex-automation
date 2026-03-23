@@ -22,8 +22,10 @@ function attachGifUrls(results: TestResult[]) {
     const gameList = games.readGames();
 
     for (const result of results) {
-      const game = gameList.find((g) => {
-        return result.title === `spin: ${g.name}` || result.title.startsWith(`spin: ${g.name} `);
+      const game = gameList.find((entry) => {
+        return (
+          result.title === `spin: ${entry.name}` || result.title.startsWith(`spin: ${entry.name} `)
+        );
       });
 
       if (game) {
