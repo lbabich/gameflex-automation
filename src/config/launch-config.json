@@ -1,0 +1,11 @@
+{
+  "harnessBaseUrl": "https://s009-gel.test-flex.us/gamelaunch/test/gul",
+  "operatorcode": "IFO",
+  "brandid": "20",
+  "platformkey": "S009",
+  "launchtype": "operator",
+  "loaderType": "host-gul-v2",
+  "casinoId": "S009-IFO-20",
+  "operatorAccountId": "s9ifdg",
+  "regulationsEnabled": false
+}

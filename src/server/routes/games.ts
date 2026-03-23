@@ -9,12 +9,14 @@ const PostBody = Schema.Struct({
   desktopGameID: Schema.String,
   mobileGameID: Schema.optional(Schema.String),
   name: Schema.String,
+  gameProviderID: Schema.String,
 });
 
 const PatchBody = Schema.Struct({
   name: Schema.optional(Schema.String),
   desktopGameID: Schema.optional(Schema.String),
   mobileGameID: Schema.optional(Schema.String),
+  gameProviderID: Schema.optional(Schema.String),
   desktopEnabled: Schema.optional(Schema.Boolean),
   desktopPlaymode: Schema.optional(Schema.Literal('demo', 'real')),
   mobileEnabled: Schema.optional(Schema.Boolean),
@@ -52,6 +54,7 @@ export function makeGamesRouter(runtime: AppRuntime) {
           desktopGameID: body.desktopGameID,
           mobileGameID: body.mobileGameID,
           name: body.name,
+          gameProviderID: body.gameProviderID,
           desktopEnabled: true,
           desktopPlaymode: PLAY_MODE.DEMO,
           mobileEnabled: false,
@@ -62,7 +65,9 @@ export function makeGamesRouter(runtime: AppRuntime) {
       }).pipe(
         Effect.catchTag('ParseError', () => {
           return Effect.sync(() => {
-            res.status(400).json({ error: 'desktopGameID and name are required strings' });
+            res
+              .status(400)
+              .json({ error: 'desktopGameID, name, and gameProviderID are required strings' });
           });
         }),
         Effect.catchTag('DuplicateGameIDError', (err) => {

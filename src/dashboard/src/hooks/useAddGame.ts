@@ -5,6 +5,7 @@ export type NewGame = {
   desktopGameID: string;
   mobileGameID?: string;
   name: string;
+  gameProviderID: string;
 };
 
 export function useAddGame() {

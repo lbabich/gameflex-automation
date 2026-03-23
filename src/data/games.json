@@ -4,10 +4,11 @@
     "name": "9 Masks of Fire",
     "desktopEnabled": false,
     "mobileEnabled": true,
-    "desktopPlaymode": "demo",
-    "mobilePlaymode": "demo",
+    "desktopPlaymode": "real",
+    "mobilePlaymode": "real",
     "desktopGameID": "13724",
-    "mobileGameID": "13725"
+    "mobileGameID": "13725",
+    "gameProviderID": "9"
   },
   {
     "id": "0ebed9bf-627d-45b9-8931-7c98ea53968f",
@@ -16,7 +17,8 @@
     "mobileEnabled": true,
     "desktopPlaymode": "demo",
     "mobilePlaymode": "demo",
-    "desktopGameID": "37737"
+    "desktopGameID": "37737",
+    "gameProviderID": ""
   },
   {
     "id": "6733624c-554e-4081-a92f-4616af3317e5",
@@ -25,7 +27,8 @@
     "mobileEnabled": true,
     "desktopPlaymode": "demo",
     "mobilePlaymode": "demo",
-    "desktopGameID": "30495"
+    "desktopGameID": "30495",
+    "gameProviderID": ""
   },
   {
     "id": "b4c51f69-e28f-4c66-9b3c-0be918e9af91",
@@ -34,7 +37,8 @@
     "mobileEnabled": true,
     "desktopPlaymode": "demo",
     "mobilePlaymode": "demo",
-    "desktopGameID": "63174"
+    "desktopGameID": "63174",
+    "gameProviderID": ""
   },
   {
     "id": "b334f577-df52-401b-b5db-d86559a07b3f",
@@ -43,6 +47,7 @@
     "mobileEnabled": true,
     "desktopPlaymode": "demo",
     "mobilePlaymode": "demo",
-    "desktopGameID": "65445"
+    "desktopGameID": "65445",
+    "gameProviderID": ""
   }
 ]

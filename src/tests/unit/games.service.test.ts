@@ -18,6 +18,7 @@ function makeEntry() {
   return {
     desktopGameID: `test-${crypto.randomUUID()}`,
     name: 'Test Game',
+    gameProviderID: '51',
     desktopEnabled: true as const,
     desktopPlaymode: 'demo' as const,
     mobileEnabled: false as const,

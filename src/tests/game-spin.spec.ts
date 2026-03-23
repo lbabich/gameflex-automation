@@ -11,13 +11,12 @@ import {
   SPIN_START_TIMEOUT_MS,
 } from '../lib/gel-events';
 import * as gifGenerator from '../lib/gif-generator';
-import * as operatorWallet from '../lib/operator-wallet';
+import * as preLaunch from '../lib/pre-launch';
 import * as replay from '../lib/replay';
 import * as screenshot from '../lib/screenshot';
 import * as stepCache from '../lib/step-cache';
 import type { DeviceType } from '../lib/types';
-import { DEVICE_TYPE, PLAY_MODE } from '../lib/types';
-import { buildSingleUrl } from '../server/url-builder';
+import { DEVICE_TYPE } from '../lib/types';
 import { ANNOTATION } from './constants';
 
 export type { GameEntry } from '../lib/games';
@@ -29,12 +28,7 @@ dotenv.config();
 for (const game of GAMES) {
   test(`spin: ${game.name}`, async ({ page }, testInfo: TestInfo) => {
     const isProjectMobile = /mobile/i.test(testInfo.project.name);
-    const channel: DeviceType = isProjectMobile ? DEVICE_TYPE.MOBILE : DEVICE_TYPE.DESKTOP;
-    const gameID =
-      channel === DEVICE_TYPE.MOBILE
-        ? (game.mobileGameID ?? game.desktopGameID)
-        : game.desktopGameID;
-    const deviceType: DeviceType = channel;
+    const deviceType: DeviceType = isProjectMobile ? DEVICE_TYPE.MOBILE : DEVICE_TYPE.DESKTOP;
     const projectDeviceType: DeviceType = isProjectMobile
       ? DEVICE_TYPE.MOBILE
       : DEVICE_TYPE.DESKTOP;
@@ -42,11 +36,6 @@ for (const game of GAMES) {
     const playmode = isProjectMobile ? game.mobilePlaymode : game.desktopPlaymode;
 
     testInfo.annotations.push({ type: ANNOTATION.PLAYMODE, description: playmode });
-
-    const launchUrl =
-      playmode === PLAY_MODE.REAL
-        ? await operatorWallet.getGameLaunchUrl(gameID, channel)
-        : buildSingleUrl(gameID, channel, playmode);
 
     const viewport = page.viewportSize();
 
@@ -70,8 +59,8 @@ for (const game of GAMES) {
       }
     });
 
-    await test.step('Navigate to game', () => {
-      return page.goto(launchUrl);
+    await test.step('Launch game via harness', () => {
+      return preLaunch.launch(page, game, deviceType, playmode);
     });
 
     const cached = stepCache.getSteps(game.id, deviceType, viewport);

@@ -23,6 +23,7 @@ describe('addGame', () => {
     SUT({
       desktopGameID,
       name: 'Test Game',
+      gameProviderID: '51',
       desktopEnabled: true,
       desktopPlaymode: 'demo',
       mobileEnabled: false,
@@ -47,6 +48,7 @@ describe('addGame', () => {
     SUT({
       desktopGameID,
       name: 'Original',
+      gameProviderID: '51',
       desktopEnabled: true,
       desktopPlaymode: 'demo',
       mobileEnabled: false,
@@ -57,6 +59,7 @@ describe('addGame', () => {
       return SUT({
         desktopGameID,
         name: 'Duplicate',
+        gameProviderID: '51',
         desktopEnabled: true,
         desktopPlaymode: 'demo',
         mobileEnabled: false,
@@ -101,6 +104,7 @@ describe('updateGame', () => {
     addGame({
       desktopGameID,
       name: 'Original Name',
+      gameProviderID: '51',
       desktopEnabled: true,
       desktopPlaymode: 'demo',
       mobileEnabled: false,

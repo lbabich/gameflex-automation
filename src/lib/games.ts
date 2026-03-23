@@ -10,6 +10,7 @@ export type GameEntry = {
   desktopGameID: string;
   mobileGameID?: string;
   name: string;
+  gameProviderID: string;
   desktopEnabled: boolean;
   desktopPlaymode: PlayMode;
   mobileEnabled: boolean;
@@ -20,6 +21,7 @@ export type GameUpdates = {
   name?: string;
   desktopGameID?: string;
   mobileGameID?: string;
+  gameProviderID?: string;
   desktopEnabled?: boolean;
   desktopPlaymode?: PlayMode;
   mobileEnabled?: boolean;
@@ -99,6 +101,11 @@ export function readGames() {
       dirty = true;
     }
 
+    if (game.gameProviderID === undefined) {
+      game.gameProviderID = '';
+      dirty = true;
+    }
+
     return game as unknown as GameEntry;
   });
 
@@ -153,6 +160,7 @@ export function updateGame(id: string, updates: GameUpdates) {
     name: updates.name ?? game.name,
     desktopGameID: updates.desktopGameID ?? game.desktopGameID,
     mobileGameID: updates.mobileGameID !== undefined ? updates.mobileGameID : game.mobileGameID,
+    gameProviderID: updates.gameProviderID ?? game.gameProviderID,
     desktopEnabled:
       updates.desktopEnabled !== undefined ? updates.desktopEnabled : game.desktopEnabled,
     desktopPlaymode: updates.desktopPlaymode ?? game.desktopPlaymode,

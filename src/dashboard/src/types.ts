@@ -17,6 +17,7 @@ export type GameEntry = {
   desktopGameID: string;
   mobileGameID?: string;
   name: string;
+  gameProviderID: string;
   url: string;
   mobileUrl?: string;
   desktopCached?: boolean;

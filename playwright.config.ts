@@ -9,6 +9,10 @@ export default defineConfig({
   use: {
     headless: false,
     screenshot: 'only-on-failure',
+    httpCredentials:
+      process.env.BASIC_AUTH_USER && process.env.BASIC_AUTH_PASS
+        ? { username: process.env.BASIC_AUTH_USER, password: process.env.BASIC_AUTH_PASS }
+        : undefined,
   },
   projects: [
     {

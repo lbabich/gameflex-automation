@@ -7,6 +7,7 @@ export type GameUpdates = {
   name?: string;
   desktopGameID?: string;
   mobileGameID?: string;
+  gameProviderID?: string;
   desktopEnabled?: boolean;
   desktopPlaymode?: PlayMode;
   mobileEnabled?: boolean;

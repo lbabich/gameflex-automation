@@ -11,6 +11,7 @@ export function EditGameModal({ game, onClose }: Props) {
   const [name, setName] = useState(game.name);
   const [desktopGameID, setDesktopGameID] = useState(game.desktopGameID);
   const [mobileGameID, setMobileGameID] = useState(game.mobileGameID ?? '');
+  const [gameProviderID, setGameProviderID] = useState(game.gameProviderID);
   const [error, setError] = useState<string | null>(null);
   const { mutate, isPending } = useUpdateGame();
 
@@ -24,6 +25,7 @@ export function EditGameModal({ game, onClose }: Props) {
         name: name.trim(),
         desktopGameID: desktopGameID.trim(),
         mobileGameID: mobileGameID.trim() || undefined,
+        gameProviderID: gameProviderID.trim(),
       },
       {
         onSuccess: () => onClose(),
@@ -72,6 +74,17 @@ export function EditGameModal({ game, onClose }: Props) {
               value={mobileGameID}
               onChange={(e) => setMobileGameID(e.target.value)}
               placeholder="e.g. 13724"
+              className="border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </label>
+
+          <label className="flex flex-col gap-1">
+            <span className="text-sm font-medium text-gray-700">Game Provider ID</span>
+            <input
+              type="text"
+              value={gameProviderID}
+              onChange={(e) => setGameProviderID(e.target.value)}
+              placeholder="e.g. 51"
               className="border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </label>

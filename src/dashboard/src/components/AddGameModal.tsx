@@ -8,6 +8,7 @@ type Props = {
 const DEFAULTS: NewGame = {
   desktopGameID: '',
   name: '',
+  gameProviderID: '',
 };
 
 export function AddGameModal({ onClose }: Props) {
@@ -74,6 +75,18 @@ export function AddGameModal({ onClose }: Props) {
               onChange={(e) => set('name', e.target.value)}
               required
               placeholder="e.g. Book of Dead"
+              className="border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </label>
+
+          <label className="flex flex-col gap-1">
+            <span className="text-sm font-medium text-gray-700">Game Provider ID</span>
+            <input
+              type="text"
+              value={fields.gameProviderID}
+              onChange={(e) => set('gameProviderID', e.target.value)}
+              required
+              placeholder="e.g. 51"
               className="border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </label>
