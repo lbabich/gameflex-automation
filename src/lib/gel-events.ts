@@ -9,9 +9,13 @@ export type GelEventsModule = {
 };
 
 export const GEL_EVENT = {
+  // Optional — absence is recorded as a warning, not a test failure.
   LOAD_PROGRESS: 'gel.load.progress',
+  // Required — absence hard-fails the test via SlowLoadError.
   READY: 'gel.ready',
+  // Required — absence hard-fails the test via Playwright waitForEvent timeout.
   SPIN_START: 'gel.spin.start',
+  // Required — absence hard-fails the test via Playwright waitForEvent timeout.
   SPIN_END: 'gel.spin.end',
 } as const;
 

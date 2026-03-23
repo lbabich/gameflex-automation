@@ -1,5 +1,263 @@
 [
   {
+    "runID": "80b69263-6b05-48a5-9996-15ddfeac4933",
+    "gameIDs": [
+      "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"
+    ],
+    "status": "error",
+    "startedAt": "2026-03-23T11:33:47.838Z",
+    "results": [
+      {
+        "title": "spin: 9 Masks of Fire",
+        "project": "desktop",
+        "status": "failed",
+        "duration": 61909,
+        "error": "TimeoutError: page.waitForEvent: Timeout 15000ms exceeded while waiting for event \"console\"\n=========================== logs ===========================\nwaiting for event \"console\"\n============================================================",
+        "failedStep": "Spin end: gel.spin.end",
+        "stdout": [
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\step-1.png",
+          "Clicking \"Continue button\" at 640,681",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\step-2.png",
+          "Clicking \"Circular spin button with rotating arrow icon\" at 640,672",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\spin-start.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\failure-1.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\failure-2.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\failure-3.png"
+        ],
+        "steps": [
+          {
+            "title": "Navigate to game",
+            "duration": 769
+          },
+          {
+            "title": "Replay 2 cached step(s)",
+            "duration": 30661
+          },
+          {
+            "title": "Spin start: gel.spin.start",
+            "duration": 3207
+          },
+          {
+            "title": "Spin end: gel.spin.end",
+            "duration": 15020,
+            "error": "TimeoutError: page.waitForEvent: Timeout 15000ms exceeded while waiting for event \"console\"\n=========================== logs ===========================\nwaiting for event \"console\"\n============================================================"
+          },
+          {
+            "title": "Generate GIF",
+            "duration": 2793
+          }
+        ],
+        "annotations": {
+          "playmode": "demo",
+          "load-time-ms": "4615",
+          "had-load-progress": "false"
+        },
+        "gifUrl": "/api/screenshots/9d8a0d44-5fcf-4b66-b4a2-80961c8ba986/desktop/animated.gif",
+        "screenshotUrls": [
+          "/api/screenshots/80b69263-6b05-48a5-9996-15ddfeac4933/failure/0-0.png"
+        ]
+      },
+      {
+        "title": "spin: 9 Masks of Fire",
+        "project": "mobile",
+        "status": "passed",
+        "duration": 31624,
+        "stdout": [
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\mobile\\discovery-1.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\mobile\\discovery-2.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\mobile\\spin-start.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\mobile\\final-1.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\mobile\\final-2.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\mobile\\final-3.png"
+        ],
+        "steps": [
+          {
+            "title": "Navigate to game",
+            "duration": 1102
+          },
+          {
+            "title": "Discover steps",
+            "duration": 16724
+          },
+          {
+            "title": "Spin start: gel.spin.start",
+            "duration": 463
+          },
+          {
+            "title": "Spin end: gel.spin.end",
+            "duration": 5032
+          },
+          {
+            "title": "Generate GIF",
+            "duration": 3024
+          }
+        ],
+        "annotations": {
+          "playmode": "demo",
+          "load-time-ms": "5118",
+          "had-load-progress": "false"
+        },
+        "gifUrl": "/api/screenshots/9d8a0d44-5fcf-4b66-b4a2-80961c8ba986/mobile/animated.gif"
+      }
+    ],
+    "playwrightErrors": [],
+    "finishedAt": "2026-03-23T11:35:02.429Z",
+    "durationMs": 74591
+  },
+  {
+    "runID": "868c1522-287f-4e6f-a059-340d754c1e31",
+    "gameIDs": [
+      "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"
+    ],
+    "status": "error",
+    "startedAt": "2026-03-23T11:15:59.684Z",
+    "results": [
+      {
+        "title": "spin: 9 Masks of Fire",
+        "project": "desktop",
+        "status": "failed",
+        "duration": 4056,
+        "error": "Error: page.screenshot: Target page, context or browser has been closed",
+        "failedStep": "Replay 2 cached step(s)",
+        "stdout": [
+          "launchUrl https://s009-gel.test-flex.us/gamelaunch/api/v2.0/game-launchers/gul/v2/load/?casinoid=S009-GSC-152&playmode=real&currencycode=USD&languagecode=en&devicechannel=web&lobbyurl=https%3A%2F%2Fgoogle.com&gameid=13724&channelid=desktop&sessiontoken=23f6b696-94e0-43c1-8ff3-0bebe6e65ecf"
+        ],
+        "steps": [
+          {
+            "title": "Navigate to game",
+            "duration": 769
+          },
+          {
+            "title": "Replay 2 cached step(s)",
+            "duration": 2397,
+            "error": "SlowLoadError: Game did not emit gel.ready within 2394ms"
+          }
+        ],
+        "annotations": {
+          "playmode": "real"
+        },
+        "gifUrl": "/api/screenshots/9d8a0d44-5fcf-4b66-b4a2-80961c8ba986/desktop/animated.gif"
+      }
+    ],
+    "playwrightErrors": [],
+    "finishedAt": "2026-03-23T11:16:14.539Z",
+    "durationMs": 14855
+  },
+  {
+    "runID": "592eab61-0945-4187-815a-2564e8ec8659",
+    "gameIDs": [
+      "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"
+    ],
+    "status": "completed",
+    "startedAt": "2026-03-23T11:10:20.799Z",
+    "results": [
+      {
+        "title": "spin: 9 Masks of Fire",
+        "project": "desktop",
+        "status": "passed",
+        "duration": 45361,
+        "stdout": [
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\step-1.png",
+          "Clicking \"Continue button\" at 640,681",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\step-2.png",
+          "Clicking \"Circular spin button with rotating arrow icon\" at 640,672",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\spin-start.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\final-1.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\final-2.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\final-3.png"
+        ],
+        "steps": [
+          {
+            "title": "Navigate to game",
+            "duration": 682
+          },
+          {
+            "title": "Replay 2 cached step(s)",
+            "duration": 31670
+          },
+          {
+            "title": "Spin start: gel.spin.start",
+            "duration": 332
+          },
+          {
+            "title": "Spin end: gel.spin.end",
+            "duration": 3390
+          },
+          {
+            "title": "Generate GIF",
+            "duration": 4129
+          }
+        ],
+        "annotations": {
+          "playmode": "real",
+          "load-time-ms": "5628",
+          "had-load-progress": "false"
+        },
+        "gifUrl": "/api/screenshots/9d8a0d44-5fcf-4b66-b4a2-80961c8ba986/desktop/animated.gif"
+      }
+    ],
+    "playwrightErrors": [],
+    "finishedAt": "2026-03-23T11:12:06.939Z",
+    "durationMs": 106140
+  },
+  {
+    "runID": "0d31e1a8-3693-4588-8359-f41c4996b244",
+    "gameIDs": [
+      "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"
+    ],
+    "status": "completed",
+    "startedAt": "2026-03-23T11:08:54.320Z",
+    "results": [
+      {
+        "title": "spin: 9 Masks of Fire",
+        "project": "desktop",
+        "status": "passed",
+        "duration": 51887,
+        "stdout": [
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\step-1.png",
+          "Clicking \"Continue button\" at 640,681",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\step-2.png",
+          "Clicking \"Circular spin button with rotating arrow icon\" at 640,672",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\spin-start.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\final-1.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\final-2.png",
+          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\final-3.png"
+        ],
+        "steps": [
+          {
+            "title": "Navigate to game",
+            "duration": 529
+          },
+          {
+            "title": "Replay 2 cached step(s)",
+            "duration": 33651
+          },
+          {
+            "title": "Spin start: gel.spin.start",
+            "duration": 370
+          },
+          {
+            "title": "Spin end: gel.spin.end",
+            "duration": 6501
+          },
+          {
+            "title": "Generate GIF",
+            "duration": 4624
+          }
+        ],
+        "annotations": {
+          "playmode": "real",
+          "load-time-ms": "7412",
+          "had-load-progress": "false"
+        },
+        "gifUrl": "/api/screenshots/9d8a0d44-5fcf-4b66-b4a2-80961c8ba986/desktop/animated.gif"
+      }
+    ],
+    "playwrightErrors": [],
+    "finishedAt": "2026-03-23T11:09:59.605Z",
+    "durationMs": 65285
+  },
+  {
     "runID": "e51c43cb-d71d-4454-8b60-53b3df404bda",
     "gameIDs": [
       "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"
@@ -290,220 +548,5 @@
     "playwrightErrors": [],
     "finishedAt": "2026-03-23T10:48:41.374Z",
     "durationMs": 61469
-  },
-  {
-    "runID": "4eb44e3d-1dc8-4cf9-a3d9-093e84ae3505",
-    "gameIDs": [
-      "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"
-    ],
-    "status": "completed",
-    "startedAt": "2026-03-23T10:46:31.219Z",
-    "results": [
-      {
-        "title": "spin: 9 Masks of Fire",
-        "project": "desktop",
-        "status": "passed",
-        "duration": 47964,
-        "stdout": [
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\discovery-1.png",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\discovery-2.png",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\spin-start.png",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\final-1.png",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\final-2.png",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\final-3.png"
-        ],
-        "steps": [
-          {
-            "title": "Navigate to game",
-            "duration": 453
-          },
-          {
-            "title": "Discover steps",
-            "duration": 31280
-          },
-          {
-            "title": "Spin start: gel.spin.start",
-            "duration": 337
-          },
-          {
-            "title": "Spin end: gel.spin.end",
-            "duration": 3726
-          },
-          {
-            "title": "Generate GIF",
-            "duration": 5364
-          }
-        ],
-        "gifUrl": "/api/screenshots/9d8a0d44-5fcf-4b66-b4a2-80961c8ba986/desktop/animated.gif"
-      }
-    ],
-    "playwrightErrors": [],
-    "finishedAt": "2026-03-23T10:47:31.341Z",
-    "durationMs": 60122
-  },
-  {
-    "runID": "cfa2a672-dff8-423b-8eff-4c3d03b6e1c0",
-    "gameIDs": [
-      "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"
-    ],
-    "status": "error",
-    "startedAt": "2026-03-23T10:43:50.852Z",
-    "results": [
-      {
-        "title": "spin: 9 Masks of Fire",
-        "project": "desktop",
-        "status": "failed",
-        "duration": 54766,
-        "error": "TimeoutError: page.waitForEvent: Timeout 15000ms exceeded while waiting for event \"console\"\n=========================== logs ===========================\nwaiting for event \"console\"\n============================================================",
-        "failedStep": "Spin end: gel.spin.end",
-        "stdout": [
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\discovery-1.png",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\discovery-2.png",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\spin-start.png",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\failure-1.png",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\failure-2.png",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\failure-3.png"
-        ],
-        "steps": [
-          {
-            "title": "Navigate to game",
-            "duration": 791
-          },
-          {
-            "title": "Discover steps",
-            "duration": 23476
-          },
-          {
-            "title": "Spin start: gel.spin.start",
-            "duration": 362
-          },
-          {
-            "title": "Spin end: gel.spin.end",
-            "duration": 15011,
-            "error": "TimeoutError: page.waitForEvent: Timeout 15000ms exceeded while waiting for event \"console\"\n=========================== logs ===========================\nwaiting for event \"console\"\n============================================================"
-          },
-          {
-            "title": "Generate GIF",
-            "duration": 4470
-          }
-        ],
-        "gifUrl": "/api/screenshots/9d8a0d44-5fcf-4b66-b4a2-80961c8ba986/desktop/animated.gif",
-        "screenshotUrls": [
-          "/api/screenshots/cfa2a672-dff8-423b-8eff-4c3d03b6e1c0/failure/0-0.png"
-        ]
-      }
-    ],
-    "playwrightErrors": [],
-    "finishedAt": "2026-03-23T10:45:40.245Z",
-    "durationMs": 109393
-  },
-  {
-    "runID": "485a1741-bffa-45b6-bb03-4193ed46dea9",
-    "gameIDs": [
-      "b334f577-df52-401b-b5db-d86559a07b3f"
-    ],
-    "status": "completed",
-    "startedAt": "2026-03-20T16:26:04.109Z",
-    "results": [
-      {
-        "title": "spin: Eternal Link Princess Empire",
-        "project": "desktop",
-        "status": "passed",
-        "duration": 103651,
-        "stdout": [
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b334f577-df52-401b-b5db-d86559a07b3f\\desktop\\discovery-1.png",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b334f577-df52-401b-b5db-d86559a07b3f\\desktop\\discovery-2.png",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b334f577-df52-401b-b5db-d86559a07b3f\\desktop\\discovery-3.png",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b334f577-df52-401b-b5db-d86559a07b3f\\desktop\\discovery-4.png",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b334f577-df52-401b-b5db-d86559a07b3f\\desktop\\discovery-5.png",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b334f577-df52-401b-b5db-d86559a07b3f\\desktop\\discovery-6.png",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b334f577-df52-401b-b5db-d86559a07b3f\\desktop\\discovery-7.png",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b334f577-df52-401b-b5db-d86559a07b3f\\desktop\\discovery-8.png",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b334f577-df52-401b-b5db-d86559a07b3f\\desktop\\discovery-9.png",
-          "[discover] False positive: \"Play/spin button with triangle icon\" at 1165,375 — recording as navigation step",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b334f577-df52-401b-b5db-d86559a07b3f\\desktop\\discovery-10.png",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b334f577-df52-401b-b5db-d86559a07b3f\\desktop\\spin-start.png",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b334f577-df52-401b-b5db-d86559a07b3f\\desktop\\final-1.png",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b334f577-df52-401b-b5db-d86559a07b3f\\desktop\\final-2.png",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\b334f577-df52-401b-b5db-d86559a07b3f\\desktop\\final-3.png"
-        ],
-        "steps": [
-          {
-            "title": "Navigate to game",
-            "duration": 608
-          },
-          {
-            "title": "Discover steps",
-            "duration": 87874
-          },
-          {
-            "title": "Spin start: gel.spin.start",
-            "duration": 332
-          },
-          {
-            "title": "Spin end: gel.spin.end",
-            "duration": 4781
-          },
-          {
-            "title": "Generate GIF",
-            "duration": 5482
-          }
-        ],
-        "gifUrl": "/api/screenshots/b334f577-df52-401b-b5db-d86559a07b3f/desktop/animated.gif"
-      }
-    ],
-    "playwrightErrors": [],
-    "finishedAt": "2026-03-20T16:27:57.700Z",
-    "durationMs": 113591
-  },
-  {
-    "runID": "fb831da1-5b2a-4ae5-b383-f704381f47f6",
-    "gameIDs": [
-      "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"
-    ],
-    "status": "completed",
-    "startedAt": "2026-03-20T16:25:04.467Z",
-    "results": [
-      {
-        "title": "spin: 9 Masks of Fire",
-        "project": "desktop",
-        "status": "passed",
-        "duration": 32844,
-        "stdout": [
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\discovery-1.png",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\discovery-2.png",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\spin-start.png",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\final-1.png",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\final-2.png",
-          "Screenshot saved: C:\\dev\\gameflex\\gameflex-automation\\src\\server\\screenshots\\9d8a0d44-5fcf-4b66-b4a2-80961c8ba986\\desktop\\final-3.png"
-        ],
-        "steps": [
-          {
-            "title": "Navigate to game",
-            "duration": 1285
-          },
-          {
-            "title": "Discover steps",
-            "duration": 20043
-          },
-          {
-            "title": "Spin start: gel.spin.start",
-            "duration": 716
-          },
-          {
-            "title": "Spin end: gel.spin.end",
-            "duration": 1898
-          },
-          {
-            "title": "Generate GIF",
-            "duration": 3052
-          }
-        ],
-        "gifUrl": "/api/screenshots/9d8a0d44-5fcf-4b66-b4a2-80961c8ba986/desktop/animated.gif"
-      }
-    ],
-    "playwrightErrors": [],
-    "finishedAt": "2026-03-20T16:25:46.046Z",
-    "durationMs": 41579
   }
 ]

@@ -4,8 +4,8 @@
     "name": "9 Masks of Fire",
     "desktopEnabled": false,
     "mobileEnabled": true,
-    "desktopPlaymode": "real",
-    "mobilePlaymode": "real",
+    "desktopPlaymode": "demo",
+    "mobilePlaymode": "demo",
     "desktopGameID": "13724",
     "mobileGameID": "13725"
   },

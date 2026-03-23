@@ -27,6 +27,37 @@ type DeviceCardProps = {
   onReset: () => void;
 };
 
+function PlaymodeToggle({
+  playmode,
+  onChange,
+}: {
+  playmode: PlayMode;
+  onChange: (mode: PlayMode) => void;
+}) {
+  const isReal = playmode === 'real';
+
+  return (
+    <div
+      className="relative inline-flex h-6 rounded-full bg-gray-200 overflow-hidden cursor-pointer select-none"
+      onClick={() => onChange(isReal ? 'demo' : 'real')}
+    >
+      <div
+        className={`absolute inset-y-0 left-0 w-1/2 bg-blue-600 transition-transform duration-200 ease-in-out ${isReal ? 'translate-x-full' : ''}`}
+      />
+      <span
+        className={`relative z-10 w-14 flex items-center justify-center text-xs font-semibold transition-colors ${!isReal ? 'text-white' : 'text-gray-500'}`}
+      >
+        Demo
+      </span>
+      <span
+        className={`relative z-10 w-14 flex items-center justify-center text-xs font-semibold transition-colors ${isReal ? 'text-white' : 'text-gray-500'}`}
+      >
+        Real
+      </span>
+    </div>
+  );
+}
+
 function DeviceCard({
   label,
   playmode,
@@ -66,6 +97,7 @@ function DeviceCard({
           )}
         </div>
         <div className="flex items-center gap-2">
+          <PlaymodeToggle playmode={playmode} onChange={onTogglePlaymode} />
           <button
             type="button"
             onClick={onReset}
@@ -74,32 +106,16 @@ function DeviceCard({
           >
             Reset
           </button>
-          <button
-            type="button"
-            onClick={onLaunch}
-            disabled={isRunning || launchPending}
-            className="px-3 py-1 rounded text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors disabled:opacity-50"
-          >
-            Launch
-          </button>
         </div>
       </div>
-      <div className="flex gap-2">
-        {(['demo', 'real'] as const).map((m) => (
-          <button
-            key={m}
-            type="button"
-            onClick={() => onTogglePlaymode(m)}
-            className={`flex-1 py-1 rounded text-xs border capitalize transition-colors ${
-              playmode === m
-                ? 'bg-blue-600 text-white border-blue-600'
-                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-            }`}
-          >
-            {m}
-          </button>
-        ))}
-      </div>
+      <button
+        type="button"
+        onClick={onLaunch}
+        disabled={isRunning || launchPending}
+        className="w-full py-1.5 rounded text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors disabled:opacity-50"
+      >
+        Launch
+      </button>
     </div>
   );
 }

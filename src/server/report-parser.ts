@@ -1,6 +1,6 @@
 import { Effect } from 'effect';
 import { ParseError } from './errors';
-import type { TestResult, TestStep } from './services/runner';
+import type { TestResult, TestStep } from './services/runner/types';
 
 type StepNode = {
   title?: string;

@@ -196,10 +196,10 @@ export function ResultsPanel({ run, isLoading }: Props) {
                                   className={
                                     result.annotations['had-load-progress'] === 'true'
                                       ? 'text-green-600'
-                                      : 'text-red-500'
+                                      : 'text-amber-500'
                                   }
                                 >
-                                  {result.annotations['had-load-progress'] === 'true' ? '✓' : '✗'}
+                                  {result.annotations['had-load-progress'] === 'true' ? '✓' : '⚠'}
                                 </span>
                                 <span className="flex-1 text-gray-700">gel.load.progress</span>
                               </div>
