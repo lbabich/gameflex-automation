@@ -1,13 +1,5 @@
 import type { Page } from '@playwright/test';
 
-export type GelEventsModule = {
-  GEL_EVENT: typeof GEL_EVENT;
-  GEL_READY_TIMEOUT_MS: typeof GEL_READY_TIMEOUT_MS;
-  GameReadyResult: GameReadyResult;
-  SlowLoadError: typeof SlowLoadError;
-  waitForGameReady: typeof waitForGameReady;
-};
-
 export const GEL_EVENT = {
   // Optional — absence is recorded as a warning, not a test failure.
   LOAD_PROGRESS: 'gel.load.progress',
@@ -29,14 +21,7 @@ export type GameReadyResult = {
   hadLoadProgress: boolean;
 };
 
-export class SlowLoadError extends Error {
-  constructor(elapsedMs: number) {
-    super(`Game did not emit gel.ready within ${elapsedMs}ms`);
-    this.name = 'SlowLoadError';
-  }
-}
-
-export async function waitForGameReady(
+async function waitForGameReady(
   page: Page,
   timeout = GEL_READY_TIMEOUT_MS,
 ): Promise<GameReadyResult> {
@@ -70,3 +55,12 @@ export async function waitForGameReady(
     page.off('console', onLoadProgress);
   }
 }
+
+class SlowLoadError extends Error {
+  constructor(elapsedMs: number) {
+    super(`Game did not emit gel.ready within ${elapsedMs}ms`);
+    this.name = 'SlowLoadError';
+  }
+}
+
+export { SlowLoadError, waitForGameReady };

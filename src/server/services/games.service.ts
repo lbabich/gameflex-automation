@@ -4,7 +4,7 @@ import * as stepCache from '../../lib/step-cache';
 import type * as libTypes from '../../lib/types';
 import { DuplicateGameIDError, GameNotFoundError } from '../errors';
 
-export class GamesService extends Effect.Tag('GamesService')<
+class GamesService extends Effect.Tag('GamesService')<
   GamesService,
   {
     list: () => Effect.Effect<games.GameEntry[]>;
@@ -63,3 +63,5 @@ export const NodeGamesService = Layer.succeed(GamesService, {
     });
   },
 });
+
+export { GamesService };

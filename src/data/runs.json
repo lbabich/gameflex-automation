@@ -1,5 +1,59 @@
 [
   {
+    "runID": "57df45aa-889b-499a-a5c3-5c54bfbc7103",
+    "gameIDs": [
+      "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"
+    ],
+    "status": "error",
+    "startedAt": "2026-03-24T10:55:45.083Z",
+    "results": [
+      {
+        "title": "spin: 9 Masks of Fire",
+        "project": "mobile",
+        "status": "failed",
+        "duration": 48710,
+        "error": "TimeoutError: page.waitForEvent: Timeout 15000ms exceeded while waiting for event \"console\"\n=========================== logs ===========================\nwaiting for event \"console\"\n============================================================",
+        "failedStep": "Spin end: gel.spin.end",
+        "stdout": [],
+        "steps": [
+          {
+            "title": "Launch game via harness",
+            "duration": 5557
+          },
+          {
+            "title": "Discover steps",
+            "duration": 17819
+          },
+          {
+            "title": "Spin start: gel.spin.start",
+            "duration": 307
+          },
+          {
+            "title": "Spin end: gel.spin.end",
+            "duration": 15011,
+            "error": "TimeoutError: page.waitForEvent: Timeout 15000ms exceeded while waiting for event \"console\"\n=========================== logs ===========================\nwaiting for event \"console\"\n============================================================"
+          },
+          {
+            "title": "Generate GIF",
+            "duration": 2551
+          }
+        ],
+        "annotations": {
+          "playmode": "real",
+          "load-time-ms": "6835",
+          "had-load-progress": "false"
+        },
+        "gifUrl": "/api/screenshots/9d8a0d44-5fcf-4b66-b4a2-80961c8ba986/mobile/animated.gif",
+        "screenshotUrls": [
+          "/api/screenshots/57df45aa-889b-499a-a5c3-5c54bfbc7103/failure/0-0.png"
+        ]
+      }
+    ],
+    "playwrightErrors": [],
+    "finishedAt": "2026-03-24T10:57:30.066Z",
+    "durationMs": 104983
+  },
+  {
     "runID": "e7e83c3f-f59f-40bf-83c5-67f466cd4d88",
     "gameIDs": [
       "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"
@@ -545,44 +599,5 @@
     "playwrightErrors": [],
     "finishedAt": "2026-03-23T11:35:02.429Z",
     "durationMs": 74591
-  },
-  {
-    "runID": "868c1522-287f-4e6f-a059-340d754c1e31",
-    "gameIDs": [
-      "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"
-    ],
-    "status": "error",
-    "startedAt": "2026-03-23T11:15:59.684Z",
-    "results": [
-      {
-        "title": "spin: 9 Masks of Fire",
-        "project": "desktop",
-        "status": "failed",
-        "duration": 4056,
-        "error": "Error: page.screenshot: Target page, context or browser has been closed",
-        "failedStep": "Replay 2 cached step(s)",
-        "stdout": [
-          "launchUrl https://s009-gel.test-flex.us/gamelaunch/api/v2.0/game-launchers/gul/v2/load/?casinoid=S009-GSC-152&playmode=real&currencycode=USD&languagecode=en&devicechannel=web&lobbyurl=https%3A%2F%2Fgoogle.com&gameid=13724&channelid=desktop&sessiontoken=23f6b696-94e0-43c1-8ff3-0bebe6e65ecf"
-        ],
-        "steps": [
-          {
-            "title": "Navigate to game",
-            "duration": 769
-          },
-          {
-            "title": "Replay 2 cached step(s)",
-            "duration": 2397,
-            "error": "SlowLoadError: Game did not emit gel.ready within 2394ms"
-          }
-        ],
-        "annotations": {
-          "playmode": "real"
-        },
-        "gifUrl": "/api/screenshots/9d8a0d44-5fcf-4b66-b4a2-80961c8ba986/desktop/animated.gif"
-      }
-    ],
-    "playwrightErrors": [],
-    "finishedAt": "2026-03-23T11:16:14.539Z",
-    "durationMs": 14855
   }
 ]

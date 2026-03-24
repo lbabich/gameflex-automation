@@ -8,7 +8,7 @@ const PostBody = Schema.Struct({
   projects: Schema.optional(Schema.Array(Schema.String)),
 });
 
-export function makeRunsRouter(runtime: AppRuntime): Router {
+function makeRunsRouter(runtime: AppRuntime): Router {
   const router = Router();
 
   router.post('/', (req, res) => {
@@ -95,3 +95,5 @@ export function makeRunsRouter(runtime: AppRuntime): Router {
 
   return router;
 }
+
+export { makeRunsRouter };

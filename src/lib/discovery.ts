@@ -9,32 +9,10 @@ const DISCOVERY_MAX_ATTEMPTS = 20;
 
 export type Game = { id: string; desktopGameID: string; name: string };
 
-export class DiscoveryError extends Error {
-  constructor(
-    message: string,
-    readonly partialSteps: CachedStep[],
-  ) {
-    super(message);
-    this.name = 'DiscoveryError';
-  }
-}
-
-function isSpinStart(msg: ConsoleMessage) {
-  return msg.text().includes(gelEvents.GEL_EVENT.SPIN_START);
-}
-
-async function waitForSpinStart(page: Page): Promise<boolean> {
-  try {
-    await page.waitForEvent('console', {
-      predicate: isSpinStart,
-      timeout: gelEvents.SPIN_START_TIMEOUT_MS,
-    });
-
-    return true;
-  } catch {
-    return false;
-  }
-}
+export type DiscoverResult = {
+  steps: CachedStep[];
+  gameReady: gelEvents.GameReadyResult;
+};
 
 /**
  * Attempts up to 20 times to locate and click the spin button via Claude Vision,
@@ -46,12 +24,7 @@ async function waitForSpinStart(page: Page): Promise<boolean> {
  * @throws {DiscoveryError} when the spin button is not found after all attempts;
  *   `err.partialSteps` contains any navigation steps recorded before failure.
  */
-export type DiscoverResult = {
-  steps: CachedStep[];
-  gameReady: gelEvents.GameReadyResult;
-};
-
-export async function discoverSteps(
+async function discoverSteps(
   page: Page,
   game: Game,
   viewport: Viewport,
@@ -123,3 +96,32 @@ export async function discoverSteps(
     preSpinSteps,
   );
 }
+
+async function waitForSpinStart(page: Page): Promise<boolean> {
+  try {
+    await page.waitForEvent('console', {
+      predicate: isSpinStart,
+      timeout: gelEvents.SPIN_START_TIMEOUT_MS,
+    });
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function isSpinStart(msg: ConsoleMessage) {
+  return msg.text().includes(gelEvents.GEL_EVENT.SPIN_START);
+}
+
+class DiscoveryError extends Error {
+  constructor(
+    message: string,
+    readonly partialSteps: CachedStep[],
+  ) {
+    super(message);
+    this.name = 'DiscoveryError';
+  }
+}
+
+export { DiscoveryError, discoverSteps };

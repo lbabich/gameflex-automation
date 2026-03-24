@@ -1,4 +1,4 @@
-export function buildPlaywrightCommand(names: string[], projects?: string[]) {
+function buildPlaywrightCommand(names: string[], projects?: string[]) {
   const grepPattern = names
     .map((name) => {
       return `spin: ${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`;
@@ -17,3 +17,5 @@ export function buildPlaywrightCommand(names: string[], projects?: string[]) {
 
   return `npx playwright test --reporter=json --grep ${quotedPattern}${projectFlags ? ` ${projectFlags}` : ''}`;
 }
+
+export { buildPlaywrightCommand };

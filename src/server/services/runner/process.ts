@@ -1,7 +1,7 @@
 import { execSync, spawn } from 'node:child_process';
 import { Effect } from 'effect';
 
-export function spawnProcess(cmd: string) {
+function spawnProcess(cmd: string) {
   return Effect.async<{ code: number; stdout: string }, never>((resume) => {
     const chunks: Buffer[] = [];
     let stderrBuf = '';
@@ -56,3 +56,5 @@ export function spawnProcess(cmd: string) {
     });
   });
 }
+
+export { spawnProcess };

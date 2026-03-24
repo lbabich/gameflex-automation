@@ -5,6 +5,25 @@ import type { CachedStep, DeviceType } from './types';
 
 export type GameRef = { id: string };
 
+async function replaySteps(
+  page: Page,
+  game: GameRef,
+  steps: CachedStep[],
+  deviceType: DeviceType,
+): Promise<gelEvents.GameReadyResult> {
+  const gameReady = await gelEvents.waitForGameReady(page);
+
+  for (let i = 0; i < steps.length; i++) {
+    await page.waitForTimeout(Math.max(steps[i].waitMs, 1_000));
+    await injectClickMarker(page, steps[i].x, steps[i].y);
+    await screenshot.snap(page, `${game.id}/${deviceType}/step-${i + 1}.png`);
+    console.log(`Clicking "${steps[i].label}" at ${steps[i].x},${steps[i].y}`);
+    await page.mouse.click(steps[i].x, steps[i].y);
+  }
+
+  return gameReady;
+}
+
 async function injectClickMarker(page: Page, x: number, y: number) {
   await page.evaluate(
     ({ x, y }) => {
@@ -24,21 +43,4 @@ async function injectClickMarker(page: Page, x: number, y: number) {
   );
 }
 
-export async function replaySteps(
-  page: Page,
-  game: GameRef,
-  steps: CachedStep[],
-  deviceType: DeviceType,
-): Promise<gelEvents.GameReadyResult> {
-  const gameReady = await gelEvents.waitForGameReady(page);
-
-  for (let i = 0; i < steps.length; i++) {
-    await page.waitForTimeout(Math.max(steps[i].waitMs, 1_000));
-    await injectClickMarker(page, steps[i].x, steps[i].y);
-    await screenshot.snap(page, `${game.id}/${deviceType}/step-${i + 1}.png`);
-    console.log(`Clicking "${steps[i].label}" at ${steps[i].x},${steps[i].y}`);
-    await page.mouse.click(steps[i].x, steps[i].y);
-  }
-
-  return gameReady;
-}
+export { replaySteps };

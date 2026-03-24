@@ -1,5 +1,6 @@
 import { useClearSteps } from '../hooks/useClearSteps';
-import type { GameEntry } from '../types';
+import { useUpdateGame } from '../hooks/useUpdateGame';
+import type { GameEntry, PlayMode } from '../types';
 
 type Props = {
   game: GameEntry;
@@ -8,8 +9,40 @@ type Props = {
   onRunComplete: (runID: string) => void;
 };
 
+function PlaymodeToggle({
+  playmode,
+  onChange,
+}: {
+  playmode: PlayMode;
+  onChange: (mode: PlayMode) => void;
+}) {
+  const isReal = playmode === 'real';
+
+  return (
+    <div
+      className="relative inline-flex h-7 rounded-full bg-gray-200 overflow-hidden cursor-pointer select-none"
+      onClick={() => onChange(isReal ? 'demo' : 'real')}
+    >
+      <div
+        className={`absolute inset-y-0 left-0 w-1/2 bg-blue-600 transition-transform duration-200 ease-in-out ${isReal ? 'translate-x-full' : ''}`}
+      />
+      <span
+        className={`relative z-10 w-14 flex items-center justify-center text-xs font-semibold transition-colors ${!isReal ? 'text-white' : 'text-gray-500'}`}
+      >
+        Demo
+      </span>
+      <span
+        className={`relative z-10 w-14 flex items-center justify-center text-xs font-semibold transition-colors ${isReal ? 'text-white' : 'text-gray-500'}`}
+      >
+        Real
+      </span>
+    </div>
+  );
+}
+
 export function GameActionBar({ game, isRunning, runID, onRunComplete }: Props) {
   const clearSteps = useClearSteps();
+  const { mutate: updateGame } = useUpdateGame();
 
   async function handleRun() {
     if (isRunning) return;
@@ -45,10 +78,15 @@ export function GameActionBar({ game, isRunning, runID, onRunComplete }: Props) 
     clearSteps.mutate(game.id);
   }
 
+  function handleTogglePlaymode(mode: PlayMode) {
+    updateGame({ id: game.id, desktopPlaymode: mode, mobilePlaymode: mode });
+  }
+
   return (
     <div className="flex items-center justify-between px-4 py-3 bg-white border rounded mb-4">
       <span className="font-semibold text-gray-800">{game.name}</span>
-      <div className="flex gap-2">
+      <div className="flex gap-2 items-center">
+        <PlaymodeToggle playmode={game.desktopPlaymode} onChange={handleTogglePlaymode} />
         {isRunning ? (
           <button
             type="button"

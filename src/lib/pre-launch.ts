@@ -5,15 +5,6 @@ import type { GameEntry } from './games';
 import type { DeviceType, PlayMode } from './types';
 import { DEVICE_TYPE, PLAY_MODE } from './types';
 
-export type PreLaunchModule = {
-  launch: (
-    page: Page,
-    game: GameEntry,
-    deviceType: DeviceType,
-    playMode: PlayMode,
-  ) => Promise<void>;
-};
-
 type LaunchConfig = {
   harnessBaseUrl: string;
   operatorcode: string;
@@ -26,13 +17,7 @@ type LaunchConfig = {
   regulationsEnabled: boolean;
 };
 
-function loadConfig(): LaunchConfig {
-  const configPath = path.resolve('src', 'config', 'launch-config.json');
-
-  return JSON.parse(fs.readFileSync(configPath, 'utf8')) as LaunchConfig;
-}
-
-export async function launch(
+async function launch(
   page: Page,
   game: GameEntry,
   deviceType: DeviceType,
@@ -89,3 +74,11 @@ export async function launch(
 
   await page.getByRole('button', { name: buttonText }).first().click();
 }
+
+function loadConfig(): LaunchConfig {
+  const configPath = path.resolve('src', 'config', 'launch-config.json');
+
+  return JSON.parse(fs.readFileSync(configPath, 'utf8')) as LaunchConfig;
+}
+
+export { launch };

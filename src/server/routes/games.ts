@@ -23,7 +23,7 @@ const PatchBody = Schema.Struct({
   mobilePlaymode: Schema.optional(Schema.Literal('demo', 'real')),
 });
 
-export function makeGamesRouter(runtime: AppRuntime) {
+function makeGamesRouter(runtime: AppRuntime) {
   const router = Router();
 
   router.get('/', (_req, res) => {
@@ -140,3 +140,5 @@ export function makeGamesRouter(runtime: AppRuntime) {
 
   return router;
 }
+
+export { makeGamesRouter };

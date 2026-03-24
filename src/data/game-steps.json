@@ -90,16 +90,16 @@
     },
     "mobile": {
       "1280x720": {
-        "discoveredAt": "2026-03-23T14:38:47.543Z",
+        "discoveredAt": "2026-03-24T10:57:04.158Z",
         "steps": [
           {
-            "waitMs": 8099,
+            "waitMs": 5822,
             "x": 664,
             "y": 687,
             "label": "Continue button"
           },
           {
-            "waitMs": 6229,
+            "waitMs": 5038,
             "x": 664,
             "y": 687,
             "label": "Circular spin button with rotating arrows"

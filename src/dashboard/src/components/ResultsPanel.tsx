@@ -125,7 +125,11 @@ export function ResultsPanel({ run, isLoading }: Props) {
         <tbody>
           {run.results.length > 0
             ? run.results.map((result, i) => {
-                const hasDetails = result.stdout.length > 0 || !!result.gifUrl || (result.steps?.length ?? 0) > 0;
+                const hasDetails =
+                  result.stdout.some((line) => !line.startsWith('Screenshot saved:')) ||
+                  !!result.gifUrl ||
+                  (result.steps?.length ?? 0) > 0 ||
+                  !!result.annotations;
                 return (
                 <Fragment key={i}>
                   <tr
@@ -165,70 +169,75 @@ export function ResultsPanel({ run, isLoading }: Props) {
                   {expandedRows.has(i) && (
                     <tr className="border-b bg-gray-50">
                       <td colSpan={4} className="px-6 py-3">
-                        {result.gifUrl && (
-                          <img
-                            src={`${API_BASE}${result.gifUrl}`}
-                            alt="Test replay"
-                            className="rounded mb-3 max-w-full"
-                            style={{ maxHeight: '240px' }}
-                          />
-                        )}
-                        {result.screenshotUrls && result.screenshotUrls.length > 0 && (
-                          <div className="flex flex-col gap-1 mb-3">
-                            {result.screenshotUrls.map((url, si) => (
-                              <a
-                                key={si}
-                                href={`${API_BASE}${url}`}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="text-xs text-blue-600 underline hover:text-blue-800"
-                              >
-                                Failure screenshot {si + 1}
+                        {(result.gifUrl || (result.screenshotUrls && result.screenshotUrls.length > 0)) && (
+                          <div className="flex gap-3 mb-3 flex-wrap">
+                            {result.gifUrl && (
+                              <img
+                                src={`${API_BASE}${result.gifUrl}`}
+                                alt="Test replay"
+                                className="rounded"
+                                style={{ maxHeight: '240px' }}
+                              />
+                            )}
+                            {result.screenshotUrls?.map((url, si) => (
+                              <a key={si} href={`${API_BASE}${url}`} target="_blank" rel="noreferrer">
+                                <img
+                                  src={`${API_BASE}${url}`}
+                                  alt={`Failure screenshot ${si + 1}`}
+                                  className="rounded border border-red-200"
+                                  style={{ maxHeight: '240px' }}
+                                />
                               </a>
                             ))}
                           </div>
                         )}
                         {(result.steps?.length || result.annotations) && (
-                          <div className="flex flex-col gap-1 mb-3">
+                          <div className="rounded border border-gray-200 overflow-hidden mb-3">
+                            <div className="text-xs font-medium text-gray-500 bg-gray-50 px-3 py-1.5 border-b border-gray-200">
+                              Steps
+                            </div>
                             {result.annotations?.['had-load-progress'] !== undefined && (
-                              <div className="flex items-center gap-2 text-xs font-mono">
+                              <div
+                                className={`flex items-center gap-3 px-3 py-2 border-b border-gray-100 ${result.annotations['had-load-progress'] === 'true' ? 'bg-white' : 'bg-amber-50'}`}
+                              >
                                 <span
-                                  className={
-                                    result.annotations['had-load-progress'] === 'true'
-                                      ? 'text-green-600'
-                                      : 'text-amber-500'
-                                  }
+                                  className={`text-sm leading-none ${result.annotations['had-load-progress'] === 'true' ? 'text-green-500' : 'text-amber-500'}`}
                                 >
                                   {result.annotations['had-load-progress'] === 'true' ? '✓' : '⚠'}
                                 </span>
-                                <span className="flex-1 text-gray-700">gel.load.progress</span>
+                                <span className="flex-1 text-xs text-gray-700">gel.load.progress</span>
                               </div>
                             )}
                             {result.annotations?.['load-time-ms'] !== undefined && (
-                              <div className="flex items-center gap-2 text-xs font-mono">
-                                <span className="text-green-600">✓</span>
-                                <span className="flex-1 text-gray-700">gel.ready</span>
-                                <span className="text-gray-400">
+                              <div className="flex items-center gap-3 px-3 py-2 border-b border-gray-100 bg-white">
+                                <span className="text-sm leading-none text-green-500">✓</span>
+                                <span className="flex-1 text-xs text-gray-700">gel.ready</span>
+                                <span className="text-xs text-gray-400">
                                   {result.annotations['load-time-ms']}ms
                                 </span>
                               </div>
                             )}
                             {result.steps?.map((step, si) => (
-                              <div key={si} className="flex items-center gap-2 text-xs font-mono">
-                                <span className={step.error ? 'text-red-500' : 'text-green-600'}>
+                              <div
+                                key={si}
+                                className={`flex items-center gap-3 px-3 py-2 border-b last:border-b-0 border-gray-100 ${step.error ? 'bg-red-50' : 'bg-white'}`}
+                              >
+                                <span
+                                  className={`text-sm leading-none ${step.error ? 'text-red-500' : 'text-green-500'}`}
+                                >
                                   {step.error ? '✗' : '✓'}
                                 </span>
-                                <span className="flex-1 text-gray-700">{step.title}</span>
-                                <span className="text-gray-400">
+                                <span className="flex-1 text-xs text-gray-700">{step.title}</span>
+                                <span className="text-xs text-gray-400">
                                   {(step.duration / 1000).toFixed(1)}s
                                 </span>
                               </div>
                             ))}
                           </div>
                         )}
-                        {result.stdout.length > 0 && (
+                        {result.stdout.filter((line) => !line.startsWith('Screenshot saved:')).length > 0 && (
                           <pre className="text-xs text-gray-600 font-mono whitespace-pre-wrap leading-relaxed">
-                            {result.stdout.join('\n')}
+                            {result.stdout.filter((line) => !line.startsWith('Screenshot saved:')).join('\n')}
                           </pre>
                         )}
                       </td>

@@ -19,38 +19,11 @@ type GifEncoderConstructor = new (width: number, height: number) => GifEncoderIn
 const require = createRequire(import.meta.url);
 const GIFEncoder = require('gif-encoder-2') as GifEncoderConstructor;
 
+export const ANIMATED_GIF_FILENAME = 'animated.gif';
+
 const GIF_WIDTH = 640;
 const GIF_HEIGHT = 360;
 const GIF_DELAY_MS = 1000;
-
-export const ANIMATED_GIF_FILENAME = 'animated.gif';
-
-function parseSortKey(filename: string): [number, number] {
-  const base = path.basename(filename, '.png');
-  const discoveryMatch = base.match(/^discovery-(\d+)$/);
-
-  if (discoveryMatch) {
-    return [0, Number.parseInt(discoveryMatch[1], 10)];
-  }
-
-  const stepMatch = base.match(/^step-(\d+)$/);
-
-  if (stepMatch) {
-    return [1, Number.parseInt(stepMatch[1], 10)];
-  }
-
-  if (base === 'spin-start') {
-    return [2, 0];
-  }
-
-  const finalMatch = base.match(/^final(?:-(\d+))?$/);
-
-  if (finalMatch) {
-    return [3, finalMatch[1] ? Number.parseInt(finalMatch[1], 10) : 0];
-  }
-
-  return [4, 0];
-}
 
 /**
  * Encodes all PNG screenshots for `gameId`/`deviceType` into an animated GIF at
@@ -58,7 +31,7 @@ function parseSortKey(filename: string): [number, number] {
  * Returns the absolute path to the generated GIF.
  * @throws if no PNG files exist in the screenshots directory
  */
-export async function generateGif(gameID: string, deviceType: DeviceType) {
+async function generateGif(gameID: string, deviceType: DeviceType) {
   const screenshotsDir = path.resolve('src/server/screenshots', gameID, deviceType);
   const gifPath = path.resolve(screenshotsDir, ANIMATED_GIF_FILENAME);
 
@@ -100,3 +73,32 @@ export async function generateGif(gameID: string, deviceType: DeviceType) {
 
   return gifPath;
 }
+
+function parseSortKey(filename: string): [number, number] {
+  const base = path.basename(filename, '.png');
+  const discoveryMatch = base.match(/^discovery-(\d+)$/);
+
+  if (discoveryMatch) {
+    return [0, Number.parseInt(discoveryMatch[1], 10)];
+  }
+
+  const stepMatch = base.match(/^step-(\d+)$/);
+
+  if (stepMatch) {
+    return [1, Number.parseInt(stepMatch[1], 10)];
+  }
+
+  if (base === 'spin-start') {
+    return [2, 0];
+  }
+
+  const finalMatch = base.match(/^final(?:-(\d+))?$/);
+
+  if (finalMatch) {
+    return [3, finalMatch[1] ? Number.parseInt(finalMatch[1], 10) : 0];
+  }
+
+  return [4, 0];
+}
+
+export { generateGif };

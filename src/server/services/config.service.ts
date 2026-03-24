@@ -1,6 +1,6 @@
 import { Config, Effect, Layer } from 'effect';
 
-export class ConfigService extends Effect.Tag('ConfigService')<
+class ConfigService extends Effect.Tag('ConfigService')<
   ConfigService,
   {
     corsOrigin: string;
@@ -17,3 +17,5 @@ export const NodeConfigService = Layer.effect(
     return { corsOrigin };
   }),
 );
+
+export { ConfigService };

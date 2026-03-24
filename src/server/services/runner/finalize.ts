@@ -16,6 +16,64 @@ export type RunnerState = {
   activeFibers: Map<string, Fiber.RuntimeFiber<void, never>>;
 };
 
+function finalizeRun(state: RunnerState, record: RunRecord, code: number, stdout: string) {
+  return Effect.gen(function* () {
+    record.rawOutput = stdout;
+    record.finishedAt = new Date().toISOString();
+    record.durationMs =
+      new Date(record.finishedAt).getTime() - new Date(record.startedAt).getTime();
+
+    if (record.status !== 'cancelled') {
+      const parsed = yield* parseJsonReport(stdout);
+
+      record.results = parsed.results;
+      record.playwrightErrors = parsed.playwrightErrors;
+      record.status = code === 0 ? 'completed' : 'error';
+    }
+
+    yield* attachGifUrls(record.results);
+    yield* attachScreenshotUrls(record.runID, record.results);
+
+    yield* saveRuns(state);
+
+    logSummary(record);
+    trimMemory(state.runs);
+
+    state.activeFibers.delete(record.runID);
+
+    for (const id of record.gameIDs) {
+      state.activeRunsByGame.delete(id);
+    }
+  });
+}
+
+function saveRuns(state: RunnerState) {
+  return Effect.gen(function* () {
+    const fileService = yield* FileService;
+
+    const completed = [...state.runs.values()].filter((run) => {
+      return run.status !== 'running';
+    });
+
+    const toSave = completed
+      .sort((a, b) => {
+        return new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime();
+      })
+      .slice(0, 10)
+      .map(({ rawOutput: _raw, ...rest }) => {
+        return rest;
+      });
+
+    yield* fileService.write(RUNS_FILE, JSON.stringify(toSave, null, 2));
+  }).pipe(
+    Effect.catchAll((error) => {
+      console.error('[runner] Failed to save runs:', error);
+
+      return Effect.succeed(undefined);
+    }),
+  );
+}
+
 function attachGifUrls(results: TestResult[]) {
   return Effect.gen(function* () {
     const fileService = yield* FileService;
@@ -48,69 +106,6 @@ function attachGifUrls(results: TestResult[]) {
       }
     }
   });
-}
-
-function logSummary(record: RunRecord) {
-  let passed = 0;
-  let failed = 0;
-  let skipped = 0;
-
-  for (const result of record.results) {
-    if (result.status === 'passed') {
-      passed++;
-    } else if (result.status === 'failed') {
-      failed++;
-    } else if (result.status === 'skipped') {
-      skipped++;
-    }
-  }
-
-  console.log(
-    `[runner] Run ${record.runID} finished in ${record.durationMs}ms — ${passed} passed, ${failed} failed, ${skipped} skipped`,
-  );
-}
-
-function trimMemory(runs: Map<string, RunRecord>) {
-  if (runs.size <= 10) {
-    return;
-  }
-
-  const oldest = [...runs.entries()]
-    .sort(([, a], [, b]) => {
-      return a.startedAt < b.startedAt ? -1 : 1;
-    })
-    .slice(0, runs.size - 10);
-
-  for (const [id] of oldest) {
-    runs.delete(id);
-  }
-}
-
-export function saveRuns(state: RunnerState) {
-  return Effect.gen(function* () {
-    const fileService = yield* FileService;
-
-    const completed = [...state.runs.values()].filter((run) => {
-      return run.status !== 'running';
-    });
-
-    const toSave = completed
-      .sort((a, b) => {
-        return new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime();
-      })
-      .slice(0, 10)
-      .map(({ rawOutput: _raw, ...rest }) => {
-        return rest;
-      });
-
-    yield* fileService.write(RUNS_FILE, JSON.stringify(toSave, null, 2));
-  }).pipe(
-    Effect.catchAll((error) => {
-      console.error('[runner] Failed to save runs:', error);
-
-      return Effect.succeed(undefined);
-    }),
-  );
 }
 
 function attachScreenshotUrls(runID: string, results: TestResult[]) {
@@ -153,33 +148,40 @@ function attachScreenshotUrls(runID: string, results: TestResult[]) {
   });
 }
 
-export function finalizeRun(state: RunnerState, record: RunRecord, code: number, stdout: string) {
-  return Effect.gen(function* () {
-    record.rawOutput = stdout;
-    record.finishedAt = new Date().toISOString();
-    record.durationMs =
-      new Date(record.finishedAt).getTime() - new Date(record.startedAt).getTime();
+function logSummary(record: RunRecord) {
+  let passed = 0;
+  let failed = 0;
+  let skipped = 0;
 
-    if (record.status !== 'cancelled') {
-      const parsed = yield* parseJsonReport(stdout);
-
-      record.results = parsed.results;
-      record.playwrightErrors = parsed.playwrightErrors;
-      record.status = code === 0 ? 'completed' : 'error';
+  for (const result of record.results) {
+    if (result.status === 'passed') {
+      passed++;
+    } else if (result.status === 'failed') {
+      failed++;
+    } else if (result.status === 'skipped') {
+      skipped++;
     }
+  }
 
-    yield* attachGifUrls(record.results);
-    yield* attachScreenshotUrls(record.runID, record.results);
-
-    yield* saveRuns(state);
-
-    logSummary(record);
-    trimMemory(state.runs);
-
-    state.activeFibers.delete(record.runID);
-
-    for (const id of record.gameIDs) {
-      state.activeRunsByGame.delete(id);
-    }
-  });
+  console.log(
+    `[runner] Run ${record.runID} finished in ${record.durationMs}ms — ${passed} passed, ${failed} failed, ${skipped} skipped`,
+  );
 }
+
+function trimMemory(runs: Map<string, RunRecord>) {
+  if (runs.size <= 10) {
+    return;
+  }
+
+  const oldest = [...runs.entries()]
+    .sort(([, a], [, b]) => {
+      return a.startedAt < b.startedAt ? -1 : 1;
+    })
+    .slice(0, runs.size - 10);
+
+  for (const [id] of oldest) {
+    runs.delete(id);
+  }
+}
+
+export { saveRuns, finalizeRun };

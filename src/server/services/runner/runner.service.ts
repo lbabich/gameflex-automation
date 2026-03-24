@@ -10,39 +10,7 @@ import type { RunRecord } from './types';
 
 export type { RunRecord, RunStatus, TestResult, TestStep } from './types';
 
-function resolveNames(gameIDs: string[]): { names: string[]; firstMissingID: string | undefined } {
-  const gameList = games.readGames();
-  const names: string[] = [];
-  let firstMissingID: string | undefined;
-
-  for (const id of gameIDs) {
-    const game = gameList.find((entry: games.GameEntry) => {
-      return entry.id === id;
-    });
-
-    if (game) {
-      names.push(game.name);
-    } else if (firstMissingID === undefined) {
-      firstMissingID = id;
-    }
-  }
-
-  return { names, firstMissingID };
-}
-
-function createRecord(runID: string, gameIDs: string[]): RunRecord {
-  return {
-    runID,
-    gameIDs,
-    status: 'running',
-    startedAt: new Date().toISOString(),
-    results: [],
-    playwrightErrors: [],
-    rawOutput: '',
-  };
-}
-
-export class RunnerService extends Effect.Tag('RunnerService')<
+class RunnerService extends Effect.Tag('RunnerService')<
   RunnerService,
   {
     startRun: (
@@ -201,3 +169,37 @@ export const NodeRunnerService = Layer.effect(
     };
   }),
 );
+
+function resolveNames(gameIDs: string[]): { names: string[]; firstMissingID: string | undefined } {
+  const gameList = games.readGames();
+  const names: string[] = [];
+  let firstMissingID: string | undefined;
+
+  for (const id of gameIDs) {
+    const game = gameList.find((entry: games.GameEntry) => {
+      return entry.id === id;
+    });
+
+    if (game) {
+      names.push(game.name);
+    } else if (firstMissingID === undefined) {
+      firstMissingID = id;
+    }
+  }
+
+  return { names, firstMissingID };
+}
+
+function createRecord(runID: string, gameIDs: string[]): RunRecord {
+  return {
+    runID,
+    gameIDs,
+    status: 'running',
+    startedAt: new Date().toISOString(),
+    results: [],
+    playwrightErrors: [],
+    rawOutput: '',
+  };
+}
+
+export { RunnerService };
