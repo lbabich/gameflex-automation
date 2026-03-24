@@ -3,7 +3,7 @@ import { Effect, Fiber, Layer } from 'effect';
 import * as games from '../../../lib/games';
 import { GameNotFoundError, RunAlreadyActiveError, RunNotFoundError } from '../../errors';
 import { FileService } from '../file.service';
-import { buildPlaywrightCommand } from './command';
+import { buildSpinCommand } from './command';
 import { finalizeRun, RUNS_FILE, type RunnerState, saveRuns } from './finalize';
 import { spawnProcess } from './process';
 import type { RunRecord } from './types';
@@ -65,7 +65,7 @@ export const NodeRunnerService = Layer.effect(
             return yield* Effect.fail(new RunAlreadyActiveError({ gameID: conflicting[0] ?? '' }));
           }
 
-          const { names, firstMissingID } = resolveNames(gameIDs);
+          const firstMissingID = findMissingGame(gameIDs);
 
           if (firstMissingID !== undefined) {
             return yield* Effect.fail(new GameNotFoundError({ id: firstMissingID }));
@@ -80,7 +80,7 @@ export const NodeRunnerService = Layer.effect(
             state.activeRunsByGame.set(id, runID);
           }
 
-          const cmd = buildPlaywrightCommand(names, projects);
+          const cmd = buildSpinCommand(gameIDs, projects);
 
           console.log(`[runner] Starting run ${runID}`);
           console.log(`[runner] Command: ${cmd}`);
@@ -170,24 +170,14 @@ export const NodeRunnerService = Layer.effect(
   }),
 );
 
-function resolveNames(gameIDs: string[]): { names: string[]; firstMissingID: string | undefined } {
+function findMissingGame(gameIDs: string[]): string | undefined {
   const gameList = games.readGames();
-  const names: string[] = [];
-  let firstMissingID: string | undefined;
 
-  for (const id of gameIDs) {
-    const game = gameList.find((entry: games.GameEntry) => {
+  return gameIDs.find((id) => {
+    return !gameList.some((entry: games.GameEntry) => {
       return entry.id === id;
     });
-
-    if (game) {
-      names.push(game.name);
-    } else if (firstMissingID === undefined) {
-      firstMissingID = id;
-    }
-  }
-
-  return { names, firstMissingID };
+  });
 }
 
 function createRecord(runID: string, gameIDs: string[]): RunRecord {

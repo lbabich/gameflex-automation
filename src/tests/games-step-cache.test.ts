@@ -2,8 +2,8 @@ import * as crypto from 'node:crypto';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { addGame, readGames, updateGame } from '../../lib/games';
-import * as stepCache from '../../lib/step-cache';
+import { addGame, readGames, updateGame } from '../lib/games';
+import * as stepCache from '../lib/step-cache';
 
 beforeEach(() => {
   fs.writeFileSync(path.resolve(process.env.GAMES_JSON_PATH ?? 'src/data/games.json'), '[]');
@@ -19,6 +19,7 @@ function addTestGame() {
   addGame({
     desktopGameID,
     name: 'Update Test',
+    gameProviderID: '51',
     desktopEnabled: true,
     desktopPlaymode: 'demo',
     mobileEnabled: false,

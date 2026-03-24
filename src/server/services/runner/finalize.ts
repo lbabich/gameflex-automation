@@ -4,7 +4,6 @@ import { Effect, type Fiber } from 'effect';
 import * as games from '../../../lib/games';
 import * as gifGenerator from '../../../lib/gif-generator';
 import * as libTypes from '../../../lib/types';
-import { parseJsonReport } from '../../report-parser';
 import { FileService } from '../file.service';
 import type { RunRecord, TestResult } from './types';
 
@@ -24,10 +23,10 @@ function finalizeRun(state: RunnerState, record: RunRecord, code: number, stdout
       new Date(record.finishedAt).getTime() - new Date(record.startedAt).getTime();
 
     if (record.status !== 'cancelled') {
-      const parsed = yield* parseJsonReport(stdout);
+      const parsed = yield* parseSpinOutput(stdout);
 
       record.results = parsed.results;
-      record.playwrightErrors = parsed.playwrightErrors;
+      record.playwrightErrors = parsed.errors;
       record.status = code === 0 ? 'completed' : 'error';
     }
 
@@ -182,6 +181,25 @@ function trimMemory(runs: Map<string, RunRecord>) {
   for (const [id] of oldest) {
     runs.delete(id);
   }
+}
+
+function parseSpinOutput(stdout: string) {
+  return Effect.sync(() => {
+    try {
+      const parsed = JSON.parse(stdout) as { results: TestResult[]; errors: string[] };
+
+      console.log(
+        `[runner] Parsed ${parsed.results.length} result(s), ${parsed.errors.length} error(s)`,
+      );
+
+      return { results: parsed.results, errors: parsed.errors };
+    } catch (error) {
+      console.error('[runner] Failed to parse spin output:', error);
+      console.error('[runner] stdout snippet:', stdout.slice(0, 200));
+
+      return { results: [] as TestResult[], errors: [] as string[] };
+    }
+  });
 }
 
 export { saveRuns, finalizeRun };

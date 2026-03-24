@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import * as gelEvents from '../../lib/gel-events';
+import * as gelEvents from '../lib/gel-events';
 
 // Minimal stub that lets tests emit console messages on demand.
 // Both page.on and page.waitForEvent share the same handler list so a single

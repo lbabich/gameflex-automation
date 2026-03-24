@@ -3,9 +3,9 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { Effect, ManagedRuntime } from 'effect';
 import { beforeEach, describe, expect, it } from 'vitest';
-import * as stepCache from '../../lib/step-cache';
-import { DuplicateGameIDError, GameNotFoundError } from '../../server/errors';
-import { GamesService, NodeGamesService } from '../../server/services/games.service';
+import * as stepCache from '../lib/step-cache';
+import { DuplicateGameIDError, GameNotFoundError } from '../server/errors';
+import { GamesService, NodeGamesService } from '../server/services/games.service';
 
 const GAMES_PATH = path.resolve(process.env.GAMES_JSON_PATH ?? 'src/data/games.json');
 const runtime = ManagedRuntime.make(NodeGamesService);

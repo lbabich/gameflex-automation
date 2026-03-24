@@ -1,6 +1,6 @@
 import { Effect, ManagedRuntime } from 'effect';
 import { afterEach, describe, expect, it } from 'vitest';
-import { ConfigService, NodeConfigService } from '../../server/services/config.service';
+import { ConfigService, NodeConfigService } from '../server/services/config.service';
 
 describe('ConfigService', () => {
   afterEach(() => {

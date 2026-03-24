@@ -1,21 +1,9 @@
-function buildPlaywrightCommand(names: string[], projects?: string[]) {
-  const grepPattern = names
-    .map((name) => {
-      return `spin: ${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`;
-    })
-    .join('|');
+function buildSpinCommand(gameIDs: string[], deviceTypes?: string[]) {
+  const ids = gameIDs.join(',');
 
-  const quotedPattern = `"${grepPattern.replace(/"/g, '\\"')}"`;
+  const deviceFlag = deviceTypes?.length ? ` --deviceTypes=${deviceTypes.join(',')}` : '';
 
-  const projectFlags = projects?.length
-    ? projects
-        .map((project) => {
-          return `--project "${project}"`;
-        })
-        .join(' ')
-    : '';
-
-  return `npx playwright test --reporter=json --grep ${quotedPattern}${projectFlags ? ` ${projectFlags}` : ''}`;
+  return `npx tsx src/scripts/spin.ts --gameIDs=${ids}${deviceFlag}`;
 }
 
-export { buildPlaywrightCommand };
+export { buildSpinCommand };
