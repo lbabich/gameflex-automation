@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useEffect, useState } from 'react';
+import { Fragment, useCallback, useState } from 'react';
 import type { RunRecord, RunStatus, TestResult } from '../types';
 
 const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
@@ -63,7 +63,6 @@ function formatElapsed(ms: number): string {
 }
 
 export function ResultsPanel({ run, isLoading }: Props) {
-  const [elapsedMs, setElapsedMs] = useState(0);
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
 
   const toggleRow = useCallback((i: number) => {
@@ -74,18 +73,6 @@ export function ResultsPanel({ run, isLoading }: Props) {
     });
   }, []);
 
-  useEffect(() => {
-    if (run?.status !== 'running') {
-      setElapsedMs(0);
-      return;
-    }
-    const start = new Date(run.startedAt).getTime();
-    const tick = () => setElapsedMs(Date.now() - start);
-    tick();
-    const id = setInterval(tick, 500);
-    return () => clearInterval(id);
-  }, [run?.status, run?.startedAt]);
-
   if (isLoading && !run) {
     return <div className="p-4 text-gray-500 text-sm">Connecting...</div>;
   }
@@ -93,6 +80,7 @@ export function ResultsPanel({ run, isLoading }: Props) {
   if (!run) return null;
 
   const isRunning = run.status === 'running';
+  const elapsedMs = isRunning ? Date.now() - new Date(run.startedAt).getTime() : 0;
 
   const statusLabel =
     isRunning
