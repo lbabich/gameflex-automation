@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { AddGameModal } from './components/AddGameModal';
 import { EditGameModal } from './components/EditGameModal';
 import { GameActionBar } from './components/GameActionBar';
@@ -24,15 +24,6 @@ export default function App() {
   const { data: games, isLoading: gamesLoading } = useGames();
   const { data: run, isLoading: runLoading } = useRun(viewRunID);
   const { data: recentRuns } = useRecentRuns();
-  const prevStatusRef = useRef<string | undefined>(undefined);
-
-  useEffect(() => {
-    if (prevStatusRef.current === 'running' && run?.status !== 'running') {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEY.RUNS });
-    }
-
-    prevStatusRef.current = run?.status;
-  }, [run?.status, queryClient]);
 
   const gameStatuses = useMemo(() => {
     type DeviceStatus = 'passed' | 'failed' | 'error' | null;
