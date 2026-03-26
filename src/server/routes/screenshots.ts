@@ -4,19 +4,19 @@ import { Router } from 'express';
 
 export const screenshotsRouter = Router();
 
-screenshotsRouter.get('/:gameID/:deviceType/:filename', (req, res) => {
+screenshotsRouter.get('/:folderID/:deviceType/:filename', (req, res) => {
   const safe = (segment: string) => {
     return /^[\w.-]+$/.test(segment);
   };
 
-  if (!safe(req.params.gameID) || !safe(req.params.deviceType) || !safe(req.params.filename)) {
+  if (!safe(req.params.folderID) || !safe(req.params.deviceType) || !safe(req.params.filename)) {
     res.status(400).send('Invalid path');
     return;
   }
 
   const filePath = path.resolve(
     'src/server/screenshots',
-    req.params.gameID,
+    req.params.folderID,
     req.params.deviceType,
     req.params.filename,
   );

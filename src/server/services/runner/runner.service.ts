@@ -80,7 +80,7 @@ export const NodeRunnerService = Layer.effect(
             state.activeRunsByGame.set(id, runID);
           }
 
-          const cmd = buildSpinCommand(gameIDs, projects);
+          const cmd = buildSpinCommand(runID, gameIDs, projects);
 
           console.log(`[runner] Starting run ${runID}`);
           console.log(`[runner] Command: ${cmd}`);

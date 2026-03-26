@@ -8,7 +8,6 @@ import {
   SPIN_END_WAIT_MS,
   SPIN_START_TIMEOUT_MS,
 } from './gel-events';
-import * as gifGenerator from './gif-generator';
 import * as preLaunch from './pre-launch';
 import * as replay from './replay';
 import * as screenshot from './screenshot';
@@ -22,6 +21,7 @@ export type SpinRunnerModule = {
     game: GameEntry,
     deviceType: DeviceType,
     viewport: Viewport,
+    runID: string,
   ) => Promise<TestResult>;
 };
 
@@ -95,18 +95,19 @@ async function discoverOrReplay(
   viewport: Viewport,
   deviceType: DeviceType,
   steps: TestStep[],
+  runID: string,
 ) {
   const cached = stepCache.getSteps(game.id, deviceType, viewport);
 
   if (cached) {
     return track(steps, `Replay ${cached.steps.length} cached step(s)`, () => {
-      return replay.replaySteps(page, game, cached.steps, deviceType);
+      return replay.replaySteps(page, runID, cached.steps, deviceType);
     });
   }
 
   return track(steps, 'Discover steps', async () => {
     try {
-      const result = await discovery.discoverSteps(page, game, viewport, deviceType);
+      const result = await discovery.discoverSteps(page, game, viewport, deviceType, runID);
 
       stepCache.setSteps(game.id, deviceType, viewport, {
         discoveredAt: new Date().toISOString(),
@@ -130,7 +131,7 @@ async function discoverOrReplay(
 
 async function awaitSpinCycle(
   page: Page,
-  game: GameEntry,
+  runID: string,
   deviceType: DeviceType,
   listeners: SpinListeners,
   steps: TestStep[],
@@ -143,7 +144,7 @@ async function awaitSpinCycle(
       });
     }
 
-    await screenshot.snap(page, `${game.id}/${deviceType}/spin-start.png`);
+    await screenshot.snap(page, `${runID}/${deviceType}/spin-start.png`);
   });
 
   await track(steps, `Spin end: ${GEL_EVENT.SPIN_END}`, () => {
@@ -156,29 +157,29 @@ async function awaitSpinCycle(
 
 async function takePostSpinSnapshots(
   page: Page,
-  gameId: string,
+  runID: string,
   deviceType: DeviceType,
 ): Promise<void> {
   await page.waitForTimeout(POST_SPIN_BUFFER_MS);
-  await screenshot.snap(page, `${gameId}/${deviceType}/final-1.png`);
+  await screenshot.snap(page, `${runID}/${deviceType}/final-1.png`);
   await page.waitForTimeout(1_500);
-  await screenshot.snap(page, `${gameId}/${deviceType}/final-2.png`);
+  await screenshot.snap(page, `${runID}/${deviceType}/final-2.png`);
   await page.waitForTimeout(1_500);
-  await screenshot.snap(page, `${gameId}/${deviceType}/final-3.png`);
+  await screenshot.snap(page, `${runID}/${deviceType}/final-3.png`);
 }
 
 async function takeFailureSnapshots(
   page: Page,
-  gameId: string,
+  runID: string,
   deviceType: DeviceType,
 ): Promise<string[]> {
   const paths: string[] = [];
 
-  paths.push(await screenshot.snap(page, `${gameId}/${deviceType}/failure-1.png`));
+  paths.push(await screenshot.snap(page, `${runID}/${deviceType}/failure-1.png`));
   await page.waitForTimeout(3_000);
-  paths.push(await screenshot.snap(page, `${gameId}/${deviceType}/failure-2.png`));
+  paths.push(await screenshot.snap(page, `${runID}/${deviceType}/failure-2.png`));
   await page.waitForTimeout(3_000);
-  paths.push(await screenshot.snap(page, `${gameId}/${deviceType}/failure-3.png`));
+  paths.push(await screenshot.snap(page, `${runID}/${deviceType}/failure-3.png`));
 
   return paths;
 }
@@ -188,6 +189,7 @@ async function runGameSpin(
   game: GameEntry,
   deviceType: DeviceType,
   viewport: Viewport,
+  runID: string,
 ): Promise<TestResult> {
   const httpCredentials =
     process.env.BASIC_AUTH_USER && process.env.BASIC_AUTH_PASS
@@ -214,24 +216,18 @@ async function runGameSpin(
       return preLaunch.launch(page, game, deviceType, playmode);
     });
 
-    const gameReady = await discoverOrReplay(page, game, viewport, deviceType, steps);
+    const gameReady = await discoverOrReplay(page, game, viewport, deviceType, steps, runID);
 
     if (gameReady) {
       annotations['load-time-ms'] = String(gameReady.loadTimeMs);
       annotations['had-load-progress'] = String(gameReady.hadLoadProgress);
     }
 
-    await awaitSpinCycle(page, game, deviceType, spinListeners, steps);
-    await takePostSpinSnapshots(page, game.id, deviceType);
+    await awaitSpinCycle(page, runID, deviceType, spinListeners, steps);
+    await takePostSpinSnapshots(page, runID, deviceType);
   } catch (err) {
     failure = err as Error;
-    screenshotPaths = await takeFailureSnapshots(page, game.id, deviceType);
-  }
-
-  try {
-    await gifGenerator.generateGif(game.id, deviceType);
-  } catch (gifErr) {
-    console.warn('[generate-gif] Failed to generate GIF:', gifErr);
+    screenshotPaths = await takeFailureSnapshots(page, runID, deviceType);
   }
 
   await context.close();

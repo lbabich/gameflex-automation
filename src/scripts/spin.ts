@@ -14,22 +14,25 @@ const VIEWPORT: Viewport = { width: 1280, height: 720 };
 function parseArgs() {
   const args = process.argv.slice(2);
 
+  let runID = '';
   let gameIDs: string[] = [];
   let deviceTypes: DeviceType[] = [DEVICE_TYPE.DESKTOP, DEVICE_TYPE.MOBILE];
 
   for (const arg of args) {
-    if (arg.startsWith('--gameIDs=')) {
+    if (arg.startsWith('--runID=')) {
+      runID = arg.slice('--runID='.length);
+    } else if (arg.startsWith('--gameIDs=')) {
       gameIDs = arg.slice('--gameIDs='.length).split(',').filter(Boolean);
     } else if (arg.startsWith('--deviceTypes=')) {
       deviceTypes = arg.slice('--deviceTypes='.length).split(',').filter(Boolean) as DeviceType[];
     }
   }
 
-  return { gameIDs, deviceTypes };
+  return { runID, gameIDs, deviceTypes };
 }
 
 async function main() {
-  const { gameIDs, deviceTypes } = parseArgs();
+  const { runID, gameIDs, deviceTypes } = parseArgs();
 
   const allGames = readGames();
   const games = allGames.filter((g) => {
@@ -44,13 +47,14 @@ async function main() {
   try {
     for (const game of games) {
       for (const deviceType of deviceTypes) {
-        const enabled = deviceType === DEVICE_TYPE.MOBILE ? game.mobileEnabled : game.desktopEnabled;
+        const enabled =
+          deviceType === DEVICE_TYPE.MOBILE ? game.mobileEnabled : game.desktopEnabled;
 
         if (!enabled) {
           continue;
         }
 
-        const result = await spinRunner.runGameSpin(browser, game, deviceType, VIEWPORT);
+        const result = await spinRunner.runGameSpin(browser, game, deviceType, VIEWPORT, runID);
 
         results.push(result);
       }

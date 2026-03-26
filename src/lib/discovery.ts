@@ -29,6 +29,7 @@ async function discoverSteps(
   game: Game,
   viewport: Viewport,
   deviceType: DeviceType,
+  runID: string,
 ): Promise<DiscoverResult> {
   const gameReady = await gelEvents.waitForGameReady(page);
 
@@ -40,7 +41,7 @@ async function discoverSteps(
   for (let attempt = 1; attempt <= DISCOVERY_MAX_ATTEMPTS; attempt++) {
     const screenshotPath = await screenshot.snap(
       page,
-      `${game.id}/${deviceType}/discovery-${attempt}.png`,
+      `${runID}/${deviceType}/discovery-${attempt}.png`,
     );
 
     const spinResult = await claudeVision.detectSpinButton(
@@ -90,9 +91,9 @@ async function discoverSteps(
     await page.waitForTimeout(DISCOVERY_POLL_INTERVAL_MS);
   }
 
-  await screenshot.snap(page, `${game.id}/${deviceType}/discovery-failed.png`);
+  await screenshot.snap(page, `${runID}/${deviceType}/discovery-failed.png`);
   throw new DiscoveryError(
-    `Could not find spin button for ${game.name} (${game.desktopGameID}) after ${DISCOVERY_MAX_ATTEMPTS} attempts. See src/server/screenshots/${game.id}/${deviceType}/discovery-failed.png`,
+    `Could not find spin button for ${game.name} (${game.desktopGameID}) after ${DISCOVERY_MAX_ATTEMPTS} attempts. See src/server/screenshots/${runID}/${deviceType}/discovery-failed.png`,
     preSpinSteps,
   );
 }

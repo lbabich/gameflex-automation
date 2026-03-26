@@ -1,7 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { Effect, type Fiber } from 'effect';
-import * as games from '../../../lib/games';
 import * as gifGenerator from '../../../lib/gif-generator';
 import * as libTypes from '../../../lib/types';
 import { FileService } from '../file.service';
@@ -30,8 +29,14 @@ function finalizeRun(state: RunnerState, record: RunRecord, code: number, stdout
       record.status = code === 0 ? 'completed' : 'error';
     }
 
-    yield* attachGifUrls(record.results);
-    yield* attachScreenshotUrls(record.runID, record.results);
+    // Step 1: record failure screenshot URL (last one only)
+    yield* attachScreenshotUrls(record.results);
+
+    // Step 2: generate GIF from non-failure PNGs, which deletes them
+    yield* attachGifUrls(record.runID, record.results);
+
+    // Step 3: delete extra failure screenshots, keeping only the last
+    yield* cleanupImages(record.results);
 
     yield* saveRuns(state);
 
@@ -73,76 +78,73 @@ function saveRuns(state: RunnerState) {
   );
 }
 
-function attachGifUrls(results: TestResult[]) {
-  return Effect.gen(function* () {
-    const fileService = yield* FileService;
-    const gameList = games.readGames();
+function attachScreenshotUrls(results: TestResult[]) {
+  return Effect.sync(() => {
+    const screenshotsBase = path.resolve('src/server/screenshots');
 
     for (const result of results) {
-      const game = gameList.find((entry) => {
-        return (
-          result.title === `spin: ${entry.name}` || result.title.startsWith(`spin: ${entry.name} `)
-        );
-      });
-
-      if (game) {
-        const deviceType: libTypes.DeviceType = /mobile/i.test(result.project)
-          ? libTypes.DEVICE_TYPE.MOBILE
-          : libTypes.DEVICE_TYPE.DESKTOP;
-
-        const gifPath = path.resolve(
-          'src/server/screenshots',
-          game.id,
-          deviceType,
-          gifGenerator.ANIMATED_GIF_FILENAME,
-        );
-
-        const gifExists = yield* fileService.exists(gifPath);
-
-        if (gifExists) {
-          result.gifUrl = `/api/screenshots/${game.id}/${deviceType}/${gifGenerator.ANIMATED_GIF_FILENAME}`;
-        }
-      }
-    }
-  });
-}
-
-function attachScreenshotUrls(runID: string, results: TestResult[]) {
-  return Effect.sync(() => {
-    for (let i = 0; i < results.length; i++) {
-      const result = results[i];
       const paths = result.screenshotPaths;
-
-      result.screenshotPaths = undefined;
 
       if (!paths?.length) {
         continue;
       }
 
-      const destDir = path.resolve('src/server/screenshots', runID, 'failure');
+      const lastPath = paths[paths.length - 1];
+      const relativePath = path.relative(screenshotsBase, lastPath).replace(/\\/g, '/');
 
-      try {
-        fs.mkdirSync(destDir, { recursive: true });
-      } catch {
+      result.screenshotUrls = [`/api/screenshots/${relativePath}`];
+    }
+  });
+}
+
+function attachGifUrls(runID: string, results: TestResult[]) {
+  return Effect.gen(function* () {
+    for (const result of results) {
+      const deviceType: libTypes.DeviceType = /mobile/i.test(result.project)
+        ? libTypes.DEVICE_TYPE.MOBILE
+        : libTypes.DEVICE_TYPE.DESKTOP;
+
+      yield* Effect.tryPromise({
+        try: () => {
+          return gifGenerator.generateGif(runID, deviceType);
+        },
+        catch: (err) => {
+          return err;
+        },
+      }).pipe(
+        Effect.tap(() => {
+          return Effect.sync(() => {
+            result.gifUrl = `/api/screenshots/${runID}/${deviceType}/${gifGenerator.ANIMATED_GIF_FILENAME}`;
+          });
+        }),
+        Effect.catchAll((err) => {
+          return Effect.sync(() => {
+            console.warn('[runner] Failed to generate GIF:', err);
+          });
+        }),
+      );
+    }
+  });
+}
+
+function cleanupImages(results: TestResult[]) {
+  return Effect.sync(() => {
+    for (const result of results) {
+      const paths = result.screenshotPaths;
+
+      result.screenshotPaths = undefined;
+
+      if (!paths || paths.length <= 1) {
         continue;
       }
 
-      const urls: string[] = [];
-
-      for (let j = 0; j < paths.length; j++) {
-        const srcPath = paths[j];
-        const filename = `${i}-${j}${path.extname(srcPath)}`;
-        const destPath = path.join(destDir, filename);
-
+      for (let i = 0; i < paths.length - 1; i++) {
         try {
-          fs.copyFileSync(srcPath, destPath);
-          urls.push(`/api/screenshots/${runID}/failure/${filename}`);
+          fs.unlinkSync(paths[i]);
         } catch (err) {
-          console.warn('[runner] Failed to copy failure screenshot:', err);
+          console.warn('[runner] Failed to delete failure screenshot:', err);
         }
       }
-
-      result.screenshotUrls = urls;
     }
   });
 }
@@ -186,7 +188,16 @@ function trimMemory(runs: Map<string, RunRecord>) {
 function parseSpinOutput(stdout: string) {
   return Effect.sync(() => {
     try {
-      const parsed = JSON.parse(stdout) as { results: TestResult[]; errors: string[] };
+      const jsonStart = stdout.indexOf('{"results":');
+
+      if (jsonStart === -1) {
+        throw new Error('No JSON output found in stdout');
+      }
+
+      const parsed = JSON.parse(stdout.slice(jsonStart)) as {
+        results: TestResult[];
+        errors: string[];
+      };
 
       console.log(
         `[runner] Parsed ${parsed.results.length} result(s), ${parsed.errors.length} error(s)`,

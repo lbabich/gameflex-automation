@@ -68,46 +68,6 @@
       }
     }
   },
-  "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986": {
-    "desktop": {
-      "1280x720": {
-        "discoveredAt": "2026-03-23T14:37:33.173Z",
-        "steps": [
-          {
-            "waitMs": 7616,
-            "x": 664,
-            "y": 687,
-            "label": "Continue button"
-          },
-          {
-            "waitMs": 6870,
-            "x": 664,
-            "y": 684,
-            "label": "Circular spin button with rotating arrows"
-          }
-        ]
-      }
-    },
-    "mobile": {
-      "1280x720": {
-        "discoveredAt": "2026-03-24T10:57:04.158Z",
-        "steps": [
-          {
-            "waitMs": 5822,
-            "x": 664,
-            "y": 687,
-            "label": "Continue button"
-          },
-          {
-            "waitMs": 5038,
-            "x": 664,
-            "y": 687,
-            "label": "Circular spin button with rotating arrows"
-          }
-        ]
-      }
-    }
-  },
   "b4c51f69-e28f-4c66-9b3c-0be918e9af91": {
     "mobile": {
       "1280x720": {
