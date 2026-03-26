@@ -1,18 +1,13 @@
 import type { Browser, ConsoleMessage, Page } from '@playwright/test';
-import type { InternalTestResult, TestStep, Viewport } from '../types';
+import type { InternalTestResult, Viewport } from '../types';
 import * as discovery from './discovery';
 import type { GameEntry } from './games';
-import {
-  GEL_EVENT,
-  POST_SPIN_BUFFER_MS,
-  SPIN_END_WAIT_MS,
-  SPIN_START_TIMEOUT_MS,
-} from './gel-events';
+import { GEL_EVENT, POST_SPIN_BUFFER_MS, SPIN_END_WAIT_MS, SPIN_START_TIMEOUT_MS, } from './gel-events';
 import * as preLaunch from './pre-launch';
 import * as replay from './replay';
 import * as screenshot from './screenshot';
 import * as stepCache from './step-cache';
-import type { DeviceType, PlayMode } from './types';
+import { TestStep, PlayMode, DeviceType } from '../../shared/types';
 
 export type SpinRunnerModule = {
   runGameSpin: (
@@ -192,8 +187,7 @@ async function runGameSpin(
   runID: string,
   playmode: PlayMode,
 ): Promise<InternalTestResult> {
-  const httpCredentials =
-    process.env.BASIC_AUTH_USER && process.env.BASIC_AUTH_PASS
+  const httpCredentials = process.env.BASIC_AUTH_USER && process.env.BASIC_AUTH_PASS
       ? { username: process.env.BASIC_AUTH_USER, password: process.env.BASIC_AUTH_PASS }
       : undefined;
 
@@ -243,7 +237,7 @@ async function runGameSpin(
       failedStep: steps.find((step: TestStep) => {
         return step.error;
       })?.title,
-      stdout: filteredStdout,
+      logs: filteredStdout,
       steps,
       screenshotPaths,
       annotations,
@@ -254,7 +248,7 @@ async function runGameSpin(
     title: `spin: ${game.name}`,
     status: 'passed',
     duration,
-    stdout: filteredStdout,
+    logs: filteredStdout,
     steps,
     annotations,
   };

@@ -9,9 +9,11 @@ import { attachGifUrls, attachScreenshotUrls, cleanupImages } from './media';
 import { parseSpinOutput } from './output-parser';
 import { loadRuns, saveRuns, trimMemory } from './persistence';
 import { spawnProcess } from './process';
-import type { InternalRunRecord, RunRecord } from '../../types';
+import { RunRecord } from '../../../shared/types';
+import { InternalRunRecord } from '../../types';
+import { RunLoggerService } from './run-logger.service';
+import { RunStateService } from './run-state.service';
 
-export type { RunRecord, RunStatus, TestResult, TestStep } from '../../types';
 
 type RunnerState = {
   runs: Map<string, InternalRunRecord>;
@@ -30,20 +32,17 @@ class RunnerService extends Effect.Tag('RunnerService')<
     cancelRun: (runID: string) => Effect.Effect<void, RunNotFoundError>;
     getRun: (runID: string) => Effect.Effect<RunRecord, RunNotFoundError>;
     getRecentRuns: (limit?: number) => Effect.Effect<RunRecord[]>;
+    clearGameRuns: (gameID: string) => Effect.Effect<void>;
   }
 >() {}
 
 export const NodeRunnerService = Layer.effect(
   RunnerService,
   Effect.gen(function* () {
+    const state = yield* RunStateService;
+    const runLoggerService = yield* RunLoggerService;
     const fileService = yield* FileService;
     const gamesService = yield* GamesService;
-
-    const state: RunnerState = {
-      runs: new Map(),
-      activeRunsByGame: new Map(),
-      activeFibers: new Map(),
-    };
 
     const loadedRuns = yield* loadRuns();
 
@@ -53,7 +52,7 @@ export const NodeRunnerService = Layer.effect(
 
     return {
       startRun: (gameIDs: string[], deviceTypes: string[], playmode: string) => {
-        return startRun(state, gamesService, fileService, gameIDs, deviceTypes, playmode);
+        return startRun(state, gamesService, fileService, runLoggerService, gameIDs, deviceTypes, playmode);
       },
       cancelRun: (runID: string) => {
         return cancelRun(state, fileService, runID);
@@ -64,6 +63,9 @@ export const NodeRunnerService = Layer.effect(
       getRecentRuns: (limit?: number) => {
         return getRecentRuns(state, limit);
       },
+      clearGameRuns: (gameID: string) => {
+        return clearGameRuns(state, fileService, gameID);
+      },
     };
   }),
 );
@@ -72,6 +74,7 @@ function startRun(
   state: RunnerState,
   gamesService: GamesService['Type'],
   fileService: FileService['Type'],
+  runLoggerService: RunLoggerService['Type'],
   gameIDs: string[],
   deviceTypes: string[],
   playmode: string,
@@ -107,29 +110,33 @@ function startRun(
 
     const cmd = buildSpinCommand(runID, gameIDs, deviceTypes, playmode);
 
-    console.log(`[runner] Starting run ${runID}`);
-    console.log(`[runner] Command: ${cmd}`);
+    runLoggerService.log(runID, 'runner', `Starting run ${runID}`);
+    runLoggerService.log(runID, 'runner', `Command: ${cmd}`);
 
     const background = Effect.gen(function* () {
       const { code, stdout } = yield* spawnProcess(cmd);
 
-      yield* finalizeRun(state, record, code, stdout);
+      yield* finalizeRun(state, runID, code, stdout);
     }).pipe(
       Effect.provideService(FileService, fileService),
       Effect.catchAll((error: never) => {
         console.error('[runner] Background fiber error:', error);
 
-        if (record.status === 'running') {
-          record.status = 'error';
-          record.finishedAt = new Date().toISOString();
-          record.durationMs =
-            new Date(record.finishedAt).getTime() - new Date(record.startedAt).getTime();
+        const run = state.runs.get(runID);
+
+        if (run && run.status === 'running') {
+          run.status = 'error';
+          run.finishedAt = new Date().toISOString();
+          run.durationMs =
+              new Date(run.finishedAt).getTime() - new Date(run.startedAt).getTime();
         }
 
-        state.activeFibers.delete(record.runID);
+        state.activeFibers.delete(runID);
 
-        for (const id of record.gameIDs) {
-          state.activeRunsByGame.delete(id);
+        if (run) {
+          for (const id of run.gameIDs) {
+            state.activeRunsByGame.delete(id);
+          }
         }
 
         return Effect.succeed(undefined);
@@ -192,32 +199,49 @@ function getRecentRuns(state: RunnerState, limit = 10) {
   });
 }
 
-function finalizeRun(state: RunnerState, record: InternalRunRecord, code: number, stdout: string) {
+function finalizeRun(state: RunnerState, runID: string, code: number, stdout: string) {
   return Effect.gen(function* () {
-    record.rawOutput = stdout;
-    record.finishedAt = new Date().toISOString();
-    record.durationMs =
-      new Date(record.finishedAt).getTime() - new Date(record.startedAt).getTime();
+    const record = state.runs.get(runID);
+
+    if (!record) {
+      return;
+    }
+
+    const finishedAt = new Date().toISOString();
+    const durationMs = new Date(finishedAt).getTime() - new Date(record.startedAt).getTime();
+
+    let updated: InternalRunRecord = {
+      ...record,
+      rawOutput: stdout,
+      finishedAt,
+      durationMs,
+    };
 
     if (record.status !== 'cancelled') {
       const parsed = yield* parseSpinOutput(stdout);
 
-      record.results = parsed.results;
-      record.playwrightErrors = parsed.errors;
-      record.status = code === 0 ? 'completed' : 'error';
+      updated = {
+        ...updated,
+        results: parsed.results,
+        playwrightErrors: parsed.errors,
+        status: code === 0 ? 'completed' : 'error',
+      };
     }
 
-    yield* attachScreenshotUrls(record.results);
-    yield* attachGifUrls(record.runID, record.results);
-    yield* cleanupImages(record.results);
+    yield* attachScreenshotUrls(updated.results);
+    yield* attachGifUrls(runID, updated.results);
+    yield* cleanupImages(updated.results);
+
+    state.runs.set(runID, updated);
+
     yield* saveRuns(state.runs);
 
-    logSummary(record);
+    logSummary(updated);
     trimMemory(state.runs);
 
-    state.activeFibers.delete(record.runID);
+    state.activeFibers.delete(runID);
 
-    for (const id of record.gameIDs) {
+    for (const id of updated.gameIDs) {
       state.activeRunsByGame.delete(id);
     }
   });
@@ -243,6 +267,18 @@ function logSummary(record: InternalRunRecord) {
   );
 }
 
+function clearGameRuns(state: RunnerState, fileService: FileService['Type'], gameID: string) {
+  return Effect.gen(function* () {
+    for (const [runID, run] of state.runs.entries()) {
+      if (run.gameIDs.includes(gameID) && !state.activeFibers.has(runID)) {
+        state.runs.delete(runID);
+      }
+    }
+
+    yield* saveRuns(state.runs).pipe(Effect.provideService(FileService, fileService));
+  });
+}
+
 function createRecord(runID: string, gameIDs: string[]): InternalRunRecord {
   return {
     runID,
@@ -250,6 +286,7 @@ function createRecord(runID: string, gameIDs: string[]): InternalRunRecord {
     status: 'running',
     startedAt: new Date().toISOString(),
     results: {},
+    logs: [],
     playwrightErrors: [],
     rawOutput: '',
   };

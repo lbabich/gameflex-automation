@@ -1,8 +1,8 @@
 import type { Page } from '@playwright/test';
+import type { CachedStep } from '../types';
 import * as gelEvents from './gel-events';
 import * as screenshot from './screenshot';
 import type { DeviceType } from './types';
-import { CachedStep } from '../types';
 
 async function replaySteps(
   page: Page,

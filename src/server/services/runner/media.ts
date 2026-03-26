@@ -1,8 +1,8 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { Effect } from 'effect';
-import * as gifGenerator from '../../lib/gif-generator';
 import type { DeviceType } from '../../../shared/types';
+import * as gifGenerator from '../../lib/gif-generator';
 import type { InternalTestResult } from '../../types';
 
 function attachScreenshotUrls(results: Partial<Record<DeviceType, InternalTestResult>>) {

@@ -1,8 +1,8 @@
 import { Effect, Layer } from 'effect';
+import type { DeviceType } from '../../shared/types';
 import { DuplicateGameIDError, GameNotFoundError } from '../errors';
 import * as games from '../lib/games';
 import * as stepCache from '../lib/step-cache';
-import { DeviceType } from '../../shared/types';
 
 class GamesService extends Effect.Tag('GamesService')<
   GamesService,

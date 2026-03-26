@@ -83,7 +83,7 @@ export function ResultsPanel({ run, isLoading }: Props) {
             ? (Object.entries(run.results) as [DeviceType, TestResult][]).map(
                 ([deviceType, result]) => {
                   const hasDetails =
-                    result.stdout.some((line) => !line.startsWith('Screenshot saved:')) ||
+                    result.logs.some((line) => !line.startsWith('Screenshot saved:')) ||
                     !!result.gifUrl ||
                     (result.steps?.length ?? 0) > 0 ||
                     !!result.annotations;
@@ -205,7 +205,7 @@ export function ResultsPanel({ run, isLoading }: Props) {
                                 ))}
                               </div>
                             )}
-                            {result.stdout.filter((line) => !line.startsWith('Screenshot saved:'))
+                            {result.logs.filter((line) => !line.startsWith('Screenshot saved:'))
                               .length > 0 && (
                               <div>
                                 <button
@@ -223,7 +223,7 @@ export function ResultsPanel({ run, isLoading }: Props) {
                                   <textarea
                                     readOnly
                                     className="mt-2 w-full h-48 text-xs text-gray-600 font-mono leading-relaxed resize-y border border-gray-200 rounded p-2 bg-gray-50"
-                                    value={result.stdout
+                                    value={result.logs
                                       .filter((line) => !line.startsWith('Screenshot saved:'))
                                       .join('\n')}
                                   />

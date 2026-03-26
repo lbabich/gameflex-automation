@@ -5,6 +5,7 @@ type Props = {
   runs: RunRecord[];
   onSelect: (runID: string) => void;
   selectedRunID: string | null;
+  onClear?: () => void;
 };
 
 function statusBadgeClass(status: RunStatus) {
@@ -29,7 +30,7 @@ function formatDuration(ms: number) {
   return m > 0 ? `${m}m ${s % 60}s` : `${s}s`;
 }
 
-export function PreviousRunsAccordion({ runs, onSelect, selectedRunID }: Props) {
+export function PreviousRunsAccordion({ runs, onSelect, selectedRunID, onClear }: Props) {
   const [open, setOpen] = useState(false);
 
   const completedRuns = runs.filter((r) => r.status !== 'running');
@@ -38,14 +39,26 @@ export function PreviousRunsAccordion({ runs, onSelect, selectedRunID }: Props) 
 
   return (
     <div className="border rounded bg-white overflow-hidden mt-4">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-      >
-        <span>Previous Runs ({completedRuns.length})</span>
-        <span className="text-gray-400 text-xs select-none">{open ? '▲' : '▼'}</span>
-      </button>
+      <div className="flex items-center">
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          className="flex-1 flex items-center justify-between px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+        >
+          <span>Previous Runs ({completedRuns.length})</span>
+          <span className="text-gray-400 text-xs select-none">{open ? '▲' : '▼'}</span>
+        </button>
+
+        {onClear && (
+          <button
+            type="button"
+            onClick={onClear}
+            className="px-3 py-3 text-xs text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors border-l shrink-0"
+          >
+            Clear All
+          </button>
+        )}
+      </div>
 
       {open && (
         <div className="border-t divide-y">

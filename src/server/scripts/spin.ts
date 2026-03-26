@@ -1,9 +1,9 @@
 import { chromium } from '@playwright/test';
 import * as dotenv from 'dotenv';
+import { type DeviceType, PLAY_MODE, type PlayMode } from '../../shared/types';
 import type { GameEntry } from '../lib/games';
 import { readGames } from '../lib/games';
 import * as spinRunner from '../lib/spin-runner';
-import { DeviceType, PlayMode, PLAY_MODE } from '../../shared/types';
 import type { InternalTestResult, Viewport } from '../types';
 
 dotenv.config();
@@ -58,7 +58,10 @@ async function main() {
           playmode,
         );
 
-        results[deviceType] = result;
+        results[deviceType] = {
+          ...result,
+          logs: [...results[deviceType]?.logs || [], ...result.logs]
+        };
       }
     }
   } catch (err) {

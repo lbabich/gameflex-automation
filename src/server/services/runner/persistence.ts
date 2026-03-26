@@ -1,8 +1,8 @@
 import * as path from 'node:path';
 import { Effect } from 'effect';
 import type { FileWriteError } from '../../errors';
-import { FileService } from '../file.service';
 import type { InternalRunRecord } from '../../types';
+import { FileService } from '../file.service';
 
 export const RUNS_FILE = path.resolve('src/server/data/runs.json');
 

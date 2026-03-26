@@ -123,19 +123,19 @@
   "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986": {
     "desktop": {
       "1280x720": {
-        "discoveredAt": "2026-03-26T10:55:34.681Z",
+        "discoveredAt": "2026-03-26T14:19:25.619Z",
         "steps": [
           {
-            "waitMs": 10656,
+            "waitMs": 6621,
             "x": 664,
-            "y": 691,
+            "y": 687,
             "label": "Continue button"
           },
           {
-            "waitMs": 5242,
-            "x": 1176,
-            "y": 399,
-            "label": "Circular spin/refresh button with rotating arrows"
+            "waitMs": 5642,
+            "x": 664,
+            "y": 684,
+            "label": "Circular spin button with rotating arrows"
           }
         ]
       }

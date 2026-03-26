@@ -1,8 +1,8 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import type { Page } from '@playwright/test';
+import { DEVICE_TYPE, type DeviceType, PLAY_MODE, type PlayMode } from '../../shared/types';
 import type { GameEntry } from './games';
-import { DeviceType, PlayMode, DEVICE_TYPE, PLAY_MODE } from '../../shared/types';
 
 type LaunchConfig = {
   harnessBaseUrl: string;

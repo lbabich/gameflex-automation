@@ -7,6 +7,7 @@ import { GameDeviceSettings } from './components/GameDeviceSettings';
 import { GameSelector } from './components/GameSelector';
 import { PreviousRunsAccordion } from './components/PreviousRunsAccordion';
 import { ResultsPanel } from './components/ResultsPanel';
+import { useClearGameRuns } from './hooks/useClearGameRuns';
 import { useGames } from './hooks/useGames';
 import { useRecentRuns } from './hooks/useRecentRuns';
 import { useRun } from './hooks/useRun';
@@ -24,6 +25,7 @@ export default function App() {
   const { data: games, isLoading: gamesLoading } = useGames();
   const { data: run, isLoading: runLoading } = useRun(viewRunID);
   const { data: recentRuns } = useRecentRuns();
+  const clearGameRunsMutation = useClearGameRuns();
 
   const gameStatuses = useMemo(() => {
     const result: Record<string, { isRunning: boolean }> = {};
@@ -73,6 +75,14 @@ export default function App() {
   function handleRunComplete(runID: string) {
     setViewRunID(runID);
     queryClient.invalidateQueries({ queryKey: QUERY_KEY.RUNS });
+  }
+
+  function handleClearRuns() {
+    if (selectedGameID === null) return;
+
+    clearGameRunsMutation.mutate(selectedGameID, {
+      onSuccess: () => setViewRunID(null),
+    });
   }
 
   return (
@@ -128,6 +138,7 @@ export default function App() {
               runs={selectedGameRuns}
               onSelect={handleRunSelect}
               selectedRunID={viewRunID}
+              onClear={handleClearRuns}
             />
           </>
         ) : (

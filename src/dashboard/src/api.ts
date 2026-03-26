@@ -111,3 +111,11 @@ export async function createRun(run: NewRun) {
 export async function deleteRun(runID: string) {
   await fetch(`/api/runs/${runID}`, { method: 'DELETE' });
 }
+
+export async function clearGameRuns(gameID: string) {
+  const response = await fetch(`/api/games/${gameID}/runs`, { method: 'DELETE' });
+
+  if (!response.ok) {
+    throw new Error('Failed to clear runs');
+  }
+}

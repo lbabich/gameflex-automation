@@ -1,12 +1,13 @@
 import { Effect, Schema } from 'effect';
 import type { Request, Response } from 'express';
 import { Router } from 'express';
+import type { DeviceType } from '../../shared/types';
 import type { DuplicateGameIDError, GameNotFoundError } from '../errors';
 import type { GameEntry } from '../lib/games';
 import type { AppRuntime } from '../runtime';
 import { GamesService } from '../services/games.service';
+import { RunnerService } from '../services/runner/runner.service';
 import { DEVICE_TYPES } from '../types';
-import { DeviceType } from '../../shared/types';
 
 const PostBody = Schema.Struct({
   desktopGameID: Schema.String,
@@ -166,6 +167,29 @@ function makeGamesRouter(runtime: AppRuntime) {
         const gamesService = yield* GamesService;
 
         yield* gamesService.clearSteps(id, channel as DeviceType);
+        res.sendStatus(204);
+      }).pipe(
+        Effect.catchAllDefect((defect: unknown) => {
+          console.error('[server] Unhandled defect:', defect);
+
+          return Effect.sync(() => {
+            if (!res.headersSent) {
+              res.status(500).json({ error: 'Internal server error' });
+            }
+          });
+        }),
+      ),
+    );
+  });
+
+  router.delete('/:id/runs', (req: Request<Record<string, string>>, res: Response) => {
+    const { id } = req.params;
+
+    void runtime.runPromise(
+      Effect.gen(function* () {
+        const runnerService = yield* RunnerService;
+
+        yield* runnerService.clearGameRuns(id);
         res.sendStatus(204);
       }).pipe(
         Effect.catchAllDefect((defect: unknown) => {

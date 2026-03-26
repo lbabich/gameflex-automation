@@ -26,7 +26,7 @@ export type TestResult = {
   duration: number;
   error?: string;
   failedStep?: string;
-  stdout: string[];
+  logs: string[];
   steps?: TestStep[];
   gifUrl?: string;
   screenshotUrls?: string[];
