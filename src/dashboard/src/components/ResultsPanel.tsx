@@ -41,9 +41,18 @@ function SkeletonRow() {
 
 export function ResultsPanel({ run, isLoading }: Props) {
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
+  const [openLogs, setOpenLogs] = useState<Set<number>>(new Set());
 
   const toggleRow = useCallback((i: number) => {
     setExpandedRows((prev) => {
+      const next = new Set(prev);
+      next.has(i) ? next.delete(i) : next.add(i);
+      return next;
+    });
+  }, []);
+
+  const toggleLog = useCallback((i: number) => {
+    setOpenLogs((prev) => {
       const next = new Set(prev);
       next.has(i) ? next.delete(i) : next.add(i);
       return next;
@@ -183,9 +192,23 @@ export function ResultsPanel({ run, isLoading }: Props) {
                           </div>
                         )}
                         {result.stdout.filter((line) => !line.startsWith('Screenshot saved:')).length > 0 && (
-                          <pre className="text-xs text-gray-600 font-mono whitespace-pre-wrap leading-relaxed">
-                            {result.stdout.filter((line) => !line.startsWith('Screenshot saved:')).join('\n')}
-                          </pre>
+                          <div>
+                            <button
+                              type="button"
+                              className="text-xs text-blue-600 hover:underline"
+                              onClick={(e) => { e.stopPropagation(); toggleLog(i); }}
+                            >
+                              {openLogs.has(i) ? 'Hide log' : 'View log'}
+                            </button>
+
+                            {openLogs.has(i) && (
+                              <textarea
+                                readOnly
+                                className="mt-2 w-full h-48 text-xs text-gray-600 font-mono leading-relaxed resize-y border border-gray-200 rounded p-2 bg-gray-50"
+                                value={result.stdout.filter((line) => !line.startsWith('Screenshot saved:')).join('\n')}
+                              />
+                            )}
+                          </div>
                         )}
                       </td>
                     </tr>
