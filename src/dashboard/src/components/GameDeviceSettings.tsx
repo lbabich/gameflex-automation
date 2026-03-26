@@ -1,15 +1,12 @@
 import { useState } from 'react';
 import { useClearChannelSteps } from '../hooks/useClearChannelSteps';
 import { DEVICE_TYPE } from '../types';
-import type { DeviceType, GameEntry } from '../types';
-
-type RunStatus = 'passed' | 'failed' | 'error' | null;
+import type { DeviceType, GameEntry, PlayMode } from '../types';
 
 type Props = {
   game: GameEntry;
   isRunning: boolean;
-  desktopLastStatus: RunStatus;
-  mobileLastStatus: RunStatus;
+  playmode: PlayMode;
   onRunComplete: (runID: string) => void;
 };
 
@@ -18,8 +15,6 @@ type DeviceCardProps = {
   isRunning: boolean;
   resetPending: boolean;
   launchPending: boolean;
-  cached: boolean;
-  lastStatus: RunStatus;
   onLaunch: () => void;
   onReset: () => void;
 };
@@ -30,37 +25,13 @@ function DeviceCard({
   isRunning,
   resetPending,
   launchPending,
-  cached,
-  lastStatus,
   onLaunch,
   onReset,
 }: DeviceCardProps) {
   return (
     <div className="flex-1 border rounded-lg p-4 bg-white">
       <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold text-gray-700">{label}</span>
-          {cached && (
-            <span className="text-xs font-semibold px-1.5 py-0.5 rounded bg-blue-100 text-blue-700">
-              cached
-            </span>
-          )}
-          {lastStatus === 'passed' && (
-            <span className="text-xs font-semibold px-1.5 py-0.5 rounded bg-green-100 text-green-700">
-              pass
-            </span>
-          )}
-          {lastStatus === 'failed' && (
-            <span className="text-xs font-semibold px-1.5 py-0.5 rounded bg-red-100 text-red-700">
-              fail
-            </span>
-          )}
-          {lastStatus === 'error' && (
-            <span className="text-xs font-semibold px-1.5 py-0.5 rounded bg-yellow-100 text-yellow-700">
-              err
-            </span>
-          )}
-        </div>
+        <span className="text-sm font-semibold text-gray-700">{label}</span>
         <button
           type="button"
           onClick={onReset}
@@ -85,21 +56,20 @@ function DeviceCard({
 export function GameDeviceSettings({
   game,
   isRunning,
-  desktopLastStatus,
-  mobileLastStatus,
+  playmode,
   onRunComplete,
 }: Props) {
   const clearChannel = useClearChannelSteps();
   const [pendingDevice, setPendingDevice] = useState<DeviceType | null>(null);
 
-  async function handleLaunch(project: DeviceType) {
-    setPendingDevice(project);
+  async function handleLaunch(deviceType: DeviceType) {
+    setPendingDevice(deviceType);
 
     try {
       const res = await fetch('/api/runs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ gameIDs: [game.id], projects: [project] }),
+        body: JSON.stringify({ gameIDs: [game.id], deviceTypes: [deviceType], playmode }),
       });
 
       if (!res.ok) return;
@@ -121,8 +91,6 @@ export function GameDeviceSettings({
           isRunning={isRunning}
           resetPending={clearChannel.isPending}
           launchPending={pendingDevice === DEVICE_TYPE.DESKTOP}
-          cached={game.desktopCached ?? false}
-          lastStatus={desktopLastStatus}
           onLaunch={() => handleLaunch(DEVICE_TYPE.DESKTOP)}
           onReset={() => clearChannel.mutate({ id: game.id, deviceType: DEVICE_TYPE.DESKTOP })}
         />
@@ -131,8 +99,6 @@ export function GameDeviceSettings({
           isRunning={isRunning}
           resetPending={clearChannel.isPending}
           launchPending={pendingDevice === DEVICE_TYPE.MOBILE}
-          cached={game.mobileCached ?? false}
-          lastStatus={mobileLastStatus}
           onLaunch={() => handleLaunch(DEVICE_TYPE.MOBILE)}
           onReset={() => clearChannel.mutate({ id: game.id, deviceType: DEVICE_TYPE.MOBILE })}
         />

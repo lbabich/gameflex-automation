@@ -1,11 +1,13 @@
+import { useState } from 'react';
 import { useClearSteps } from '../hooks/useClearSteps';
-import { useUpdateGame } from '../hooks/useUpdateGame';
 import type { GameEntry, PlayMode } from '../types';
 
 type Props = {
   game: GameEntry;
   isRunning: boolean;
   runID: string | null;
+  playmode: PlayMode;
+  onPlaymodeChange: (mode: PlayMode) => void;
   onRunComplete: (runID: string) => void;
 };
 
@@ -40,9 +42,15 @@ function PlaymodeToggle({
   );
 }
 
-export function GameActionBar({ game, isRunning, runID, onRunComplete }: Props) {
+export function GameActionBar({
+  game,
+  isRunning,
+  runID,
+  playmode,
+  onPlaymodeChange,
+  onRunComplete,
+}: Props) {
   const clearSteps = useClearSteps();
-  const { mutate: updateGame } = useUpdateGame();
 
   async function handleRun() {
     if (isRunning) return;
@@ -51,7 +59,11 @@ export function GameActionBar({ game, isRunning, runID, onRunComplete }: Props) 
       const res = await fetch('/api/runs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ gameIDs: [game.id] }),
+        body: JSON.stringify({
+          gameIDs: [game.id],
+          deviceTypes: ['desktop', 'mobile'],
+          playmode,
+        }),
       });
 
       if (!res.ok) return;
@@ -78,15 +90,11 @@ export function GameActionBar({ game, isRunning, runID, onRunComplete }: Props) 
     clearSteps.mutate(game.id);
   }
 
-  function handleTogglePlaymode(mode: PlayMode) {
-    updateGame({ id: game.id, desktopPlaymode: mode, mobilePlaymode: mode });
-  }
-
   return (
     <div className="flex items-center justify-between px-4 py-3 bg-white border rounded mb-4">
       <span className="font-semibold text-gray-800">{game.name}</span>
       <div className="flex gap-2 items-center">
-        <PlaymodeToggle playmode={game.desktopPlaymode} onChange={handleTogglePlaymode} />
+        <PlaymodeToggle playmode={playmode} onChange={onPlaymodeChange} />
         {isRunning ? (
           <button
             type="button"

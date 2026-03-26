@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useState } from 'react';
-import type { RunRecord, RunStatus, TestResult } from '../types';
+import type { RunRecord, TestResult } from '../types';
 
 const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
 
@@ -7,17 +7,6 @@ type Props = {
   run: RunRecord | undefined;
   isLoading: boolean;
 };
-
-function statusBannerClass(status: RunStatus): string {
-  switch (status) {
-    case 'running':
-      return 'bg-yellow-50 text-yellow-800 border-yellow-300';
-    case 'completed':
-      return 'bg-green-50 text-green-800 border-green-300';
-    case 'error':
-      return 'bg-orange-50 text-orange-800 border-orange-300';
-  }
-}
 
 function StatusBadge({ status }: { status: TestResult['status'] }) {
   const classes: Record<TestResult['status'], string> = {
@@ -28,12 +17,6 @@ function StatusBadge({ status }: { status: TestResult['status'] }) {
   };
   return (
     <span className={`px-2 py-0.5 rounded text-xs font-medium ${classes[status]}`}>{status}</span>
-  );
-}
-
-function Spinner() {
-  return (
-    <span className="inline-block w-4 h-4 border-2 border-yellow-600 border-t-transparent rounded-full animate-spin" />
   );
 }
 
@@ -56,12 +39,6 @@ function SkeletonRow() {
   );
 }
 
-function formatElapsed(ms: number): string {
-  const s = Math.floor(ms / 1000);
-  const m = Math.floor(s / 60);
-  return m > 0 ? `${m}m ${s % 60}s` : `${s}s`;
-}
-
 export function ResultsPanel({ run, isLoading }: Props) {
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
 
@@ -80,27 +57,9 @@ export function ResultsPanel({ run, isLoading }: Props) {
   if (!run) return null;
 
   const isRunning = run.status === 'running';
-  const elapsedMs = isRunning ? Date.now() - new Date(run.startedAt).getTime() : 0;
-
-  const statusLabel =
-    isRunning
-      ? `Running — ${formatElapsed(elapsedMs)}`
-      : `${run.status.charAt(0).toUpperCase() + run.status.slice(1)} in ${((run.durationMs ?? 0) / 1000).toFixed(1)}s`;
 
   return (
     <div className="flex flex-col gap-4">
-      <div
-        className={`border rounded px-4 py-3 flex items-center gap-3 font-semibold ${statusBannerClass(run.status)}`}
-      >
-        {isRunning && <Spinner />}
-        <span>{statusLabel}</span>
-        {isRunning && (
-          <span className="ml-auto text-xs font-normal text-yellow-700 animate-pulse">
-            Polling for results…
-          </span>
-        )}
-      </div>
-
       <table className="w-full text-sm border-collapse bg-white rounded shadow-sm overflow-hidden">
         <thead>
           <tr className="border-b bg-gray-50">

@@ -5,20 +5,21 @@ import { EditGameModal } from './components/EditGameModal';
 import { GameActionBar } from './components/GameActionBar';
 import { GameDeviceSettings } from './components/GameDeviceSettings';
 import { GameSelector } from './components/GameSelector';
-import { RecentRunsList } from './components/RecentRunsList';
+import { PreviousRunsAccordion } from './components/PreviousRunsAccordion';
 import { ResultsPanel } from './components/ResultsPanel';
 import { useGames } from './hooks/useGames';
 import { useRecentRuns } from './hooks/useRecentRuns';
 import { useRun } from './hooks/useRun';
 import { QUERY_KEY } from './queryKeys';
-import { DEVICE_TYPE } from './types';
-import type { GameEntry } from './types';
+import { PLAY_MODE } from './types';
+import type { GameEntry, PlayMode } from './types';
 
 export default function App() {
   const [selectedGameID, setSelectedGameID] = useState<string | null>(null);
   const [addGameOpen, setAddGameOpen] = useState(false);
   const [editGame, setEditGame] = useState<GameEntry | null>(null);
   const [viewRunID, setViewRunID] = useState<string | null>(null);
+  const [playmode, setPlaymode] = useState<PlayMode>(PLAY_MODE.DEMO);
 
   const queryClient = useQueryClient();
   const { data: games, isLoading: gamesLoading } = useGames();
@@ -26,34 +27,12 @@ export default function App() {
   const { data: recentRuns } = useRecentRuns();
 
   const gameStatuses = useMemo(() => {
-    type DeviceStatus = 'passed' | 'failed' | 'error' | null;
-    type Status = { isRunning: boolean; desktopLastStatus: DeviceStatus; mobileLastStatus: DeviceStatus };
-    const result: Record<string, Status> = {};
-
-    function deviceStatus(completedRuns: typeof recentRuns, project: string): DeviceStatus {
-      for (const run of completedRuns ?? []) {
-        if (run.status !== 'completed') continue;
-
-        const testResult = run.results.find((r) => r.project === project && r.status !== 'skipped');
-
-        if (testResult) {
-          return (testResult.status === 'failed' || testResult.status === 'timedOut') ? 'failed' : 'passed';
-        }
-      }
-
-      return null;
-    }
+    const result: Record<string, { isRunning: boolean }> = {};
 
     for (const game of games ?? []) {
       const gameRuns = (recentRuns ?? []).filter((r) => r.gameIDs.includes(game.id));
-      const running = gameRuns.some((r) => r.status === 'running');
-      const completedRuns = gameRuns.filter((r) => r.status !== 'running');
 
-      result[game.id] = {
-        isRunning: running,
-        desktopLastStatus: deviceStatus(completedRuns, DEVICE_TYPE.DESKTOP),
-        mobileLastStatus: deviceStatus(completedRuns, DEVICE_TYPE.MOBILE),
-      };
+      result[game.id] = { isRunning: gameRuns.some((r) => r.status === 'running') };
     }
 
     return result;
@@ -129,6 +108,8 @@ export default function App() {
             game={selectedGame}
             isRunning={selectedGameIsRunning}
             runID={selectedGameRunID}
+            playmode={playmode}
+            onPlaymodeChange={setPlaymode}
             onRunComplete={handleRunComplete}
           />
         )}
@@ -136,24 +117,37 @@ export default function App() {
           <GameDeviceSettings
             game={selectedGame}
             isRunning={selectedGameIsRunning}
-            desktopLastStatus={gameStatuses[selectedGame.id]?.desktopLastStatus ?? null}
-            mobileLastStatus={gameStatuses[selectedGame.id]?.mobileLastStatus ?? null}
+            playmode={playmode}
             onRunComplete={handleRunComplete}
           />
         )}
-        {viewRunID !== null ? (
-          <ResultsPanel run={run} isLoading={runLoading} />
+        {selectedGame ? (
+          <>
+            {viewRunID !== null && <ResultsPanel run={run} isLoading={runLoading} />}
+
+            <PreviousRunsAccordion
+              runs={selectedGameRuns}
+              onSelect={handleRunSelect}
+              selectedRunID={viewRunID}
+            />
+          </>
         ) : (
-          <RecentRunsList
-            runs={selectedGameRuns}
-            games={games ?? []}
-            onSelect={handleRunSelect}
-            emptyMessage={
-              selectedGame
-                ? `No runs yet for ${selectedGame.name}. Click Run Test to start.`
-                : 'Select a game to view its runs.'
-            }
-          />
+          <div className="flex flex-col items-center justify-center h-full gap-3 text-gray-400">
+            <svg
+              className="w-12 h-12 text-gray-300"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.5}
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z"
+              />
+            </svg>
+            <p className="text-sm">Select a game to view its runs.</p>
+          </div>
         )}
       </main>
 

@@ -22,10 +22,6 @@ export type GameEntry = {
   mobileUrl?: string;
   desktopCached?: boolean;
   mobileCached?: boolean;
-  desktopEnabled: boolean;
-  desktopPlaymode: PlayMode;
-  mobileEnabled: boolean;
-  mobilePlaymode: PlayMode;
 };
 
 export type RunStatus = 'running' | 'completed' | 'error';
