@@ -3,10 +3,10 @@ import type { Request, Response } from 'express';
 import { Router } from 'express';
 import type { DuplicateGameIDError, GameNotFoundError } from '../errors';
 import type { GameEntry } from '../lib/games';
-import type { DeviceType } from '../lib/types';
-import { DEVICE_TYPES } from '../lib/types';
 import type { AppRuntime } from '../runtime';
 import { GamesService } from '../services/games.service';
+import { DEVICE_TYPES } from '../types';
+import { DeviceType } from '../../shared/types';
 
 const PostBody = Schema.Struct({
   desktopGameID: Schema.String,

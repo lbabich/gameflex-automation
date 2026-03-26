@@ -12,19 +12,7 @@ export const PLAY_MODE = {
   REAL: 'real',
 } as const satisfies Record<string, PlayMode>;
 
-export type GameEntry = {
-  id: string;
-  desktopGameID: string;
-  mobileGameID?: string;
-  name: string;
-  gameProviderID: string;
-  url: string;
-  mobileUrl?: string;
-  desktopCached?: boolean;
-  mobileCached?: boolean;
-};
-
-export type RunStatus = 'running' | 'completed' | 'error';
+export type RunStatus = 'running' | 'completed' | 'error' | 'cancelled';
 
 export type TestStep = {
   title: string;
@@ -34,7 +22,6 @@ export type TestStep = {
 
 export type TestResult = {
   title: string;
-  project: string;
   status: 'passed' | 'failed' | 'skipped' | 'timedOut';
   duration: number;
   error?: string;
@@ -53,7 +40,21 @@ export type RunRecord = {
   startedAt: string;
   finishedAt?: string;
   durationMs?: number;
-  results: TestResult[];
+  results: Partial<Record<DeviceType, TestResult>>;
   playwrightErrors: string[];
-  rawOutput: string;
+};
+
+export type GameEntry = {
+  id: string;
+  desktopGameID: string;
+  mobileGameID?: string;
+  name: string;
+  gameProviderID: string;
+};
+
+export type GameUpdates = {
+  name?: string;
+  desktopGameID?: string;
+  mobileGameID?: string;
+  gameProviderID?: string;
 };

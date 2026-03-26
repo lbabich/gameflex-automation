@@ -2,7 +2,8 @@ import type { ConsoleMessage, Page } from '@playwright/test';
 import * as claudeVision from './claude-vision';
 import * as gelEvents from './gel-events';
 import * as screenshot from './screenshot';
-import type { CachedStep, DeviceType, Viewport } from './types';
+import type { DeviceType } from './types';
+import { CachedStep, Viewport } from '../types';
 
 const DISCOVERY_POLL_INTERVAL_MS = 1_000;
 const DISCOVERY_MAX_ATTEMPTS = 20;

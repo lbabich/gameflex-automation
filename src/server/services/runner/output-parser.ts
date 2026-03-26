@@ -1,5 +1,5 @@
 import { Effect } from 'effect';
-import type { TestResult } from './types';
+import type { DeviceType, TestResult } from '../../../shared/types';
 
 function parseSpinOutput(stdout: string) {
   return Effect.sync(() => {
@@ -11,12 +11,12 @@ function parseSpinOutput(stdout: string) {
       }
 
       const parsed = JSON.parse(stdout.slice(jsonStart)) as {
-        results: TestResult[];
+        results: Partial<Record<DeviceType, TestResult>>;
         errors: string[];
       };
 
       console.log(
-        `[runner] Parsed ${parsed.results.length} result(s), ${parsed.errors.length} error(s)`,
+        `[runner] Parsed ${Object.keys(parsed.results).length} result(s), ${parsed.errors.length} error(s)`,
       );
 
       return { results: parsed.results, errors: parsed.errors };
@@ -24,7 +24,10 @@ function parseSpinOutput(stdout: string) {
       console.error('[runner] Failed to parse spin output:', error);
       console.error('[runner] stdout snippet:', stdout.slice(0, 200));
 
-      return { results: [] as TestResult[], errors: [] as string[] };
+      return {
+        results: {} as Partial<Record<DeviceType, TestResult>>,
+        errors: [] as string[],
+      };
     }
   });
 }

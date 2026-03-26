@@ -1,7 +1,6 @@
-import { useState } from 'react';
 import { createRun, deleteRun } from '../api';
 import { useClearSteps } from '../hooks/useClearSteps';
-import type { GameEntry, PlayMode } from '../types';
+import type { GameEntry, PlayMode } from '@shared/types';
 
 type Props = {
   game: GameEntry;

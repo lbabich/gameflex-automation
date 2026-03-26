@@ -1,5 +1,5 @@
 import type { Browser, ConsoleMessage, Page } from '@playwright/test';
-import type { TestResult, TestStep } from '../services/runner/types';
+import type { InternalTestResult, TestStep, Viewport } from '../types';
 import * as discovery from './discovery';
 import type { GameEntry } from './games';
 import {
@@ -12,7 +12,7 @@ import * as preLaunch from './pre-launch';
 import * as replay from './replay';
 import * as screenshot from './screenshot';
 import * as stepCache from './step-cache';
-import type { DeviceType, PlayMode, Viewport } from './types';
+import type { DeviceType, PlayMode } from './types';
 
 export type SpinRunnerModule = {
   runGameSpin: (
@@ -22,7 +22,7 @@ export type SpinRunnerModule = {
     viewport: Viewport,
     runID: string,
     playmode: PlayMode,
-  ) => Promise<TestResult>;
+  ) => Promise<InternalTestResult>;
 };
 
 type SpinListeners = {
@@ -191,7 +191,7 @@ async function runGameSpin(
   viewport: Viewport,
   runID: string,
   playmode: PlayMode,
-): Promise<TestResult> {
+): Promise<InternalTestResult> {
   const httpCredentials =
     process.env.BASIC_AUTH_USER && process.env.BASIC_AUTH_PASS
       ? { username: process.env.BASIC_AUTH_USER, password: process.env.BASIC_AUTH_PASS }
@@ -237,7 +237,6 @@ async function runGameSpin(
   if (failure) {
     return {
       title: `spin: ${game.name}`,
-      project: deviceType,
       status: 'failed',
       duration,
       error: failure.message,
@@ -253,7 +252,6 @@ async function runGameSpin(
 
   return {
     title: `spin: ${game.name}`,
-    project: deviceType,
     status: 'passed',
     duration,
     stdout: filteredStdout,

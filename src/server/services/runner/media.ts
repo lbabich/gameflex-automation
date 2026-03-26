@@ -2,14 +2,18 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { Effect } from 'effect';
 import * as gifGenerator from '../../lib/gif-generator';
-import * as libTypes from '../../lib/types';
-import type { TestResult } from './types';
+import type { DeviceType } from '../../../shared/types';
+import type { InternalTestResult } from '../../types';
 
-function attachScreenshotUrls(results: TestResult[]) {
+function attachScreenshotUrls(results: Partial<Record<DeviceType, InternalTestResult>>) {
   return Effect.sync(() => {
     const screenshotsBase = path.resolve('src/server/screenshots');
 
-    for (const result of results) {
+    for (const result of Object.values(results)) {
+      if (!result) {
+        continue;
+      }
+
       const paths = result.screenshotPaths;
 
       if (!paths?.length) {
@@ -24,21 +28,16 @@ function attachScreenshotUrls(results: TestResult[]) {
   });
 }
 
-function attachGifUrls(runID: string, results: TestResult[]) {
+function attachGifUrls(runID: string, results: Partial<Record<DeviceType, InternalTestResult>>) {
   return Effect.gen(function* () {
-    const deviceTypes = [
-      ...new Set(
-        results.map((result: TestResult) => {
-          return /mobile/i.test(result.project)
-            ? libTypes.DEVICE_TYPE.MOBILE
-            : libTypes.DEVICE_TYPE.DESKTOP;
-        }),
-      ),
-    ];
+    for (const [deviceType, result] of Object.entries(results) as [
+      DeviceType,
+      InternalTestResult,
+    ][]) {
+      if (!result) {
+        continue;
+      }
 
-    const gifUrls = new Map<libTypes.DeviceType, string>();
-
-    for (const deviceType of deviceTypes) {
       yield* Effect.tryPromise({
         try: () => {
           return gifGenerator.generateGif(runID, deviceType);
@@ -49,10 +48,7 @@ function attachGifUrls(runID: string, results: TestResult[]) {
       }).pipe(
         Effect.tap(() => {
           return Effect.sync(() => {
-            gifUrls.set(
-              deviceType,
-              `/api/screenshots/${runID}/${deviceType}/${gifGenerator.ANIMATED_GIF_FILENAME}`,
-            );
+            result.gifUrl = `/api/screenshots/${runID}/${deviceType}/${gifGenerator.ANIMATED_GIF_FILENAME}`;
           });
         }),
         Effect.catchAll((err: unknown) => {
@@ -62,24 +58,16 @@ function attachGifUrls(runID: string, results: TestResult[]) {
         }),
       );
     }
-
-    for (const result of results) {
-      const deviceType = /mobile/i.test(result.project)
-        ? libTypes.DEVICE_TYPE.MOBILE
-        : libTypes.DEVICE_TYPE.DESKTOP;
-
-      const url = gifUrls.get(deviceType);
-
-      if (url !== undefined) {
-        result.gifUrl = url;
-      }
-    }
   });
 }
 
-function cleanupImages(results: TestResult[]) {
+function cleanupImages(results: Partial<Record<DeviceType, InternalTestResult>>) {
   return Effect.sync(() => {
-    for (const result of results) {
+    for (const result of Object.values(results)) {
+      if (!result) {
+        continue;
+      }
+
       const paths = result.screenshotPaths;
 
       result.screenshotPaths = undefined;

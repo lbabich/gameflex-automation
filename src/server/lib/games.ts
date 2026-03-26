@@ -1,22 +1,10 @@
 import * as crypto from 'node:crypto';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import type { GameEntry, GameUpdates } from '../../../shared/types';
 import * as stepCache from './step-cache';
 
-export type GameEntry = {
-  id: string;
-  desktopGameID: string;
-  mobileGameID?: string;
-  name: string;
-  gameProviderID: string;
-};
-
-export type GameUpdates = {
-  name?: string;
-  desktopGameID?: string;
-  mobileGameID?: string;
-  gameProviderID?: string;
-};
+export type { GameEntry, GameUpdates } from '../../../shared/types';
 
 function addGame(entry: Omit<GameEntry, 'id'> & { id?: string }) {
   const games = readGames();

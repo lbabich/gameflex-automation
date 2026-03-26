@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { RunRecord, RunStatus } from '../types';
+import type { RunRecord, RunStatus } from '@shared/types';
 
 type Props = {
   runs: RunRecord[];

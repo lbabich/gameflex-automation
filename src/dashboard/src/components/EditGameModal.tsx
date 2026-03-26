@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useUpdateGame } from '../hooks/useUpdateGame';
-import type { GameEntry } from '../types';
+import type { GameEntry } from '@shared/types';
 
 type Props = {
   game: GameEntry;

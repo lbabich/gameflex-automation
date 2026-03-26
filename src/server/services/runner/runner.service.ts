@@ -9,12 +9,12 @@ import { attachGifUrls, attachScreenshotUrls, cleanupImages } from './media';
 import { parseSpinOutput } from './output-parser';
 import { loadRuns, saveRuns, trimMemory } from './persistence';
 import { spawnProcess } from './process';
-import type { RunRecord } from './types';
+import type { InternalRunRecord, RunRecord } from '../../types';
 
-export type { RunRecord, RunStatus, TestResult, TestStep } from './types';
+export type { RunRecord, RunStatus, TestResult, TestStep } from '../../types';
 
 type RunnerState = {
-  runs: Map<string, RunRecord>;
+  runs: Map<string, InternalRunRecord>;
   activeRunsByGame: Map<string, string>;
   activeFibers: Map<string, Fiber.RuntimeFiber<void, never>>;
 };
@@ -192,7 +192,7 @@ function getRecentRuns(state: RunnerState, limit = 10) {
   });
 }
 
-function finalizeRun(state: RunnerState, record: RunRecord, code: number, stdout: string) {
+function finalizeRun(state: RunnerState, record: InternalRunRecord, code: number, stdout: string) {
   return Effect.gen(function* () {
     record.rawOutput = stdout;
     record.finishedAt = new Date().toISOString();
@@ -223,17 +223,17 @@ function finalizeRun(state: RunnerState, record: RunRecord, code: number, stdout
   });
 }
 
-function logSummary(record: RunRecord) {
+function logSummary(record: InternalRunRecord) {
   let passed = 0;
   let failed = 0;
   let skipped = 0;
 
-  for (const result of record.results) {
-    if (result.status === 'passed') {
+  for (const result of Object.values(record.results)) {
+    if (result?.status === 'passed') {
       passed++;
-    } else if (result.status === 'failed') {
+    } else if (result?.status === 'failed') {
       failed++;
-    } else if (result.status === 'skipped') {
+    } else if (result?.status === 'skipped') {
       skipped++;
     }
   }
@@ -243,13 +243,13 @@ function logSummary(record: RunRecord) {
   );
 }
 
-function createRecord(runID: string, gameIDs: string[]): RunRecord {
+function createRecord(runID: string, gameIDs: string[]): InternalRunRecord {
   return {
     runID,
     gameIDs,
     status: 'running',
     startedAt: new Date().toISOString(),
-    results: [],
+    results: {},
     playwrightErrors: [],
     rawOutput: '',
   };

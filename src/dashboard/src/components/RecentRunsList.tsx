@@ -1,4 +1,4 @@
-import type { GameEntry, RunRecord, RunStatus } from '../types';
+import type { GameEntry, RunRecord, RunStatus } from '@shared/types';
 
 type Props = {
   runs: RunRecord[];

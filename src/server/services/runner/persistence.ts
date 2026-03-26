@@ -2,7 +2,7 @@ import * as path from 'node:path';
 import { Effect } from 'effect';
 import type { FileWriteError } from '../../errors';
 import { FileService } from '../file.service';
-import type { RunRecord } from './types';
+import type { InternalRunRecord } from '../../types';
 
 export const RUNS_FILE = path.resolve('src/server/data/runs.json');
 
@@ -14,34 +14,34 @@ function loadRuns() {
       Effect.flatMap((content: string) => {
         return Effect.try({
           try: () => {
-            return JSON.parse(content) as RunRecord[];
+            return JSON.parse(content) as InternalRunRecord[];
           },
           catch: () => {
-            return [] as RunRecord[];
+            return [] as InternalRunRecord[];
           },
         });
       }),
       Effect.catchAll(() => {
-        return Effect.succeed([] as RunRecord[]);
+        return Effect.succeed([] as InternalRunRecord[]);
       }),
     );
   });
 }
 
-function saveRuns(runs: Map<string, RunRecord>) {
+function saveRuns(runs: Map<string, InternalRunRecord>) {
   return Effect.gen(function* () {
     const fileService = yield* FileService;
 
-    const completed = [...runs.values()].filter((run: RunRecord) => {
+    const completed = [...runs.values()].filter((run: InternalRunRecord) => {
       return run.status !== 'running';
     });
 
     const toSave = completed
-      .sort((runA: RunRecord, runB: RunRecord) => {
+      .sort((runA: InternalRunRecord, runB: InternalRunRecord) => {
         return new Date(runB.startedAt).getTime() - new Date(runA.startedAt).getTime();
       })
       .slice(0, 10)
-      .map(({ rawOutput: _raw, ...rest }: RunRecord) => {
+      .map(({ rawOutput: _raw, ...rest }: InternalRunRecord) => {
         return rest;
       });
 
@@ -55,13 +55,13 @@ function saveRuns(runs: Map<string, RunRecord>) {
   );
 }
 
-function trimMemory(runs: Map<string, RunRecord>) {
+function trimMemory(runs: Map<string, InternalRunRecord>) {
   if (runs.size <= 10) {
     return;
   }
 
   const oldest = [...runs.entries()]
-    .sort(([, runA]: [string, RunRecord], [, runB]: [string, RunRecord]) => {
+    .sort(([, runA]: [string, InternalRunRecord], [, runB]: [string, InternalRunRecord]) => {
       return runA.startedAt < runB.startedAt ? -1 : 1;
     })
     .slice(0, runs.size - 10);

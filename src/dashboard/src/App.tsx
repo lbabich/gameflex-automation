@@ -11,8 +11,7 @@ import { useGames } from './hooks/useGames';
 import { useRecentRuns } from './hooks/useRecentRuns';
 import { useRun } from './hooks/useRun';
 import { QUERY_KEY } from './queryKeys';
-import { PLAY_MODE } from './types';
-import type { GameEntry, PlayMode } from './types';
+import { PLAY_MODE, GameEntry, PlayMode } from '@shared/types';
 
 export default function App() {
   const [selectedGameID, setSelectedGameID] = useState<string | null>(null);

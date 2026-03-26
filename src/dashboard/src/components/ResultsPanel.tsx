@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useState } from 'react';
-import type { RunRecord, TestResult } from '../types';
+import type { DeviceType, RunRecord, TestResult } from '@shared/types';
 
 const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
 
@@ -40,21 +40,21 @@ function SkeletonRow() {
 }
 
 export function ResultsPanel({ run, isLoading }: Props) {
-  const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
-  const [openLogs, setOpenLogs] = useState<Set<number>>(new Set());
+  const [expandedRows, setExpandedRows] = useState<Set<DeviceType>>(new Set());
+  const [openLogs, setOpenLogs] = useState<Set<DeviceType>>(new Set());
 
-  const toggleRow = useCallback((i: number) => {
+  const toggleRow = useCallback((deviceType: DeviceType) => {
     setExpandedRows((prev) => {
       const next = new Set(prev);
-      next.has(i) ? next.delete(i) : next.add(i);
+      next.has(deviceType) ? next.delete(deviceType) : next.add(deviceType);
       return next;
     });
   }, []);
 
-  const toggleLog = useCallback((i: number) => {
+  const toggleLog = useCallback((deviceType: DeviceType) => {
     setOpenLogs((prev) => {
       const next = new Set(prev);
-      next.has(i) ? next.delete(i) : next.add(i);
+      next.has(deviceType) ? next.delete(deviceType) : next.add(deviceType);
       return next;
     });
   }, []);
@@ -79,143 +79,164 @@ export function ResultsPanel({ run, isLoading }: Props) {
           </tr>
         </thead>
         <tbody>
-          {run.results.length > 0
-            ? run.results.map((result, i) => {
-                const hasDetails =
-                  result.stdout.some((line) => !line.startsWith('Screenshot saved:')) ||
-                  !!result.gifUrl ||
-                  (result.steps?.length ?? 0) > 0 ||
-                  !!result.annotations;
-                return (
-                <Fragment key={i}>
-                  <tr
-                    className={`border-b hover:bg-gray-50 ${hasDetails ? 'cursor-pointer' : ''}`}
-                    onClick={() => {
-                      if (hasDetails) toggleRow(i);
-                    }}
-                  >
-                    <td className="py-2 px-3">
-                      <div className="flex items-center gap-1">
-                        {hasDetails && (
-                          <span className="text-gray-400 text-xs select-none">
-                            {expandedRows.has(i) ? '▼' : '▶'}
-                          </span>
-                        )}
-                        {result.title}
-                      </div>
-                      {result.error && (
-                        <div className="text-xs text-red-600 mt-1 font-mono whitespace-pre-wrap">
-                          {result.error}
-                        </div>
-                      )}
-                      {result.failedStep && (
-                        <div className="text-xs text-red-500 mt-0.5 font-mono">
-                          ↳ failed at: {result.failedStep}
-                        </div>
-                      )}
-                    </td>
-                    <td className="py-2 px-3 text-gray-500">{result.project}</td>
-                    <td className="py-2 px-3">
-                      <StatusBadge status={result.status} />
-                    </td>
-                    <td className="py-2 px-3 text-right text-gray-500">
-                      {(result.duration / 1000).toFixed(1)}s
-                    </td>
-                  </tr>
-                  {expandedRows.has(i) && (
-                    <tr className="border-b bg-gray-50">
-                      <td colSpan={4} className="px-6 py-3">
-                        {(result.gifUrl || (result.screenshotUrls && result.screenshotUrls.length > 0)) && (
-                          <div className="flex gap-3 mb-3 flex-wrap">
-                            {result.gifUrl && (
-                              <img
-                                src={`${API_BASE}${result.gifUrl}`}
-                                alt="Test replay"
-                                className="rounded"
-                                style={{ maxHeight: '240px' }}
-                              />
-                            )}
-                            {result.screenshotUrls?.map((url, si) => (
-                              <a key={si} href={`${API_BASE}${url}`} target="_blank" rel="noreferrer">
-                                <img
-                                  src={`${API_BASE}${url}`}
-                                  alt={`Failure screenshot ${si + 1}`}
-                                  className="rounded border border-red-200"
-                                  style={{ maxHeight: '240px' }}
-                                />
-                              </a>
-                            ))}
-                          </div>
-                        )}
-                        {(result.steps?.length || result.annotations) && (
-                          <div className="rounded border border-gray-200 overflow-hidden mb-3">
-                            <div className="text-xs font-medium text-gray-500 bg-gray-50 px-3 py-1.5 border-b border-gray-200">
-                              Steps
-                            </div>
-                            {result.annotations?.['had-load-progress'] !== undefined && (
-                              <div
-                                className={`flex items-center gap-3 px-3 py-2 border-b border-gray-100 ${result.annotations['had-load-progress'] === 'true' ? 'bg-white' : 'bg-amber-50'}`}
-                              >
-                                <span
-                                  className={`text-sm leading-none ${result.annotations['had-load-progress'] === 'true' ? 'text-green-500' : 'text-amber-500'}`}
-                                >
-                                  {result.annotations['had-load-progress'] === 'true' ? '✓' : '⚠'}
-                                </span>
-                                <span className="flex-1 text-xs text-gray-700">gel.load.progress</span>
-                              </div>
-                            )}
-                            {result.annotations?.['load-time-ms'] !== undefined && (
-                              <div className="flex items-center gap-3 px-3 py-2 border-b border-gray-100 bg-white">
-                                <span className="text-sm leading-none text-green-500">✓</span>
-                                <span className="flex-1 text-xs text-gray-700">gel.ready</span>
-                                <span className="text-xs text-gray-400">
-                                  {result.annotations['load-time-ms']}ms
-                                </span>
-                              </div>
-                            )}
-                            {result.steps?.map((step, si) => (
-                              <div
-                                key={si}
-                                className={`flex items-center gap-3 px-3 py-2 border-b last:border-b-0 border-gray-100 ${step.error ? 'bg-red-50' : 'bg-white'}`}
-                              >
-                                <span
-                                  className={`text-sm leading-none ${step.error ? 'text-red-500' : 'text-green-500'}`}
-                                >
-                                  {step.error ? '✗' : '✓'}
-                                </span>
-                                <span className="flex-1 text-xs text-gray-700">{step.title}</span>
-                                <span className="text-xs text-gray-400">
-                                  {(step.duration / 1000).toFixed(1)}s
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        {result.stdout.filter((line) => !line.startsWith('Screenshot saved:')).length > 0 && (
-                          <div>
-                            <button
-                              type="button"
-                              className="text-xs text-blue-600 hover:underline"
-                              onClick={(e) => { e.stopPropagation(); toggleLog(i); }}
-                            >
-                              {openLogs.has(i) ? 'Hide log' : 'View log'}
-                            </button>
+          {Object.keys(run.results).length > 0
+            ? (Object.entries(run.results) as [DeviceType, TestResult][]).map(
+                ([deviceType, result]) => {
+                  const hasDetails =
+                    result.stdout.some((line) => !line.startsWith('Screenshot saved:')) ||
+                    !!result.gifUrl ||
+                    (result.steps?.length ?? 0) > 0 ||
+                    !!result.annotations;
 
-                            {openLogs.has(i) && (
-                              <textarea
-                                readOnly
-                                className="mt-2 w-full h-48 text-xs text-gray-600 font-mono leading-relaxed resize-y border border-gray-200 rounded p-2 bg-gray-50"
-                                value={result.stdout.filter((line) => !line.startsWith('Screenshot saved:')).join('\n')}
-                              />
+                  return (
+                    <Fragment key={deviceType}>
+                      <tr
+                        className={`border-b hover:bg-gray-50 ${hasDetails ? 'cursor-pointer' : ''}`}
+                        onClick={() => {
+                          if (hasDetails) {
+                            toggleRow(deviceType);
+                          }
+                        }}
+                      >
+                        <td className="py-2 px-3">
+                          <div className="flex items-center gap-1">
+                            {hasDetails && (
+                              <span className="text-gray-400 text-xs select-none">
+                                {expandedRows.has(deviceType) ? '▼' : '▶'}
+                              </span>
                             )}
+                            {result.title}
                           </div>
-                        )}
-                      </td>
-                    </tr>
-                  )}
-                </Fragment>
-              );
-              })
+                          {result.error && (
+                            <div className="text-xs text-red-600 mt-1 font-mono whitespace-pre-wrap">
+                              {result.error}
+                            </div>
+                          )}
+                          {result.failedStep && (
+                            <div className="text-xs text-red-500 mt-0.5 font-mono">
+                              ↳ failed at: {result.failedStep}
+                            </div>
+                          )}
+                        </td>
+                        <td className="py-2 px-3 text-gray-500">{deviceType}</td>
+                        <td className="py-2 px-3">
+                          <StatusBadge status={result.status} />
+                        </td>
+                        <td className="py-2 px-3 text-right text-gray-500">
+                          {(result.duration / 1000).toFixed(1)}s
+                        </td>
+                      </tr>
+                      {expandedRows.has(deviceType) && (
+                        <tr className="border-b bg-gray-50">
+                          <td colSpan={4} className="px-6 py-3">
+                            {(result.gifUrl ||
+                              (result.screenshotUrls && result.screenshotUrls.length > 0)) && (
+                              <div className="flex gap-3 mb-3 flex-wrap">
+                                {result.gifUrl && (
+                                  <img
+                                    src={`${API_BASE}${result.gifUrl}`}
+                                    alt="Test replay"
+                                    className="rounded"
+                                    style={{ maxHeight: '240px' }}
+                                  />
+                                )}
+                                {result.screenshotUrls?.map((url, si) => (
+                                  <a
+                                    key={si}
+                                    href={`${API_BASE}${url}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                  >
+                                    <img
+                                      src={`${API_BASE}${url}`}
+                                      alt={`Failure screenshot ${si + 1}`}
+                                      className="rounded border border-red-200"
+                                      style={{ maxHeight: '240px' }}
+                                    />
+                                  </a>
+                                ))}
+                              </div>
+                            )}
+                            {(result.steps?.length || result.annotations) && (
+                              <div className="rounded border border-gray-200 overflow-hidden mb-3">
+                                <div className="text-xs font-medium text-gray-500 bg-gray-50 px-3 py-1.5 border-b border-gray-200">
+                                  Steps
+                                </div>
+                                {result.annotations?.['had-load-progress'] !== undefined && (
+                                  <div
+                                    className={`flex items-center gap-3 px-3 py-2 border-b border-gray-100 ${result.annotations['had-load-progress'] === 'true' ? 'bg-white' : 'bg-amber-50'}`}
+                                  >
+                                    <span
+                                      className={`text-sm leading-none ${result.annotations['had-load-progress'] === 'true' ? 'text-green-500' : 'text-amber-500'}`}
+                                    >
+                                      {result.annotations['had-load-progress'] === 'true'
+                                        ? '✓'
+                                        : '⚠'}
+                                    </span>
+                                    <span className="flex-1 text-xs text-gray-700">
+                                      gel.load.progress
+                                    </span>
+                                  </div>
+                                )}
+                                {result.annotations?.['load-time-ms'] !== undefined && (
+                                  <div className="flex items-center gap-3 px-3 py-2 border-b border-gray-100 bg-white">
+                                    <span className="text-sm leading-none text-green-500">✓</span>
+                                    <span className="flex-1 text-xs text-gray-700">gel.ready</span>
+                                    <span className="text-xs text-gray-400">
+                                      {result.annotations['load-time-ms']}ms
+                                    </span>
+                                  </div>
+                                )}
+                                {result.steps?.map((step, si) => (
+                                  <div
+                                    key={si}
+                                    className={`flex items-center gap-3 px-3 py-2 border-b last:border-b-0 border-gray-100 ${step.error ? 'bg-red-50' : 'bg-white'}`}
+                                  >
+                                    <span
+                                      className={`text-sm leading-none ${step.error ? 'text-red-500' : 'text-green-500'}`}
+                                    >
+                                      {step.error ? '✗' : '✓'}
+                                    </span>
+                                    <span className="flex-1 text-xs text-gray-700">{step.title}</span>
+                                    <span className="text-xs text-gray-400">
+                                      {(step.duration / 1000).toFixed(1)}s
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                            {result.stdout.filter((line) => !line.startsWith('Screenshot saved:'))
+                              .length > 0 && (
+                              <div>
+                                <button
+                                  type="button"
+                                  className="text-xs text-blue-600 hover:underline"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleLog(deviceType);
+                                  }}
+                                >
+                                  {openLogs.has(deviceType) ? 'Hide log' : 'View log'}
+                                </button>
+
+                                {openLogs.has(deviceType) && (
+                                  <textarea
+                                    readOnly
+                                    className="mt-2 w-full h-48 text-xs text-gray-600 font-mono leading-relaxed resize-y border border-gray-200 rounded p-2 bg-gray-50"
+                                    value={result.stdout
+                                      .filter((line) => !line.startsWith('Screenshot saved:'))
+                                      .join('\n')}
+                                  />
+                                )}
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      )}
+                    </Fragment>
+                  );
+                },
+              )
             : isRunning && (
                 <>
                   <SkeletonRow />
@@ -226,7 +247,7 @@ export function ResultsPanel({ run, isLoading }: Props) {
         </tbody>
       </table>
 
-      {!isRunning && run.results.length === 0 && (
+      {!isRunning && Object.keys(run.results).length === 0 && (
         <div className="flex flex-col gap-2">
           <div className="text-gray-500 text-sm">No test results found.</div>
           {run.playwrightErrors.length > 0 && (

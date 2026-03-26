@@ -1,4 +1,4 @@
-import type { GameEntry } from '../types';
+import type { GameEntry } from '@shared/types';
 
 type GameStatus = {
   isRunning: boolean;

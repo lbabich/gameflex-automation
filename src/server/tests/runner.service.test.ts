@@ -53,7 +53,7 @@ function makeRunRecord(overrides: Partial<RunRecord> = {}): RunRecord {
     gameIDs: [],
     status: 'completed',
     startedAt: '2024-01-01T00:00:00.000Z',
-    results: [],
+    results: {},
     playwrightErrors: [],
     ...overrides,
   };

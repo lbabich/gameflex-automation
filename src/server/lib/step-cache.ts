@@ -1,6 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import type { DeviceType, GameSteps, Viewport } from './types';
+import type { DeviceType } from './types';
+import { GameSteps, Viewport } from '../types';
 
 type ViewportMap = Record<string, GameSteps>;
 type DeviceMap = Record<string, ViewportMap>;

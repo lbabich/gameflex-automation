@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { createRun } from '../api';
 import { useClearChannelSteps } from '../hooks/useClearChannelSteps';
-import { DEVICE_TYPE } from '../types';
-import type { DeviceType, GameEntry, PlayMode } from '../types';
+import { DEVICE_TYPE } from '@shared/types';
+import type { DeviceType, GameEntry, PlayMode } from '@shared/types';
 
 type Props = {
   game: GameEntry;
