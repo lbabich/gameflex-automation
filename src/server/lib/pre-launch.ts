@@ -47,7 +47,7 @@ async function launch(
   await page.locator('#gameLaunchLoader').waitFor({ state: 'visible' });
 
   await page.locator('#gameLaunchLoader').evaluate((select, loaderType) => {
-    const opt = Array.from((select as HTMLSelectElement).options).find((o) => {
+    const opt = Array.from((select as HTMLSelectElement).options).find((o: HTMLOptionElement) => {
       return o.text.includes(loaderType);
     });
 

@@ -12,29 +12,29 @@ class FileService extends Effect.Tag('FileService')<
 >() {}
 
 export const NodeFileService = Layer.succeed(FileService, {
-  read: (path) => {
+  read: (path: string) => {
     return Effect.try({
       try: () => {
         return fs.readFileSync(path, 'utf8');
       },
-      catch: (err) => {
+      catch: (err: unknown) => {
         return new FileReadError({ path, message: String(err) });
       },
     });
   },
 
-  write: (path, content) => {
+  write: (path: string, content: string) => {
     return Effect.try({
       try: () => {
         return fs.writeFileSync(path, content);
       },
-      catch: (err) => {
+      catch: (err: unknown) => {
         return new FileWriteError({ path, message: String(err) });
       },
     });
   },
 
-  exists: (path) => {
+  exists: (path: string) => {
     return Effect.succeed(fs.existsSync(path));
   },
 });

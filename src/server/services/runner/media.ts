@@ -28,7 +28,7 @@ function attachGifUrls(runID: string, results: TestResult[]) {
   return Effect.gen(function* () {
     const deviceTypes = [
       ...new Set(
-        results.map((result) => {
+        results.map((result: TestResult) => {
           return /mobile/i.test(result.project)
             ? libTypes.DEVICE_TYPE.MOBILE
             : libTypes.DEVICE_TYPE.DESKTOP;
@@ -43,7 +43,7 @@ function attachGifUrls(runID: string, results: TestResult[]) {
         try: () => {
           return gifGenerator.generateGif(runID, deviceType);
         },
-        catch: (err) => {
+        catch: (err: unknown) => {
           return err;
         },
       }).pipe(
@@ -55,7 +55,7 @@ function attachGifUrls(runID: string, results: TestResult[]) {
             );
           });
         }),
-        Effect.catchAll((err) => {
+        Effect.catchAll((err: unknown) => {
           return Effect.sync(() => {
             console.warn('[runner] Failed to generate GIF:', err);
           });

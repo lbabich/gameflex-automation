@@ -2,6 +2,7 @@ import { Effect, Schema } from 'effect';
 import type { Request, Response } from 'express';
 import { Router } from 'express';
 import type { DuplicateGameIDError, GameNotFoundError } from '../errors';
+import type { GameEntry } from '../lib/games';
 import type { DeviceType } from '../lib/types';
 import { DEVICE_TYPES } from '../lib/types';
 import type { AppRuntime } from '../runtime';
@@ -32,7 +33,7 @@ function makeGamesRouter(runtime: AppRuntime) {
         const deviceCache = yield* gamesService.getCachedDeviceMap();
 
         res.json(
-          games.map((game) => {
+          games.map((game: GameEntry) => {
             const cache = deviceCache.get(game.id) ?? { desktop: false, mobile: false };
 
             return { ...game, desktopCached: cache.desktop, mobileCached: cache.mobile };

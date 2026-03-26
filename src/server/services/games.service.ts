@@ -29,35 +29,35 @@ export const NodeGamesService = Layer.succeed(GamesService, {
     });
   },
 
-  add: (entry) => {
+  add: (entry: Omit<games.GameEntry, 'id'>) => {
     return Effect.try({
       try: () => {
         return games.addGame(entry);
       },
-      catch: (_err) => {
+      catch: (_err: unknown) => {
         return new DuplicateGameIDError({ desktopGameID: entry.desktopGameID });
       },
     });
   },
 
-  update: (id, updates) => {
+  update: (id: string, updates: games.GameUpdates) => {
     return Effect.try({
       try: () => {
         return games.updateGame(id, updates);
       },
-      catch: (_err) => {
+      catch: (_err: unknown) => {
         return new GameNotFoundError({ id });
       },
     });
   },
 
-  clearAllSteps: (id) => {
+  clearAllSteps: (id: string) => {
     return Effect.sync(() => {
       return stepCache.clearAllSteps(id);
     });
   },
 
-  clearSteps: (id, deviceType) => {
+  clearSteps: (id: string, deviceType: libTypes.DeviceType) => {
     return Effect.sync(() => {
       return stepCache.clearChannelSteps(id, deviceType);
     });

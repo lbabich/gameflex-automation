@@ -30,7 +30,7 @@ async function detectSpinButton(
 
   if (failedButtons.length > 0) {
     const list = failedButtons
-      .map((button) => {
+      .map((button: FailedButton) => {
         return `- "${button.label}" at (${button.x}, ${button.y})`;
       })
       .join('\n');
@@ -61,7 +61,7 @@ async function detectNextClick(
 
   if (failedButtons.length > 0) {
     const list = failedButtons
-      .map((button) => {
+      .map((button: FailedButton) => {
         return `- "${button.label}" at (${button.x}, ${button.y})`;
       })
       .join('\n');

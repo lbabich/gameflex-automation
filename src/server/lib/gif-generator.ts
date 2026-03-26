@@ -37,10 +37,10 @@ async function generateGif(runID: string, deviceType: DeviceType) {
 
   const pngFiles = fs
     .readdirSync(screenshotsDir)
-    .filter((filename) => {
+    .filter((filename: string) => {
       return filename.endsWith('.png') && !filename.startsWith('failure-');
     })
-    .sort((a, b) => {
+    .sort((a: string, b: string) => {
       const [aGroup, aIdx] = parseSortKey(a);
       const [bGroup, bIdx] = parseSortKey(b);
       return aGroup !== bGroup ? aGroup - bGroup : aIdx - bIdx;

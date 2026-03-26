@@ -81,10 +81,10 @@ function setupSpinListeners(page: Page, stdout: string[]): SpinListeners {
 
 function filterStdout(lines: string[]) {
   return lines
-    .map((line) => {
+    .map((line: string) => {
       return line.trimEnd();
     })
-    .filter((line) => {
+    .filter((line: string) => {
       return line && !line.startsWith('Screenshot saved:');
     });
 }
@@ -241,7 +241,7 @@ async function runGameSpin(
       status: 'failed',
       duration,
       error: failure.message,
-      failedStep: steps.find((s) => {
+      failedStep: steps.find((s: TestStep) => {
         return s.error;
       })?.title,
       stdout: filteredStdout,

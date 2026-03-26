@@ -1,6 +1,7 @@
 import { chromium } from '@playwright/test';
 import * as dotenv from 'dotenv';
 
+import type { GameEntry } from '../lib/games';
 import { readGames } from '../lib/games';
 import * as spinRunner from '../lib/spin-runner';
 import type { DeviceType, PlayMode, Viewport } from '../lib/types';
@@ -38,7 +39,7 @@ async function main() {
   const { runID, gameIDs, deviceTypes, playmode } = parseArgs();
 
   const allGames = readGames();
-  const games = allGames.filter((g) => {
+  const games = allGames.filter((g: GameEntry) => {
     return gameIDs.includes(g.id);
   });
 

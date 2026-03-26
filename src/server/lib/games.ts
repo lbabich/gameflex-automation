@@ -22,7 +22,7 @@ function addGame(entry: Omit<GameEntry, 'id'> & { id?: string }) {
   const games = readGames();
 
   if (
-    games.some((game) => {
+    games.some((game: GameEntry) => {
       return game.desktopGameID === entry.desktopGameID;
     })
   ) {
@@ -38,7 +38,7 @@ function addGame(entry: Omit<GameEntry, 'id'> & { id?: string }) {
 
 function updateGame(id: string, updates: GameUpdates) {
   const games = readGames();
-  const index = games.findIndex((game) => {
+  const index = games.findIndex((game: GameEntry) => {
     return game.id === id;
   });
 
@@ -79,7 +79,7 @@ function readGames() {
 
   let dirty = false;
 
-  const games = entries.map((entry) => {
+  const games = entries.map((entry: unknown) => {
     const game = entry as Record<string, unknown>;
 
     if (!game.id) {

@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { Effect, Fiber, Layer } from 'effect';
 import { GameNotFoundError, RunAlreadyActiveError, RunNotFoundError } from '../../errors';
+import type { GameEntry } from '../../lib/games';
 import { FileService } from '../file.service';
 import { GamesService } from '../games.service';
 import { buildSpinCommand } from './command';
@@ -51,16 +52,16 @@ export const NodeRunnerService = Layer.effect(
     }
 
     return {
-      startRun: (gameIDs, deviceTypes, playmode) => {
+      startRun: (gameIDs: string[], deviceTypes: string[], playmode: string) => {
         return startRun(state, gamesService, fileService, gameIDs, deviceTypes, playmode);
       },
-      cancelRun: (runID) => {
+      cancelRun: (runID: string) => {
         return cancelRun(state, fileService, runID);
       },
-      getRun: (runID) => {
+      getRun: (runID: string) => {
         return getRun(state, runID);
       },
-      getRecentRuns: (limit) => {
+      getRecentRuns: (limit?: number) => {
         return getRecentRuns(state, limit);
       },
     };
@@ -76,7 +77,7 @@ function startRun(
   playmode: string,
 ) {
   return Effect.gen(function* () {
-    const conflicting = gameIDs.filter((id) => {
+    const conflicting = gameIDs.filter((id: string) => {
       return state.activeRunsByGame.has(id);
     });
 
@@ -85,8 +86,8 @@ function startRun(
     }
 
     const gameList = yield* gamesService.list();
-    const firstMissingID = gameIDs.find((id) => {
-      return !gameList.some((g) => {
+    const firstMissingID = gameIDs.find((id: string) => {
+      return !gameList.some((g: GameEntry) => {
         return g.id === id;
       });
     });
@@ -115,7 +116,7 @@ function startRun(
       yield* finalizeRun(state, record, code, stdout);
     }).pipe(
       Effect.provideService(FileService, fileService),
-      Effect.catchAll((error) => {
+      Effect.catchAll((error: never) => {
         console.error('[runner] Background fiber error:', error);
 
         if (record.status === 'running') {
@@ -184,7 +185,7 @@ function getRun(state: RunnerState, runID: string) {
 function getRecentRuns(state: RunnerState, limit = 10) {
   return Effect.sync(() => {
     return [...state.runs.values()]
-      .sort((a, b) => {
+      .sort((a: RunRecord, b: RunRecord) => {
         return new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime();
       })
       .slice(0, limit);
