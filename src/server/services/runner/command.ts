@@ -1,9 +1,13 @@
-function buildSpinCommand(runID: string, gameIDs: string[], deviceTypes?: string[]) {
+function buildSpinCommand(
+  runID: string,
+  gameIDs: string[],
+  deviceTypes: string[],
+  playmode: string,
+) {
   const ids = gameIDs.join(',');
+  const devices = deviceTypes.join(',');
 
-  const deviceFlag = deviceTypes?.length ? ` --deviceTypes=${deviceTypes.join(',')}` : '';
-
-  return `npx tsx src/scripts/spin.ts --runID=${runID} --gameIDs=${ids}${deviceFlag}`;
+  return `npx tsx src/scripts/spin.ts --runID=${runID} --gameIDs=${ids} --deviceTypes=${devices} --playmode=${playmode}`;
 }
 
 export { buildSpinCommand };

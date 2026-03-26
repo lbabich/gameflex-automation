@@ -1,15 +1,14 @@
 import { randomUUID } from 'node:crypto';
-import * as fs from 'node:fs';
-import * as path from 'node:path';
 import { Effect, Layer, ManagedRuntime } from 'effect';
-import { beforeEach, describe, expect, it } from 'vitest';
-import { addGame, readGames } from '../lib/games';
-import { GameNotFoundError, RunNotFoundError } from '../server/errors';
-import { FileService } from '../server/services/file.service';
-import type { RunRecord } from '../server/services/runner/runner.service';
-import { NodeRunnerService, RunnerService } from '../server/services/runner/runner.service';
+import { describe, expect, it } from 'vitest';
+import { GameNotFoundError, RunNotFoundError } from '../errors';
+import type { GameEntry } from '../lib/games';
+import { FileService } from '../services/file.service';
+import { GamesService } from '../services/games.service';
+import type { RunRecord } from '../services/runner/runner.service';
+import { NodeRunnerService, RunnerService } from '../services/runner/runner.service';
 
-function makeTestRuntime(runsJson = '[]') {
+function makeTestRuntime(runsJson = '[]', gameEntries: GameEntry[] = []) {
   const testFileService = Layer.succeed(FileService, {
     read: () => {
       return Effect.succeed(runsJson);
@@ -22,7 +21,30 @@ function makeTestRuntime(runsJson = '[]') {
     },
   });
 
-  return ManagedRuntime.make(Layer.provide(NodeRunnerService, testFileService));
+  const testGamesService = Layer.succeed(GamesService, {
+    list: () => {
+      return Effect.succeed(gameEntries);
+    },
+    getCachedDeviceMap: () => {
+      return Effect.succeed(new Map());
+    },
+    add: () => {
+      return Effect.succeed(undefined);
+    },
+    update: () => {
+      return Effect.succeed(undefined);
+    },
+    clearAllSteps: () => {
+      return Effect.succeed(undefined);
+    },
+    clearSteps: () => {
+      return Effect.succeed(undefined);
+    },
+  });
+
+  return ManagedRuntime.make(
+    Layer.provide(NodeRunnerService, Layer.mergeAll(testFileService, testGamesService)),
+  );
 }
 
 function makeRunRecord(overrides: Partial<RunRecord> = {}): RunRecord {
@@ -33,6 +55,16 @@ function makeRunRecord(overrides: Partial<RunRecord> = {}): RunRecord {
     startedAt: '2024-01-01T00:00:00.000Z',
     results: [],
     playwrightErrors: [],
+    ...overrides,
+  };
+}
+
+function makeTestGame(overrides: Partial<GameEntry> = {}): GameEntry {
+  return {
+    id: randomUUID(),
+    desktopGameID: `test-${randomUUID()}`,
+    name: 'Runner Test Game',
+    gameProviderID: '',
     ...overrides,
   };
 }
@@ -93,7 +125,7 @@ describe('RunnerService', () => {
         Effect.gen(function* () {
           const SUT = yield* RunnerService;
 
-          return yield* Effect.flip(SUT.startRun([randomUUID()]));
+          return yield* Effect.flip(SUT.startRun([randomUUID()], ['desktop'], 'demo'));
         }),
       );
 
@@ -156,61 +188,34 @@ describe('RunnerService', () => {
   });
 
   describe('startRun + cancelRun', () => {
-    const GAMES_PATH = path.resolve(process.env.GAMES_JSON_PATH ?? 'src/data/games.json');
-
-    let testGameID: string;
-
-    beforeEach(() => {
-      fs.writeFileSync(GAMES_PATH, '[]');
-
-      const desktopGameID = `test-${randomUUID()}`;
-
-      addGame({
-        desktopGameID,
-        name: 'Runner Test Game',
-        desktopEnabled: true,
-        desktopPlaymode: 'demo',
-        mobileEnabled: false,
-        mobilePlaymode: 'demo',
-      });
-
-      const game = readGames().find((entry) => {
-        return entry.desktopGameID === desktopGameID;
-      });
-
-      if (!game) {
-        throw new Error('test game not found after addGame');
-      }
-
-      testGameID = game.id;
-    });
-
     it('startRun returns a record with running status', async () => {
-      const runtime = makeTestRuntime();
+      const testGame = makeTestGame();
+      const runtime = makeTestRuntime('[]', [testGame]);
 
       const result = await runtime.runPromise(
         Effect.gen(function* () {
           const SUT = yield* RunnerService;
 
-          return yield* SUT.startRun([testGameID]);
+          return yield* SUT.startRun([testGame.id], ['desktop'], 'demo');
         }),
       );
 
       expect(result.runID).toMatch(
         /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
       );
-      expect(result.gameIDs).toEqual([testGameID]);
+      expect(result.gameIDs).toEqual([testGame.id]);
       expect(result.status).toBe('running');
     });
 
     it('cancelRun sets status to cancelled', async () => {
-      const runtime = makeTestRuntime();
+      const testGame = makeTestGame();
+      const runtime = makeTestRuntime('[]', [testGame]);
 
       await runtime.runPromise(
         Effect.gen(function* () {
           const SUT = yield* RunnerService;
 
-          const runRecord = yield* SUT.startRun([testGameID]);
+          const runRecord = yield* SUT.startRun([testGame.id], ['desktop'], 'demo');
 
           yield* SUT.cancelRun(runRecord.runID);
 

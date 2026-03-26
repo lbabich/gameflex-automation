@@ -2,8 +2,6 @@ import * as crypto from 'node:crypto';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as stepCache from './step-cache';
-import type { PlayMode } from './types';
-import { PLAY_MODE } from './types';
 
 export type GameEntry = {
   id: string;
@@ -11,10 +9,6 @@ export type GameEntry = {
   mobileGameID?: string;
   name: string;
   gameProviderID: string;
-  desktopEnabled: boolean;
-  desktopPlaymode: PlayMode;
-  mobileEnabled: boolean;
-  mobilePlaymode: PlayMode;
 };
 
 export type GameUpdates = {
@@ -22,10 +16,6 @@ export type GameUpdates = {
   desktopGameID?: string;
   mobileGameID?: string;
   gameProviderID?: string;
-  desktopEnabled?: boolean;
-  desktopPlaymode?: PlayMode;
-  mobileEnabled?: boolean;
-  mobilePlaymode?: PlayMode;
 };
 
 function addGame(entry: Omit<GameEntry, 'id'> & { id?: string }) {
@@ -72,11 +62,6 @@ function updateGame(id: string, updates: GameUpdates) {
     desktopGameID: updates.desktopGameID ?? game.desktopGameID,
     mobileGameID: updates.mobileGameID !== undefined ? updates.mobileGameID : game.mobileGameID,
     gameProviderID: updates.gameProviderID ?? game.gameProviderID,
-    desktopEnabled:
-      updates.desktopEnabled !== undefined ? updates.desktopEnabled : game.desktopEnabled,
-    desktopPlaymode: updates.desktopPlaymode ?? game.desktopPlaymode,
-    mobileEnabled: updates.mobileEnabled !== undefined ? updates.mobileEnabled : game.mobileEnabled,
-    mobilePlaymode: updates.mobilePlaymode ?? game.mobilePlaymode,
   };
 
   fs.mkdirSync(path.dirname(gamesPath()), { recursive: true });
@@ -114,42 +99,6 @@ function readGames() {
       dirty = true;
     }
 
-    const hasLegacyFields = 'channel' in game || 'playmode' in game;
-
-    if (hasLegacyFields) {
-      const channel = game.channel as string | undefined;
-      const playmode = (game.playmode as PlayMode | undefined) ?? PLAY_MODE.DEMO;
-
-      game.desktopEnabled = channel !== 'mobile';
-      game.mobileEnabled = channel === 'mobile' || channel === 'both';
-      game.desktopPlaymode = playmode;
-      game.mobilePlaymode = playmode;
-
-      delete game.channel;
-      delete game.playmode;
-      dirty = true;
-    }
-
-    if (game.desktopEnabled === undefined) {
-      game.desktopEnabled = true;
-      dirty = true;
-    }
-
-    if (!game.desktopPlaymode) {
-      game.desktopPlaymode = PLAY_MODE.DEMO;
-      dirty = true;
-    }
-
-    if (game.mobileEnabled === undefined) {
-      game.mobileEnabled = false;
-      dirty = true;
-    }
-
-    if (!game.mobilePlaymode) {
-      game.mobilePlaymode = PLAY_MODE.DEMO;
-      dirty = true;
-    }
-
     if (game.gameProviderID === undefined) {
       game.gameProviderID = '';
       dirty = true;
@@ -169,7 +118,7 @@ function readGames() {
 function gamesPath() {
   return process.env.GAMES_JSON_PATH
     ? path.resolve(process.env.GAMES_JSON_PATH)
-    : path.resolve('src', 'data', 'games.json');
+    : path.resolve('src', 'server', 'data', 'games.json');
 }
 
 export { readGames, addGame, updateGame };

@@ -1,7 +1,7 @@
 import { Effect, Schema } from 'effect';
 import { Router } from 'express';
-import type { DeviceType } from '../../lib/types';
-import { DEVICE_TYPES, PLAY_MODE } from '../../lib/types';
+import type { DeviceType } from '../lib/types';
+import { DEVICE_TYPES } from '../lib/types';
 import type { AppRuntime } from '../runtime';
 import { GamesService } from '../services/games.service';
 
@@ -17,10 +17,6 @@ const PatchBody = Schema.Struct({
   desktopGameID: Schema.optional(Schema.String),
   mobileGameID: Schema.optional(Schema.String),
   gameProviderID: Schema.optional(Schema.String),
-  desktopEnabled: Schema.optional(Schema.Boolean),
-  desktopPlaymode: Schema.optional(Schema.Literal('demo', 'real')),
-  mobileEnabled: Schema.optional(Schema.Boolean),
-  mobilePlaymode: Schema.optional(Schema.Literal('demo', 'real')),
 });
 
 function makeGamesRouter(runtime: AppRuntime) {
@@ -40,7 +36,17 @@ function makeGamesRouter(runtime: AppRuntime) {
             return { ...game, desktopCached: cache.desktop, mobileCached: cache.mobile };
           }),
         );
-      }),
+      }).pipe(
+        Effect.catchAllDefect((defect) => {
+          console.error('[server] Unhandled defect:', defect);
+
+          return Effect.sync(() => {
+            if (!res.headersSent) {
+              res.status(500).json({ error: 'Internal server error' });
+            }
+          });
+        }),
+      ),
     );
   });
 
@@ -55,10 +61,6 @@ function makeGamesRouter(runtime: AppRuntime) {
           mobileGameID: body.mobileGameID,
           name: body.name,
           gameProviderID: body.gameProviderID,
-          desktopEnabled: true,
-          desktopPlaymode: PLAY_MODE.DEMO,
-          mobileEnabled: false,
-          mobilePlaymode: PLAY_MODE.DEMO,
         });
 
         res.status(201).json({ desktopGameID: body.desktopGameID });
@@ -75,6 +77,15 @@ function makeGamesRouter(runtime: AppRuntime) {
             res
               .status(409)
               .json({ error: `Game with desktopGameID '${err.desktopGameID}' already exists` });
+          });
+        }),
+        Effect.catchAllDefect((defect) => {
+          console.error('[server] Unhandled defect:', defect);
+
+          return Effect.sync(() => {
+            if (!res.headersSent) {
+              res.status(500).json({ error: 'Internal server error' });
+            }
           });
         }),
       ),
@@ -103,6 +114,15 @@ function makeGamesRouter(runtime: AppRuntime) {
             res.status(404).json({ error: `Game '${err.id}' not found` });
           });
         }),
+        Effect.catchAllDefect((defect) => {
+          console.error('[server] Unhandled defect:', defect);
+
+          return Effect.sync(() => {
+            if (!res.headersSent) {
+              res.status(500).json({ error: 'Internal server error' });
+            }
+          });
+        }),
       ),
     );
   });
@@ -116,7 +136,17 @@ function makeGamesRouter(runtime: AppRuntime) {
 
         yield* gamesService.clearAllSteps(id);
         res.sendStatus(204);
-      }),
+      }).pipe(
+        Effect.catchAllDefect((defect) => {
+          console.error('[server] Unhandled defect:', defect);
+
+          return Effect.sync(() => {
+            if (!res.headersSent) {
+              res.status(500).json({ error: 'Internal server error' });
+            }
+          });
+        }),
+      ),
     );
   });
 
@@ -134,7 +164,17 @@ function makeGamesRouter(runtime: AppRuntime) {
 
         yield* gamesService.clearSteps(id, channel as DeviceType);
         res.sendStatus(204);
-      }),
+      }).pipe(
+        Effect.catchAllDefect((defect) => {
+          console.error('[server] Unhandled defect:', defect);
+
+          return Effect.sync(() => {
+            if (!res.headersSent) {
+              res.status(500).json({ error: 'Internal server error' });
+            }
+          });
+        }),
+      ),
     );
   });
 

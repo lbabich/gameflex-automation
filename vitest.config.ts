@@ -6,7 +6,7 @@ export default defineConfig({
     include: ['src/tests/**/*.test.ts'],
     fileParallelism: false,
     env: {
-      GAMES_JSON_PATH: 'src/data/games.test.json',
+      GAMES_JSON_PATH: 'src/server/data/games.test.json',
     },
   },
 });

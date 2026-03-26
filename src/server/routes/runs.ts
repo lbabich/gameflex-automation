@@ -5,7 +5,8 @@ import { RunnerService } from '../services/runner/runner.service';
 
 const PostBody = Schema.Struct({
   gameIDs: Schema.NonEmptyArray(Schema.String),
-  projects: Schema.optional(Schema.Array(Schema.String)),
+  deviceTypes: Schema.NonEmptyArray(Schema.Literal('desktop', 'mobile')),
+  playmode: Schema.Literal('demo', 'real'),
 });
 
 function makeRunsRouter(runtime: AppRuntime): Router {
@@ -19,14 +20,15 @@ function makeRunsRouter(runtime: AppRuntime): Router {
 
         const record = yield* runnerService.startRun(
           [...body.gameIDs],
-          body.projects ? [...body.projects] : undefined,
+          [...body.deviceTypes],
+          body.playmode,
         );
 
         res.status(201).json(record);
       }).pipe(
         Effect.catchTag('ParseError', () => {
           return Effect.sync(() => {
-            res.status(400).json({ error: 'gameIDs must be a non-empty array of strings' });
+            res.status(400).json({ error: 'gameIDs, deviceTypes, and playmode are required' });
           });
         }),
         Effect.catchTag('RunAlreadyActiveError', (error) => {
@@ -37,6 +39,15 @@ function makeRunsRouter(runtime: AppRuntime): Router {
         Effect.catchTag('GameNotFoundError', (error) => {
           return Effect.sync(() => {
             res.status(404).json({ error: `Game '${error.id}' not found` });
+          });
+        }),
+        Effect.catchAllDefect((defect) => {
+          console.error('[server] Unhandled defect:', defect);
+
+          return Effect.sync(() => {
+            if (!res.headersSent) {
+              res.status(500).json({ error: 'Internal server error' });
+            }
           });
         }),
       ),
@@ -50,7 +61,17 @@ function makeRunsRouter(runtime: AppRuntime): Router {
         const runs = yield* runnerService.getRecentRuns();
 
         res.json(runs);
-      }),
+      }).pipe(
+        Effect.catchAllDefect((defect) => {
+          console.error('[server] Unhandled defect:', defect);
+
+          return Effect.sync(() => {
+            if (!res.headersSent) {
+              res.status(500).json({ error: 'Internal server error' });
+            }
+          });
+        }),
+      ),
     );
   });
 
@@ -67,6 +88,15 @@ function makeRunsRouter(runtime: AppRuntime): Router {
         Effect.catchTag('RunNotFoundError', () => {
           return Effect.sync(() => {
             res.status(404).json({ error: 'Run not found' });
+          });
+        }),
+        Effect.catchAllDefect((defect) => {
+          console.error('[server] Unhandled defect:', defect);
+
+          return Effect.sync(() => {
+            if (!res.headersSent) {
+              res.status(500).json({ error: 'Internal server error' });
+            }
           });
         }),
       ),
@@ -87,6 +117,15 @@ function makeRunsRouter(runtime: AppRuntime): Router {
         Effect.catchTag('RunNotFoundError', () => {
           return Effect.sync(() => {
             res.status(404).json({ error: 'Run not found or not active' });
+          });
+        }),
+        Effect.catchAllDefect((defect) => {
+          console.error('[server] Unhandled defect:', defect);
+
+          return Effect.sync(() => {
+            if (!res.headersSent) {
+              res.status(500).json({ error: 'Internal server error' });
+            }
           });
         }),
       ),

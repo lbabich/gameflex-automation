@@ -1,5 +1,5 @@
 import type { Browser, ConsoleMessage, Page } from '@playwright/test';
-import type { TestResult, TestStep } from '../server/services/runner/types';
+import type { TestResult, TestStep } from '../services/runner/types';
 import * as discovery from './discovery';
 import type { GameEntry } from './games';
 import {
@@ -12,8 +12,7 @@ import * as preLaunch from './pre-launch';
 import * as replay from './replay';
 import * as screenshot from './screenshot';
 import * as stepCache from './step-cache';
-import type { DeviceType, Viewport } from './types';
-import { DEVICE_TYPE } from './types';
+import type { DeviceType, PlayMode, Viewport } from './types';
 
 export type SpinRunnerModule = {
   runGameSpin: (
@@ -22,6 +21,7 @@ export type SpinRunnerModule = {
     deviceType: DeviceType,
     viewport: Viewport,
     runID: string,
+    playmode: PlayMode,
   ) => Promise<TestResult>;
 };
 
@@ -190,6 +190,7 @@ async function runGameSpin(
   deviceType: DeviceType,
   viewport: Viewport,
   runID: string,
+  playmode: PlayMode,
 ): Promise<TestResult> {
   const httpCredentials =
     process.env.BASIC_AUTH_USER && process.env.BASIC_AUTH_PASS
@@ -204,8 +205,6 @@ async function runGameSpin(
   const annotations: Record<string, string> = {};
   const stdout: string[] = [];
   const spinListeners = setupSpinListeners(page, stdout);
-  const playmode = deviceType === DEVICE_TYPE.MOBILE ? game.mobilePlaymode : game.desktopPlaymode;
-
   annotations.playmode = playmode;
 
   let failure: Error | null = null;

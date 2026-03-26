@@ -3,9 +3,9 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { Effect, ManagedRuntime } from 'effect';
 import { beforeEach, describe, expect, it } from 'vitest';
+import { DuplicateGameIDError, GameNotFoundError } from '../errors';
 import * as stepCache from '../lib/step-cache';
-import { DuplicateGameIDError, GameNotFoundError } from '../server/errors';
-import { GamesService, NodeGamesService } from '../server/services/games.service';
+import { GamesService, NodeGamesService } from '../services/games.service';
 
 const GAMES_PATH = path.resolve(process.env.GAMES_JSON_PATH ?? 'src/data/games.json');
 const runtime = ManagedRuntime.make(NodeGamesService);
@@ -19,10 +19,6 @@ function makeEntry() {
     desktopGameID: `test-${crypto.randomUUID()}`,
     name: 'Test Game',
     gameProviderID: '51',
-    desktopEnabled: true as const,
-    desktopPlaymode: 'demo' as const,
-    mobileEnabled: false as const,
-    mobilePlaymode: 'demo' as const,
   };
 }
 

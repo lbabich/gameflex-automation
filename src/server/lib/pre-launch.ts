@@ -76,7 +76,7 @@ async function launch(
 }
 
 function loadConfig(): LaunchConfig {
-  const configPath = path.resolve('src', 'config', 'launch-config.json');
+  const configPath = path.resolve('src', 'server', 'config', 'launch-config.json');
 
   return JSON.parse(fs.readFileSync(configPath, 'utf8')) as LaunchConfig;
 }

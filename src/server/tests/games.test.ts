@@ -24,10 +24,6 @@ describe('addGame', () => {
       desktopGameID,
       name: 'Test Game',
       gameProviderID: '51',
-      desktopEnabled: true,
-      desktopPlaymode: 'demo',
-      mobileEnabled: false,
-      mobilePlaymode: 'demo',
     });
 
     const result = readGames();
@@ -49,10 +45,6 @@ describe('addGame', () => {
       desktopGameID,
       name: 'Original',
       gameProviderID: '51',
-      desktopEnabled: true,
-      desktopPlaymode: 'demo',
-      mobileEnabled: false,
-      mobilePlaymode: 'demo',
     });
 
     expect(() => {
@@ -60,10 +52,6 @@ describe('addGame', () => {
         desktopGameID,
         name: 'Duplicate',
         gameProviderID: '51',
-        desktopEnabled: true,
-        desktopPlaymode: 'demo',
-        mobileEnabled: false,
-        mobilePlaymode: 'demo',
       });
     }).toThrow(/already exists/);
   });
@@ -73,7 +61,7 @@ describe('readGames migration', () => {
   it('assigns GUIDs to entries missing id and writes back', () => {
     const SUT = readGames;
 
-    // Write a games.json with entries that have no id or playmode field
+    // Write a games.json with entries that have no id
     const raw = JSON.stringify([
       {
         desktopGameID: makeDesktopGameID(),
@@ -87,12 +75,11 @@ describe('readGames migration', () => {
 
     expect(result.length).toBe(1);
 
-    // Verify the file was written back with the id and playmode
+    // Verify the file was written back with the id
     const onDisk = JSON.parse(fs.readFileSync(GAMES_PATH, 'utf8')) as typeof result;
 
     expect(onDisk[0].id, 'id should be persisted to disk').toBeTruthy();
     expect(onDisk[0].id).toBe(result[0].id);
-    expect(onDisk[0].desktopPlaymode).toBe('demo');
   });
 });
 
@@ -105,10 +92,6 @@ describe('updateGame', () => {
       desktopGameID,
       name: 'Original Name',
       gameProviderID: '51',
-      desktopEnabled: true,
-      desktopPlaymode: 'demo',
-      mobileEnabled: false,
-      mobilePlaymode: 'demo',
     });
 
     const existing = readGames().find((game) => {

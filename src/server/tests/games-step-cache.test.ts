@@ -6,7 +6,7 @@ import { addGame, readGames, updateGame } from '../lib/games';
 import * as stepCache from '../lib/step-cache';
 
 beforeEach(() => {
-  fs.writeFileSync(path.resolve(process.env.GAMES_JSON_PATH ?? 'src/data/games.json'), '[]');
+  fs.writeFileSync(path.resolve(process.env.GAMES_JSON_PATH ?? 'src/server/data/games.json'), '[]');
 });
 
 function makeDesktopGameID() {
@@ -20,10 +20,6 @@ function addTestGame() {
     desktopGameID,
     name: 'Update Test',
     gameProviderID: '51',
-    desktopEnabled: true,
-    desktopPlaymode: 'demo',
-    mobileEnabled: false,
-    mobilePlaymode: 'demo',
   });
 
   const found = readGames().find((game) => {

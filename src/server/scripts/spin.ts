@@ -3,9 +3,9 @@ import * as dotenv from 'dotenv';
 
 import { readGames } from '../lib/games';
 import * as spinRunner from '../lib/spin-runner';
-import type { DeviceType, Viewport } from '../lib/types';
-import { DEVICE_TYPE } from '../lib/types';
-import type { TestResult } from '../server/services/runner/types';
+import type { DeviceType, PlayMode, Viewport } from '../lib/types';
+import { PLAY_MODE } from '../lib/types';
+import type { TestResult } from '../services/runner/types';
 
 dotenv.config();
 
@@ -16,23 +16,26 @@ function parseArgs() {
 
   let runID = '';
   let gameIDs: string[] = [];
-  let deviceTypes: DeviceType[] = [DEVICE_TYPE.DESKTOP, DEVICE_TYPE.MOBILE];
+  let deviceTypes: DeviceType[] = [];
+  let playmode: PlayMode = PLAY_MODE.DEMO;
 
   for (const arg of args) {
     if (arg.startsWith('--runID=')) {
       runID = arg.slice('--runID='.length);
     } else if (arg.startsWith('--gameIDs=')) {
-      gameIDs = arg.slice('--gameIDs='.length).split(',').filter(Boolean);
+      gameIDs = arg.slice('--gameIDs='.length).split(',').filter(Boolean) as DeviceType[];
     } else if (arg.startsWith('--deviceTypes=')) {
       deviceTypes = arg.slice('--deviceTypes='.length).split(',').filter(Boolean) as DeviceType[];
+    } else if (arg.startsWith('--playmode=')) {
+      playmode = arg.slice('--playmode='.length) as PlayMode;
     }
   }
 
-  return { runID, gameIDs, deviceTypes };
+  return { runID, gameIDs, deviceTypes, playmode };
 }
 
 async function main() {
-  const { runID, gameIDs, deviceTypes } = parseArgs();
+  const { runID, gameIDs, deviceTypes, playmode } = parseArgs();
 
   const allGames = readGames();
   const games = allGames.filter((g) => {
@@ -47,14 +50,14 @@ async function main() {
   try {
     for (const game of games) {
       for (const deviceType of deviceTypes) {
-        const enabled =
-          deviceType === DEVICE_TYPE.MOBILE ? game.mobileEnabled : game.desktopEnabled;
-
-        if (!enabled) {
-          continue;
-        }
-
-        const result = await spinRunner.runGameSpin(browser, game, deviceType, VIEWPORT, runID);
+        const result = await spinRunner.runGameSpin(
+          browser,
+          game,
+          deviceType,
+          VIEWPORT,
+          runID,
+          playmode,
+        );
 
         results.push(result);
       }

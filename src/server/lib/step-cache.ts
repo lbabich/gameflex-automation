@@ -6,7 +6,7 @@ type ViewportMap = Record<string, GameSteps>;
 type DeviceMap = Record<string, ViewportMap>;
 type StepCache = Record<string, DeviceMap>;
 
-const CACHE_PATH = path.resolve('src', 'data', 'game-steps.json');
+const CACHE_PATH = path.resolve('src', 'server', 'data', 'game-steps.json');
 
 function getSteps(id: string, deviceType: DeviceType, viewport: Viewport) {
   const cache = loadCache();
