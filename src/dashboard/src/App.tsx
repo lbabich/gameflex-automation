@@ -132,7 +132,7 @@ export default function App() {
         )}
         {selectedGame ? (
           <>
-            {viewRunID !== null && <ResultsPanel run={run} isLoading={runLoading} />}
+            {viewRunID !== null && <ResultsPanel key={viewRunID} run={run} isLoading={runLoading} />}
 
             <PreviousRunsAccordion
               runs={selectedGameRuns}

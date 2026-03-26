@@ -18,11 +18,15 @@ export const NodeRunLoggerService = Layer.effect(
       return {
         log: (runID: string, context: string, message: string) => {
           const msg = `[${context}] ${message}:`;
-          const run = state.runs.get(runID);
 
           return Effect.sync(() => {
+            const run = state.runs.get(runID);
+
             if (run) {
-              run.logs.push(msg)
+              state.runs.set(runID, {
+                ...run,
+                logs: [...(run.logs ?? []), msg],
+              });
             }
 
             console.log(msg);
@@ -30,11 +34,15 @@ export const NodeRunLoggerService = Layer.effect(
         },
         warn: (runID: string, context: string, message: string) => {
           const msg = `[${context}] ${message}:`;
-          const run = state.runs.get(runID);
 
           return Effect.sync(() => {
+            const run = state.runs.get(runID);
+
             if (run) {
-              run.logs.push(msg);
+              state.runs.set(runID, {
+                ...run,
+                logs: [...(run.logs ?? []), msg],
+              });
             }
 
             console.warn(msg);
@@ -42,11 +50,15 @@ export const NodeRunLoggerService = Layer.effect(
         },
         error: (runID: string, context: string, message: string, error?: unknown) => {
           const msg = `[${context}] ${message}:`;
-          const run = state.runs.get(runID);
 
           return Effect.sync(() => {
+            const run = state.runs.get(runID);
+
             if (run) {
-              run.logs.push(msg);
+              state.runs.set(runID, {
+                ...run,
+                logs: [...(run.logs ?? []), msg],
+              });
             }
 
             console.error(msg, error);

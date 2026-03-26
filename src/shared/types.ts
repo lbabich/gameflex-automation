@@ -42,6 +42,7 @@ export type RunRecord = {
   durationMs?: number;
   results: Partial<Record<DeviceType, TestResult>>;
   playwrightErrors: string[];
+  logs: string[];
 };
 
 export type GameEntry = {

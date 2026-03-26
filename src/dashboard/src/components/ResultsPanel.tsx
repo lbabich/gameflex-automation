@@ -42,6 +42,7 @@ function SkeletonRow() {
 export function ResultsPanel({ run, isLoading }: Props) {
   const [expandedRows, setExpandedRows] = useState<Set<DeviceType>>(new Set());
   const [openLogs, setOpenLogs] = useState<Set<DeviceType>>(new Set());
+  const [openRunLog, setOpenRunLog] = useState(true);
 
   const toggleRow = useCallback((deviceType: DeviceType) => {
     setExpandedRows((prev) => {
@@ -83,7 +84,7 @@ export function ResultsPanel({ run, isLoading }: Props) {
             ? (Object.entries(run.results) as [DeviceType, TestResult][]).map(
                 ([deviceType, result]) => {
                   const hasDetails =
-                    result.logs.some((line) => !line.startsWith('Screenshot saved:')) ||
+                    (result.logs ?? []).some((line) => !line.startsWith('Screenshot saved:')) ||
                     !!result.gifUrl ||
                     (result.steps?.length ?? 0) > 0 ||
                     !!result.annotations;
@@ -205,7 +206,7 @@ export function ResultsPanel({ run, isLoading }: Props) {
                                 ))}
                               </div>
                             )}
-                            {result.logs.filter((line) => !line.startsWith('Screenshot saved:'))
+                            {(result.logs ?? []).filter((line) => !line.startsWith('Screenshot saved:'))
                               .length > 0 && (
                               <div>
                                 <button
@@ -223,7 +224,7 @@ export function ResultsPanel({ run, isLoading }: Props) {
                                   <textarea
                                     readOnly
                                     className="mt-2 w-full h-48 text-xs text-gray-600 font-mono leading-relaxed resize-y border border-gray-200 rounded p-2 bg-gray-50"
-                                    value={result.logs
+                                    value={(result.logs ?? [])
                                       .filter((line) => !line.startsWith('Screenshot saved:'))
                                       .join('\n')}
                                   />
@@ -259,6 +260,27 @@ export function ResultsPanel({ run, isLoading }: Props) {
                 </pre>
               ))}
             </div>
+          )}
+        </div>
+      )}
+
+      {(run.logs ?? []).length > 0 && (
+        <div className="rounded border border-gray-200 bg-white overflow-hidden">
+          <button
+            type="button"
+            onClick={() => setOpenRunLog((v) => !v)}
+            className="w-full flex items-center justify-between px-3 py-2 text-xs font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+          >
+            <span>Run Log ({(run.logs ?? []).length} entries)</span>
+            <span className="text-gray-400 select-none">{openRunLog ? '▲' : '▼'}</span>
+          </button>
+
+          {openRunLog && (
+            <textarea
+              readOnly
+              className="w-full h-48 text-xs text-gray-600 font-mono leading-relaxed resize-y border-t border-gray-200 p-2 bg-gray-50"
+              value={(run.logs ?? []).join('\n')}
+            />
           )}
         </div>
       )}

@@ -14,7 +14,6 @@ import { InternalRunRecord } from '../../types';
 import { RunLoggerService } from './run-logger.service';
 import { RunStateService } from './run-state.service';
 
-
 type RunnerState = {
   runs: Map<string, InternalRunRecord>;
   activeRunsByGame: Map<string, string>;
@@ -24,11 +23,7 @@ type RunnerState = {
 class RunnerService extends Effect.Tag('RunnerService')<
   RunnerService,
   {
-    startRun: (
-      gameIDs: string[],
-      deviceTypes: string[],
-      playmode: string,
-    ) => Effect.Effect<RunRecord, RunAlreadyActiveError | GameNotFoundError>;
+    startRun: (gameIDs: string[], deviceTypes: string[], playmode: string) => Effect.Effect<RunRecord, RunAlreadyActiveError | GameNotFoundError>;
     cancelRun: (runID: string) => Effect.Effect<void, RunNotFoundError>;
     getRun: (runID: string) => Effect.Effect<RunRecord, RunNotFoundError>;
     getRecentRuns: (limit?: number) => Effect.Effect<RunRecord[]>;
@@ -110,8 +105,8 @@ function startRun(
 
     const cmd = buildSpinCommand(runID, gameIDs, deviceTypes, playmode);
 
-    runLoggerService.log(runID, 'runner', `Starting run ${runID}`);
-    runLoggerService.log(runID, 'runner', `Command: ${cmd}`);
+    yield* runLoggerService.log(runID, 'runner', `Starting run ${runID}`);
+    yield* runLoggerService.log(runID, 'runner', `Command: ${cmd}`);
 
     const background = Effect.gen(function* () {
       const { code, stdout } = yield* spawnProcess(cmd);
@@ -127,8 +122,7 @@ function startRun(
         if (run && run.status === 'running') {
           run.status = 'error';
           run.finishedAt = new Date().toISOString();
-          run.durationMs =
-              new Date(run.finishedAt).getTime() - new Date(run.startedAt).getTime();
+          run.durationMs = new Date(run.finishedAt).getTime() - new Date(run.startedAt).getTime();
         }
 
         state.activeFibers.delete(runID);

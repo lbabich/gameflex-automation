@@ -32,10 +32,19 @@ function formatDuration(ms: number) {
 
 export function PreviousRunsAccordion({ runs, onSelect, selectedRunID, onClear }: Props) {
   const [open, setOpen] = useState(false);
+  const [openLogs, setOpenLogs] = useState<Set<string>>(new Set());
 
   const completedRuns = runs.filter((r) => r.status !== 'running');
 
   if (completedRuns.length === 0) return null;
+
+  function toggleLog(runID: string) {
+    setOpenLogs((prev) => {
+      const next = new Set(prev);
+      next.has(runID) ? next.delete(runID) : next.add(runID);
+      return next;
+    });
+  }
 
   return (
     <div className="border rounded bg-white overflow-hidden mt-4">
@@ -62,25 +71,60 @@ export function PreviousRunsAccordion({ runs, onSelect, selectedRunID, onClear }
 
       {open && (
         <div className="border-t divide-y">
-          {completedRuns.map((run) => (
-            <button
-              key={run.runID}
-              type="button"
-              onClick={() => onSelect(run.runID)}
-              className={`w-full text-left px-4 py-3 hover:bg-blue-50 transition-colors ${selectedRunID === run.runID ? 'bg-blue-50 border-l-2 border-blue-400' : ''}`}
-            >
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-sm text-gray-800">{formatDate(run.startedAt)}</span>
-                <span className={`text-xs font-semibold px-2 py-0.5 rounded shrink-0 ${statusBadgeClass(run.status)}`}>
-                  {run.status}
-                </span>
-              </div>
+          {completedRuns.map((run) => {
+            const hasLogs = (run.logs ?? []).length > 0;
+            const isSelected = selectedRunID === run.runID;
+            const isLogOpen = openLogs.has(run.runID);
 
-              {run.durationMs !== undefined && (
-                <div className="mt-1 text-xs text-gray-400">{formatDuration(run.durationMs)}</div>
-              )}
-            </button>
-          ))}
+            return (
+              <div
+                key={run.runID}
+                className={`${isSelected ? 'bg-blue-50 border-l-2 border-blue-400' : ''}`}
+              >
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => onSelect(run.runID)}
+                  onKeyDown={(e) => e.key === 'Enter' && onSelect(run.runID)}
+                  className="w-full text-left px-4 py-3 hover:bg-blue-50 transition-colors cursor-pointer"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm text-gray-800">{formatDate(run.startedAt)}</span>
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded shrink-0 ${statusBadgeClass(run.status)}`}>
+                      {run.status}
+                    </span>
+                  </div>
+
+                  {run.durationMs !== undefined && (
+                    <div className="mt-1 text-xs text-gray-400">{formatDuration(run.durationMs)}</div>
+                  )}
+                </div>
+
+                {hasLogs && (
+                  <div className="px-4 pb-3">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleLog(run.runID);
+                      }}
+                      className="text-xs text-blue-600 hover:underline"
+                    >
+                      {isLogOpen ? 'Hide run log' : 'View run log'}
+                    </button>
+
+                    {isLogOpen && (
+                      <textarea
+                        readOnly
+                        className="mt-2 w-full h-32 text-xs text-gray-600 font-mono leading-relaxed resize-y border border-gray-200 rounded p-2 bg-gray-50"
+                        value={(run.logs ?? []).join('\n')}
+                      />
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
