@@ -1,29 +1,13 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { createGame } from '../api';
 import { QUERY_KEY } from '../queryKeys';
-
-export type NewGame = {
-  desktopGameID: string;
-  mobileGameID?: string;
-  name: string;
-  gameProviderID: string;
-};
+import type { NewGame } from '../api';
 
 export function useAddGame() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (game: NewGame) => {
-      const res = await fetch('/api/games', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(game),
-      });
-      if (!res.ok) {
-        const body = (await res.json()) as { error?: string };
-        throw new Error(body.error ?? 'Failed to add game');
-      }
-      return res.json();
-    },
+    mutationFn: (game: NewGame) => createGame(game),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEY.GAMES });
     },

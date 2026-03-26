@@ -50,126 +50,146 @@ export const NodeRunnerService = Layer.effect(
       state.runs.set(run.runID, run);
     }
 
-    const startRun = (gameIDs: string[], deviceTypes: string[], playmode: string) => {
-      return Effect.gen(function* () {
-        const conflicting = gameIDs.filter((id) => {
-          return state.activeRunsByGame.has(id);
-        });
-
-        if (conflicting.length > 0) {
-          return yield* Effect.fail(new RunAlreadyActiveError({ gameID: conflicting[0] ?? '' }));
-        }
-
-        const gameList = yield* gamesService.list();
-        const firstMissingID = gameIDs.find((id) => {
-          return !gameList.some((g) => {
-            return g.id === id;
-          });
-        });
-
-        if (firstMissingID !== undefined) {
-          return yield* Effect.fail(new GameNotFoundError({ id: firstMissingID }));
-        }
-
-        const runID = randomUUID();
-        const record = createRecord(runID, gameIDs);
-
-        state.runs.set(runID, record);
-
-        for (const id of gameIDs) {
-          state.activeRunsByGame.set(id, runID);
-        }
-
-        const cmd = buildSpinCommand(runID, gameIDs, deviceTypes, playmode);
-
-        console.log(`[runner] Starting run ${runID}`);
-        console.log(`[runner] Command: ${cmd}`);
-
-        const background = Effect.gen(function* () {
-          const { code, stdout } = yield* spawnProcess(cmd);
-
-          yield* finalizeRun(state, record, code, stdout);
-        }).pipe(
-          Effect.provideService(FileService, fileService),
-          Effect.catchAll((error) => {
-            console.error('[runner] Background fiber error:', error);
-
-            if (record.status === 'running') {
-              record.status = 'error';
-              record.finishedAt = new Date().toISOString();
-              record.durationMs =
-                new Date(record.finishedAt).getTime() - new Date(record.startedAt).getTime();
-            }
-
-            state.activeFibers.delete(record.runID);
-
-            for (const id of record.gameIDs) {
-              state.activeRunsByGame.delete(id);
-            }
-
-            return Effect.succeed(undefined);
-          }),
-        );
-
-        const fiber = yield* Effect.forkDaemon(background);
-
-        state.activeFibers.set(runID, fiber);
-
-        return record;
-      });
+    return {
+      startRun: (gameIDs, deviceTypes, playmode) => {
+        return startRun(state, gamesService, fileService, gameIDs, deviceTypes, playmode);
+      },
+      cancelRun: (runID) => {
+        return cancelRun(state, fileService, runID);
+      },
+      getRun: (runID) => {
+        return getRun(state, runID);
+      },
+      getRecentRuns: (limit) => {
+        return getRecentRuns(state, limit);
+      },
     };
+  }),
+);
 
-    const cancelRun = (runID: string) => {
-      return Effect.gen(function* () {
-        const fiber = state.activeFibers.get(runID);
-        const record = state.runs.get(runID);
+function startRun(
+  state: RunnerState,
+  gamesService: GamesService['Type'],
+  fileService: FileService['Type'],
+  gameIDs: string[],
+  deviceTypes: string[],
+  playmode: string,
+) {
+  return Effect.gen(function* () {
+    const conflicting = gameIDs.filter((id) => {
+      return state.activeRunsByGame.has(id);
+    });
 
-        if (!fiber || !record) {
-          return yield* Effect.fail(new RunNotFoundError({ runID }));
+    if (conflicting.length > 0) {
+      return yield* Effect.fail(new RunAlreadyActiveError({ gameID: conflicting[0] ?? '' }));
+    }
+
+    const gameList = yield* gamesService.list();
+    const firstMissingID = gameIDs.find((id) => {
+      return !gameList.some((g) => {
+        return g.id === id;
+      });
+    });
+
+    if (firstMissingID !== undefined) {
+      return yield* Effect.fail(new GameNotFoundError({ id: firstMissingID }));
+    }
+
+    const runID = randomUUID();
+    const record = createRecord(runID, gameIDs);
+
+    state.runs.set(runID, record);
+
+    for (const id of gameIDs) {
+      state.activeRunsByGame.set(id, runID);
+    }
+
+    const cmd = buildSpinCommand(runID, gameIDs, deviceTypes, playmode);
+
+    console.log(`[runner] Starting run ${runID}`);
+    console.log(`[runner] Command: ${cmd}`);
+
+    const background = Effect.gen(function* () {
+      const { code, stdout } = yield* spawnProcess(cmd);
+
+      yield* finalizeRun(state, record, code, stdout);
+    }).pipe(
+      Effect.provideService(FileService, fileService),
+      Effect.catchAll((error) => {
+        console.error('[runner] Background fiber error:', error);
+
+        if (record.status === 'running') {
+          record.status = 'error';
+          record.finishedAt = new Date().toISOString();
+          record.durationMs =
+            new Date(record.finishedAt).getTime() - new Date(record.startedAt).getTime();
         }
 
-        record.status = 'cancelled';
-        record.finishedAt = new Date().toISOString();
-        record.durationMs =
-          new Date(record.finishedAt).getTime() - new Date(record.startedAt).getTime();
-
-        yield* Fiber.interrupt(fiber);
-
-        state.activeFibers.delete(runID);
+        state.activeFibers.delete(record.runID);
 
         for (const id of record.gameIDs) {
           state.activeRunsByGame.delete(id);
         }
 
-        yield* saveRuns(state.runs).pipe(Effect.provideService(FileService, fileService));
-      });
-    };
+        return Effect.succeed(undefined);
+      }),
+    );
 
-    const getRun = (runID: string) => {
-      return Effect.gen(function* () {
-        const record = state.runs.get(runID);
+    const fiber = yield* Effect.forkDaemon(background);
 
-        if (!record) {
-          return yield* Effect.fail(new RunNotFoundError({ runID }));
-        }
+    state.activeFibers.set(runID, fiber);
 
-        return record;
-      });
-    };
+    return record;
+  });
+}
 
-    const getRecentRuns = (limit = 10) => {
-      return Effect.sync(() => {
-        return [...state.runs.values()]
-          .sort((a, b) => {
-            return new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime();
-          })
-          .slice(0, limit);
-      });
-    };
+function cancelRun(state: RunnerState, fileService: FileService['Type'], runID: string) {
+  return Effect.gen(function* () {
+    const fiber = state.activeFibers.get(runID);
+    const record = state.runs.get(runID);
 
-    return { startRun, cancelRun, getRun, getRecentRuns };
-  }),
-);
+    if (!fiber || !record) {
+      return yield* Effect.fail(new RunNotFoundError({ runID }));
+    }
+
+    record.status = 'cancelled';
+    record.finishedAt = new Date().toISOString();
+    record.durationMs =
+      new Date(record.finishedAt).getTime() - new Date(record.startedAt).getTime();
+
+    yield* Fiber.interrupt(fiber);
+
+    state.activeFibers.delete(runID);
+
+    for (const id of record.gameIDs) {
+      state.activeRunsByGame.delete(id);
+    }
+
+    yield* saveRuns(state.runs).pipe(Effect.provideService(FileService, fileService));
+  });
+}
+
+function getRun(state: RunnerState, runID: string) {
+  return Effect.gen(function* () {
+    const record = state.runs.get(runID);
+
+    if (!record) {
+      return yield* Effect.fail(new RunNotFoundError({ runID }));
+    }
+
+    return record;
+  });
+}
+
+function getRecentRuns(state: RunnerState, limit = 10) {
+  return Effect.sync(() => {
+    return [...state.runs.values()]
+      .sort((a, b) => {
+        return new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime();
+      })
+      .slice(0, limit);
+  });
+}
 
 function finalizeRun(state: RunnerState, record: RunRecord, code: number, stdout: string) {
   return Effect.gen(function* () {

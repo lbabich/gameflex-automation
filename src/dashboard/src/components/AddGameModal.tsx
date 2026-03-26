@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { type NewGame, useAddGame } from '../hooks/useAddGame';
+import { type NewGame } from '../api';
+import { useAddGame } from '../hooks/useAddGame';
 
 type Props = {
   onClose: () => void;

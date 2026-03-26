@@ -1,15 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
+import { getRun } from '../api';
 import { QUERY_KEY } from '../queryKeys';
-import type { RunRecord } from '../types';
 
 export function useRun(runID: string | null) {
-  return useQuery<RunRecord>({
+  return useQuery({
     queryKey: QUERY_KEY.run(runID),
-    queryFn: async () => {
-      const res = await fetch(`/api/runs/${runID}`);
-      if (!res.ok) throw new Error('Failed to fetch run');
-      return res.json() as Promise<RunRecord>;
-    },
+    queryFn: () => getRun(runID!),
     enabled: runID !== null,
     refetchInterval: (query) => {
       const status = query.state.data?.status;

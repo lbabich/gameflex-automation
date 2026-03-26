@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createRun, deleteRun } from '../api';
 import { useClearSteps } from '../hooks/useClearSteps';
 import type { GameEntry, PlayMode } from '../types';
 
@@ -56,19 +57,11 @@ export function GameActionBar({
     if (isRunning) return;
 
     try {
-      const res = await fetch('/api/runs', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          gameIDs: [game.id],
-          deviceTypes: ['desktop', 'mobile'],
-          playmode,
-        }),
+      const data = await createRun({
+        gameIDs: [game.id],
+        deviceTypes: ['desktop', 'mobile'],
+        playmode,
       });
-
-      if (!res.ok) return;
-
-      const data = (await res.json()) as { runID: string };
 
       onRunComplete(data.runID);
     } catch {
@@ -80,7 +73,7 @@ export function GameActionBar({
     if (!runID) return;
 
     try {
-      await fetch(`/api/runs/${runID}`, { method: 'DELETE' });
+      await deleteRun(runID);
     } catch {
       // ignore
     }

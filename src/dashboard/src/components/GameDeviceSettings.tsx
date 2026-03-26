@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createRun } from '../api';
 import { useClearChannelSteps } from '../hooks/useClearChannelSteps';
 import { DEVICE_TYPE } from '../types';
 import type { DeviceType, GameEntry, PlayMode } from '../types';
@@ -66,15 +67,7 @@ export function GameDeviceSettings({
     setPendingDevice(deviceType);
 
     try {
-      const res = await fetch('/api/runs', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ gameIDs: [game.id], deviceTypes: [deviceType], playmode }),
-      });
-
-      if (!res.ok) return;
-
-      const data = (await res.json()) as { runID: string };
+      const data = await createRun({ gameIDs: [game.id], deviceTypes: [deviceType], playmode });
 
       onRunComplete(data.runID);
     } catch {

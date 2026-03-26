@@ -1,5 +1,15 @@
 [
   {
+    "runID": "ee706a32-4b4b-4437-8385-acf558e816f8",
+    "gameIDs": ["9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"],
+    "status": "error",
+    "startedAt": "2026-03-26T10:44:12.009Z",
+    "results": [],
+    "playwrightErrors": [],
+    "finishedAt": "2026-03-26T10:44:51.763Z",
+    "durationMs": 39754
+  },
+  {
     "runID": "dda62b52-069a-456f-ac5c-76a387a6a37e",
     "gameIDs": ["9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"],
     "status": "error",
