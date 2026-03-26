@@ -1,5 +1,7 @@
 import { Effect, Schema } from 'effect';
+import type { Request, Response } from 'express';
 import { Router } from 'express';
+import type { DuplicateGameIDError, GameNotFoundError } from '../errors';
 import type { DeviceType } from '../lib/types';
 import { DEVICE_TYPES } from '../lib/types';
 import type { AppRuntime } from '../runtime';
@@ -22,7 +24,7 @@ const PatchBody = Schema.Struct({
 function makeGamesRouter(runtime: AppRuntime) {
   const router = Router();
 
-  router.get('/', (_req, res) => {
+  router.get('/', (_req: Request, res: Response) => {
     void runtime.runPromise(
       Effect.gen(function* () {
         const gamesService = yield* GamesService;
@@ -37,7 +39,7 @@ function makeGamesRouter(runtime: AppRuntime) {
           }),
         );
       }).pipe(
-        Effect.catchAllDefect((defect) => {
+        Effect.catchAllDefect((defect: unknown) => {
           console.error('[server] Unhandled defect:', defect);
 
           return Effect.sync(() => {
@@ -50,7 +52,7 @@ function makeGamesRouter(runtime: AppRuntime) {
     );
   });
 
-  router.post('/', (req, res) => {
+  router.post('/', (req: Request, res: Response) => {
     void runtime.runPromise(
       Effect.gen(function* () {
         const body = yield* Schema.decodeUnknown(PostBody)(req.body);
@@ -72,14 +74,14 @@ function makeGamesRouter(runtime: AppRuntime) {
               .json({ error: 'desktopGameID, name, and gameProviderID are required strings' });
           });
         }),
-        Effect.catchTag('DuplicateGameIDError', (err) => {
+        Effect.catchTag('DuplicateGameIDError', (err: DuplicateGameIDError) => {
           return Effect.sync(() => {
             res
               .status(409)
               .json({ error: `Game with desktopGameID '${err.desktopGameID}' already exists` });
           });
         }),
-        Effect.catchAllDefect((defect) => {
+        Effect.catchAllDefect((defect: unknown) => {
           console.error('[server] Unhandled defect:', defect);
 
           return Effect.sync(() => {
@@ -92,7 +94,7 @@ function makeGamesRouter(runtime: AppRuntime) {
     );
   });
 
-  router.patch('/:id', (req, res) => {
+  router.patch('/:id', (req: Request<Record<string, string>>, res: Response) => {
     const { id } = req.params;
 
     void runtime.runPromise(
@@ -109,12 +111,12 @@ function makeGamesRouter(runtime: AppRuntime) {
             res.status(400).json({ error: 'Invalid field types' });
           });
         }),
-        Effect.catchTag('GameNotFoundError', (err) => {
+        Effect.catchTag('GameNotFoundError', (err: GameNotFoundError) => {
           return Effect.sync(() => {
             res.status(404).json({ error: `Game '${err.id}' not found` });
           });
         }),
-        Effect.catchAllDefect((defect) => {
+        Effect.catchAllDefect((defect: unknown) => {
           console.error('[server] Unhandled defect:', defect);
 
           return Effect.sync(() => {
@@ -127,7 +129,7 @@ function makeGamesRouter(runtime: AppRuntime) {
     );
   });
 
-  router.delete('/:id/steps', (req, res) => {
+  router.delete('/:id/steps', (req: Request<Record<string, string>>, res: Response) => {
     const { id } = req.params;
 
     void runtime.runPromise(
@@ -137,7 +139,7 @@ function makeGamesRouter(runtime: AppRuntime) {
         yield* gamesService.clearAllSteps(id);
         res.sendStatus(204);
       }).pipe(
-        Effect.catchAllDefect((defect) => {
+        Effect.catchAllDefect((defect: unknown) => {
           console.error('[server] Unhandled defect:', defect);
 
           return Effect.sync(() => {
@@ -150,7 +152,7 @@ function makeGamesRouter(runtime: AppRuntime) {
     );
   });
 
-  router.delete('/:id/steps/:channel', (req, res) => {
+  router.delete('/:id/steps/:channel', (req: Request<Record<string, string>>, res: Response) => {
     const { id, channel } = req.params;
 
     if (!DEVICE_TYPES.includes(channel as DeviceType)) {
@@ -165,7 +167,7 @@ function makeGamesRouter(runtime: AppRuntime) {
         yield* gamesService.clearSteps(id, channel as DeviceType);
         res.sendStatus(204);
       }).pipe(
-        Effect.catchAllDefect((defect) => {
+        Effect.catchAllDefect((defect: unknown) => {
           console.error('[server] Unhandled defect:', defect);
 
           return Effect.sync(() => {

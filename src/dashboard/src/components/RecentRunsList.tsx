@@ -7,7 +7,7 @@ type Props = {
   emptyMessage?: string;
 };
 
-function statusBadgeClass(status: RunStatus): string {
+function statusBadgeClass(status: RunStatus) {
   switch (status) {
     case 'running':
       return 'bg-yellow-100 text-yellow-700';
@@ -18,18 +18,18 @@ function statusBadgeClass(status: RunStatus): string {
   }
 }
 
-function formatDate(iso: string): string {
+function formatDate(iso: string) {
   const d = new Date(iso);
   return d.toLocaleString();
 }
 
-function formatDuration(ms: number): string {
+function formatDuration(ms: number) {
   const s = Math.floor(ms / 1000);
   const m = Math.floor(s / 60);
   return m > 0 ? `${m}m ${s % 60}s` : `${s}s`;
 }
 
-function resolveGameNames(run: RunRecord, games: GameEntry[]): string {
+function resolveGameNames(run: RunRecord, games: GameEntry[]) {
   const names = run.gameIDs
     .map((id) => games.find((g) => g.id === id)?.name ?? id)
     .join(', ');

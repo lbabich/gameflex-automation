@@ -1,5 +1,7 @@
 import { Effect, Schema } from 'effect';
+import type { Request, Response } from 'express';
 import { Router } from 'express';
+import type { GameNotFoundError, RunAlreadyActiveError } from '../errors';
 import type { AppRuntime } from '../runtime';
 import { RunnerService } from '../services/runner/runner.service';
 
@@ -9,10 +11,10 @@ const PostBody = Schema.Struct({
   playmode: Schema.Literal('demo', 'real'),
 });
 
-function makeRunsRouter(runtime: AppRuntime): Router {
+function makeRunsRouter(runtime: AppRuntime) {
   const router = Router();
 
-  router.post('/', (req, res) => {
+  router.post('/', (req: Request, res: Response) => {
     void runtime.runPromise(
       Effect.gen(function* () {
         const body = yield* Schema.decodeUnknown(PostBody)(req.body);
@@ -31,17 +33,17 @@ function makeRunsRouter(runtime: AppRuntime): Router {
             res.status(400).json({ error: 'gameIDs, deviceTypes, and playmode are required' });
           });
         }),
-        Effect.catchTag('RunAlreadyActiveError', (error) => {
+        Effect.catchTag('RunAlreadyActiveError', (error: RunAlreadyActiveError) => {
           return Effect.sync(() => {
             res.status(409).json({ error: `Run already active for game '${error.gameID}'` });
           });
         }),
-        Effect.catchTag('GameNotFoundError', (error) => {
+        Effect.catchTag('GameNotFoundError', (error: GameNotFoundError) => {
           return Effect.sync(() => {
             res.status(404).json({ error: `Game '${error.id}' not found` });
           });
         }),
-        Effect.catchAllDefect((defect) => {
+        Effect.catchAllDefect((defect: unknown) => {
           console.error('[server] Unhandled defect:', defect);
 
           return Effect.sync(() => {
@@ -54,7 +56,7 @@ function makeRunsRouter(runtime: AppRuntime): Router {
     );
   });
 
-  router.get('/', (_req, res) => {
+  router.get('/', (_req: Request, res: Response) => {
     void runtime.runPromise(
       Effect.gen(function* () {
         const runnerService = yield* RunnerService;
@@ -62,7 +64,7 @@ function makeRunsRouter(runtime: AppRuntime): Router {
 
         res.json(runs);
       }).pipe(
-        Effect.catchAllDefect((defect) => {
+        Effect.catchAllDefect((defect: unknown) => {
           console.error('[server] Unhandled defect:', defect);
 
           return Effect.sync(() => {
@@ -75,7 +77,7 @@ function makeRunsRouter(runtime: AppRuntime): Router {
     );
   });
 
-  router.get('/:id', (req, res) => {
+  router.get('/:id', (req: Request<Record<string, string>>, res: Response) => {
     const { id } = req.params;
 
     void runtime.runPromise(
@@ -90,7 +92,7 @@ function makeRunsRouter(runtime: AppRuntime): Router {
             res.status(404).json({ error: 'Run not found' });
           });
         }),
-        Effect.catchAllDefect((defect) => {
+        Effect.catchAllDefect((defect: unknown) => {
           console.error('[server] Unhandled defect:', defect);
 
           return Effect.sync(() => {
@@ -103,7 +105,7 @@ function makeRunsRouter(runtime: AppRuntime): Router {
     );
   });
 
-  router.delete('/:id', (req, res) => {
+  router.delete('/:id', (req: Request<Record<string, string>>, res: Response) => {
     const { id } = req.params;
 
     void runtime.runPromise(
@@ -119,7 +121,7 @@ function makeRunsRouter(runtime: AppRuntime): Router {
             res.status(404).json({ error: 'Run not found or not active' });
           });
         }),
-        Effect.catchAllDefect((defect) => {
+        Effect.catchAllDefect((defect: unknown) => {
           console.error('[server] Unhandled defect:', defect);
 
           return Effect.sync(() => {
