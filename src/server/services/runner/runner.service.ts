@@ -87,8 +87,8 @@ function startRun(
 
     const gameList = yield* gamesService.list();
     const firstMissingID = gameIDs.find((id: string) => {
-      return !gameList.some((g: GameEntry) => {
-        return g.id === id;
+      return !gameList.some((game: GameEntry) => {
+        return game.id === id;
       });
     });
 
@@ -185,8 +185,8 @@ function getRun(state: RunnerState, runID: string) {
 function getRecentRuns(state: RunnerState, limit = 10) {
   return Effect.sync(() => {
     return [...state.runs.values()]
-      .sort((a: RunRecord, b: RunRecord) => {
-        return new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime();
+      .sort((runA: RunRecord, runB: RunRecord) => {
+        return new Date(runB.startedAt).getTime() - new Date(runA.startedAt).getTime();
       })
       .slice(0, limit);
   });

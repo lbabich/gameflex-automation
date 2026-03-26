@@ -241,8 +241,8 @@ async function runGameSpin(
       status: 'failed',
       duration,
       error: failure.message,
-      failedStep: steps.find((s: TestStep) => {
-        return s.error;
+      failedStep: steps.find((step: TestStep) => {
+        return step.error;
       })?.title,
       stdout: filteredStdout,
       steps,

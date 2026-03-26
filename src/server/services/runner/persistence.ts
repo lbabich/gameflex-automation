@@ -37,8 +37,8 @@ function saveRuns(runs: Map<string, RunRecord>) {
     });
 
     const toSave = completed
-      .sort((a: RunRecord, b: RunRecord) => {
-        return new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime();
+      .sort((runA: RunRecord, runB: RunRecord) => {
+        return new Date(runB.startedAt).getTime() - new Date(runA.startedAt).getTime();
       })
       .slice(0, 10)
       .map(({ rawOutput: _raw, ...rest }: RunRecord) => {
@@ -61,8 +61,8 @@ function trimMemory(runs: Map<string, RunRecord>) {
   }
 
   const oldest = [...runs.entries()]
-    .sort(([, a]: [string, RunRecord], [, b]: [string, RunRecord]) => {
-      return a.startedAt < b.startedAt ? -1 : 1;
+    .sort(([, runA]: [string, RunRecord], [, runB]: [string, RunRecord]) => {
+      return runA.startedAt < runB.startedAt ? -1 : 1;
     })
     .slice(0, runs.size - 10);
 

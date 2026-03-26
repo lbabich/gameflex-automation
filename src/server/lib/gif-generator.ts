@@ -40,10 +40,10 @@ async function generateGif(runID: string, deviceType: DeviceType) {
     .filter((filename: string) => {
       return filename.endsWith('.png') && !filename.startsWith('failure-');
     })
-    .sort((a: string, b: string) => {
-      const [aGroup, aIdx] = parseSortKey(a);
-      const [bGroup, bIdx] = parseSortKey(b);
-      return aGroup !== bGroup ? aGroup - bGroup : aIdx - bIdx;
+    .sort((fileA: string, fileB: string) => {
+      const [aGroup, aIndex] = parseSortKey(fileA);
+      const [bGroup, bIndex] = parseSortKey(fileB);
+      return aGroup !== bGroup ? aGroup - bGroup : aIndex - bIndex;
     });
 
   if (pngFiles.length === 0) {

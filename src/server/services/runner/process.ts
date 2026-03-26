@@ -4,21 +4,21 @@ import { Effect } from 'effect';
 function spawnProcess(cmd: string) {
   return Effect.async<{ code: number; stdout: string }, never>(
     (resume: (effect: Effect.Effect<{ code: number; stdout: string }>) => void) => {
-      const chunks: Buffer[] = [];
-      let stderrBuf = '';
+      const stdoutChunks: Buffer[] = [];
+      let stderrBuffer = '';
 
       const proc = spawn(cmd, { stdio: ['ignore', 'pipe', 'pipe'], shell: true });
 
       proc.stdout?.on('data', (chunk: Buffer) => {
-        return chunks.push(chunk);
+        return stdoutChunks.push(chunk);
       });
 
       proc.stderr?.on('data', (chunk: Buffer) => {
-        stderrBuf += chunk.toString('utf-8');
+        stderrBuffer += chunk.toString('utf-8');
 
-        const lines = stderrBuf.split('\n');
+        const lines = stderrBuffer.split('\n');
 
-        stderrBuf = lines.pop() ?? '';
+        stderrBuffer = lines.pop() ?? '';
 
         for (const line of lines) {
           if (line.trim()) {
@@ -28,12 +28,15 @@ function spawnProcess(cmd: string) {
       });
 
       proc.on('close', (code: number | null) => {
-        if (stderrBuf.trim()) {
-          console.log(`[playwright] ${stderrBuf}`);
+        if (stderrBuffer.trim()) {
+          console.log(`[playwright] ${stderrBuffer}`);
         }
 
         resume(
-          Effect.succeed({ code: code ?? 1, stdout: Buffer.concat(chunks).toString('utf-8') }),
+          Effect.succeed({
+            code: code ?? 1,
+            stdout: Buffer.concat(stdoutChunks).toString('utf-8'),
+          }),
         );
       });
 
@@ -51,8 +54,8 @@ function spawnProcess(cmd: string) {
 
             try {
               proc.kill();
-            } catch (killErr) {
-              console.error('[runner] Failed to kill process:', killErr);
+            } catch (killError) {
+              console.error('[runner] Failed to kill process:', killError);
             }
           }
         }

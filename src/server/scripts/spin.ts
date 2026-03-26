@@ -39,8 +39,8 @@ async function main() {
   const { runID, gameIDs, deviceTypes, playmode } = parseArgs();
 
   const allGames = readGames();
-  const games = allGames.filter((g: GameEntry) => {
-    return gameIDs.includes(g.id);
+  const games = allGames.filter((game: GameEntry) => {
+    return gameIDs.includes(game.id);
   });
 
   const browser = await chromium.launch({ headless: false });

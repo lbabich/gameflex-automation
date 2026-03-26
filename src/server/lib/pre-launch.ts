@@ -47,9 +47,11 @@ async function launch(
   await page.locator('#gameLaunchLoader').waitFor({ state: 'visible' });
 
   await page.locator('#gameLaunchLoader').evaluate((select, loaderType) => {
-    const opt = Array.from((select as HTMLSelectElement).options).find((o: HTMLOptionElement) => {
-      return o.text.includes(loaderType);
-    });
+    const opt = Array.from((select as HTMLSelectElement).options).find(
+      (option: HTMLOptionElement) => {
+        return option.text.includes(loaderType);
+      },
+    );
 
     if (!opt) {
       throw new Error(`No loader option containing '${loaderType}'`);
