@@ -11,10 +11,10 @@ function statusBadgeClass(status: RunStatus) {
   switch (status) {
     case 'running':
       return 'bg-yellow-100 text-yellow-700';
-    case 'completed':
-      return 'bg-green-100 text-green-700';
     case 'error':
       return 'bg-red-100 text-red-700';
+    default:
+      return null;
   }
 }
 
@@ -72,9 +72,11 @@ export function RecentRunsList({ runs, games, onSelect, emptyMessage }: Props) {
             <span className="text-sm font-medium text-gray-800 truncate">
               {resolveGameNames(run, games)}
             </span>
-            <span className={`text-xs font-semibold px-2 py-0.5 rounded shrink-0 ${statusBadgeClass(run.status)}`}>
-              {run.status}
-            </span>
+            {statusBadgeClass(run.status) && (
+              <span className={`text-xs font-semibold px-2 py-0.5 rounded shrink-0 ${statusBadgeClass(run.status)}`}>
+                {run.status}
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
             <span>{formatDate(run.startedAt)}</span>

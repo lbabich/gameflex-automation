@@ -12,10 +12,10 @@ function statusBadgeClass(status: RunStatus) {
   switch (status) {
     case 'running':
       return 'bg-yellow-100 text-yellow-700';
-    case 'completed':
-      return 'bg-green-100 text-green-700';
     case 'error':
       return 'bg-red-100 text-red-700';
+    default:
+      return null;
   }
 }
 
@@ -90,9 +90,11 @@ export function PreviousRunsAccordion({ runs, onSelect, selectedRunID, onClear }
                 >
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-sm text-gray-800">{formatDate(run.startedAt)}</span>
-                    <span className={`text-xs font-semibold px-2 py-0.5 rounded shrink-0 ${statusBadgeClass(run.status)}`}>
-                      {run.status}
-                    </span>
+                    {statusBadgeClass(run.status) && (
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded shrink-0 ${statusBadgeClass(run.status)}`}>
+                        {run.status}
+                      </span>
+                    )}
                   </div>
 
                   {run.durationMs !== undefined && (

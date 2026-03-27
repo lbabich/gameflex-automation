@@ -121,39 +121,20 @@
     }
   },
   "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986": {
-    "mobile": {
-      "1280x720": {
-        "discoveredAt": "2026-03-26T16:28:39.267Z",
-        "steps": [
-          {
-            "waitMs": 7191,
-            "x": 664,
-            "y": 687,
-            "label": "Continue button"
-          },
-          {
-            "waitMs": 5313,
-            "x": 664,
-            "y": 684,
-            "label": "Circular spin button with rotating arrows"
-          }
-        ]
-      }
-    },
     "desktop": {
       "1280x720": {
-        "discoveredAt": "2026-03-26T16:39:07.355Z",
+        "discoveredAt": "2026-03-27T15:28:25.023Z",
         "steps": [
           {
-            "waitMs": 7449,
+            "waitMs": 4697,
             "x": 664,
-            "y": 687,
+            "y": 691,
             "label": "Continue button"
           },
           {
-            "waitMs": 5307,
-            "x": 664,
-            "y": 683,
+            "waitMs": 32357,
+            "x": 1176,
+            "y": 399,
             "label": "Circular spin button with rotating arrows"
           }
         ]
