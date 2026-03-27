@@ -1,6 +1,5 @@
 import * as path from 'node:path';
 import { Effect } from 'effect';
-import type { FileWriteError } from '../../errors';
 import type { InternalRunRecord } from '../../types';
 import { FileService } from '../file.service';
 
@@ -28,10 +27,8 @@ function loadRuns() {
   });
 }
 
-function saveRuns(runs: Map<string, InternalRunRecord>) {
+function saveRuns(fileService: FileService['Type'], runs: Map<string, InternalRunRecord>) {
   return Effect.gen(function* () {
-    const fileService = yield* FileService;
-
     const completed = [...runs.values()].filter((run: InternalRunRecord) => {
       return run.status !== 'running';
     });
@@ -46,13 +43,7 @@ function saveRuns(runs: Map<string, InternalRunRecord>) {
       });
 
     yield* fileService.write(RUNS_FILE, JSON.stringify(toSave, null, 2));
-  }).pipe(
-    Effect.catchAll((error: FileWriteError) => {
-      console.error('[runner] Failed to save runs:', error);
-
-      return Effect.succeed(undefined);
-    }),
-  );
+  });
 }
 
 function trimMemory(runs: Map<string, InternalRunRecord>) {

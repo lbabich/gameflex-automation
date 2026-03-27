@@ -139,6 +139,25 @@
           }
         ]
       }
+    },
+    "desktop": {
+      "1280x720": {
+        "discoveredAt": "2026-03-26T16:39:07.355Z",
+        "steps": [
+          {
+            "waitMs": 7449,
+            "x": 664,
+            "y": 687,
+            "label": "Continue button"
+          },
+          {
+            "waitMs": 5307,
+            "x": 664,
+            "y": 683,
+            "label": "Circular spin button with rotating arrows"
+          }
+        ]
+      }
     }
   }
 }

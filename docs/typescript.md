@@ -135,6 +135,7 @@ Keep explicit annotations only when:
 - A tuple type is required (e.g. `[number, number]`) — inference gives `number[]`
 - A catch branch would cause an imprecise union (e.g. `loadCache(): StepCache` where
   the catch branch returns `{}` and inference would widen to `any`)
+- Mutation widening — where TS infers a wider mutable type (e.g. `: RunRecord` on `createRunRecord`)
 
 ```ts
 // correct — TypeScript infers Promise<string>
@@ -145,5 +146,28 @@ export async function snap(page: Page, name: string) {
 // incorrect — redundant annotation
 export async function snap(page: Page, name: string): Promise<string> {
   return path.resolve('screenshots', name);
+}
+```
+
+### Never use annotations to work around inference failures
+
+If TypeScript infers an unexpected type (wrong `R`, wrong `A`, unexpected `any`), do **not**
+add an explicit return type annotation to silence the error. That hides the root cause and
+may mask a genuine unsatisfied dependency.
+
+Instead, investigate until you find the actual source — a missing `provideService`, a
+`yield*` that leaks a tag, a function whose inferred return type is wider than expected.
+Only annotate once you understand _why_ inference fails and have confirmed the annotation
+is correct, not just that it makes the error disappear.
+
+```ts
+// WRONG — annotation silences a FileService leak without fixing it
+function finalizeRun(...): Effect.Effect<void> {
+  return Effect.gen(function* () { ... });
+}
+
+// CORRECT — investigate why FileService appears in the inferred R, fix the source
+function finalizeRun(...) {
+  return Effect.gen(function* () { ... });
 }
 ```

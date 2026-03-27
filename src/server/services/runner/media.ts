@@ -4,6 +4,7 @@ import { Effect } from 'effect';
 import type { DeviceType } from '../../../shared/types';
 import * as gifGenerator from '../../lib/gif-generator';
 import type { InternalTestResult } from '../../types';
+import type { RunLoggerService } from './run-logger.service';
 
 function attachScreenshotUrls(results: Partial<Record<DeviceType, InternalTestResult>>) {
   return Effect.sync(() => {
@@ -28,7 +29,11 @@ function attachScreenshotUrls(results: Partial<Record<DeviceType, InternalTestRe
   });
 }
 
-function attachGifUrls(runID: string, results: Partial<Record<DeviceType, InternalTestResult>>) {
+function attachGifUrls(
+  runLoggerService: RunLoggerService['Type'],
+  runID: string,
+  results: Partial<Record<DeviceType, InternalTestResult>>,
+) {
   return Effect.gen(function* () {
     for (const [deviceType, result] of Object.entries(results) as [
       DeviceType,
@@ -51,18 +56,20 @@ function attachGifUrls(runID: string, results: Partial<Record<DeviceType, Intern
             result.gifUrl = `/api/screenshots/${runID}/${deviceType}/${gifGenerator.ANIMATED_GIF_FILENAME}`;
           });
         }),
-        Effect.catchAll((err: unknown) => {
-          return Effect.sync(() => {
-            console.warn('[runner] Failed to generate GIF:', err);
-          });
-        }),
+        Effect.catchAll((err: unknown) =>
+          runLoggerService.warn(runID, 'media', `Failed to generate GIF for ${deviceType}: ${String(err)}`),
+        ),
       );
     }
   });
 }
 
-function cleanupImages(results: Partial<Record<DeviceType, InternalTestResult>>) {
-  return Effect.sync(() => {
+function cleanupImages(
+  runLoggerService: RunLoggerService['Type'],
+  runID: string,
+  results: Partial<Record<DeviceType, InternalTestResult>>,
+) {
+  return Effect.gen(function* () {
     for (const result of Object.values(results)) {
       if (!result) {
         continue;
@@ -77,11 +84,14 @@ function cleanupImages(results: Partial<Record<DeviceType, InternalTestResult>>)
       }
 
       for (let i = 0; i < paths.length - 1; i++) {
-        try {
-          fs.unlinkSync(paths[i]);
-        } catch (err) {
-          console.warn('[runner] Failed to delete failure screenshot:', err);
-        }
+        yield* Effect.try({
+          try: () => fs.unlinkSync(paths[i]),
+          catch: (err) => err,
+        }).pipe(
+          Effect.catchAll((err) =>
+            runLoggerService.warn(runID, 'media', `Failed to delete screenshot: ${String(err)}`),
+          ),
+        );
       }
     }
   });

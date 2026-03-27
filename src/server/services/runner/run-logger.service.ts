@@ -17,9 +17,8 @@ export const NodeRunLoggerService = Layer.effect(
 
       return {
         log: (runID: string, context: string, message: string) => {
-          const msg = `[${context}] ${message}:`;
-
           return Effect.sync(() => {
+            const msg = `[${context}] ${message}:`;
             const run = state.runs.get(runID);
 
             if (run) {
@@ -33,9 +32,8 @@ export const NodeRunLoggerService = Layer.effect(
           });
         },
         warn: (runID: string, context: string, message: string) => {
-          const msg = `[${context}] ${message}:`;
-
           return Effect.sync(() => {
+            const msg = `[${context}] ${message}:`;
             const run = state.runs.get(runID);
 
             if (run) {
@@ -49,9 +47,8 @@ export const NodeRunLoggerService = Layer.effect(
           });
         },
         error: (runID: string, context: string, message: string, error?: unknown) => {
-          const msg = `[${context}] ${message}:`;
-
           return Effect.sync(() => {
+            const msg = `[${context}] ${message}:`;
             const run = state.runs.get(runID);
 
             if (run) {

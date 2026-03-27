@@ -24,4 +24,9 @@ docs/
   environment.md   .env setup and required variables
 ```
 
+## Rules
+
+See `AGENTS.md` for critical non-negotiable rules that apply to all agents and assistants
+working in this codebase.
+
 
