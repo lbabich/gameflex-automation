@@ -1,21 +1,21 @@
 [
   {
-    "runID": "eabea06d-6644-4f03-96bf-1e18d22ea53f",
+    "runID": "b6d7433a-fa86-478b-8c06-ffd1142baf14",
     "gameIDs": ["9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"],
     "status": "completed",
-    "startedAt": "2026-03-30T08:48:31.931Z",
+    "startedAt": "2026-03-30T10:26:55.675Z",
     "results": {
       "desktop": {
         "title": "spin: 9 Masks of Fire",
         "status": "passed",
-        "duration": 60714,
+        "duration": 34237,
         "logs": [
           "Failed to load resource: the server responded with a status of 404 (Not Found)",
           "show preloader",
           "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.initialise {origin: https://s009-gel.test-flex.us}",
           "hide preloader",
           "gameflex - [GoogleAnalyticsV2] GA4 script loaded successfully.",
-          "gameflex - [GoogleAnalyticsV2] Custom event tracked: loaded_analytics {params: value, event_id: ID-1774860523702-1597300}",
+          "gameflex - [GoogleAnalyticsV2] Custom event tracked: loaded_analytics {params: value, event_id: ID-1774866467543-1124900}",
           "gameflex - [GoogleAnalyticsV2] Started Tracking Event game_ready",
           "gameflex - [GoogleAnalyticsV2] Started Tracking Event first_spin",
           "gameflex - [GoogleAnalyticsV2] Started Tracking Event game_close",
@@ -26,6 +26,7 @@
           "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event framework_loaded",
           "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event bridge_api_ready",
           "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event idle",
+          "Failed to load resource: the server responded with a status of 404 ()",
           "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
           "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 12}",
           "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
@@ -55,18 +56,16 @@
           "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event preloader_hidden",
           "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event client_ready",
           "gameflex - [GoogleAnalyticsV2] tracked events Map(3)",
-          "gameflex - [GoogleAnalyticsV2] timed events {game_ready: 1774860523702, first_spin: 1774860523702, game_close: 1774860523703}",
-          "gameflex - [GoogleAnalyticsV2] Tracking event game_ready tracked with elapsed time: 4.351 seconds",
-          "gameflex - [GoogleAnalyticsV2] Custom event tracked: game_ready {elapsed_time: 4.351, event_id: ID-1774860528066-5961200}",
+          "gameflex - [GoogleAnalyticsV2] timed events {game_ready: 1774866467544, first_spin: 1774866467544, game_close: 1774866467544}",
+          "gameflex - [GoogleAnalyticsV2] Tracking event game_ready tracked with elapsed time: 3.833 seconds",
+          "gameflex - [GoogleAnalyticsV2] Custom event tracked: game_ready {elapsed_time: 3.833, event_id: ID-1774866471398-4979300}",
           "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.ready {game: Object}",
-          "Failed to load resource: the server responded with a status of 500 ()",
-          "%cError\t[RetryManager] AjaxComms.fetch.GET failed after 1 attempts. Final error: Unknown error (HTTP 500) color: #F44336 {}",
           "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event busy",
           "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event wager_started",
           "gameflex - [GoogleAnalyticsV2] tracked events Map(3)",
-          "gameflex - [GoogleAnalyticsV2] timed events {first_spin: 1774860523702, game_close: 1774860523703}",
-          "gameflex - [GoogleAnalyticsV2] Tracking event first_spin tracked with elapsed time: 42.029 seconds",
-          "gameflex - [GoogleAnalyticsV2] Custom event tracked: first_spin {elapsed_time: 42.029, event_id: ID-1774860565739-43634100}",
+          "gameflex - [GoogleAnalyticsV2] timed events {first_spin: 1774866467544, game_close: 1774866467544}",
+          "gameflex - [GoogleAnalyticsV2] Tracking event first_spin tracked with elapsed time: 14.867 seconds",
+          "gameflex - [GoogleAnalyticsV2] Custom event tracked: first_spin {elapsed_time: 14.867, event_id: ID-1774866482414-15996300}",
           "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.spin.start undefined",
           "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event player_activity",
           "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event balance_updated",
@@ -80,364 +79,37 @@
         "steps": [
           {
             "title": "Launch game via harness",
-            "duration": 4347
+            "duration": 5894
           },
           {
-            "title": "Replay 2 cached step(s)",
-            "duration": 44005
+            "title": "Wait for game ready",
+            "duration": 4981
           },
           {
-            "title": "Spin start: gel.spin.start",
-            "duration": 330
-          },
-          {
-            "title": "Spin end: gel.spin.end",
-            "duration": 3183
-          }
-        ],
-        "annotations": {
-          "playmode": "real",
-          "load-time-ms": "6391",
-          "had-load-progress": "false"
-        },
-        "gifUrl": "/api/screenshots/eabea06d-6644-4f03-96bf-1e18d22ea53f/desktop/animated.gif"
-      },
-      "mobile": {
-        "title": "spin: 9 Masks of Fire",
-        "status": "failed",
-        "duration": 47831,
-        "error": "page.waitForEvent: Timeout 15000ms exceeded while waiting for event \"console\"\n=========================== logs ===========================\nwaiting for event \"console\"\n============================================================",
-        "failedStep": "Spin end: gel.spin.end",
-        "logs": [
-          "show preloader",
-          "%cgameflex - color: aqua; font-weight: bold; [AutoScalingService] created auto scaling service",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.initialise {origin: https://s009-gel.test-flex.us}",
-          "hide preloader",
-          "gameflex - [GoogleAnalyticsV2] GA4 script loaded successfully.",
-          "gameflex - [GoogleAnalyticsV2] Custom event tracked: loaded_analytics {params: value, event_id: ID-1774860588986-5353400}",
-          "gameflex - [GoogleAnalyticsV2] Started Tracking Event game_ready",
-          "gameflex - [GoogleAnalyticsV2] Started Tracking Event first_spin",
-          "gameflex - [GoogleAnalyticsV2] Started Tracking Event game_close",
-          "gameflex - [GoogleAnalyticsV2] Timer started for event: game_ready",
-          "gameflex - [GoogleAnalyticsV2] Timer started for event: first_spin",
-          "gameflex - [GoogleAnalyticsV2] Timer started for event: game_close",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event preloader_shown",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event framework_loaded",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event bridge_api_ready",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event idle",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 12}",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 24}",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 36}",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 48}",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 60}",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 72}",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 84}",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 96}",
-          "\n %c %c %c PixiJS 4.8.7 - ✰ WebGL ✰  %c  %c  http://www.pixijs.com/  %c %c ♥%c♥%c♥ \n\n background: #ff66a5; padding:5px 0; background: #ff66a5; padding:5px 0; color: #ff66a5; background: #030307; padding:5px 0; background: #ff66a5; padding:5px 0; background: #ffc3dc; padding:5px 0; background: #ff66a5; padding:5px 0; color: #ff2424; background: #fff; padding:5px 0; color: #ff2424; background: #fff; padding:5px 0; color: #ff2424; background: #fff; padding:5px 0;",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event balance_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event bet_value_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.stake.update {amount: 1}",
-          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event balance_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 99}",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 100}",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event preloader_hidden",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event client_ready",
-          "gameflex - [GoogleAnalyticsV2] tracked events Map(3)",
-          "gameflex - [GoogleAnalyticsV2] timed events {game_ready: 1774860588987, first_spin: 1774860588987, game_close: 1774860588987}",
-          "gameflex - [GoogleAnalyticsV2] Tracking event game_ready tracked with elapsed time: 3.358 seconds",
-          "gameflex - [GoogleAnalyticsV2] Custom event tracked: game_ready {elapsed_time: 3.358, event_id: ID-1774860592357-8724500}",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.ready {game: Object}",
-          "Failed to load resource: the server responded with a status of 500 ()",
-          "%cError\t[RetryManager] AjaxComms.fetch.GET failed after 1 attempts. Final error: Unknown error (HTTP 500) color: #F44336 {}",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event busy",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event wager_started",
-          "gameflex - [GoogleAnalyticsV2] tracked events Map(3)",
-          "gameflex - [GoogleAnalyticsV2] timed events {first_spin: 1774860588987, game_close: 1774860588987}",
-          "gameflex - [GoogleAnalyticsV2] Tracking event first_spin tracked with elapsed time: 15.064 seconds",
-          "gameflex - [GoogleAnalyticsV2] Custom event tracked: first_spin {elapsed_time: 15.064, event_id: ID-1774860604057-20424700}",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.spin.start undefined",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event player_activity",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event balance_updated",
-          "Failed to load resource: the server responded with a status of 500 ()",
-          "%cError\tA general error has occurred. color: #F44336 {displayMessage: Your request could not be processed because we did… or contact the help desk quoting error code 211., errorCode: 211, source: MGS_Veyron, errorData: Object, exceptionType: Veyron GamePlayError}",
-          "%cgameflex - color: red; font-weight: bold; game error dialog raised error {type: error, errorCode: -1, message: Your request could not be processed because we did… or contact the help desk quoting error code 211.} true",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.message {type: error, errorCode: -1, message: Your request could not be processed because we did… or contact the help desk quoting error code 211.}"
-        ],
-        "steps": [
-          {
-            "title": "Launch game via harness",
-            "duration": 4595
-          },
-          {
-            "title": "Discover steps",
-            "duration": 21158
-          },
-          {
-            "title": "Spin start: gel.spin.start",
-            "duration": 277
+            "title": "Discover spin button",
+            "duration": 11020
           },
           {
             "title": "Spin end: gel.spin.end",
-            "duration": 15016,
-            "error": "page.waitForEvent: Timeout 15000ms exceeded while waiting for event \"console\"\n=========================== logs ===========================\nwaiting for event \"console\"\n============================================================"
+            "duration": 3243
           }
         ],
         "annotations": {
-          "playmode": "real",
-          "load-time-ms": "9438",
-          "had-load-progress": "false"
+          "playmode": "demo",
+          "load-time-ms": "4981",
+          "had-load-progress": "true"
         },
-        "screenshotUrls": [
-          "/api/screenshots/eabea06d-6644-4f03-96bf-1e18d22ea53f/mobile/failure-3.png"
-        ],
-        "gifUrl": "/api/screenshots/eabea06d-6644-4f03-96bf-1e18d22ea53f/mobile/animated.gif"
+        "gifUrl": "/api/screenshots/b6d7433a-fa86-478b-8c06-ffd1142baf14/desktop/animated.gif"
       }
     },
     "logs": [
-      "[runner] Starting run eabea06d-6644-4f03-96bf-1e18d22ea53f:",
-      "[runner] Command: npx tsx src/server/scripts/spin.ts --runID=eabea06d-6644-4f03-96bf-1e18d22ea53f --gameIDs=9d8a0d44-5fcf-4b66-b4a2-80961c8ba986 --deviceTypes=desktop,mobile --playmode=real:",
+      "[runner] Starting run b6d7433a-fa86-478b-8c06-ffd1142baf14:",
+      "[runner] Command: npx tsx src/server/scripts/test-runner.ts --runID=b6d7433a-fa86-478b-8c06-ffd1142baf14 --gameIDs=9d8a0d44-5fcf-4b66-b4a2-80961c8ba986 --deviceTypes=desktop --playmode=demo --steps=gameLoad,gameReady,spinCycle:",
       "[runner] Spawning playwright process:",
       "[runner] Process exited with code 0:"
     ],
     "playwrightErrors": [],
-    "finishedAt": "2026-03-30T08:50:27.075Z",
-    "durationMs": 115144
-  },
-  {
-    "runID": "95cb6084-153d-4d1e-86cc-a49b9622ae47",
-    "gameIDs": ["9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"],
-    "status": "completed",
-    "startedAt": "2026-03-30T08:42:57.491Z",
-    "results": {
-      "desktop": {
-        "title": "spin: 9 Masks of Fire",
-        "status": "passed",
-        "duration": 57220,
-        "logs": [
-          "Failed to load resource: the server responded with a status of 404 (Not Found)",
-          "show preloader",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.initialise {origin: https://s009-gel.test-flex.us}",
-          "hide preloader",
-          "gameflex - [GoogleAnalyticsV2] GA4 script loaded successfully.",
-          "gameflex - [GoogleAnalyticsV2] Custom event tracked: loaded_analytics {params: value, event_id: ID-1774860187157-745600}",
-          "gameflex - [GoogleAnalyticsV2] Started Tracking Event game_ready",
-          "gameflex - [GoogleAnalyticsV2] Started Tracking Event first_spin",
-          "gameflex - [GoogleAnalyticsV2] Started Tracking Event game_close",
-          "gameflex - [GoogleAnalyticsV2] Timer started for event: game_ready",
-          "gameflex - [GoogleAnalyticsV2] Timer started for event: first_spin",
-          "gameflex - [GoogleAnalyticsV2] Timer started for event: game_close",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event preloader_shown",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event framework_loaded",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event bridge_api_ready",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event idle",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 12}",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 24}",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 36}",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 48}",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 60}",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 72}",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 84}",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 96}",
-          "\n %c %c %c PixiJS 4.8.7 - ✰ WebGL ✰  %c  %c  http://www.pixijs.com/  %c %c ♥%c♥%c♥ \n\n background: #ff66a5; padding:5px 0; background: #ff66a5; padding:5px 0; color: #ff66a5; background: #030307; padding:5px 0; background: #ff66a5; padding:5px 0; background: #ffc3dc; padding:5px 0; background: #ff66a5; padding:5px 0; color: #ff2424; background: #fff; padding:5px 0; color: #ff2424; background: #fff; padding:5px 0; color: #ff2424; background: #fff; padding:5px 0;",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event balance_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event bet_value_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.stake.update {amount: 1}",
-          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event balance_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 99}",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 100}",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event preloader_hidden",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event client_ready",
-          "gameflex - [GoogleAnalyticsV2] tracked events Map(3)",
-          "gameflex - [GoogleAnalyticsV2] timed events {game_ready: 1774860187158, first_spin: 1774860187158, game_close: 1774860187158}",
-          "gameflex - [GoogleAnalyticsV2] Tracking event game_ready tracked with elapsed time: 3.522 seconds",
-          "gameflex - [GoogleAnalyticsV2] Custom event tracked: game_ready {elapsed_time: 3.522, event_id: ID-1774860190689-4277000}",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.ready {game: Object}",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event busy",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event wager_started",
-          "gameflex - [GoogleAnalyticsV2] tracked events Map(3)",
-          "gameflex - [GoogleAnalyticsV2] timed events {first_spin: 1774860187158, game_close: 1774860187158}",
-          "gameflex - [GoogleAnalyticsV2] Tracking event first_spin tracked with elapsed time: 41.171 seconds",
-          "gameflex - [GoogleAnalyticsV2] Custom event tracked: first_spin {elapsed_time: 41.171, event_id: ID-1774860228334-41922000}",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.spin.start undefined",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event player_activity",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event balance_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event wager_completed",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.spin.end undefined",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event win_value_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event player_activity",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event balance_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event idle"
-        ],
-        "steps": [
-          {
-            "title": "Launch game via harness",
-            "duration": 2627
-          },
-          {
-            "title": "Replay 2 cached step(s)",
-            "duration": 41853
-          },
-          {
-            "title": "Spin start: gel.spin.start",
-            "duration": 303
-          },
-          {
-            "title": "Spin end: gel.spin.end",
-            "duration": 2837
-          }
-        ],
-        "annotations": {
-          "playmode": "demo",
-          "load-time-ms": "4267",
-          "had-load-progress": "false"
-        },
-        "gifUrl": "/api/screenshots/95cb6084-153d-4d1e-86cc-a49b9622ae47/desktop/animated.gif"
-      }
-    },
-    "logs": [
-      "[runner] Starting run 95cb6084-153d-4d1e-86cc-a49b9622ae47:",
-      "[runner] Command: npx tsx src/server/scripts/spin.ts --runID=95cb6084-153d-4d1e-86cc-a49b9622ae47 --gameIDs=9d8a0d44-5fcf-4b66-b4a2-80961c8ba986 --deviceTypes=desktop --playmode=demo:",
-      "[runner] Spawning playwright process:",
-      "[runner] Process exited with code 0:",
-      "[runner] Run finished in 64384ms — 1 passed, 0 failed, 0 skipped:"
-    ],
-    "playwrightErrors": [],
-    "finishedAt": "2026-03-30T08:44:01.875Z",
-    "durationMs": 64384
-  },
-  {
-    "runID": "2930b9bc-05d7-44e0-9f34-7e9fc1478adf",
-    "gameIDs": ["9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"],
-    "status": "completed",
-    "startedAt": "2026-03-30T08:41:02.972Z",
-    "results": {
-      "desktop": {
-        "title": "spin: 9 Masks of Fire",
-        "status": "passed",
-        "duration": 58998,
-        "logs": [
-          "Failed to load resource: the server responded with a status of 404 (Not Found)",
-          "show preloader",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.initialise {origin: https://s009-gel.test-flex.us}",
-          "hide preloader",
-          "gameflex - [GoogleAnalyticsV2] GA4 script loaded successfully.",
-          "gameflex - [GoogleAnalyticsV2] Custom event tracked: loaded_analytics {params: value, event_id: ID-1774860112201-844500}",
-          "gameflex - [GoogleAnalyticsV2] Started Tracking Event game_ready",
-          "gameflex - [GoogleAnalyticsV2] Started Tracking Event first_spin",
-          "gameflex - [GoogleAnalyticsV2] Started Tracking Event game_close",
-          "gameflex - [GoogleAnalyticsV2] Timer started for event: game_ready",
-          "gameflex - [GoogleAnalyticsV2] Timer started for event: first_spin",
-          "gameflex - [GoogleAnalyticsV2] Timer started for event: game_close",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event preloader_shown",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event framework_loaded",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event bridge_api_ready",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event idle",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 12}",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 24}",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 36}",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 48}",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 60}",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 72}",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 84}",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 96}",
-          "\n %c %c %c PixiJS 4.8.7 - ✰ WebGL ✰  %c  %c  http://www.pixijs.com/  %c %c ♥%c♥%c♥ \n\n background: #ff66a5; padding:5px 0; background: #ff66a5; padding:5px 0; color: #ff66a5; background: #030307; padding:5px 0; background: #ff66a5; padding:5px 0; background: #ffc3dc; padding:5px 0; background: #ff66a5; padding:5px 0; color: #ff2424; background: #fff; padding:5px 0; color: #ff2424; background: #fff; padding:5px 0; color: #ff2424; background: #fff; padding:5px 0;",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event balance_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event bet_value_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.stake.update {amount: 1}",
-          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event balance_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 99}",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 100}",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event preloader_hidden",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event client_ready",
-          "gameflex - [GoogleAnalyticsV2] tracked events Map(3)",
-          "gameflex - [GoogleAnalyticsV2] timed events {game_ready: 1774860112201, first_spin: 1774860112201, game_close: 1774860112202}",
-          "gameflex - [GoogleAnalyticsV2] Tracking event game_ready tracked with elapsed time: 4.405 seconds",
-          "gameflex - [GoogleAnalyticsV2] Custom event tracked: game_ready {elapsed_time: 4.405, event_id: ID-1774860116619-5262500}",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.ready {game: Object}",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event busy",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event wager_started",
-          "gameflex - [GoogleAnalyticsV2] tracked events Map(3)",
-          "gameflex - [GoogleAnalyticsV2] timed events {first_spin: 1774860112201, game_close: 1774860112202}",
-          "gameflex - [GoogleAnalyticsV2] Tracking event first_spin tracked with elapsed time: 42.384 seconds",
-          "gameflex - [GoogleAnalyticsV2] Custom event tracked: first_spin {elapsed_time: 42.384, event_id: ID-1774860154591-43234800}",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.spin.start undefined",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event player_activity",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event balance_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event wager_completed",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.spin.end undefined",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event win_value_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event player_activity",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event balance_updated",
-          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event idle"
-        ],
-        "steps": [
-          {
-            "title": "Launch game via harness",
-            "duration": 3804
-          },
-          {
-            "title": "Replay 2 cached step(s)",
-            "duration": 43169
-          },
-          {
-            "title": "Spin start: gel.spin.start",
-            "duration": 291
-          },
-          {
-            "title": "Spin end: gel.spin.end",
-            "duration": 2885
-          }
-        ],
-        "annotations": {
-          "playmode": "demo",
-          "load-time-ms": "5260",
-          "had-load-progress": "false"
-        },
-        "gifUrl": "/api/screenshots/2930b9bc-05d7-44e0-9f34-7e9fc1478adf/desktop/animated.gif"
-      }
-    },
-    "logs": [
-      "[runner] Starting run 2930b9bc-05d7-44e0-9f34-7e9fc1478adf:",
-      "[runner] Command: npx tsx src/server/scripts/spin.ts --runID=2930b9bc-05d7-44e0-9f34-7e9fc1478adf --gameIDs=9d8a0d44-5fcf-4b66-b4a2-80961c8ba986 --deviceTypes=desktop --playmode=demo:",
-      "[runner] Spawning playwright process:",
-      "[runner] Process exited with code 0:",
-      "[runner] Run finished in 104400ms — 1 passed, 0 failed, 0 skipped:"
-    ],
-    "playwrightErrors": [],
-    "finishedAt": "2026-03-30T08:42:47.372Z",
-    "durationMs": 104400
+    "finishedAt": "2026-03-30T10:28:15.440Z",
+    "durationMs": 79765
   }
 ]

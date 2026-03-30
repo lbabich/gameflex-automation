@@ -6,7 +6,7 @@ import type { Viewport } from '../../types';
 
 type RunState = {
   steps: TestStep[];
-  annotations: Record<string, string>;
+  metadata: Record<string, string>;
   screenshotPaths: string[];
 };
 
@@ -22,7 +22,6 @@ type StepContext = {
 };
 
 type Step = {
-  register: (accumulator: EventAccumulator) => void;
   discover: (ctx: StepContext) => Promise<void>;
   execute: (ctx: StepContext) => Promise<void>;
 };

@@ -30,7 +30,7 @@ export type TestResult = {
   steps?: TestStep[];
   gifUrl?: string;
   screenshotUrls?: string[];
-  annotations?: Record<string, string>;
+  metadata?: Record<string, string>;
 };
 
 export type RunRecord = {

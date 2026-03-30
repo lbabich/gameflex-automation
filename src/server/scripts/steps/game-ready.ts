@@ -1,16 +1,9 @@
-import type { EventAccumulator } from '../../lib/event-accumulator';
 import { GEL_EVENT, GEL_READY_TIMEOUT_MS } from '../../lib/gel-events';
 import { track } from './track';
 import type { StepContext } from './types';
 
-function register(accumulator: EventAccumulator): void {
-  accumulator.register(GEL_EVENT.READY);
-  accumulator.register(GEL_EVENT.LOAD_PROGRESS);
-}
-
-async function discover(ctx: StepContext): Promise<void> {
-  console.log('[game-ready] No discovery process — running execute');
-  await execute(ctx);
+async function discover(_ctx: StepContext): Promise<void> {
+  console.log('[game-ready] No discovery process');
 }
 
 async function execute(ctx: StepContext): Promise<void> {
@@ -25,8 +18,8 @@ async function execute(ctx: StepContext): Promise<void> {
     return line.includes(GEL_EVENT.LOAD_PROGRESS);
   });
 
-  runState.annotations['load-time-ms'] = String(Date.now() - startTime);
-  runState.annotations['had-load-progress'] = String(hadLoadProgress);
+  runState.metadata.loadTime = String(Date.now() - startTime);
+  runState.metadata.hasLoadProgress = String(hadLoadProgress);
 }
 
-export { register, discover, execute };
+export { discover, execute };

@@ -1,13 +1,8 @@
 import type { Page } from '@playwright/test';
 
 type EventAccumulator = {
-  register: (eventName: string) => void;
   waitFor: (eventName: string, timeout: number) => Promise<void>;
   getAll: () => string[];
-};
-
-type EventAccumulatorModule = {
-  createEventAccumulator: typeof createEventAccumulator;
 };
 
 function createEventAccumulator(page: Page): EventAccumulator {
@@ -31,9 +26,6 @@ function createEventAccumulator(page: Page): EventAccumulator {
   });
 
   return {
-    register: (_eventName: string) => {
-      // All events are always captured; register is for documentation only.
-    },
     waitFor: (eventName: string, timeout: number) => {
       if (
         captured.some((line) => {
@@ -81,5 +73,5 @@ function createEventAccumulator(page: Page): EventAccumulator {
   };
 }
 
-export type { EventAccumulator, EventAccumulatorModule };
+export type { EventAccumulator };
 export { createEventAccumulator };

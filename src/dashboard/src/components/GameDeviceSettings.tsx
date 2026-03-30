@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { createRun } from '../api';
+import { DEFAULT_STEPS, createRun } from '../api';
 import { useClearChannelSteps } from '../hooks/useClearChannelSteps';
 import { DEVICE_TYPE } from '@shared/types';
 import type { DeviceType, GameEntry, PlayMode } from '@shared/types';
@@ -67,7 +67,7 @@ export function GameDeviceSettings({
     setPendingDevice(deviceType);
 
     try {
-      const data = await createRun({ gameIDs: [game.id], deviceTypes: [deviceType], playmode });
+      const data = await createRun({ gameIDs: [game.id], deviceTypes: [deviceType], playmode, steps: [...DEFAULT_STEPS] });
 
       onRunComplete(data.runID);
     } catch {

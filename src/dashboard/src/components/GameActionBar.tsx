@@ -1,4 +1,4 @@
-import { createRun, deleteRun } from '../api';
+import { DEFAULT_STEPS, createRun, deleteRun } from '../api';
 import { useClearSteps } from '../hooks/useClearSteps';
 import type { GameEntry, PlayMode } from '@shared/types';
 
@@ -60,6 +60,7 @@ export function GameActionBar({
         gameIDs: [game.id],
         deviceTypes: ['desktop', 'mobile'],
         playmode,
+        steps: [...DEFAULT_STEPS],
       });
 
       onRunComplete(data.runID);

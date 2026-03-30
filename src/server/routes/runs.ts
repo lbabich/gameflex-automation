@@ -9,6 +9,7 @@ const PostBody = Schema.Struct({
   gameIDs: Schema.NonEmptyArray(Schema.String),
   deviceTypes: Schema.NonEmptyArray(Schema.Literal('desktop', 'mobile')),
   playmode: Schema.Literal('demo', 'real'),
+  steps: Schema.optional(Schema.Array(Schema.String)),
 });
 
 function makeRunsRouter(runtime: AppRuntime) {
@@ -24,6 +25,7 @@ function makeRunsRouter(runtime: AppRuntime) {
           [...body.gameIDs],
           [...body.deviceTypes],
           body.playmode,
+          body.steps ? [...body.steps] : undefined,
         );
 
         res.status(201).json(record);

@@ -1,9 +1,5 @@
 import type { TestStep } from '../../../shared/types';
 
-type TrackModule = {
-  track: typeof track;
-};
-
 async function track<T>(steps: TestStep[], title: string, fn: () => Promise<T>): Promise<T> {
   const start = Date.now();
 
@@ -24,5 +20,4 @@ async function track<T>(steps: TestStep[], title: string, fn: () => Promise<T>):
   }
 }
 
-export type { TrackModule };
 export { track };

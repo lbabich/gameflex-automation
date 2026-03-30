@@ -16,11 +16,28 @@ import type { RunState, Step } from './steps/types';
 dotenv.config();
 
 const VIEWPORT: Viewport = { width: 1280, height: 720 };
+const POST_RUN_BUFFER_MS = 5_000;
 
-const STEPS: Step[] = [gameLoad, gameReady, spinCycle];
+const DEFAULT_STEPS = ['gameLoad', 'gameReady', 'spinCycle'];
+
+const STEP_REGISTRY: Record<string, Step> = {
+  gameLoad,
+  gameReady,
+  spinCycle,
+};
 
 async function main() {
-  const { runID, gameIDs, deviceTypes, playmode } = parseArgs();
+  const { runID, gameIDs, deviceTypes, playmode, steps } = parseArgs();
+
+  const resolvedSteps = steps.map((name) => {
+    const step = STEP_REGISTRY[name];
+
+    if (!step) {
+      throw new Error(`Unknown step: '${name}'`);
+    }
+
+    return step;
+  });
 
   const allGames = readGames();
   const games = allGames.filter((game: GameEntry) => {
@@ -35,7 +52,15 @@ async function main() {
   try {
     for (const game of games) {
       for (const deviceType of deviceTypes) {
-        const result = await runGame(browser, game, deviceType, VIEWPORT, runID, playmode);
+        const result = await runGame(
+          browser,
+          game,
+          deviceType,
+          VIEWPORT,
+          runID,
+          playmode,
+          resolvedSteps,
+        );
 
         results[deviceType] = {
           ...result,
@@ -59,6 +84,7 @@ function parseArgs() {
   let gameIDs: string[] = [];
   let deviceTypes: DeviceType[] = [];
   let playmode: PlayMode = PLAY_MODE.DEMO;
+  let steps: string[] = DEFAULT_STEPS;
 
   for (const arg of args) {
     if (arg.startsWith('--runID=')) {
@@ -69,10 +95,12 @@ function parseArgs() {
       deviceTypes = arg.slice('--deviceTypes='.length).split(',').filter(Boolean) as DeviceType[];
     } else if (arg.startsWith('--playmode=')) {
       playmode = arg.slice('--playmode='.length) as PlayMode;
+    } else if (arg.startsWith('--steps=')) {
+      steps = arg.slice('--steps='.length).split(',').filter(Boolean);
     }
   }
 
-  return { runID, gameIDs, deviceTypes, playmode };
+  return { runID, gameIDs, deviceTypes, playmode, steps };
 }
 
 async function runGame(
@@ -82,6 +110,7 @@ async function runGame(
   viewport: Viewport,
   runID: string,
   playmode: PlayMode,
+  steps: Step[],
 ): Promise<InternalTestResult> {
   const httpCredentials =
     process.env.BASIC_AUTH_USER && process.env.BASIC_AUTH_PASS
@@ -94,15 +123,11 @@ async function runGame(
   const startTime = Date.now();
   const runState: RunState = {
     steps: [],
-    annotations: { playmode },
+    metadata: { playmode },
     screenshotPaths: [],
   };
 
   const accumulator = eventAccumulator.createEventAccumulator(page);
-
-  for (const step of STEPS) {
-    step.register(accumulator);
-  }
 
   const ctx = { page, accumulator, game, viewport, deviceType, runID, playmode, runState };
   const isDiscovery = !stepCache.getSteps(game.id, deviceType, viewport);
@@ -110,13 +135,15 @@ async function runGame(
   let failure: Error | null = null;
 
   try {
-    for (const step of STEPS) {
+    for (const step of steps) {
       if (isDiscovery) {
         await step.discover(ctx);
-      } else {
-        await step.execute(ctx);
       }
+
+      await step.execute(ctx);
     }
+
+    await takePostRunSnapshots(page, runID, deviceType);
   } catch (err) {
     failure = err as Error;
     runState.screenshotPaths = await takeFailureSnapshots(page, runID, deviceType);
@@ -139,7 +166,7 @@ async function runGame(
       logs,
       steps: runState.steps,
       screenshotPaths: runState.screenshotPaths,
-      annotations: runState.annotations,
+      metadata: runState.metadata,
     };
   }
 
@@ -151,6 +178,19 @@ async function runGame(
     steps: runState.steps,
     annotations: runState.annotations,
   };
+}
+
+async function takePostRunSnapshots(
+  page: Page,
+  runID: string,
+  deviceType: DeviceType,
+): Promise<void> {
+  await page.waitForTimeout(POST_RUN_BUFFER_MS);
+  await screenshot.snap(page, `${runID}/${deviceType}/final-1.png`);
+  await page.waitForTimeout(1_500);
+  await screenshot.snap(page, `${runID}/${deviceType}/final-2.png`);
+  await page.waitForTimeout(1_500);
+  await screenshot.snap(page, `${runID}/${deviceType}/final-3.png`);
 }
 
 async function takeFailureSnapshots(

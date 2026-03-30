@@ -27,6 +27,7 @@ class RunnerService extends Effect.Tag('RunnerService')<
       gameIDs: string[],
       deviceTypes: string[],
       playmode: string,
+      steps?: string[],
     ) => Effect.Effect<RunRecord, RunAlreadyActiveError | GameNotFoundError>;
     cancelRun: (runID: string) => Effect.Effect<void, RunNotFoundError>;
     getRun: (runID: string) => Effect.Effect<RunRecord, RunNotFoundError>;
@@ -50,7 +51,7 @@ export const NodeRunnerService = Layer.effect(
     }
 
     return {
-      startRun: (gameIDs: string[], deviceTypes: string[], playmode: string) => {
+      startRun: (gameIDs: string[], deviceTypes: string[], playmode: string, steps?: string[]) => {
         return startRun(
           state,
           gamesService,
@@ -59,6 +60,7 @@ export const NodeRunnerService = Layer.effect(
           gameIDs,
           deviceTypes,
           playmode,
+          steps,
         );
       },
       cancelRun: (runID: string) => {
@@ -85,6 +87,7 @@ function startRun(
   gameIDs: string[],
   deviceTypes: string[],
   playmode: string,
+  steps?: string[],
 ) {
   return Effect.gen(function* () {
     const conflicting = gameIDs.filter((id: string) => {
@@ -115,7 +118,7 @@ function startRun(
       state.activeRunsByGame.set(id, runID);
     }
 
-    const cmd = buildSpinCommand(runID, gameIDs, deviceTypes, playmode);
+    const cmd = buildSpinCommand(runID, gameIDs, deviceTypes, playmode, steps);
 
     yield* runLoggerService.log(runID, 'runner', `Starting run ${runID}`);
     yield* runLoggerService.log(runID, 'runner', `Command: ${cmd}`);

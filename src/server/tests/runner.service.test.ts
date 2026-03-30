@@ -1,11 +1,13 @@
 import { randomUUID } from 'node:crypto';
 import { Effect, Layer, ManagedRuntime } from 'effect';
 import { describe, expect, it } from 'vitest';
+import type { RunRecord } from '../../shared/types';
 import { GameNotFoundError, RunNotFoundError } from '../errors';
 import type { GameEntry } from '../lib/games';
 import { FileService } from '../services/file.service';
 import { GamesService } from '../services/games.service';
-import type { RunRecord } from '../services/runner/runner.service';
+import { RunLoggerService } from '../services/runner/run-logger.service';
+import { RunStateService } from '../services/runner/run-state.service';
 import { NodeRunnerService, RunnerService } from '../services/runner/runner.service';
 
 function makeTestRuntime(runsJson = '[]', gameEntries: GameEntry[] = []) {
@@ -42,8 +44,29 @@ function makeTestRuntime(runsJson = '[]', gameEntries: GameEntry[] = []) {
     },
   });
 
+  const testRunStateService = Layer.succeed(RunStateService, {
+    runs: new Map(),
+    activeRunsByGame: new Map(),
+    activeFibers: new Map(),
+  });
+
+  const testRunLoggerService = Layer.succeed(RunLoggerService, {
+    log: () => {
+      return Effect.succeed(undefined);
+    },
+    warn: () => {
+      return Effect.succeed(undefined);
+    },
+    error: () => {
+      return Effect.succeed(undefined);
+    },
+  });
+
   return ManagedRuntime.make(
-    Layer.provide(NodeRunnerService, Layer.mergeAll(testFileService, testGamesService)),
+    Layer.provide(
+      NodeRunnerService,
+      Layer.mergeAll(testFileService, testGamesService, testRunStateService, testRunLoggerService),
+    ),
   );
 }
 
@@ -55,6 +78,7 @@ function makeRunRecord(overrides: Partial<RunRecord> = {}): RunRecord {
     startedAt: '2024-01-01T00:00:00.000Z',
     results: {},
     playwrightErrors: [],
+    logs: [],
     ...overrides,
   };
 }
