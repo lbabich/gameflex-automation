@@ -1,66 +1,32 @@
-import * as discovery from '../../lib/discovery';
 import type { EventAccumulator } from '../../lib/event-accumulator';
-import * as replay from '../../lib/replay';
-import * as stepCache from '../../lib/step-cache';
+import { GEL_EVENT, GEL_READY_TIMEOUT_MS } from '../../lib/gel-events';
 import { track } from './track';
 import type { StepContext } from './types';
 
-function register(_accumulator: EventAccumulator): void {
-  // pre-spin-navigation has no GEL event interests
+function register(accumulator: EventAccumulator): void {
+  accumulator.register(GEL_EVENT.READY);
+  accumulator.register(GEL_EVENT.LOAD_PROGRESS);
 }
 
 async function discover(ctx: StepContext): Promise<void> {
-  const { page, game, viewport, deviceType, runID, runState } = ctx;
-
-  const gameReady = await track(runState.steps, 'Discover steps', async () => {
-    try {
-      const result = await discovery.discoverSteps(page, game, viewport, deviceType, runID);
-
-      stepCache.setSteps(game.id, deviceType, viewport, {
-        discoveredAt: new Date().toISOString(),
-        steps: result.steps,
-      });
-
-      return result.gameReady;
-    } catch (err) {
-      if (err instanceof discovery.DiscoveryError && err.partialSteps.length > 0) {
-        stepCache.setSteps(game.id, deviceType, viewport, {
-          discoveredAt: new Date().toISOString(),
-          steps: err.partialSteps,
-          partial: true,
-        });
-      }
-
-      throw err;
-    }
-  });
-
-  if (gameReady) {
-    runState.annotations['load-time-ms'] = String(gameReady.loadTimeMs);
-    runState.annotations['had-load-progress'] = String(gameReady.hadLoadProgress);
-  }
+  console.log('[game-ready] No discovery process — running execute');
+  await execute(ctx);
 }
 
 async function execute(ctx: StepContext): Promise<void> {
-  const { page, game, viewport, deviceType, runID, runState } = ctx;
-  const cached = stepCache.getSteps(game.id, deviceType, viewport);
+  const { accumulator, runState } = ctx;
+  const startTime = Date.now();
 
-  if (!cached) {
-    throw new Error(`No cached steps found for game '${game.name}' — run discovery first`);
-  }
+  await track(runState.steps, 'Wait for game ready', () => {
+    return accumulator.waitFor(GEL_EVENT.READY, GEL_READY_TIMEOUT_MS);
+  });
 
-  const gameReady = await track(
-    runState.steps,
-    `Replay ${cached.steps.length} cached step(s)`,
-    () => {
-      return replay.replaySteps(page, runID, cached.steps, deviceType);
-    },
-  );
+  const hadLoadProgress = accumulator.getAll().some((line) => {
+    return line.includes(GEL_EVENT.LOAD_PROGRESS);
+  });
 
-  if (gameReady) {
-    runState.annotations['load-time-ms'] = String(gameReady.loadTimeMs);
-    runState.annotations['had-load-progress'] = String(gameReady.hadLoadProgress);
-  }
+  runState.annotations['load-time-ms'] = String(Date.now() - startTime);
+  runState.annotations['had-load-progress'] = String(hadLoadProgress);
 }
 
 export { register, discover, execute };

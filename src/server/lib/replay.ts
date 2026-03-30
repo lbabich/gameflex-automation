@@ -1,17 +1,14 @@
 import type { Page } from '@playwright/test';
+import type { DeviceType } from '../../shared/types';
 import type { CachedStep } from '../types';
-import * as gelEvents from './gel-events';
 import * as screenshot from './screenshot';
-import type { DeviceType } from './types';
 
 async function replaySteps(
   page: Page,
   runID: string,
   steps: CachedStep[],
   deviceType: DeviceType,
-): Promise<gelEvents.GameReadyResult> {
-  const gameReady = await gelEvents.waitForGameReady(page);
-
+): Promise<void> {
   for (let i = 0; i < steps.length; i++) {
     await page.waitForTimeout(Math.max(steps[i].waitMs, 1_000));
     await injectClickMarker(page, steps[i].x, steps[i].y);
@@ -19,8 +16,6 @@ async function replaySteps(
     console.log(`Clicking "${steps[i].label}" at ${steps[i].x},${steps[i].y}`);
     await page.mouse.click(steps[i].x, steps[i].y);
   }
-
-  return gameReady;
 }
 
 async function injectClickMarker(page: Page, x: number, y: number) {
