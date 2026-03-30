@@ -37,17 +37,17 @@ async function execute(ctx: StepContext): Promise<void> {
   const cached = stepCache.getSteps(game.id, deviceType, viewport, STEP_NAME);
 
   if (cached) {
-    await track(runState.steps, `Replay Spin Cycle (${cached.steps.length}) cached step(s)`, () => {
-      return replay.replaySteps(page, runID, cached.steps, deviceType);
-    });
+    await replay.replaySteps(page, runID, cached.steps, deviceType);
   }
 
-  await track(runState.steps, `Spin start: ${GEL_EVENT.SPIN_START}`, async () => {
+  const suffix = cached ? ' (cached)' : '';
+
+  await track(runState.steps, `Spin start: ${GEL_EVENT.SPIN_START}${suffix}`, async () => {
     await accumulator.waitFor(GEL_EVENT.SPIN_START, SPIN_START_TIMEOUT_MS);
     await screenshot.snap(page, `${runID}/${deviceType}/spin-start.png`);
   });
 
-  await track(runState.steps, `Spin end: ${GEL_EVENT.SPIN_END}`, () => {
+  await track(runState.steps, `Spin end: ${GEL_EVENT.SPIN_END}${suffix}`, () => {
     return accumulator.waitFor(GEL_EVENT.SPIN_END, SPIN_END_WAIT_MS);
   });
 }

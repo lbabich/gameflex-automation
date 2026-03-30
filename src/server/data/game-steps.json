@@ -3,16 +3,16 @@
     "desktop": {
       "1280x720": {
         "spinCycle": {
-          "discoveredAt": "2026-03-30T13:18:59.166Z",
+          "discoveredAt": "2026-03-30T13:32:45.505Z",
           "steps": [
             {
-              "waitMs": 7984,
+              "waitMs": 9248,
               "x": 664,
               "y": 687,
               "label": "Continue button"
             },
             {
-              "waitMs": 5810,
+              "waitMs": 10141,
               "x": 664,
               "y": 684,
               "label": "Circular spin button with rotating arrows"

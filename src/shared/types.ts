@@ -22,8 +22,6 @@ export type TestStep = {
 
 export type TestMetadata = {
   playmode?: string;
-  loadTime?: number;
-  hasLoadProgress?: boolean;
 };
 
 export type TestResult = {
