@@ -9,12 +9,14 @@ export const GEL_EVENT = {
   SPIN_START: 'gel.spin.start',
   // Required — absence hard-fails the test via Playwright waitForEvent timeout.
   SPIN_END: 'gel.spin.end',
+  // Required - Test if game close works
+  GAME_CLOSE: 'gel.close',
 } as const;
 
 export const GEL_READY_TIMEOUT_MS = 10_000;
 export const SPIN_START_TIMEOUT_MS = 10_000;
 export const SPIN_END_WAIT_MS = 15_000;
-export const POST_SPIN_BUFFER_MS = 5_000;
+export const GAME_CLOSE_TIMEOUT_MS = 10_000;
 
 export type GameReadyResult = {
   loadTimeMs: number;

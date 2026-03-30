@@ -20,6 +20,12 @@ export type TestStep = {
   error?: string;
 };
 
+export type TestMetadata = {
+  playmode?: string;
+  loadTime?: number;
+  hasLoadProgress?: boolean;
+};
+
 export type TestResult = {
   title: string;
   status: 'passed' | 'failed' | 'skipped' | 'timedOut';
@@ -30,7 +36,7 @@ export type TestResult = {
   steps?: TestStep[];
   gifUrl?: string;
   screenshotUrls?: string[];
-  metadata?: Record<string, string>;
+  metadata?: TestMetadata;
 };
 
 export type RunRecord = {

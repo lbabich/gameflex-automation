@@ -11,6 +11,7 @@ import type { StepContext } from './types';
 
 type FailedButton = { x: number; y: number; label: string };
 
+const STEP_NAME = 'spinCycle';
 const DISCOVERY_MAX_ATTEMPTS = 20;
 const DISCOVERY_POLL_INTERVAL_MS = 1_000;
 
@@ -22,24 +23,24 @@ class SpinDiscoveryError extends Error {
 }
 
 async function discover(ctx: StepContext): Promise<void> {
-  const { page, game, viewport, deviceType, runID, runState } = ctx;
+  const { page, game, viewport, deviceType, runID } = ctx;
 
-  await track(runState.steps, 'Discover spin button', () => {
-    return runDiscoveryLoop(page, game, viewport, deviceType, runID);
-  });
+  if (stepCache.getSteps(game.id, deviceType, viewport, STEP_NAME)) {
+    return;
+  }
+
+  return runDiscoveryLoop(page, game, viewport, deviceType, runID);
 }
 
 async function execute(ctx: StepContext): Promise<void> {
   const { page, accumulator, game, viewport, runID, deviceType, runState } = ctx;
-  const cached = stepCache.getSteps(game.id, deviceType, viewport);
+  const cached = stepCache.getSteps(game.id, deviceType, viewport, STEP_NAME);
 
-  if (!cached) {
-    throw new Error(`No cached steps found for game '${game.name}' — run discovery first`);
+  if (cached) {
+    await track(runState.steps, `Replay Spin Cycle (${cached.steps.length}) cached step(s)`, () => {
+      return replay.replaySteps(page, runID, cached.steps, deviceType);
+    });
   }
-
-  await track(runState.steps, `Replay ${cached.steps.length} cached step(s)`, () => {
-    return replay.replaySteps(page, runID, cached.steps, deviceType);
-  });
 
   await track(runState.steps, `Spin start: ${GEL_EVENT.SPIN_START}`, async () => {
     await accumulator.waitFor(GEL_EVENT.SPIN_START, SPIN_START_TIMEOUT_MS);
@@ -78,8 +79,9 @@ async function runDiscoveryLoop(
       const waitMs = Date.now() - lastClickTime;
 
       preSpinSteps.push({ waitMs, x: spinResult.x, y: spinResult.y, label: spinResult.label });
+      await page.mouse.click(spinResult.x, spinResult.y);
 
-      stepCache.setSteps(game.id, deviceType, viewport, {
+      stepCache.setPendingSteps(game.id, deviceType, viewport, STEP_NAME, {
         discoveredAt: new Date().toISOString(),
         steps: preSpinSteps,
       });
@@ -104,7 +106,7 @@ async function runDiscoveryLoop(
   }
 
   if (preSpinSteps.length > 0) {
-    stepCache.setSteps(game.id, deviceType, viewport, {
+    stepCache.setSteps(game.id, deviceType, viewport, STEP_NAME, {
       discoveredAt: new Date().toISOString(),
       steps: preSpinSteps,
       partial: true,

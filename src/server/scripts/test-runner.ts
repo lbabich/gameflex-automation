@@ -9,7 +9,6 @@ import * as screenshot from '../lib/screenshot';
 import * as stepCache from '../lib/step-cache';
 import type { InternalTestResult, Viewport } from '../types';
 import * as gameLoad from './steps/game-load';
-import * as gameReady from './steps/game-ready';
 import * as spinCycle from './steps/spin-cycle';
 import type { RunState, Step } from './steps/types';
 
@@ -18,25 +17,25 @@ dotenv.config();
 const VIEWPORT: Viewport = { width: 1280, height: 720 };
 const POST_RUN_BUFFER_MS = 5_000;
 
-const DEFAULT_STEPS = ['gameLoad', 'gameReady', 'spinCycle'];
+const DEFAULT_STEPS = ['gameLoad', 'spinCycle'];
 
 const STEP_REGISTRY: Record<string, Step> = {
   gameLoad,
-  gameReady,
   spinCycle,
 };
 
 async function main() {
   const { runID, gameIDs, deviceTypes, playmode, steps } = parseArgs();
 
-  const resolvedSteps = steps.map((name) => {
+  const resolvedSteps = steps.flatMap((name) => {
     const step = STEP_REGISTRY[name];
 
     if (!step) {
-      throw new Error(`Unknown step: '${name}'`);
+      console.warn(`[test-runner] Unknown step '${name}' — skipping`);
+      return [];
     }
 
-    return step;
+    return [step];
   });
 
   const allGames = readGames();
@@ -130,19 +129,16 @@ async function runGame(
   const accumulator = eventAccumulator.createEventAccumulator(page);
 
   const ctx = { page, accumulator, game, viewport, deviceType, runID, playmode, runState };
-  const isDiscovery = !stepCache.getSteps(game.id, deviceType, viewport);
 
   let failure: Error | null = null;
 
   try {
     for (const step of steps) {
-      if (isDiscovery) {
-        await step.discover(ctx);
-      }
-
+      await step.discover(ctx);
       await step.execute(ctx);
     }
 
+    stepCache.saveToCache();
     await takePostRunSnapshots(page, runID, deviceType);
   } catch (err) {
     failure = err as Error;
@@ -176,7 +172,7 @@ async function runGame(
     duration,
     logs,
     steps: runState.steps,
-    annotations: runState.annotations,
+    metadata: runState.metadata,
   };
 }
 

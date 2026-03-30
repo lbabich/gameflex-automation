@@ -163,28 +163,26 @@ export function ResultsPanel({ run, isLoading }: Props) {
                                 <div className="text-xs font-medium text-gray-500 bg-gray-50 px-3 py-1.5 border-b border-gray-200">
                                   Steps
                                 </div>
-                                {result.metadata?.['hasLoadProgress'] !== undefined && (
+                                {result.metadata?.hasLoadProgress !== undefined && (
                                   <div
-                                    className={`flex items-center gap-3 px-3 py-2 border-b border-gray-100 ${result.metadata['hasLoadProgress'] === 'true' ? 'bg-white' : 'bg-amber-50'}`}
+                                    className={`flex items-center gap-3 px-3 py-2 border-b border-gray-100 ${result.metadata.hasLoadProgress ? 'bg-white' : 'bg-amber-50'}`}
                                   >
                                     <span
-                                      className={`text-sm leading-none ${result.metadata['hasLoadProgress'] === 'true' ? 'text-green-500' : 'text-amber-500'}`}
+                                      className={`text-sm leading-none ${result.metadata.hasLoadProgress ? 'text-green-500' : 'text-amber-500'}`}
                                     >
-                                      {result.metadata['hasLoadProgress'] === 'true'
-                                        ? '✓'
-                                        : '⚠'}
+                                      {result.metadata.hasLoadProgress ? '✓' : '⚠'}
                                     </span>
                                     <span className="flex-1 text-xs text-gray-700">
                                       gel.load.progress
                                     </span>
                                   </div>
                                 )}
-                                {result.metadata?.['loadTime'] !== undefined && (
+                                {result.metadata?.loadTime !== undefined && (
                                   <div className="flex items-center gap-3 px-3 py-2 border-b border-gray-100 bg-white">
                                     <span className="text-sm leading-none text-green-500">✓</span>
                                     <span className="flex-1 text-xs text-gray-700">gel.ready</span>
                                     <span className="text-xs text-gray-400">
-                                      {result.metadata['loadTime']}ms
+                                      {result.metadata.loadTime}ms
                                     </span>
                                   </div>
                                 )}

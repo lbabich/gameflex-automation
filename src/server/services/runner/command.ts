@@ -1,4 +1,4 @@
-const DEFAULT_STEPS = ['gameLoad', 'gameReady', 'spinCycle'];
+const DEFAULT_STEPS = ['gameLoad', 'spinCycle'];
 
 function buildSpinCommand(
   runID: string,

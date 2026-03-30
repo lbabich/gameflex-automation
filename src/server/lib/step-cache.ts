@@ -1,32 +1,81 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import type { DeviceType } from '../../shared/types';
 import type { GameSteps, Viewport } from '../types';
-import type { DeviceType } from './types';
 
-type ViewportMap = Record<string, GameSteps>;
+type StepMap = Record<string, GameSteps>;
+type ViewportMap = Record<string, StepMap>;
 type DeviceMap = Record<string, ViewportMap>;
 type StepCache = Record<string, DeviceMap>;
 
 const CACHE_PATH = path.resolve('src', 'server', 'data', 'game-steps.json');
 
-function getSteps(id: string, deviceType: DeviceType, viewport: Viewport) {
+const pending = new Map<string, GameSteps>();
+
+function getSteps(id: string, deviceType: DeviceType, viewport: Viewport, stepName: string) {
   const cache = loadCache();
-  return cache[id]?.[deviceType]?.[viewportKey(viewport)];
+
+  return cache[id]?.[deviceType]?.[viewportKey(viewport)]?.[stepName];
 }
 
 /**
- * Merges `steps` into the cache at `[id][deviceType][viewportKey]`.
- * Reads the cache file from disk on every call and writes it back after updating — no in-memory state.
+ * Writes directly to disk. Use for partial/failure saves where you want the
+ * result preserved even if the overall run fails.
  */
-function setSteps(id: string, deviceType: DeviceType, viewport: Viewport, steps: GameSteps) {
+function setSteps(
+  id: string,
+  deviceType: DeviceType,
+  viewport: Viewport,
+  stepName: string,
+  steps: GameSteps,
+) {
   const cache = loadCache();
   const key = viewportKey(viewport);
 
   cache[id] ??= {};
   cache[id][deviceType] ??= {};
-  cache[id][deviceType][key] = steps;
+  cache[id][deviceType][key] ??= {};
+  cache[id][deviceType][key][stepName] = steps;
 
   saveCache(cache);
+}
+
+/**
+ * Stores steps in memory only. Call saveToCache() once all discovery
+ * steps have succeeded to write everything to disk atomically.
+ */
+function setPendingSteps(
+  id: string,
+  deviceType: DeviceType,
+  viewport: Viewport,
+  stepName: string,
+  steps: GameSteps,
+) {
+  pending.set(pendingKey(id, deviceType, viewport, stepName), steps);
+}
+
+/**
+ * Writes all pending in-memory steps to disk and clears the pending map.
+ * Call this after all discovery steps have completed successfully.
+ */
+function saveToCache() {
+  if (pending.size === 0) {
+    return;
+  }
+
+  const cache = loadCache();
+
+  for (const [key, steps] of pending.entries()) {
+    const [id, deviceType, vpKey, stepName] = key.split('/');
+
+    cache[id] ??= {};
+    cache[id][deviceType] ??= {};
+    cache[id][deviceType][vpKey] ??= {};
+    cache[id][deviceType][vpKey][stepName] = steps;
+  }
+
+  saveCache(cache);
+  pending.clear();
 }
 
 function clearAllSteps(id: string) {
@@ -80,8 +129,25 @@ function saveCache(cache: StepCache) {
   fs.writeFileSync(CACHE_PATH, JSON.stringify(cache, null, 2));
 }
 
+function pendingKey(
+  id: string,
+  deviceType: DeviceType,
+  viewport: Viewport,
+  stepName: string,
+): string {
+  return `${id}/${deviceType}/${viewportKey(viewport)}/${stepName}`;
+}
+
 function viewportKey(viewport: Viewport) {
   return `${viewport.width}x${viewport.height}`;
 }
 
-export { getSteps, setSteps, clearAllSteps, clearChannelSteps, getCachedDeviceMap };
+export {
+  getSteps,
+  setSteps,
+  setPendingSteps,
+  saveToCache,
+  clearAllSteps,
+  clearChannelSteps,
+  getCachedDeviceMap,
+};
