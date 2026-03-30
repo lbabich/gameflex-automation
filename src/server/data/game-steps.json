@@ -3,19 +3,42 @@
     "desktop": {
       "1280x720": {
         "spinCycle": {
-          "discoveredAt": "2026-03-30T13:32:45.505Z",
+          "discoveredAt": "2026-03-30T15:32:10.858Z",
           "steps": [
             {
-              "waitMs": 9248,
+              "waitMs": 9953,
               "x": 664,
               "y": 687,
               "label": "Continue button"
             },
             {
-              "waitMs": 10141,
+              "waitMs": 4831,
               "x": 664,
-              "y": 684,
+              "y": 683,
               "label": "Circular spin button with rotating arrows"
+            }
+          ]
+        },
+        "gameClose": {
+          "discoveredAt": "2026-03-30T15:32:36.037Z",
+          "steps": [
+            {
+              "waitMs": 6805,
+              "x": 139,
+              "y": 687,
+              "label": "Hamburger menu (≡) in bottom bar"
+            },
+            {
+              "waitMs": 8579,
+              "x": 140,
+              "y": 641,
+              "label": "Home/house icon in left sidebar"
+            },
+            {
+              "waitMs": 5747,
+              "x": 771,
+              "y": 455,
+              "label": "YES button in Exit to Lobby confirmation dialog"
             }
           ]
         }

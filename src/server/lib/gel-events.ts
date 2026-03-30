@@ -14,9 +14,6 @@ export const GEL_EVENT = {
 } as const;
 
 export const GEL_READY_TIMEOUT_MS = 10_000;
-export const SPIN_START_TIMEOUT_MS = 10_000;
-export const SPIN_END_WAIT_MS = 15_000;
-export const GAME_CLOSE_TIMEOUT_MS = 10_000;
 
 export type GameReadyResult = {
   loadTimeMs: number;

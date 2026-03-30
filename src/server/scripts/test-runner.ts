@@ -8,6 +8,7 @@ import { readGames } from '../lib/games';
 import * as screenshot from '../lib/screenshot';
 import * as stepCache from '../lib/step-cache';
 import type { InternalTestResult, Viewport } from '../types';
+import * as gameClose from './steps/game-close';
 import * as gameLoad from './steps/game-load';
 import * as spinCycle from './steps/spin-cycle';
 import type { RunState, Step } from './steps/types';
@@ -17,11 +18,12 @@ dotenv.config();
 const VIEWPORT: Viewport = { width: 1280, height: 720 };
 const POST_RUN_BUFFER_MS = 5_000;
 
-const DEFAULT_STEPS = ['gameLoad', 'spinCycle'];
+const DEFAULT_STEPS = ['gameLoad', 'spinCycle', 'gameClose'];
 
 const STEP_REGISTRY: Record<string, Step> = {
   gameLoad,
   spinCycle,
+  gameClose,
 };
 
 async function main() {

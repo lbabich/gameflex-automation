@@ -14,7 +14,7 @@ export type GameUpdates = {
   gameProviderID?: string;
 };
 
-export const DEFAULT_STEPS = ['gameLoad', 'spinCycle', 'gameEnd'] as const;
+export const DEFAULT_STEPS = ['gameLoad', 'spinCycle', 'gameClose'] as const;
 
 export type NewRun = {
   gameIDs: string[];
