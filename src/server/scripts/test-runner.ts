@@ -1,27 +1,23 @@
 import type { Browser, Page } from '@playwright/test';
 import { chromium } from '@playwright/test';
 import * as dotenv from 'dotenv';
-import { type DeviceType, PLAY_MODE, type PlayMode, type TestStep } from '../../shared/types';
-import * as discovery from '../lib/discovery';
-import type { EventAccumulator } from '../lib/event-accumulator';
+import { type DeviceType, PLAY_MODE, type PlayMode } from '../../shared/types';
 import * as eventAccumulator from '../lib/event-accumulator';
 import type { GameEntry } from '../lib/games';
 import { readGames } from '../lib/games';
-import {
-  GEL_EVENT,
-  POST_SPIN_BUFFER_MS,
-  SPIN_END_WAIT_MS,
-  SPIN_START_TIMEOUT_MS,
-} from '../lib/gel-events';
-import * as preLaunch from '../lib/pre-launch';
-import * as replay from '../lib/replay';
 import * as screenshot from '../lib/screenshot';
 import * as stepCache from '../lib/step-cache';
 import type { InternalTestResult, Viewport } from '../types';
+import * as gameLoad from './steps/game-load';
+import * as gameReady from './steps/game-ready';
+import * as spinCycle from './steps/spin-cycle';
+import type { RunState, Step } from './steps/types';
 
 dotenv.config();
 
 const VIEWPORT: Viewport = { width: 1280, height: 720 };
+
+const STEPS: Step[] = [gameLoad, gameReady, spinCycle];
 
 async function main() {
   const { runID, gameIDs, deviceTypes, playmode } = parseArgs();
@@ -96,41 +92,40 @@ async function runGame(
   const page = await context.newPage();
 
   const startTime = Date.now();
-  const steps: TestStep[] = [];
-  const annotations: Record<string, string> = {};
+  const runState: RunState = {
+    steps: [],
+    annotations: { playmode },
+    screenshotPaths: [],
+  };
+
   const accumulator = eventAccumulator.createEventAccumulator(page);
 
-  accumulator.register(GEL_EVENT.SPIN_START);
-  accumulator.register(GEL_EVENT.SPIN_END);
+  for (const step of STEPS) {
+    step.register(accumulator);
+  }
 
-  annotations.playmode = playmode;
+  const ctx = { page, accumulator, game, viewport, deviceType, runID, playmode, runState };
+  const isDiscovery = !stepCache.getSteps(game.id, deviceType, viewport);
 
   let failure: Error | null = null;
-  let screenshotPaths: string[] = [];
 
   try {
-    await track(steps, 'Launch game via harness', () => {
-      return preLaunch.launch(page, game, deviceType, playmode);
-    });
-
-    const gameReady = await discoverOrReplay(page, game, viewport, deviceType, steps, runID);
-
-    if (gameReady) {
-      annotations['load-time-ms'] = String(gameReady.loadTimeMs);
-      annotations['had-load-progress'] = String(gameReady.hadLoadProgress);
+    for (const step of STEPS) {
+      if (isDiscovery) {
+        await step.discover(ctx);
+      } else {
+        await step.execute(ctx);
+      }
     }
-
-    await awaitSpinCycle(page, runID, deviceType, accumulator, steps);
-    await takePostSpinSnapshots(page, runID, deviceType);
   } catch (err) {
     failure = err as Error;
-    screenshotPaths = await takeFailureSnapshots(page, runID, deviceType);
+    runState.screenshotPaths = await takeFailureSnapshots(page, runID, deviceType);
   }
 
   await context.close();
 
   const duration = Date.now() - startTime;
-  const filteredStdout = accumulator.getAll();
+  const logs = accumulator.getAll();
 
   if (failure) {
     return {
@@ -138,13 +133,13 @@ async function runGame(
       status: 'failed',
       duration,
       error: failure.message,
-      failedStep: steps.find((step: TestStep) => {
+      failedStep: runState.steps.find((step) => {
         return step.error;
       })?.title,
-      logs: filteredStdout,
-      steps,
-      screenshotPaths,
-      annotations,
+      logs,
+      steps: runState.steps,
+      screenshotPaths: runState.screenshotPaths,
+      annotations: runState.annotations,
     };
   }
 
@@ -152,40 +147,10 @@ async function runGame(
     title: `spin: ${game.name}`,
     status: 'passed',
     duration,
-    logs: filteredStdout,
-    steps,
-    annotations,
+    logs,
+    steps: runState.steps,
+    annotations: runState.annotations,
   };
-}
-
-async function awaitSpinCycle(
-  page: Page,
-  runID: string,
-  deviceType: DeviceType,
-  accumulator: EventAccumulator,
-  steps: TestStep[],
-): Promise<void> {
-  await track(steps, `Spin start: ${GEL_EVENT.SPIN_START}`, async () => {
-    await accumulator.waitFor(GEL_EVENT.SPIN_START, SPIN_START_TIMEOUT_MS);
-    await screenshot.snap(page, `${runID}/${deviceType}/spin-start.png`);
-  });
-
-  await track(steps, `Spin end: ${GEL_EVENT.SPIN_END}`, () => {
-    return accumulator.waitFor(GEL_EVENT.SPIN_END, SPIN_END_WAIT_MS);
-  });
-}
-
-async function takePostSpinSnapshots(
-  page: Page,
-  runID: string,
-  deviceType: DeviceType,
-): Promise<void> {
-  await page.waitForTimeout(POST_SPIN_BUFFER_MS);
-  await screenshot.snap(page, `${runID}/${deviceType}/final-1.png`);
-  await page.waitForTimeout(1_500);
-  await screenshot.snap(page, `${runID}/${deviceType}/final-2.png`);
-  await page.waitForTimeout(1_500);
-  await screenshot.snap(page, `${runID}/${deviceType}/final-3.png`);
 }
 
 async function takeFailureSnapshots(
@@ -202,66 +167,6 @@ async function takeFailureSnapshots(
   paths.push(await screenshot.snap(page, `${runID}/${deviceType}/failure-3.png`));
 
   return paths;
-}
-
-async function discoverOrReplay(
-  page: Page,
-  game: GameEntry,
-  viewport: Viewport,
-  deviceType: DeviceType,
-  steps: TestStep[],
-  runID: string,
-) {
-  const cached = stepCache.getSteps(game.id, deviceType, viewport);
-
-  if (cached) {
-    return track(steps, `Replay ${cached.steps.length} cached step(s)`, () => {
-      return replay.replaySteps(page, runID, cached.steps, deviceType);
-    });
-  }
-
-  return track(steps, 'Discover steps', async () => {
-    try {
-      const result = await discovery.discoverSteps(page, game, viewport, deviceType, runID);
-
-      stepCache.setSteps(game.id, deviceType, viewport, {
-        discoveredAt: new Date().toISOString(),
-        steps: result.steps,
-      });
-
-      return result.gameReady;
-    } catch (err) {
-      if (err instanceof discovery.DiscoveryError && err.partialSteps.length > 0) {
-        stepCache.setSteps(game.id, deviceType, viewport, {
-          discoveredAt: new Date().toISOString(),
-          steps: err.partialSteps,
-          partial: true,
-        });
-      }
-
-      throw err;
-    }
-  });
-}
-
-async function track<T>(steps: TestStep[], title: string, fn: () => Promise<T>): Promise<T> {
-  const start = Date.now();
-
-  try {
-    const result = await fn();
-
-    steps.push({ title, duration: Date.now() - start });
-
-    return result;
-  } catch (err) {
-    steps.push({
-      title,
-      duration: Date.now() - start,
-      error: err instanceof Error ? err.message : String(err),
-    });
-
-    throw err;
-  }
 }
 
 main().catch((err: unknown) => {

@@ -72,19 +72,22 @@ Extract `game-load` and `spin-cycle` as standalone step modules under `src/serve
 
 ---
 
-## Phase 4: Generic discovery
+## Phase 4: Step-owned discovery
 
 **User stories**: 6, 7, 8, 9
 
 ### What to build
 
-Refactor `discovery.ts` to accept a `DiscoveryTask { description, action }` instead of hardcoded spin-button knowledge. Create the `pre-spin-navigation` step module, which passes a `DiscoveryTask` from the steps config to the discovery engine and handles caching/replay.
+Move all Claude Vision logic out of `discovery.ts` and into `game-ready.discover` directly. The step owns its own discovery loop — prompts, retry logic, screenshot/click cycle, partial-step caching on failure. `discovery.ts` either becomes a thin mechanical primitive the step drives, or is absorbed entirely.
+
+The step is named `game-ready` (not `pre-spin-navigation`) — it gets the game to a playable state regardless of what comes next.
 
 ### Acceptance criteria
 
-- [ ] Discovery still finds the spin button for existing cached and un-cached games
+- [ ] `game-ready.discover` owns the full Claude Vision loop with no spin-specific language
+- [ ] Discovery still gets the game to a ready state for existing games
 - [ ] Replay still works from existing step caches
-- [ ] `discovery.ts` has no hardcoded spin-button knowledge
+- [ ] `discovery.ts` contains no hardcoded spin-button knowledge
 - [ ] `npm run check` passes
 
 ---
@@ -99,7 +102,7 @@ Refactor `discovery.ts` to accept a `DiscoveryTask { description, action }` inst
 
 ### Acceptance criteria
 
-- [ ] Frontend run request includes `steps: ["gameLoad", "preSpinNavigation", "spinCycle"]`
+- [ ] Frontend run request includes `steps: ["gameLoad", "gameReady", "spinCycle"]`
 - [ ] Server passes steps through CLI arg to `test-runner.ts`
 - [ ] `test-runner.ts` maps step strings to modules dynamically
 - [ ] Omitting `steps` from the request defaults to the three standard steps
