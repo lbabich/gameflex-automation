@@ -17,7 +17,9 @@ function parseSpinOutput(stdout: string) {
 
       return { results: parsed.results, errors: parsed.errors };
     },
-    catch: (error) => error instanceof Error ? error : new Error(String(error)),
+    catch: (error) => {
+      return error instanceof Error ? error : new Error(String(error));
+    },
   });
 }
 

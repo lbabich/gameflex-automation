@@ -1,7 +1,9 @@
 import { randomUUID } from 'node:crypto';
 import { Effect, Fiber, Layer } from 'effect';
+import type { DeviceType, RunRecord, TestResult } from '../../../shared/types';
 import { GameNotFoundError, RunAlreadyActiveError, RunNotFoundError } from '../../errors';
 import type { GameEntry } from '../../lib/games';
+import type { InternalRunRecord } from '../../types';
 import { FileService } from '../file.service';
 import { GamesService } from '../games.service';
 import { buildSpinCommand } from './command';
@@ -9,8 +11,6 @@ import { attachGifUrls, attachScreenshotUrls, cleanupImages } from './media';
 import { parseSpinOutput } from './output-parser';
 import { loadRuns, saveRuns, trimMemory } from './persistence';
 import { spawnProcess } from './process';
-import { RunRecord, type DeviceType, type TestResult } from '../../../shared/types';
-import { InternalRunRecord } from '../../types';
 import { RunLoggerService } from './run-logger.service';
 import { RunStateService } from './run-state.service';
 
@@ -23,7 +23,11 @@ type RunnerState = {
 class RunnerService extends Effect.Tag('RunnerService')<
   RunnerService,
   {
-    startRun: (gameIDs: string[], deviceTypes: string[], playmode: string) => Effect.Effect<RunRecord, RunAlreadyActiveError | GameNotFoundError>;
+    startRun: (
+      gameIDs: string[],
+      deviceTypes: string[],
+      playmode: string,
+    ) => Effect.Effect<RunRecord, RunAlreadyActiveError | GameNotFoundError>;
     cancelRun: (runID: string) => Effect.Effect<void, RunNotFoundError>;
     getRun: (runID: string) => Effect.Effect<RunRecord, RunNotFoundError>;
     getRecentRuns: (limit?: number) => Effect.Effect<RunRecord[]>;
@@ -47,7 +51,15 @@ export const NodeRunnerService = Layer.effect(
 
     return {
       startRun: (gameIDs: string[], deviceTypes: string[], playmode: string) => {
-        return startRun(state, gamesService, fileService, runLoggerService, gameIDs, deviceTypes, playmode);
+        return startRun(
+          state,
+          gamesService,
+          fileService,
+          runLoggerService,
+          gameIDs,
+          deviceTypes,
+          playmode,
+        );
       },
       cancelRun: (runID: string) => {
         return cancelRun(state, fileService, runLoggerService, runID);
@@ -117,7 +129,9 @@ function startRun(
 
       yield* finalizeRun(state, runLoggerService, fileService, runID, code, stdout);
     }).pipe(
-      Effect.catchAll((error: never) => handleFiberError(state, runLoggerService, runID, error)),
+      Effect.catchAll((error: never) => {
+        return handleFiberError(state, runLoggerService, runID, error);
+      }),
     );
 
     const fiber = yield* Effect.forkDaemon(background);
@@ -128,7 +142,12 @@ function startRun(
   });
 }
 
-function cancelRun(state: RunnerState, fileService: FileService['Type'], runLoggerService: RunLoggerService['Type'], runID: string) {
+function cancelRun(
+  state: RunnerState,
+  fileService: FileService['Type'],
+  runLoggerService: RunLoggerService['Type'],
+  runID: string,
+) {
   return Effect.gen(function* () {
     const fiber = state.activeFibers.get(runID);
     const record = state.runs.get(runID);
@@ -151,8 +170,12 @@ function cancelRun(state: RunnerState, fileService: FileService['Type'], runLogg
     }
 
     yield* saveRuns(fileService, state.runs).pipe(
-      Effect.tapError((err) => runLoggerService.error(runID, 'runner', 'Failed to save runs', err)),
-      Effect.orElse(() => Effect.succeed(undefined)),
+      Effect.tapError((err) => {
+        return runLoggerService.error(runID, 'runner', 'Failed to save runs', err);
+      }),
+      Effect.orElse(() => {
+        return Effect.succeed(undefined);
+      }),
     );
   });
 }
@@ -209,7 +232,14 @@ function handleFiberError(
   });
 }
 
-function finalizeRun(state: RunnerState, runLoggerService: RunLoggerService['Type'], fileService: FileService['Type'], runID: string, code: number, stdout: string) {
+function finalizeRun(
+  state: RunnerState,
+  runLoggerService: RunLoggerService['Type'],
+  fileService: FileService['Type'],
+  runID: string,
+  code: number,
+  stdout: string,
+) {
   return Effect.gen(function* () {
     const record = state.runs.get(runID);
 
@@ -236,12 +266,26 @@ function finalizeRun(state: RunnerState, runLoggerService: RunLoggerService['Typ
       };
 
       const parsed = yield* parseSpinOutput(stdout).pipe(
-        Effect.tapError((error) => runLoggerService.error(runID, 'finalize', 'Failed to parse spin output', error)),
-        Effect.tapError(() => runLoggerService.error(runID, 'finalize', `stdout snippet: ${stdout.slice(0, 200)}`)),
-        Effect.orElse(() => Effect.succeed(emptyResult)),
+        Effect.tapError((error) => {
+          return runLoggerService.error(runID, 'finalize', 'Failed to parse spin output', error);
+        }),
+        Effect.tapError(() => {
+          return runLoggerService.error(
+            runID,
+            'finalize',
+            `stdout snippet: ${stdout.slice(0, 200)}`,
+          );
+        }),
+        Effect.orElse(() => {
+          return Effect.succeed(emptyResult);
+        }),
       );
 
-      yield* runLoggerService.log(runID, 'finalize', `${Object.keys(parsed.results).length} result(s), ${parsed.errors.length} error(s)`);
+      yield* runLoggerService.log(
+        runID,
+        'finalize',
+        `${Object.keys(parsed.results).length} result(s), ${parsed.errors.length} error(s)`,
+      );
 
       updated = {
         ...updated,
@@ -258,8 +302,12 @@ function finalizeRun(state: RunnerState, runLoggerService: RunLoggerService['Typ
     state.runs.set(runID, updated);
 
     yield* saveRuns(fileService, state.runs).pipe(
-      Effect.tapError((err) => runLoggerService.error(runID, 'runner', 'Failed to save runs', err)),
-      Effect.orElse(() => Effect.succeed(undefined)),
+      Effect.tapError((err) => {
+        return runLoggerService.error(runID, 'runner', 'Failed to save runs', err);
+      }),
+      Effect.orElse(() => {
+        return Effect.succeed(undefined);
+      }),
     );
 
     yield* logSummary(runLoggerService, updated);
@@ -308,7 +356,9 @@ function clearGameRuns(state: RunnerState, fileService: FileService['Type'], gam
         console.error('[runner] Failed to save runs after clear:', err);
         return Effect.succeed(undefined);
       }),
-      Effect.orElse(() => Effect.succeed(undefined)),
+      Effect.orElse(() => {
+        return Effect.succeed(undefined);
+      }),
     );
   });
 }

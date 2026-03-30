@@ -7,7 +7,7 @@ function buildSpinCommand(
   const ids = gameIDs.join(',');
   const devices = deviceTypes.join(',');
 
-  return `npx tsx src/server/scripts/spin.ts --runID=${runID} --gameIDs=${ids} --deviceTypes=${devices} --playmode=${playmode}`;
+  return `npx tsx src/server/scripts/test-runner.ts --runID=${runID} --gameIDs=${ids} --deviceTypes=${devices} --playmode=${playmode}`;
 }
 
 export { buildSpinCommand };

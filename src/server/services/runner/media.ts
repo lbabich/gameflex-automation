@@ -56,9 +56,13 @@ function attachGifUrls(
             result.gifUrl = `/api/screenshots/${runID}/${deviceType}/${gifGenerator.ANIMATED_GIF_FILENAME}`;
           });
         }),
-        Effect.catchAll((err: unknown) =>
-          runLoggerService.warn(runID, 'media', `Failed to generate GIF for ${deviceType}: ${String(err)}`),
-        ),
+        Effect.catchAll((err: unknown) => {
+          return runLoggerService.warn(
+            runID,
+            'media',
+            `Failed to generate GIF for ${deviceType}: ${String(err)}`,
+          );
+        }),
       );
     }
   });
@@ -85,12 +89,20 @@ function cleanupImages(
 
       for (let i = 0; i < paths.length - 1; i++) {
         yield* Effect.try({
-          try: () => fs.unlinkSync(paths[i]),
-          catch: (err) => err,
+          try: () => {
+            return fs.unlinkSync(paths[i]);
+          },
+          catch: (err) => {
+            return err;
+          },
         }).pipe(
-          Effect.catchAll((err) =>
-            runLoggerService.warn(runID, 'media', `Failed to delete screenshot: ${String(err)}`),
-          ),
+          Effect.catchAll((err) => {
+            return runLoggerService.warn(
+              runID,
+              'media',
+              `Failed to delete screenshot: ${String(err)}`,
+            );
+          }),
         );
       }
     }
