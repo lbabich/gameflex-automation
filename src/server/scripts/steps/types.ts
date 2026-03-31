@@ -21,9 +21,15 @@ type StepContext = {
   runState: RunState;
 };
 
+type StepDescriptor = {
+  title: string;
+  optional?: boolean;
+};
+
 type Step = {
+  plan: StepDescriptor[];
   discover: (ctx: StepContext) => Promise<void>;
   execute: (ctx: StepContext) => Promise<void>;
 };
 
-export type { RunState, StepContext, Step };
+export type { RunState, StepContext, Step, StepDescriptor };

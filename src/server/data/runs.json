@@ -1,5 +1,202 @@
 [
   {
+    "runID": "a46abf3f-e54b-44e8-9d0b-20ace619eef0",
+    "gameIDs": [
+      "b4c51f69-e28f-4c66-9b3c-0be918e9af91"
+    ],
+    "status": "error",
+    "startedAt": "2026-03-31T09:21:35.962Z",
+    "results": {},
+    "logs": [
+      "[runner] Starting run a46abf3f-e54b-44e8-9d0b-20ace619eef0:",
+      "[runner] Command: npx tsx src/server/scripts/test-runner.ts --runID=a46abf3f-e54b-44e8-9d0b-20ace619eef0 --gameIDs=b4c51f69-e28f-4c66-9b3c-0be918e9af91 --deviceTypes=desktop --playmode=demo --steps=gameLoad,spinCycle,gameClose:",
+      "[runner] Spawning playwright process:",
+      "[runner] Process exited with code 1:"
+    ],
+    "playwrightErrors": [],
+    "finishedAt": "2026-03-31T09:23:18.508Z",
+    "durationMs": 102546
+  },
+  {
+    "runID": "958db1d8-544d-4329-91b5-e7cb817a59c2",
+    "gameIDs": [
+      "6733624c-554e-4081-a92f-4616af3317e5"
+    ],
+    "status": "completed",
+    "startedAt": "2026-03-30T15:45:36.365Z",
+    "results": {
+      "desktop": {
+        "title": "spin: Gold Blitz",
+        "status": "passed",
+        "duration": 49908,
+        "logs": [
+          "Failed to load resource: the server responded with a status of 404 (Not Found)",
+          "show preloader",
+          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.initialise {origin: https://s009-gel.test-flex.us}",
+          "hide preloader",
+          "gameflex - [GoogleAnalyticsV2] GA4 script loaded successfully.",
+          "gameflex - [GoogleAnalyticsV2] Custom event tracked: loaded_analytics {params: value, event_id: ID-1774885547998-842100}",
+          "gameflex - [GoogleAnalyticsV2] Started Tracking Event game_ready",
+          "gameflex - [GoogleAnalyticsV2] Started Tracking Event first_spin",
+          "gameflex - [GoogleAnalyticsV2] Started Tracking Event game_close",
+          "gameflex - [GoogleAnalyticsV2] Timer started for event: game_ready",
+          "gameflex - [GoogleAnalyticsV2] Timer started for event: first_spin",
+          "gameflex - [GoogleAnalyticsV2] Timer started for event: game_close",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event preloader_shown",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event framework_loaded",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event bridge_api_ready",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event idle",
+          "Failed to load resource: the server responded with a status of 404 ()",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
+          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 13}",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
+          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 27}",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
+          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 41}",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
+          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 54}",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
+          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 68}",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
+          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 82}",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
+          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 96}",
+          "\n %c %c %c PixiJS 4.8.7 - ✰ WebGL ✰  %c  %c  http://www.pixijs.com/  %c %c ♥%c♥%c♥ \n\n background: #ff66a5; padding:5px 0; background: #ff66a5; padding:5px 0; color: #ff66a5; background: #030307; padding:5px 0; background: #ff66a5; padding:5px 0; background: #ffc3dc; padding:5px 0; background: #ff66a5; padding:5px 0; color: #ff2424; background: #fff; padding:5px 0; color: #ff2424; background: #fff; padding:5px 0; color: #ff2424; background: #fff; padding:5px 0;",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event balance_updated",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event bet_value_updated",
+          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.stake.update {amount: 2}",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
+          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 100}",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event preloader_hidden",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event client_ready",
+          "gameflex - [GoogleAnalyticsV2] tracked events Map(3)",
+          "gameflex - [GoogleAnalyticsV2] timed events {game_ready: 1774885547999, first_spin: 1774885547999, game_close: 1774885547999}",
+          "gameflex - [GoogleAnalyticsV2] Tracking event game_ready tracked with elapsed time: 4.778 seconds",
+          "gameflex - [GoogleAnalyticsV2] Custom event tracked: game_ready {elapsed_time: 4.778, event_id: ID-1774885552790-5633400}",
+          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.ready {game: Object}",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event busy",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event wager_started",
+          "gameflex - [GoogleAnalyticsV2] tracked events Map(3)",
+          "gameflex - [GoogleAnalyticsV2] timed events {first_spin: 1774885547999, game_close: 1774885547999}",
+          "gameflex - [GoogleAnalyticsV2] Tracking event first_spin tracked with elapsed time: 9.962 seconds",
+          "gameflex - [GoogleAnalyticsV2] Custom event tracked: first_spin {elapsed_time: 9.962, event_id: ID-1774885557968-10811600}",
+          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.spin.start undefined",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event player_activity",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event balance_updated",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event wager_completed",
+          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.spin.end undefined",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event player_activity",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event balance_updated",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event balance_updated",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event idle",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event close_application",
+          "gameflex - [GoogleAnalyticsV2] tracked events Map(3)",
+          "gameflex - [GoogleAnalyticsV2] timed events {game_close: 1774885547999}",
+          "gameflex - [GoogleAnalyticsV2] Tracking event game_close tracked with elapsed time: 35.153 seconds",
+          "gameflex - [GoogleAnalyticsV2] Custom event tracked: game_close {elapsed_time: 35.153, event_id: ID-1774885583157-36000800}",
+          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.close undefined",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event operator.game.session.end"
+        ],
+        "steps": [
+          {
+            "title": "Launch game via harness",
+            "duration": 5450
+          },
+          {
+            "title": "gel.load.progress",
+            "duration": 0
+          },
+          {
+            "title": "gel.ready",
+            "duration": 11080
+          },
+          {
+            "title": "Spin start: gel.spin.start",
+            "duration": 272
+          },
+          {
+            "title": "Spin end: gel.spin.end",
+            "duration": 2406
+          },
+          {
+            "title": "Game close: gel.close",
+            "duration": 174
+          }
+        ],
+        "metadata": {
+          "playmode": "demo"
+        },
+        "gifUrl": "/api/screenshots/958db1d8-544d-4329-91b5-e7cb817a59c2/desktop/animated.gif"
+      }
+    },
+    "logs": [
+      "[runner] Starting run 958db1d8-544d-4329-91b5-e7cb817a59c2:",
+      "[runner] Command: npx tsx src/server/scripts/test-runner.ts --runID=958db1d8-544d-4329-91b5-e7cb817a59c2 --gameIDs=6733624c-554e-4081-a92f-4616af3317e5 --deviceTypes=desktop --playmode=demo --steps=gameLoad,spinCycle,gameClose:",
+      "[runner] Spawning playwright process:",
+      "[runner] Process exited with code 0:"
+    ],
+    "playwrightErrors": [],
+    "finishedAt": "2026-03-30T15:46:32.236Z",
+    "durationMs": 55871
+  },
+  {
+    "runID": "a1fd12ba-1560-4440-9c15-cec436f61e30",
+    "gameIDs": [
+      "b334f577-df52-401b-b5db-d86559a07b3f"
+    ],
+    "status": "completed",
+    "startedAt": "2026-03-30T15:35:43.843Z",
+    "results": {
+      "desktop": {
+        "title": "spin: Eternal Link Princess Empire",
+        "status": "failed",
+        "duration": 6597,
+        "error": "Game 'Eternal Link Princess Empire' has no gameProviderID — add one via the web UI",
+        "failedStep": "Launch game via harness",
+        "logs": [],
+        "steps": [
+          {
+            "title": "Launch game via harness",
+            "duration": 0,
+            "error": "Game 'Eternal Link Princess Empire' has no gameProviderID — add one via the web UI"
+          }
+        ],
+        "metadata": {
+          "playmode": "demo"
+        },
+        "screenshotUrls": [
+          "/api/screenshots/a1fd12ba-1560-4440-9c15-cec436f61e30/desktop/failure-3.png"
+        ]
+      }
+    },
+    "logs": [
+      "[runner] Starting run a1fd12ba-1560-4440-9c15-cec436f61e30:",
+      "[runner] Command: npx tsx src/server/scripts/test-runner.ts --runID=a1fd12ba-1560-4440-9c15-cec436f61e30 --gameIDs=b334f577-df52-401b-b5db-d86559a07b3f --deviceTypes=desktop --playmode=demo --steps=gameLoad,spinCycle,gameClose:",
+      "[runner] Spawning playwright process:",
+      "[runner] Process exited with code 0:",
+      "[runner] Run finished in 13009ms — 0 passed, 1 failed, 0 skipped:"
+    ],
+    "playwrightErrors": [],
+    "finishedAt": "2026-03-30T15:35:56.852Z",
+    "durationMs": 13009
+  },
+  {
     "runID": "6834cea8-418f-4285-816a-515e176cdd0b",
     "gameIDs": [
       "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"
@@ -120,7 +317,8 @@
       "[runner] Starting run 6834cea8-418f-4285-816a-515e176cdd0b:",
       "[runner] Command: npx tsx src/server/scripts/test-runner.ts --runID=6834cea8-418f-4285-816a-515e176cdd0b --gameIDs=9d8a0d44-5fcf-4b66-b4a2-80961c8ba986 --deviceTypes=desktop --playmode=demo --steps=gameLoad,spinCycle,gameClose:",
       "[runner] Spawning playwright process:",
-      "[runner] Process exited with code 0:"
+      "[runner] Process exited with code 0:",
+      "[runner] Run finished in 64685ms — 1 passed, 0 failed, 0 skipped:"
     ],
     "playwrightErrors": [],
     "finishedAt": "2026-03-30T15:32:45.193Z",

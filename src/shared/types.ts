@@ -14,9 +14,13 @@ export const PLAY_MODE = {
 
 export type RunStatus = 'running' | 'completed' | 'error' | 'cancelled';
 
+export type StepStatus = 'passed' | 'failed' | 'warning' | 'skipped';
+
 export type TestStep = {
   title: string;
   duration: number;
+  status: StepStatus;
+  optional?: boolean;
   error?: string;
 };
 

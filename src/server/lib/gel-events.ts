@@ -13,7 +13,7 @@ export const GEL_EVENT = {
   GAME_CLOSE: 'gel.close',
 } as const;
 
-export const GEL_READY_TIMEOUT_MS = 10_000;
+export const GEL_READY_TIMEOUT_MS = 30_000;
 
 export type GameReadyResult = {
   loadTimeMs: number;

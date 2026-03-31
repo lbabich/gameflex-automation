@@ -1,7 +1,18 @@
 import { Fragment, useCallback, useState } from 'react';
-import type { DeviceType, RunRecord, TestResult } from '@shared/types';
+import type { DeviceType, RunRecord, TestResult, TestStep } from '@shared/types';
 
 const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
+
+function StepIcon({ step }: { step: TestStep }) {
+  const map: Record<TestStep['status'], { icon: string; color: string }> = {
+    passed: { icon: '✓', color: 'text-green-500' },
+    failed: { icon: '✗', color: 'text-red-500' },
+    warning: { icon: '⚠', color: 'text-yellow-500' },
+    skipped: { icon: '○', color: 'text-gray-400' },
+  };
+  const { icon, color } = map[step.status ?? (step.error ? 'failed' : 'passed')];
+  return <span className={`text-sm leading-none ${color}`}>{icon}</span>;
+}
 
 type Props = {
   run: RunRecord | undefined;
@@ -163,22 +174,33 @@ export function ResultsPanel({ run, isLoading }: Props) {
                                 <div className="text-xs font-medium text-gray-500 bg-gray-50 px-3 py-1.5 border-b border-gray-200">
                                   Steps
                                 </div>
-                                {result.steps?.map((step, si) => (
-                                  <div
-                                    key={si}
-                                    className={`flex items-center gap-3 px-3 py-2 border-b last:border-b-0 border-gray-100 ${step.error ? 'bg-red-50' : 'bg-white'}`}
-                                  >
-                                    <span
-                                      className={`text-sm leading-none ${step.error ? 'text-red-500' : 'text-green-500'}`}
+                                {result.steps?.map((step, si) => {
+                                  const rowBg =
+                                    step.status === 'failed'
+                                      ? 'bg-red-50'
+                                      : step.status === 'warning'
+                                        ? 'bg-yellow-50'
+                                        : 'bg-white';
+                                  const textColor =
+                                    step.status === 'skipped' ? 'text-gray-400' : 'text-gray-700';
+
+                                  return (
+                                    <div
+                                      key={si}
+                                      className={`flex items-center gap-3 px-3 py-2 border-b last:border-b-0 border-gray-100 ${rowBg}`}
                                     >
-                                      {step.error ? '✗' : '✓'}
-                                    </span>
-                                    <span className="flex-1 text-xs text-gray-700">{step.title}</span>
-                                    <span className="text-xs text-gray-400">
-                                      {(step.duration / 1000).toFixed(1)}s
-                                    </span>
-                                  </div>
-                                ))}
+                                      <StepIcon step={step} />
+                                      <span className={`flex-1 text-xs ${textColor}`}>
+                                        {step.title}
+                                      </span>
+                                      {step.status !== 'skipped' && (
+                                        <span className="text-xs text-gray-400">
+                                          {(step.duration / 1000).toFixed(1)}s
+                                        </span>
+                                      )}
+                                    </div>
+                                  );
+                                })}
                               </div>
                             )}
                             {(result.logs ?? []).filter((line) => !line.startsWith('Screenshot saved:'))

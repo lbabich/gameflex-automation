@@ -2,19 +2,38 @@ import type { TestStep } from '../../../shared/types';
 
 async function track<T>(steps: TestStep[], title: string, fn: () => Promise<T>): Promise<T> {
   const start = Date.now();
+  const planTitle = title.replace(' (cached)', '');
+  const idx = steps.findIndex((s) => {
+    return s.title === planTitle;
+  });
+  const optional = idx >= 0 ? steps[idx].optional : undefined;
 
   try {
     const result = await fn();
 
-    steps.push({ title, duration: Date.now() - start });
+    const entry: TestStep = { title, duration: Date.now() - start, status: 'passed', optional };
+
+    if (idx >= 0) {
+      steps[idx] = entry;
+    } else {
+      steps.push(entry);
+    }
 
     return result;
   } catch (err) {
-    steps.push({
+    const entry: TestStep = {
       title,
       duration: Date.now() - start,
+      status: 'failed',
       error: err instanceof Error ? err.message : String(err),
-    });
+      optional,
+    };
+
+    if (idx >= 0) {
+      steps[idx] = entry;
+    } else {
+      steps.push(entry);
+    }
 
     throw err;
   }

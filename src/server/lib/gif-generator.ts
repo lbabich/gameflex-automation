@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import { createRequire } from 'node:module';
 import * as path from 'node:path';
 import { Jimp } from 'jimp';
-import { DeviceType } from '../../shared/types';
+import type { DeviceType } from '../../shared/types';
 
 type GifEncoderInstance = {
   setDelay(ms: number): void;
@@ -35,7 +35,8 @@ async function generateGif(runID: string, deviceType: DeviceType) {
   const screenshotsDir = path.resolve('src/server/screenshots', runID, deviceType);
   const gifPath = path.resolve(screenshotsDir, ANIMATED_GIF_FILENAME);
 
-  const pngFiles = fs.readdirSync(screenshotsDir)
+  const pngFiles = fs
+    .readdirSync(screenshotsDir)
     .filter((filename: string) => {
       return filename.endsWith('.png') && !filename.startsWith('failure-');
     })

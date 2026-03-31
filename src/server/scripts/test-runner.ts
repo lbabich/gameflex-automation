@@ -128,6 +128,17 @@ async function runGame(
     screenshotPaths: [],
   };
 
+  for (const step of steps) {
+    for (const descriptor of step.plan) {
+      runState.steps.push({
+        title: descriptor.title,
+        duration: 0,
+        status: 'skipped',
+        optional: descriptor.optional,
+      });
+    }
+  }
+
   const accumulator = eventAccumulator.createEventAccumulator(page);
 
   const ctx = { page, accumulator, game, viewport, deviceType, runID, playmode, runState };
@@ -159,7 +170,7 @@ async function runGame(
       duration,
       error: failure.message,
       failedStep: runState.steps.find((step) => {
-        return step.error;
+        return step.status === 'failed';
       })?.title,
       logs,
       steps: runState.steps,

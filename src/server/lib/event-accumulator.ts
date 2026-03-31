@@ -40,7 +40,7 @@ function createEventAccumulator(page: Page): EventAccumulator {
           const pending = waiters.get(eventName);
 
           if (pending) {
-            const idx = pending.indexOf(onFire);
+            const idx = pending.indexOf(clean);
 
             if (idx !== -1) {
               pending.splice(idx, 1);
@@ -50,14 +50,14 @@ function createEventAccumulator(page: Page): EventAccumulator {
           reject(new Error(`Timed out waiting for event '${eventName}' after ${timeout}ms`));
         }, timeout);
 
-        function onFire() {
+        function clean() {
           clearTimeout(timer);
           resolve();
         }
 
         const pending = waiters.get(eventName) ?? [];
 
-        pending.push(onFire);
+        pending.push(clean);
         waiters.set(eventName, pending);
       });
     },
