@@ -149,7 +149,9 @@ describe('RunnerService', () => {
         Effect.gen(function* () {
           const SUT = yield* RunnerService;
 
-          return yield* Effect.flip(SUT.startRun([randomUUID()], ['desktop'], 'demo'));
+          return yield* Effect.flip(
+            SUT.startRun({ gameIDs: [randomUUID()], deviceTypes: ['desktop'], playmode: 'demo' }),
+          );
         }),
       );
 
@@ -220,7 +222,11 @@ describe('RunnerService', () => {
         Effect.gen(function* () {
           const SUT = yield* RunnerService;
 
-          return yield* SUT.startRun([testGame.id], ['desktop'], 'demo');
+          return yield* SUT.startRun({
+            gameIDs: [testGame.id],
+            deviceTypes: ['desktop'],
+            playmode: 'demo',
+          });
         }),
       );
 
@@ -239,7 +245,11 @@ describe('RunnerService', () => {
         Effect.gen(function* () {
           const SUT = yield* RunnerService;
 
-          const runRecord = yield* SUT.startRun([testGame.id], ['desktop'], 'demo');
+          const runRecord = yield* SUT.startRun({
+            gameIDs: [testGame.id],
+            deviceTypes: ['desktop'],
+            playmode: 'demo',
+          });
 
           yield* SUT.cancelRun(runRecord.runID);
 

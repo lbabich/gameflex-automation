@@ -20,15 +20,36 @@ type RunnerState = {
   activeFibers: Map<string, Fiber.RuntimeFiber<void, never>>;
 };
 
+type StartRunServices = {
+  gamesService: GamesService['Type'];
+  fileService: FileService['Type'];
+  runLoggerService: RunLoggerService['Type'];
+};
+
+type StartRunParams = {
+  gameIDs: string[];
+  deviceTypes: string[];
+  playmode: string;
+  steps?: string[];
+  hints?: RunHints;
+};
+
+type FinalizeServices = {
+  runLoggerService: RunLoggerService['Type'];
+  fileService: FileService['Type'];
+};
+
+type FinalizeResult = {
+  runID: string;
+  code: number;
+  stdout: string;
+};
+
 class RunnerService extends Effect.Tag('RunnerService')<
   RunnerService,
   {
     startRun: (
-      gameIDs: string[],
-      deviceTypes: string[],
-      playmode: string,
-      steps?: string[],
-      hints?: RunHints,
+      params: StartRunParams,
     ) => Effect.Effect<RunRecord, RunAlreadyActiveError | GameNotFoundError>;
     cancelRun: (runID: string) => Effect.Effect<void, RunNotFoundError>;
     getRun: (runID: string) => Effect.Effect<RunRecord, RunNotFoundError>;
@@ -52,24 +73,8 @@ export const NodeRunnerService = Layer.effect(
     }
 
     return {
-      startRun: (
-        gameIDs: string[],
-        deviceTypes: string[],
-        playmode: string,
-        steps?: string[],
-        hints?: RunHints,
-      ) => {
-        return startRun(
-          state,
-          gamesService,
-          fileService,
-          runLoggerService,
-          gameIDs,
-          deviceTypes,
-          playmode,
-          steps,
-          hints,
-        );
+      startRun: (params: StartRunParams) => {
+        return startRun(state, { gamesService, fileService, runLoggerService }, params);
       },
       cancelRun: (runID: string) => {
         return cancelRun(state, fileService, runLoggerService, runID);
@@ -87,17 +92,10 @@ export const NodeRunnerService = Layer.effect(
   }),
 );
 
-function startRun(
-  state: RunnerState,
-  gamesService: GamesService['Type'],
-  fileService: FileService['Type'],
-  runLoggerService: RunLoggerService['Type'],
-  gameIDs: string[],
-  deviceTypes: string[],
-  playmode: string,
-  steps?: string[],
-  hints?: RunHints,
-) {
+function startRun(state: RunnerState, services: StartRunServices, params: StartRunParams) {
+  const { gamesService, fileService, runLoggerService } = services;
+  const { gameIDs, deviceTypes, playmode, steps, hints } = params;
+
   return Effect.gen(function* () {
     const conflicting = gameIDs.filter((id: string) => {
       return state.activeRunsByGame.has(id);
@@ -139,7 +137,7 @@ function startRun(
 
       yield* runLoggerService.log(runID, 'runner', `Process exited with code ${code}`);
 
-      yield* finalizeRun(state, runLoggerService, fileService, runID, code, stdout);
+      yield* finalizeRun(state, { runLoggerService, fileService }, { runID, code, stdout });
     }).pipe(
       Effect.catchAll((error: never) => {
         return handleFiberError(state, runLoggerService, runID, error);
@@ -244,14 +242,10 @@ function handleFiberError(
   });
 }
 
-function finalizeRun(
-  state: RunnerState,
-  runLoggerService: RunLoggerService['Type'],
-  fileService: FileService['Type'],
-  runID: string,
-  code: number,
-  stdout: string,
-) {
+function finalizeRun(state: RunnerState, services: FinalizeServices, result: FinalizeResult) {
+  const { runLoggerService, fileService } = services;
+  const { runID, code, stdout } = result;
+
   return Effect.gen(function* () {
     const record = state.runs.get(runID);
 

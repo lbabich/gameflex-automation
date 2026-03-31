@@ -27,13 +27,13 @@ function makeRunsRouter(runtime: AppRuntime) {
         const body = yield* Schema.decodeUnknown(PostBody)(req.body);
         const runnerService = yield* RunnerService;
 
-        const record = yield* runnerService.startRun(
-          [...body.gameIDs],
-          [...body.deviceTypes],
-          body.playmode,
-          body.steps ? [...body.steps] : undefined,
-          body.hints,
-        );
+        const record = yield* runnerService.startRun({
+          gameIDs: [...body.gameIDs],
+          deviceTypes: [...body.deviceTypes],
+          playmode: body.playmode,
+          steps: body.steps ? [...body.steps] : undefined,
+          hints: body.hints,
+        });
 
         res.status(201).json(record);
       }).pipe(
