@@ -56,10 +56,10 @@ async function runDiscoveryLoop(
       preTargetSteps.push({ waitMs, x: result.x, y: result.y, label: result.label });
 
       if (verified) {
-        stepCache.setPendingSteps(game.id, deviceType, viewport, stepName, {
-          discoveredAt: new Date().toISOString(),
-          steps: preTargetSteps,
-        });
+        stepCache.setPendingSteps(
+          { id: game.id, deviceType, viewport, stepName },
+          { discoveredAt: new Date().toISOString(), steps: preTargetSteps },
+        );
 
         return;
       }
@@ -72,11 +72,10 @@ async function runDiscoveryLoop(
   }
 
   if (preTargetSteps.length > 0) {
-    stepCache.setSteps(game.id, deviceType, viewport, stepName, {
-      discoveredAt: new Date().toISOString(),
-      steps: preTargetSteps,
-      partial: true,
-    });
+    stepCache.setSteps(
+      { id: game.id, deviceType, viewport, stepName },
+      { discoveredAt: new Date().toISOString(), steps: preTargetSteps, partial: true },
+    );
   }
 
   await screenshot.snap(page, `${runID}/${deviceType}/discovery-failed.png`);

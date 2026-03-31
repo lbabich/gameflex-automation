@@ -8,34 +8,35 @@ type ViewportMap = Record<string, StepMap>;
 type DeviceMap = Record<string, ViewportMap>;
 type StepCache = Record<string, DeviceMap>;
 
+type StepCacheKey = {
+  id: string;
+  deviceType: DeviceType;
+  viewport: Viewport;
+  stepName: string;
+};
+
 const CACHE_PATH = path.resolve('src', 'server', 'data', 'game-steps.json');
 
 const pending = new Map<string, GameSteps>();
 
-function getSteps(id: string, deviceType: DeviceType, viewport: Viewport, stepName: string) {
+function getSteps(key: StepCacheKey) {
   const cache = loadCache();
 
-  return cache[id]?.[deviceType]?.[viewportKey(viewport)]?.[stepName];
+  return cache[key.id]?.[key.deviceType]?.[viewportKey(key.viewport)]?.[key.stepName];
 }
 
 /**
  * Writes directly to disk. Use for partial/failure saves where you want the
  * result preserved even if the overall run fails.
  */
-function setSteps(
-  id: string,
-  deviceType: DeviceType,
-  viewport: Viewport,
-  stepName: string,
-  steps: GameSteps,
-) {
+function setSteps(key: StepCacheKey, steps: GameSteps) {
   const cache = loadCache();
-  const key = viewportKey(viewport);
+  const vpKey = viewportKey(key.viewport);
 
-  cache[id] ??= {};
-  cache[id][deviceType] ??= {};
-  cache[id][deviceType][key] ??= {};
-  cache[id][deviceType][key][stepName] = steps;
+  cache[key.id] ??= {};
+  cache[key.id][key.deviceType] ??= {};
+  cache[key.id][key.deviceType][vpKey] ??= {};
+  cache[key.id][key.deviceType][vpKey][key.stepName] = steps;
 
   saveCache(cache);
 }
@@ -44,14 +45,8 @@ function setSteps(
  * Stores steps in memory only. Call saveToCache() once all discovery
  * steps have succeeded to write everything to disk atomically.
  */
-function setPendingSteps(
-  id: string,
-  deviceType: DeviceType,
-  viewport: Viewport,
-  stepName: string,
-  steps: GameSteps,
-) {
-  pending.set(pendingKey(id, deviceType, viewport, stepName), steps);
+function setPendingSteps(key: StepCacheKey, steps: GameSteps) {
+  pending.set(pendingKey(key), steps);
 }
 
 /**
@@ -129,19 +124,15 @@ function saveCache(cache: StepCache) {
   fs.writeFileSync(CACHE_PATH, JSON.stringify(cache, null, 2));
 }
 
-function pendingKey(
-  id: string,
-  deviceType: DeviceType,
-  viewport: Viewport,
-  stepName: string,
-): string {
-  return `${id}/${deviceType}/${viewportKey(viewport)}/${stepName}`;
+function pendingKey(key: StepCacheKey): string {
+  return `${key.id}/${key.deviceType}/${viewportKey(key.viewport)}/${key.stepName}`;
 }
 
 function viewportKey(viewport: Viewport) {
   return `${viewport.width}x${viewport.height}`;
 }
 
+export type { StepCacheKey };
 export {
   getSteps,
   setSteps,

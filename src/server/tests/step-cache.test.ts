@@ -17,6 +17,7 @@ function makeId(): string {
 
 const VP_DESK = { width: 1280, height: 720 };
 const VP_MOB = { width: 390, height: 844 };
+const STEP = 'spin-cycle';
 
 describe('step-cache', () => {
   afterAll(() => {
@@ -33,9 +34,9 @@ describe('step-cache', () => {
       steps: [{ waitMs: 100, x: 10, y: 20, label: 'spin' }],
     };
 
-    SUT.setSteps(id, 'desktop', VP_DESK, steps);
+    SUT.setSteps({ id, deviceType: 'desktop', viewport: VP_DESK, stepName: STEP }, steps);
 
-    const result = SUT.getSteps(id, 'desktop', VP_DESK);
+    const result = SUT.getSteps({ id, deviceType: 'desktop', viewport: VP_DESK, stepName: STEP });
 
     expect(result).toEqual(steps);
   });
@@ -52,11 +53,21 @@ describe('step-cache', () => {
       steps: [{ waitMs: 500, x: 50, y: 80, label: 'mobile-spin' }],
     };
 
-    SUT.setSteps(id, 'desktop', VP_DESK, desktopSteps);
-    SUT.setSteps(id, 'mobile', VP_MOB, mobileSteps);
+    SUT.setSteps({ id, deviceType: 'desktop', viewport: VP_DESK, stepName: STEP }, desktopSteps);
+    SUT.setSteps({ id, deviceType: 'mobile', viewport: VP_MOB, stepName: STEP }, mobileSteps);
 
-    const resultDesktop = SUT.getSteps(id, 'desktop', VP_DESK);
-    const resultMobile = SUT.getSteps(id, 'mobile', VP_MOB);
+    const resultDesktop = SUT.getSteps({
+      id,
+      deviceType: 'desktop',
+      viewport: VP_DESK,
+      stepName: STEP,
+    });
+    const resultMobile = SUT.getSteps({
+      id,
+      deviceType: 'mobile',
+      viewport: VP_MOB,
+      stepName: STEP,
+    });
 
     expect(resultDesktop).toEqual(desktopSteps);
     expect(resultMobile).toEqual(mobileSteps);
@@ -67,13 +78,23 @@ describe('step-cache', () => {
     const id = makeId();
     const steps = { discoveredAt: '2024-01-01T00:00:00Z', steps: [] };
 
-    SUT.setSteps(id, 'desktop', VP_DESK, steps);
-    SUT.setSteps(id, 'mobile', VP_MOB, steps);
+    SUT.setSteps({ id, deviceType: 'desktop', viewport: VP_DESK, stepName: STEP }, steps);
+    SUT.setSteps({ id, deviceType: 'mobile', viewport: VP_MOB, stepName: STEP }, steps);
 
     SUT.clearAllSteps(id);
 
-    const resultDesktop = SUT.getSteps(id, 'desktop', VP_DESK);
-    const resultMobile = SUT.getSteps(id, 'mobile', VP_MOB);
+    const resultDesktop = SUT.getSteps({
+      id,
+      deviceType: 'desktop',
+      viewport: VP_DESK,
+      stepName: STEP,
+    });
+    const resultMobile = SUT.getSteps({
+      id,
+      deviceType: 'mobile',
+      viewport: VP_MOB,
+      stepName: STEP,
+    });
 
     expect(resultDesktop).toBeUndefined();
     expect(resultMobile).toBeUndefined();

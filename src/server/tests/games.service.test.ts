@@ -92,7 +92,10 @@ describe('GamesService', () => {
           throw new Error('game not found after add');
         }
 
-        stepCache.setSteps(game.id, 'desktop', VP, cacheEntry);
+        stepCache.setSteps(
+          { id: game.id, deviceType: 'desktop', viewport: VP, stepName: 'spin-cycle' },
+          cacheEntry,
+        );
 
         const result = yield* SUT.getCachedDeviceMap();
 
@@ -131,8 +134,14 @@ describe('GamesService', () => {
       }),
     );
 
-    stepCache.setSteps(gameID, 'desktop', desktopVP, cacheEntry);
-    stepCache.setSteps(gameID, 'mobile', mobileVP, cacheEntry);
+    stepCache.setSteps(
+      { id: gameID, deviceType: 'desktop', viewport: desktopVP, stepName: 'spin-cycle' },
+      cacheEntry,
+    );
+    stepCache.setSteps(
+      { id: gameID, deviceType: 'mobile', viewport: mobileVP, stepName: 'spin-cycle' },
+      cacheEntry,
+    );
 
     await runtime.runPromise(
       Effect.gen(function* () {
@@ -142,8 +151,22 @@ describe('GamesService', () => {
       }),
     );
 
-    expect(stepCache.getSteps(gameID, 'desktop', desktopVP)).toBeUndefined();
-    expect(stepCache.getSteps(gameID, 'mobile', mobileVP)).toBeUndefined();
+    expect(
+      stepCache.getSteps({
+        id: gameID,
+        deviceType: 'desktop',
+        viewport: desktopVP,
+        stepName: 'spin-cycle',
+      }),
+    ).toBeUndefined();
+    expect(
+      stepCache.getSteps({
+        id: gameID,
+        deviceType: 'mobile',
+        viewport: mobileVP,
+        stepName: 'spin-cycle',
+      }),
+    ).toBeUndefined();
   });
 
   it('clearSteps removes only the specified device steps', async () => {
@@ -172,8 +195,14 @@ describe('GamesService', () => {
       }),
     );
 
-    stepCache.setSteps(gameID, 'desktop', desktopVP, cacheEntry);
-    stepCache.setSteps(gameID, 'mobile', mobileVP, cacheEntry);
+    stepCache.setSteps(
+      { id: gameID, deviceType: 'desktop', viewport: desktopVP, stepName: 'spin-cycle' },
+      cacheEntry,
+    );
+    stepCache.setSteps(
+      { id: gameID, deviceType: 'mobile', viewport: mobileVP, stepName: 'spin-cycle' },
+      cacheEntry,
+    );
 
     await runtime.runPromise(
       Effect.gen(function* () {
@@ -183,8 +212,22 @@ describe('GamesService', () => {
       }),
     );
 
-    expect(stepCache.getSteps(gameID, 'desktop', desktopVP)).toBeUndefined();
-    expect(stepCache.getSteps(gameID, 'mobile', mobileVP)).toBeDefined();
+    expect(
+      stepCache.getSteps({
+        id: gameID,
+        deviceType: 'desktop',
+        viewport: desktopVP,
+        stepName: 'spin-cycle',
+      }),
+    ).toBeUndefined();
+    expect(
+      stepCache.getSteps({
+        id: gameID,
+        deviceType: 'mobile',
+        viewport: mobileVP,
+        stepName: 'spin-cycle',
+      }),
+    ).toBeDefined();
 
     stepCache.clearAllSteps(gameID);
   });

@@ -40,15 +40,28 @@ describe('updateGame + stepCache integration', () => {
     const VP = { width: 1280, height: 720 };
     const steps = { discoveredAt: new Date().toISOString(), steps: [] };
 
-    stepCache.setSteps(game.id, 'desktop', VP, steps);
+    stepCache.setSteps(
+      { id: game.id, deviceType: 'desktop', viewport: VP, stepName: 'spin-cycle' },
+      steps,
+    );
 
-    const resultBefore = stepCache.getSteps(game.id, 'desktop', VP);
+    const resultBefore = stepCache.getSteps({
+      id: game.id,
+      deviceType: 'desktop',
+      viewport: VP,
+      stepName: 'spin-cycle',
+    });
 
     expect(resultBefore, 'cache should exist before update').toBeTruthy();
 
     SUT(game.id, { desktopGameID: makeDesktopGameID() });
 
-    const result = stepCache.getSteps(game.id, 'desktop', VP);
+    const result = stepCache.getSteps({
+      id: game.id,
+      deviceType: 'desktop',
+      viewport: VP,
+      stepName: 'spin-cycle',
+    });
 
     expect(result, 'cache should be cleared after ID change').toBeUndefined();
   });
@@ -59,15 +72,28 @@ describe('updateGame + stepCache integration', () => {
     const VP = { width: 390, height: 844 };
     const steps = { discoveredAt: new Date().toISOString(), steps: [] };
 
-    stepCache.setSteps(game.id, 'mobile', VP, steps);
+    stepCache.setSteps(
+      { id: game.id, deviceType: 'mobile', viewport: VP, stepName: 'spin-cycle' },
+      steps,
+    );
 
-    const resultBefore = stepCache.getSteps(game.id, 'mobile', VP);
+    const resultBefore = stepCache.getSteps({
+      id: game.id,
+      deviceType: 'mobile',
+      viewport: VP,
+      stepName: 'spin-cycle',
+    });
 
     expect(resultBefore, 'cache should exist before update').toBeTruthy();
 
     SUT(game.id, { mobileGameID: makeDesktopGameID() });
 
-    const result = stepCache.getSteps(game.id, 'mobile', VP);
+    const result = stepCache.getSteps({
+      id: game.id,
+      deviceType: 'mobile',
+      viewport: VP,
+      stepName: 'spin-cycle',
+    });
 
     expect(result, 'cache should be cleared after mobile ID change').toBeUndefined();
   });
@@ -81,11 +107,19 @@ describe('updateGame + stepCache integration', () => {
       steps: [{ waitMs: 100, x: 10, y: 20, label: 'spin' }],
     };
 
-    stepCache.setSteps(game.id, 'desktop', VP, steps);
+    stepCache.setSteps(
+      { id: game.id, deviceType: 'desktop', viewport: VP, stepName: 'spin-cycle' },
+      steps,
+    );
 
     SUT(game.id, { name: 'New Name' });
 
-    const result = stepCache.getSteps(game.id, 'desktop', VP);
+    const result = stepCache.getSteps({
+      id: game.id,
+      deviceType: 'desktop',
+      viewport: VP,
+      stepName: 'spin-cycle',
+    });
 
     expect(result, 'cache should survive a name-only update').toEqual(steps);
 
