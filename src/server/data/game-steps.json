@@ -150,5 +150,63 @@
         }
       }
     }
+  },
+  "b4c51f69-e28f-4c66-9b3c-0be918e9af91": {
+    "desktop": {
+      "1280x720": {
+        "spinCycle": {
+          "discoveredAt": "2026-03-31T14:56:56.215Z",
+          "steps": [
+            {
+              "waitMs": 6235,
+              "x": 661,
+              "y": 635,
+              "label": "Continue button"
+            },
+            {
+              "waitMs": 21803,
+              "x": 1039,
+              "y": 297,
+              "label": "Orange autoplay spin button"
+            },
+            {
+              "waitMs": 6694,
+              "x": 1062,
+              "y": 643,
+              "label": "Back button"
+            },
+            {
+              "waitMs": 15370,
+              "x": 1039,
+              "y": 297,
+              "label": "Orange autoplay spin button"
+            },
+            {
+              "waitMs": 9323,
+              "x": 1062,
+              "y": 643,
+              "label": "Back button"
+            },
+            {
+              "waitMs": 7885,
+              "x": 1039,
+              "y": 384,
+              "label": "Big green spin button"
+            }
+          ]
+        },
+        "gameClose": {
+          "discoveredAt": "2026-03-31T14:57:05.219Z",
+          "steps": [
+            {
+              "waitMs": 6469,
+              "x": 264,
+              "y": 643,
+              "label": "In-game home/house icon button"
+            }
+          ]
+        }
+      }
+    }
   }
 }

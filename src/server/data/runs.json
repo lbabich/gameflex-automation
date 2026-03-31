@@ -1,5 +1,140 @@
 [
   {
+    "runID": "226eb352-8709-49be-b9bd-f7a76f27acaf",
+    "gameIDs": [
+      "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"
+    ],
+    "status": "completed",
+    "startedAt": "2026-03-31T15:01:54.089Z",
+    "results": {},
+    "logs": [
+      "[runner] Starting run 226eb352-8709-49be-b9bd-f7a76f27acaf:",
+      "[runner] Command: npx tsx src/server/scripts/test-runner.ts --runID=226eb352-8709-49be-b9bd-f7a76f27acaf --gameIDs=9d8a0d44-5fcf-4b66-b4a2-80961c8ba986 --deviceTypes=desktop --playmode=demo --steps=gameLoad,spinCycle,gameClose:",
+      "[runner] Spawning playwright process:",
+      "[runner] Process exited with code 0:"
+    ],
+    "playwrightErrors": [
+      "page.screenshot: Target page, context or browser has been closed"
+    ],
+    "finishedAt": "2026-03-31T15:02:39.274Z",
+    "durationMs": 45185
+  },
+  {
+    "runID": "6ba98d78-6f4f-44c1-8ec8-ab39984b822f",
+    "gameIDs": [
+      "b4c51f69-e28f-4c66-9b3c-0be918e9af91"
+    ],
+    "status": "completed",
+    "startedAt": "2026-03-31T14:55:13.299Z",
+    "results": {
+      "desktop": {
+        "title": "spin: Barn Busters",
+        "status": "passed",
+        "duration": 115018,
+        "logs": [
+          "Failed to load resource: the server responded with a status of 404 (Not Found)",
+          "show preloader",
+          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.initialise {origin: https://s009-gel.test-flex.us}",
+          "hide preloader",
+          "gameflex - [GoogleAnalyticsV2] GA4 script loaded successfully.",
+          "gameflex - [GoogleAnalyticsV2] Custom event tracked: loaded_analytics {params: value, event_id: ID-1774968924294-1063700}",
+          "gameflex - [GoogleAnalyticsV2] Started Tracking Event game_ready",
+          "gameflex - [GoogleAnalyticsV2] Started Tracking Event first_spin",
+          "gameflex - [GoogleAnalyticsV2] Started Tracking Event game_close",
+          "gameflex - [GoogleAnalyticsV2] Timer started for event: game_ready",
+          "gameflex - [GoogleAnalyticsV2] Timer started for event: first_spin",
+          "gameflex - [GoogleAnalyticsV2] Timer started for event: game_close",
+          "Wrapper says:  MessageEvent",
+          "Wrapper says:  MessageEvent",
+          "Wrapper says:  MessageEvent",
+          "Wrapper says:  MessageEvent",
+          "Wrapper says:  MessageEvent",
+          "Wrapper says:  MessageEvent",
+          "Wrapper says:  MessageEvent",
+          "The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio",
+          "The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio",
+          "[2026-03-31T14:55:26.777Z] Information: WebSocket connected to wss://mltstageflyp.playngonetwork.com/gamehub.",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Game says:  {type: gameReady}",
+          "The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio",
+          "The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio",
+          "The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio",
+          "The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio",
+          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.ready {game: Object}",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Game says:  {type: roundStarted}",
+          "Game says:  {type: spinStarted}",
+          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.spin.start undefined",
+          "Game says:  {type: spinEnded}",
+          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.spin.end undefined",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Game says:  {type: roundEnded}",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Game says:  {type: backToLobby}",
+          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.close undefined"
+        ],
+        "steps": [
+          {
+            "title": "Launch game via harness",
+            "duration": 4608,
+            "status": "passed"
+          },
+          {
+            "title": "gel.load.progress",
+            "duration": 0,
+            "status": "warning",
+            "optional": true
+          },
+          {
+            "title": "gel.ready",
+            "duration": 10401,
+            "status": "passed"
+          },
+          {
+            "title": "Spin start: gel.spin.start",
+            "duration": 241,
+            "status": "passed"
+          },
+          {
+            "title": "Spin end: gel.spin.end",
+            "duration": 2177,
+            "status": "passed"
+          },
+          {
+            "title": "Game close: gel.close",
+            "duration": 185,
+            "status": "passed"
+          }
+        ],
+        "metadata": {
+          "playmode": "demo"
+        },
+        "gifUrl": "/api/screenshots/6ba98d78-6f4f-44c1-8ec8-ab39984b822f/desktop/animated.gif"
+      }
+    },
+    "logs": [
+      "[runner] Starting run 6ba98d78-6f4f-44c1-8ec8-ab39984b822f:",
+      "[runner] Command: npx tsx src/server/scripts/test-runner.ts --runID=6ba98d78-6f4f-44c1-8ec8-ab39984b822f --gameIDs=b4c51f69-e28f-4c66-9b3c-0be918e9af91 --deviceTypes=desktop --playmode=demo --steps=gameLoad,spinCycle,gameClose --spinHint=WW91IHdpbGwgbmVlZCB0byBjbGljayB0aGUgY29udGludWUgYnV0dG9uIG9yIGdldCBwYXN0IGFueSBzcGxhc2ggc2NyZWVuIHRoYXQgeW91IG1heSBlbmNvdW50ZXIuIFRoZW4geW91IHNob3VsZCBmaXJzdCBjbGljayB0aGUgb3JhbmdlICJhdXRvcGxheSIgc3BpbiBidXR0b24gdGhlbiBjbGljayB0aGUgYmFjayBidXR0b24sIHRoZW4gdGhlIG9yYW5nZSBidXR0b24gYWdhaW4gdGhlbiBiYWNrIGFnYWluIHRoZW4gdGhlIGJpZyBncmVlbiBzcGluIGJ1dHRvbi4=:",
+      "[runner] Spawning playwright process:",
+      "[runner] Process exited with code 0:",
+      "[runner] Run finished in 120812ms — 1 passed, 0 failed, 0 skipped:"
+    ],
+    "playwrightErrors": [],
+    "finishedAt": "2026-03-31T14:57:14.111Z",
+    "durationMs": 120812
+  },
+  {
     "runID": "2131319d-05c6-45d1-8852-1b9f5d447210",
     "gameIDs": [
       "b334f577-df52-401b-b5db-d86559a07b3f"
@@ -192,7 +327,8 @@
       "[runner] Starting run 2131319d-05c6-45d1-8852-1b9f5d447210:",
       "[runner] Command: npx tsx src/server/scripts/test-runner.ts --runID=2131319d-05c6-45d1-8852-1b9f5d447210 --gameIDs=b334f577-df52-401b-b5db-d86559a07b3f --deviceTypes=desktop --playmode=demo --steps=gameLoad,spinCycle,gameClose:",
       "[runner] Spawning playwright process:",
-      "[runner] Process exited with code 0:"
+      "[runner] Process exited with code 0:",
+      "[runner] Run finished in 289078ms — 0 passed, 1 failed, 0 skipped:"
     ],
     "playwrightErrors": [],
     "finishedAt": "2026-03-31T13:48:40.344Z",
@@ -548,121 +684,5 @@
     "playwrightErrors": [],
     "finishedAt": "2026-03-31T10:22:28.150Z",
     "durationMs": 92718
-  },
-  {
-    "runID": "8250353f-689d-4bab-8eca-a2e342f01e87",
-    "gameIDs": [
-      "b4c51f69-e28f-4c66-9b3c-0be918e9af91"
-    ],
-    "status": "completed",
-    "startedAt": "2026-03-31T10:08:30.779Z",
-    "results": {
-      "desktop": {
-        "title": "spin: Barn Busters",
-        "status": "failed",
-        "duration": 153873,
-        "error": "Could not find target for 'gameClose' on Barn Busters (63174) after 20 attempts. See src/server/screenshots/8250353f-689d-4bab-8eca-a2e342f01e87/desktop/discovery-failed.png",
-        "logs": [
-          "Failed to load resource: the server responded with a status of 404 (Not Found)",
-          "show preloader",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.initialise {origin: https://s009-gel.test-flex.us}",
-          "hide preloader",
-          "gameflex - [GoogleAnalyticsV2] GA4 script loaded successfully.",
-          "gameflex - [GoogleAnalyticsV2] Custom event tracked: loaded_analytics {params: value, event_id: ID-1774951762112-1472900}",
-          "gameflex - [GoogleAnalyticsV2] Started Tracking Event game_ready",
-          "gameflex - [GoogleAnalyticsV2] Started Tracking Event first_spin",
-          "gameflex - [GoogleAnalyticsV2] Started Tracking Event game_close",
-          "gameflex - [GoogleAnalyticsV2] Timer started for event: game_ready",
-          "gameflex - [GoogleAnalyticsV2] Timer started for event: first_spin",
-          "gameflex - [GoogleAnalyticsV2] Timer started for event: game_close",
-          "Wrapper says:  MessageEvent",
-          "Wrapper says:  MessageEvent",
-          "Wrapper says:  MessageEvent",
-          "Wrapper says:  MessageEvent",
-          "Wrapper says:  MessageEvent",
-          "Wrapper says:  MessageEvent",
-          "Wrapper says:  MessageEvent",
-          "The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio",
-          "The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio",
-          "[2026-03-31T10:09:24.800Z] Information: WebSocket connected to wss://mltstageflyp.playngonetwork.com/gamehub.",
-          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
-          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
-          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
-          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
-          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
-          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
-          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
-          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
-          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
-          "Game says:  {type: gameReady}",
-          "The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio",
-          "The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio",
-          "The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio",
-          "The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.ready {game: Object}",
-          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
-          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
-          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
-          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
-          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
-          "Game says:  {type: roundStarted}",
-          "Game says:  {type: spinStarted}",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.spin.start undefined",
-          "Game says:  {type: spinEnded}",
-          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.spin.end undefined",
-          "Game says:  {type: roundEnded}"
-        ],
-        "steps": [
-          {
-            "title": "Launch game via harness",
-            "duration": 5240,
-            "status": "passed"
-          },
-          {
-            "title": "gel.load.progress",
-            "duration": 0,
-            "status": "warning",
-            "optional": true
-          },
-          {
-            "title": "gel.ready",
-            "duration": 9492,
-            "status": "passed"
-          },
-          {
-            "title": "Spin start: gel.spin.start",
-            "duration": 202,
-            "status": "passed"
-          },
-          {
-            "title": "Spin end: gel.spin.end",
-            "duration": 2172,
-            "status": "passed"
-          },
-          {
-            "title": "Game close: gel.close",
-            "duration": 0,
-            "status": "skipped"
-          }
-        ],
-        "metadata": {
-          "playmode": "demo"
-        },
-        "screenshotUrls": [
-          "/api/screenshots/8250353f-689d-4bab-8eca-a2e342f01e87/desktop/failure-3.png"
-        ],
-        "gifUrl": "/api/screenshots/8250353f-689d-4bab-8eca-a2e342f01e87/desktop/animated.gif"
-      }
-    },
-    "logs": [
-      "[runner] Starting run 8250353f-689d-4bab-8eca-a2e342f01e87:",
-      "[runner] Command: npx tsx src/server/scripts/test-runner.ts --runID=8250353f-689d-4bab-8eca-a2e342f01e87 --gameIDs=b4c51f69-e28f-4c66-9b3c-0be918e9af91 --deviceTypes=desktop --playmode=demo --steps=gameLoad,spinCycle,gameClose:",
-      "[runner] Spawning playwright process:",
-      "[runner] Process exited with code 0:",
-      "[runner] Run finished in 199214ms — 0 passed, 1 failed, 0 skipped:"
-    ],
-    "playwrightErrors": [],
-    "finishedAt": "2026-03-31T10:11:49.993Z",
-    "durationMs": 199214
   }
 ]

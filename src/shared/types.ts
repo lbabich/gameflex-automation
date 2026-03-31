@@ -67,3 +67,8 @@ export type GameUpdates = {
   mobileGameID?: string;
   gameProviderID?: string;
 };
+
+export type RunHints = {
+  spinCycle?: string;
+  gameClose?: string;
+};

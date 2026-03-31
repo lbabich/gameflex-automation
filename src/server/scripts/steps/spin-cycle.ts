@@ -19,7 +19,7 @@ const SPIN_END_WAIT_MS = 15_000;
 const SPIN_VERIFY_TIMEOUT_MS = 3_000;
 
 async function discover(ctx: StepContext): Promise<void> {
-  const { page, game, viewport, deviceType, runID, accumulator } = ctx;
+  const { page, game, viewport, deviceType, runID, accumulator, hints } = ctx;
 
   if (stepCache.getSteps(game.id, deviceType, viewport, STEP_NAME)) {
     return;
@@ -36,6 +36,11 @@ async function discover(ctx: StepContext): Promise<void> {
       });
   };
 
+  const hint = hints?.spinCycle;
+  const promptBuilder = (v: Viewport, f: FailedButton[]) => {
+    return buildNextClickPrompt(hint, v, f);
+  };
+
   return discoveryLoop.runDiscoveryLoop(
     page,
     game,
@@ -43,7 +48,7 @@ async function discover(ctx: StepContext): Promise<void> {
     deviceType,
     runID,
     STEP_NAME,
-    buildNextClickPrompt,
+    promptBuilder,
     verifySpinClick,
   );
 }
@@ -71,8 +76,47 @@ async function execute(ctx: StepContext): Promise<void> {
   });
 }
 
-function buildNextClickPrompt(viewport: Viewport, failedButtons: FailedButton[]): string {
+function buildNextClickPrompt(
+  hint: string | undefined,
+  viewport: Viewport,
+  failedButtons: FailedButton[],
+): string {
   const { width, height } = viewport;
+
+  if (hint) {
+    const stepNumber = failedButtons.length + 1;
+
+    const completedSection =
+      failedButtons.length === 0
+        ? 'None — this is step 1.'
+        : failedButtons
+            .map((button: FailedButton, i: number) => {
+              return `  Step ${i + 1}: "${button.label}" at (${button.x}, ${button.y})`;
+            })
+            .join('\n');
+
+    return `You are clicking through a multi-step UI sequence for a casino game.
+
+OPERATOR SEQUENCE:
+${hint}
+
+COMPLETED STEPS (${failedButtons.length} done):
+${completedSection}
+
+YOUR TASK: Click the element for step ${stepNumber} of the operator sequence above.
+
+RULES:
+- Follow the operator sequence only — do not use your own judgment about what to click
+- Do NOT click the spin button unless the operator sequence explicitly calls for it at step ${stepNumber}
+- Do NOT skip ahead even if later targets in the sequence are visible on screen
+- Re-clicking a button from an earlier step is correct and expected if the sequence calls for it
+
+Respond with:
+  {"found": false}
+  {"found": true, "x": <number>, "y": <number>, "label": "<short description>"}
+
+Image dimensions: ${width}x${height}`;
+  }
 
   let prompt = `What is the single most important element to click to either trigger a spin or navigate toward the spin button?\n\nIf the spin button is visible and unobstructed, click it. The spin button is typically the largest circular button on screen — commonly has clockwise-rotating arrows around its edge, a play/triangle icon in the centre, or is labeled SPIN. It must be fully visible and not covered by any overlay.\n\nIf the spin button is not accessible, click whatever would unblock it: a dialog button (Continue, OK, Accept, Yes, No), close X, age/terms prompt, overlay, promo/bonus intro screen, or a full-screen brand logo or game-title splash screen (click the centre of the screen for those).\n\nDo NOT suggest: loading bars, progress indicators, loading spinners, percentage counters, autoplay buttons, or bet/settings controls.\nIf the game is still loading (spinner visible), return {"found": false}.\n\nRespond with:\n  {"found": false}\n  {"found": true, "x": <number>, "y": <number>, "label": "<short description>"}\n\nImage dimensions: ${width}x${height}`;
 

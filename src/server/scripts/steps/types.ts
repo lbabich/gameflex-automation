@@ -1,5 +1,5 @@
 import type { Page } from '@playwright/test';
-import type { DeviceType, PlayMode, TestMetadata, TestStep } from '../../../shared/types';
+import type { DeviceType, PlayMode, RunHints, TestMetadata, TestStep } from '../../../shared/types';
 import type { EventAccumulator } from '../../lib/event-accumulator';
 import type { GameEntry } from '../../lib/games';
 import type { Viewport } from '../../types';
@@ -19,6 +19,7 @@ type StepContext = {
   runID: string;
   playmode: PlayMode;
   runState: RunState;
+  hints?: RunHints;
 };
 
 type StepDescriptor = {

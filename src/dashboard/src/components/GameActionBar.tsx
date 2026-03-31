@@ -7,6 +7,8 @@ type Props = {
   isRunning: boolean;
   runID: string | null;
   playmode: PlayMode;
+  spinCycleHint: string;
+  gameCloseHint: string;
   onPlaymodeChange: (mode: PlayMode) => void;
   onRunComplete: (runID: string) => void;
 };
@@ -47,6 +49,8 @@ export function GameActionBar({
   isRunning,
   runID,
   playmode,
+  spinCycleHint,
+  gameCloseHint,
   onPlaymodeChange,
   onRunComplete,
 }: Props) {
@@ -55,12 +59,17 @@ export function GameActionBar({
   async function handleRun() {
     if (isRunning) return;
 
+    const hints = spinCycleHint || gameCloseHint
+      ? { spinCycle: spinCycleHint || undefined, gameClose: gameCloseHint || undefined }
+      : undefined;
+
     try {
       const data = await createRun({
         gameIDs: [game.id],
         deviceTypes: ['desktop', 'mobile'],
         playmode,
         steps: [...DEFAULT_STEPS],
+        hints,
       });
 
       onRunComplete(data.runID);

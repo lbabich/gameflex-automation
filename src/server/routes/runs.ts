@@ -5,11 +5,17 @@ import type { GameNotFoundError, RunAlreadyActiveError } from '../errors';
 import type { AppRuntime } from '../runtime';
 import { RunnerService } from '../services/runner/runner.service';
 
+const HintsSchema = Schema.Struct({
+  spinCycle: Schema.optional(Schema.String),
+  gameClose: Schema.optional(Schema.String),
+});
+
 const PostBody = Schema.Struct({
   gameIDs: Schema.NonEmptyArray(Schema.String),
   deviceTypes: Schema.NonEmptyArray(Schema.Literal('desktop', 'mobile')),
   playmode: Schema.Literal('demo', 'real'),
   steps: Schema.optional(Schema.Array(Schema.String)),
+  hints: Schema.optional(HintsSchema),
 });
 
 function makeRunsRouter(runtime: AppRuntime) {
@@ -26,6 +32,7 @@ function makeRunsRouter(runtime: AppRuntime) {
           [...body.deviceTypes],
           body.playmode,
           body.steps ? [...body.steps] : undefined,
+          body.hints,
         );
 
         res.status(201).json(record);

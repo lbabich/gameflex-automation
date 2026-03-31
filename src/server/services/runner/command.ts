@@ -1,3 +1,5 @@
+import type { RunHints } from '../../../shared/types';
+
 const DEFAULT_STEPS = ['gameLoad', 'spinCycle'];
 
 function buildSpinCommand(
@@ -6,12 +8,19 @@ function buildSpinCommand(
   deviceTypes: string[],
   playmode: string,
   steps: string[] = DEFAULT_STEPS,
+  hints?: RunHints,
 ) {
   const ids = gameIDs.join(',');
   const devices = deviceTypes.join(',');
   const stepsArg = steps.join(',');
 
-  return `npx tsx src/server/scripts/test-runner.ts --runID=${runID} --gameIDs=${ids} --deviceTypes=${devices} --playmode=${playmode} --steps=${stepsArg}`;
+  let cmd = `npx tsx src/server/scripts/test-runner.ts --runID=${runID} --gameIDs=${ids} --deviceTypes=${devices} --playmode=${playmode} --steps=${stepsArg}`;
+
+  if (hints && (hints.spinCycle || hints.gameClose)) {
+    cmd += ` --hints=${Buffer.from(JSON.stringify(hints)).toString('base64')}`;
+  }
+
+  return cmd;
 }
 
 export { buildSpinCommand };

@@ -1,6 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import { AddGameModal } from './components/AddGameModal';
+import { DiscoveryHints } from './components/DiscoveryHints';
 import { EditGameModal } from './components/EditGameModal';
 import { GameActionBar } from './components/GameActionBar';
 import { GameDeviceSettings } from './components/GameDeviceSettings';
@@ -20,6 +21,8 @@ export default function App() {
   const [editGame, setEditGame] = useState<GameEntry | null>(null);
   const [viewRunID, setViewRunID] = useState<string | null>(null);
   const [playmode, setPlaymode] = useState<PlayMode>(PLAY_MODE.DEMO);
+  const [spinCycleHint, setSpinCycleHint] = useState('');
+  const [gameCloseHint, setGameCloseHint] = useState('');
 
   const queryClient = useQueryClient();
   const { data: games, isLoading: gamesLoading } = useGames();
@@ -58,6 +61,8 @@ export default function App() {
 
   function handleGameSelect(id: string) {
     setSelectedGameID(id);
+    setSpinCycleHint('');
+    setGameCloseHint('');
     const found = (recentRuns ?? []).find((r) => r.gameIDs.includes(id));
     setViewRunID(found?.runID ?? null);
   }
@@ -118,6 +123,8 @@ export default function App() {
             isRunning={selectedGameIsRunning}
             runID={selectedGameRunID}
             playmode={playmode}
+            spinCycleHint={spinCycleHint}
+            gameCloseHint={gameCloseHint}
             onPlaymodeChange={setPlaymode}
             onRunComplete={handleRunComplete}
           />
@@ -127,7 +134,17 @@ export default function App() {
             game={selectedGame}
             isRunning={selectedGameIsRunning}
             playmode={playmode}
+            spinCycleHint={spinCycleHint}
+            gameCloseHint={gameCloseHint}
             onRunComplete={handleRunComplete}
+          />
+        )}
+        {selectedGame && (
+          <DiscoveryHints
+            spinCycleHint={spinCycleHint}
+            gameCloseHint={gameCloseHint}
+            onSpinHintChange={setSpinCycleHint}
+            onCloseHintChange={setGameCloseHint}
           />
         )}
         {selectedGame ? (

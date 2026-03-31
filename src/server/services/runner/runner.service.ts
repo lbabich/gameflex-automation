@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { Effect, Fiber, Layer } from 'effect';
-import type { DeviceType, RunRecord, TestResult } from '../../../shared/types';
+import type { DeviceType, RunHints, RunRecord, TestResult } from '../../../shared/types';
 import { GameNotFoundError, RunAlreadyActiveError, RunNotFoundError } from '../../errors';
 import type { GameEntry } from '../../lib/games';
 import type { InternalRunRecord } from '../../types';
@@ -28,6 +28,7 @@ class RunnerService extends Effect.Tag('RunnerService')<
       deviceTypes: string[],
       playmode: string,
       steps?: string[],
+      hints?: RunHints,
     ) => Effect.Effect<RunRecord, RunAlreadyActiveError | GameNotFoundError>;
     cancelRun: (runID: string) => Effect.Effect<void, RunNotFoundError>;
     getRun: (runID: string) => Effect.Effect<RunRecord, RunNotFoundError>;
@@ -51,7 +52,13 @@ export const NodeRunnerService = Layer.effect(
     }
 
     return {
-      startRun: (gameIDs: string[], deviceTypes: string[], playmode: string, steps?: string[]) => {
+      startRun: (
+        gameIDs: string[],
+        deviceTypes: string[],
+        playmode: string,
+        steps?: string[],
+        hints?: RunHints,
+      ) => {
         return startRun(
           state,
           gamesService,
@@ -61,6 +68,7 @@ export const NodeRunnerService = Layer.effect(
           deviceTypes,
           playmode,
           steps,
+          hints,
         );
       },
       cancelRun: (runID: string) => {
@@ -88,6 +96,7 @@ function startRun(
   deviceTypes: string[],
   playmode: string,
   steps?: string[],
+  hints?: RunHints,
 ) {
   return Effect.gen(function* () {
     const conflicting = gameIDs.filter((id: string) => {
@@ -118,7 +127,7 @@ function startRun(
       state.activeRunsByGame.set(id, runID);
     }
 
-    const cmd = buildSpinCommand(runID, gameIDs, deviceTypes, playmode, steps);
+    const cmd = buildSpinCommand(runID, gameIDs, deviceTypes, playmode, steps, hints);
 
     yield* runLoggerService.log(runID, 'runner', `Starting run ${runID}`);
     yield* runLoggerService.log(runID, 'runner', `Command: ${cmd}`);

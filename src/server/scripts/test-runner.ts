@@ -1,7 +1,7 @@
 import type { Browser, Page } from '@playwright/test';
 import { chromium } from '@playwright/test';
 import * as dotenv from 'dotenv';
-import { type DeviceType, PLAY_MODE, type PlayMode } from '../../shared/types';
+import { type DeviceType, PLAY_MODE, type PlayMode, type RunHints } from '../../shared/types';
 import * as eventAccumulator from '../lib/event-accumulator';
 import type { GameEntry } from '../lib/games';
 import { readGames } from '../lib/games';
@@ -27,7 +27,7 @@ const STEP_REGISTRY: Record<string, Step> = {
 };
 
 async function main() {
-  const { runID, gameIDs, deviceTypes, playmode, steps } = parseArgs();
+  const { runID, gameIDs, deviceTypes, playmode, steps, hints } = parseArgs();
 
   const resolvedSteps = steps.flatMap((name) => {
     const step = STEP_REGISTRY[name];
@@ -61,6 +61,7 @@ async function main() {
           runID,
           playmode,
           resolvedSteps,
+          hints,
         );
 
         results[deviceType] = {
@@ -90,6 +91,7 @@ function parseArgs() {
   let deviceTypes: DeviceType[] = [];
   let playmode: PlayMode = PLAY_MODE.DEMO;
   let steps: string[] = DEFAULT_STEPS;
+  let hints: RunHints = {};
 
   for (const arg of args) {
     if (arg.startsWith('--runID=')) {
@@ -102,10 +104,14 @@ function parseArgs() {
       playmode = arg.slice('--playmode='.length) as PlayMode;
     } else if (arg.startsWith('--steps=')) {
       steps = arg.slice('--steps='.length).split(',').filter(Boolean);
+    } else if (arg.startsWith('--hints=')) {
+      hints = JSON.parse(
+        Buffer.from(arg.slice('--hints='.length), 'base64').toString('utf8'),
+      ) as RunHints;
     }
   }
 
-  return { runID, gameIDs, deviceTypes, playmode, steps };
+  return { runID, gameIDs, deviceTypes, playmode, steps, hints };
 }
 
 async function runGame(
@@ -116,6 +122,7 @@ async function runGame(
   runID: string,
   playmode: PlayMode,
   steps: Step[],
+  hints: RunHints,
 ): Promise<InternalTestResult> {
   const httpCredentials =
     process.env.BASIC_AUTH_USER && process.env.BASIC_AUTH_PASS
@@ -134,7 +141,7 @@ async function runGame(
 
   const accumulator = eventAccumulator.createEventAccumulator(page);
 
-  const ctx = { page, accumulator, game, viewport, deviceType, runID, playmode, runState };
+  const ctx = { page, accumulator, game, viewport, deviceType, runID, playmode, runState, hints };
 
   let failure: Error | null = null;
 

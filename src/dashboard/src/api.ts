@@ -1,4 +1,4 @@
-import type { DeviceType, GameEntry, PlayMode, RunRecord } from '@shared/types';
+import type { DeviceType, GameEntry, PlayMode, RunHints, RunRecord } from '@shared/types';
 
 export type NewGame = {
   desktopGameID: string;
@@ -21,6 +21,7 @@ export type NewRun = {
   deviceTypes: DeviceType[];
   playmode: PlayMode;
   steps: string[];
+  hints?: RunHints;
 };
 
 export async function getGames() {
