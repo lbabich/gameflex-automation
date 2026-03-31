@@ -38,14 +38,8 @@ async function discover(ctx: StepContext): Promise<void> {
   };
 
   return discoveryLoop.runDiscoveryLoop(
-    page,
-    game,
-    viewport,
-    deviceType,
-    runID,
-    STEP_NAME,
-    promptBuilder,
-    verifyCloseClick,
+    { page, game, viewport, deviceType },
+    { runID, stepName: STEP_NAME, buildPrompt: promptBuilder, verifyClick: verifyCloseClick },
   );
 }
 

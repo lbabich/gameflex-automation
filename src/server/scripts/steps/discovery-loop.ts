@@ -10,6 +10,20 @@ type FailedButton = { x: number; y: number; label: string };
 
 type PromptBuilder = (viewport: Viewport, failedButtons: FailedButton[]) => string;
 
+type DiscoveryContext = {
+  page: Page;
+  game: StepContext['game'];
+  viewport: Viewport;
+  deviceType: DeviceType;
+};
+
+type DiscoveryConfig = {
+  runID: string;
+  stepName: string;
+  buildPrompt: PromptBuilder;
+  verifyClick: () => Promise<boolean>;
+};
+
 const DISCOVERY_MAX_ATTEMPTS = 20;
 const DISCOVERY_POLL_INTERVAL_MS = 1_000;
 
@@ -20,16 +34,10 @@ class DiscoveryError extends Error {
   }
 }
 
-async function runDiscoveryLoop(
-  page: Page,
-  game: StepContext['game'],
-  viewport: Viewport,
-  deviceType: DeviceType,
-  runID: string,
-  stepName: string,
-  buildPrompt: PromptBuilder,
-  verifyClick: () => Promise<boolean>,
-): Promise<void> {
+async function runDiscoveryLoop(ctx: DiscoveryContext, config: DiscoveryConfig): Promise<void> {
+  const { page, game, viewport, deviceType } = ctx;
+  const { runID, stepName, buildPrompt, verifyClick } = config;
+
   const allFailedButtons: FailedButton[] = [];
   const preTargetSteps: CachedStep[] = [];
 
@@ -85,5 +93,5 @@ async function runDiscoveryLoop(
   );
 }
 
-export type { FailedButton, PromptBuilder };
+export type { DiscoveryConfig, DiscoveryContext, FailedButton, PromptBuilder };
 export { DiscoveryError, runDiscoveryLoop };
