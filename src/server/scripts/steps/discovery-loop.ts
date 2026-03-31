@@ -1,6 +1,7 @@
 import type { Page } from '@playwright/test';
 import type { DeviceType } from '../../../shared/types';
 import * as claudeVision from '../../lib/claude-vision';
+import * as clickMarker from '../../lib/click-marker';
 import * as screenshot from '../../lib/screenshot';
 import * as stepCache from '../../lib/step-cache';
 import type { CachedStep, Viewport } from '../../types';
@@ -57,6 +58,8 @@ async function runDiscoveryLoop(ctx: DiscoveryContext, config: DiscoveryConfig):
     if (result.found) {
       const waitMs = Date.now() - lastClickTime;
 
+      await clickMarker.injectClickMarker(page, result.x, result.y);
+      await screenshot.snap(page, `${runID}/${deviceType}/discovery-${attempt}-click.png`);
       await page.mouse.click(result.x, result.y);
 
       const verified = await verifyClick();

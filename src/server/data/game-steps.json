@@ -155,53 +155,47 @@
     "desktop": {
       "1280x720": {
         "spinCycle": {
-          "discoveredAt": "2026-03-31T14:56:56.215Z",
+          "discoveredAt": "2026-03-31T15:32:16.584Z",
           "steps": [
             {
-              "waitMs": 6235,
-              "x": 661,
+              "waitMs": 6576,
+              "x": 662,
               "y": 635,
-              "label": "Continue button"
+              "label": "Continue button to dismiss intro overlay"
             },
             {
-              "waitMs": 21803,
-              "x": 1039,
+              "waitMs": 6792,
+              "x": 662,
+              "y": 400,
+              "label": "Click center of splash screen to dismiss intro overlay"
+            },
+            {
+              "waitMs": 8358,
+              "x": 1040,
               "y": 297,
-              "label": "Orange autoplay spin button"
+              "label": "Spin button (orange play icon, top right of reels)"
             },
             {
-              "waitMs": 6694,
-              "x": 1062,
-              "y": 643,
-              "label": "Back button"
+              "waitMs": 5510,
+              "x": 1063,
+              "y": 644,
+              "label": "Back arrow button to exit settings/autoplay and return to main game screen with spin button"
             },
             {
-              "waitMs": 15370,
-              "x": 1039,
-              "y": 297,
-              "label": "Orange autoplay spin button"
-            },
-            {
-              "waitMs": 9323,
-              "x": 1062,
-              "y": 643,
-              "label": "Back button"
-            },
-            {
-              "waitMs": 7885,
-              "x": 1039,
-              "y": 384,
-              "label": "Big green spin button"
+              "waitMs": 6318,
+              "x": 1040,
+              "y": 385,
+              "label": "Green spin button below orange play button"
             }
           ]
         },
         "gameClose": {
-          "discoveredAt": "2026-03-31T14:57:05.219Z",
+          "discoveredAt": "2026-03-31T15:32:25.603Z",
           "steps": [
             {
-              "waitMs": 6469,
+              "waitMs": 6305,
               "x": 264,
-              "y": 643,
+              "y": 644,
               "label": "In-game home/house icon button"
             }
           ]
