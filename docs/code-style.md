@@ -137,6 +137,30 @@ Exception: when `return` is the only statement in a function body, the blank lin
 
 ---
 
+## Max 4 function parameters
+
+No function may declare more than 4 parameters. When more inputs are needed, group
+related parameters into named `type` aliases.
+
+**Grouping strategies:**
+
+```ts
+// (a) single options object
+function run(options: RunOptions): void
+
+// (b) up to 4 logically grouped objects
+function run(ctx: RunContext, config: RunConfig): void
+
+// (c) single object with logically grouped keys
+function run(options: { context: RunContext; config: RunConfig }): void
+```
+
+**React component props are exempt** — destructured props is already a single argument.
+
+**Optional parameters count** — `fn(a, b, c, d?, e?)` is 5 params and is a violation.
+
+---
+
 ## Effect service naming
 
 Effect services have two exports: the Tag (the interface) and the implementation (the Layer).

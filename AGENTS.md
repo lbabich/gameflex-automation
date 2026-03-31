@@ -48,6 +48,31 @@ Not acceptable:
 
 Always use `type` for object shapes. Never use `interface`.
 
+### Max 4 function parameters
+
+No function may declare more than 4 parameters. When more inputs are needed, group
+related parameters into named objects. Up to 4 objects is fine; a single object is also fine.
+
+Legal grouping strategies:
+
+```ts
+// (a) single options object
+function run(options: RunOptions): void
+
+// (b) logically grouped objects — up to 4 args total
+function run(ctx: RunContext, config: RunConfig): void
+
+// (c) single object with logically grouped keys
+function run(options: { context: RunContext; config: RunConfig }): void
+```
+
+**React component props are exempt.** A component that destructures `Props` still
+receives a single argument at the call site, so it does not violate this rule no matter
+how many keys `Props` has.
+
+**Optional parameters count.** `fn(a, b, c, d?, e?)` declares 5 parameters and is a
+violation even though two are optional.
+
 ### No `useEffect` for state synchronisation
 
 Do not use `useEffect` to sync or reset React state. Use `key` prop remounting or
