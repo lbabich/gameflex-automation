@@ -15,6 +15,20 @@ import type { RunState, Step } from './steps/types';
 
 dotenv.config();
 
+type GameRunContext = {
+  browser: Browser;
+  game: GameEntry;
+  deviceType: DeviceType;
+  viewport: Viewport;
+};
+
+type GameRunOptions = {
+  runID: string;
+  playmode: PlayMode;
+  steps: Step[];
+  hints: RunHints;
+};
+
 const VIEWPORT: Viewport = { width: 1280, height: 720 };
 const POST_RUN_BUFFER_MS = 5_000;
 
@@ -54,14 +68,8 @@ async function main() {
     for (const game of games) {
       for (const deviceType of deviceTypes) {
         const result = await runGame(
-          browser,
-          game,
-          deviceType,
-          VIEWPORT,
-          runID,
-          playmode,
-          resolvedSteps,
-          hints,
+          { browser, game, deviceType, viewport: VIEWPORT },
+          { runID, playmode, steps: resolvedSteps, hints },
         );
 
         results[deviceType] = {
@@ -114,23 +122,17 @@ function parseArgs() {
   return { runID, gameIDs, deviceTypes, playmode, steps, hints };
 }
 
-async function runGame(
-  browser: Browser,
-  game: GameEntry,
-  deviceType: DeviceType,
-  viewport: Viewport,
-  runID: string,
-  playmode: PlayMode,
-  steps: Step[],
-  hints: RunHints,
-): Promise<InternalTestResult> {
+async function runGame(context: GameRunContext, run: GameRunOptions): Promise<InternalTestResult> {
+  const { browser, game, deviceType, viewport } = context;
+  const { runID, playmode, steps, hints } = run;
+
   const httpCredentials =
     process.env.BASIC_AUTH_USER && process.env.BASIC_AUTH_PASS
       ? { username: process.env.BASIC_AUTH_USER, password: process.env.BASIC_AUTH_PASS }
       : undefined;
 
-  const context = await browser.newContext({ viewport, httpCredentials });
-  const page = await context.newPage();
+  const browserContext = await browser.newContext({ viewport, httpCredentials });
+  const page = await browserContext.newPage();
 
   const startTime = Date.now();
   const runState: RunState = {
@@ -169,7 +171,7 @@ async function runGame(
     runState.screenshotPaths = await takeFailureSnapshots(page, runID, deviceType);
   }
 
-  await context.close();
+  await browserContext.close();
 
   const duration = Date.now() - startTime;
   const logs = accumulator.getAll();
