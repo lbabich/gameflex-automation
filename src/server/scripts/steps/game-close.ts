@@ -17,7 +17,9 @@ const CLOSE_VERIFY_TIMEOUT_MS = 3_000;
 async function discover(ctx: StepContext): Promise<void> {
   const { page, game, viewport, deviceType, runID, accumulator, hints } = ctx;
 
-  if (stepCache.getSteps({ id: game.id, deviceType, viewport, stepName: STEP_NAME })) {
+  const cached = stepCache.getSteps({ id: game.id, deviceType, viewport, stepName: STEP_NAME });
+
+  if (cached) {
     return;
   }
 
