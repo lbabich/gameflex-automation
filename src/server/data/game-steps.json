@@ -44,5 +44,45 @@
         }
       }
     }
+  },
+  "6733624c-554e-4081-a92f-4616af3317e5": {
+    "desktop": {
+      "1280x720": {
+        "spinCycle": {
+          "discoveredAt": "2026-03-31T10:57:14.515Z",
+          "steps": [
+            {
+              "waitMs": 5922,
+              "x": 665,
+              "y": 684,
+              "label": "Spin button (circular with rotating arrows)"
+            }
+          ]
+        },
+        "gameClose": {
+          "discoveredAt": "2026-03-31T10:57:38.106Z",
+          "steps": [
+            {
+              "waitMs": 4031,
+              "x": 141,
+              "y": 687,
+              "label": "Hamburger menu (≡) inside the game UI"
+            },
+            {
+              "waitMs": 4981,
+              "x": 141,
+              "y": 641,
+              "label": "Home/house icon inside the game UI"
+            },
+            {
+              "waitMs": 5598,
+              "x": 771,
+              "y": 455,
+              "label": "YES button in exit confirmation dialog"
+            }
+          ]
+        }
+      }
+    }
   }
 }

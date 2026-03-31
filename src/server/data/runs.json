@@ -1,41 +1,23 @@
 [
   {
-    "runID": "a46abf3f-e54b-44e8-9d0b-20ace619eef0",
-    "gameIDs": [
-      "b4c51f69-e28f-4c66-9b3c-0be918e9af91"
-    ],
-    "status": "error",
-    "startedAt": "2026-03-31T09:21:35.962Z",
-    "results": {},
-    "logs": [
-      "[runner] Starting run a46abf3f-e54b-44e8-9d0b-20ace619eef0:",
-      "[runner] Command: npx tsx src/server/scripts/test-runner.ts --runID=a46abf3f-e54b-44e8-9d0b-20ace619eef0 --gameIDs=b4c51f69-e28f-4c66-9b3c-0be918e9af91 --deviceTypes=desktop --playmode=demo --steps=gameLoad,spinCycle,gameClose:",
-      "[runner] Spawning playwright process:",
-      "[runner] Process exited with code 1:"
-    ],
-    "playwrightErrors": [],
-    "finishedAt": "2026-03-31T09:23:18.508Z",
-    "durationMs": 102546
-  },
-  {
-    "runID": "958db1d8-544d-4329-91b5-e7cb817a59c2",
+    "runID": "8c50b5b4-1638-4622-b76d-f5ebcf83e09c",
     "gameIDs": [
       "6733624c-554e-4081-a92f-4616af3317e5"
     ],
     "status": "completed",
-    "startedAt": "2026-03-30T15:45:36.365Z",
+    "startedAt": "2026-03-31T10:56:07.718Z",
     "results": {
       "desktop": {
         "title": "spin: Gold Blitz",
         "status": "passed",
-        "duration": 49908,
+        "duration": 50795,
         "logs": [
           "Failed to load resource: the server responded with a status of 404 (Not Found)",
           "show preloader",
           "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.initialise {origin: https://s009-gel.test-flex.us}",
           "hide preloader",
           "gameflex - [GoogleAnalyticsV2] GA4 script loaded successfully.",
-          "gameflex - [GoogleAnalyticsV2] Custom event tracked: loaded_analytics {params: value, event_id: ID-1774885547998-842100}",
+          "gameflex - [GoogleAnalyticsV2] Custom event tracked: loaded_analytics {params: value, event_id: ID-1774954622816-968100}",
           "gameflex - [GoogleAnalyticsV2] Started Tracking Event game_ready",
           "gameflex - [GoogleAnalyticsV2] Started Tracking Event first_spin",
           "gameflex - [GoogleAnalyticsV2] Started Tracking Event game_close",
@@ -86,16 +68,16 @@
           "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event preloader_hidden",
           "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event client_ready",
           "gameflex - [GoogleAnalyticsV2] tracked events Map(3)",
-          "gameflex - [GoogleAnalyticsV2] timed events {game_ready: 1774885547999, first_spin: 1774885547999, game_close: 1774885547999}",
-          "gameflex - [GoogleAnalyticsV2] Tracking event game_ready tracked with elapsed time: 4.778 seconds",
-          "gameflex - [GoogleAnalyticsV2] Custom event tracked: game_ready {elapsed_time: 4.778, event_id: ID-1774885552790-5633400}",
+          "gameflex - [GoogleAnalyticsV2] timed events {game_ready: 1774954622816, first_spin: 1774954622817, game_close: 1774954622817}",
+          "gameflex - [GoogleAnalyticsV2] Tracking event game_ready tracked with elapsed time: 5.672 seconds",
+          "gameflex - [GoogleAnalyticsV2] Custom event tracked: game_ready {elapsed_time: 5.672, event_id: ID-1774954628496-6648800}",
           "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.ready {game: Object}",
           "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event busy",
           "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event wager_started",
           "gameflex - [GoogleAnalyticsV2] tracked events Map(3)",
-          "gameflex - [GoogleAnalyticsV2] timed events {first_spin: 1774885547999, game_close: 1774885547999}",
-          "gameflex - [GoogleAnalyticsV2] Tracking event first_spin tracked with elapsed time: 9.962 seconds",
-          "gameflex - [GoogleAnalyticsV2] Custom event tracked: first_spin {elapsed_time: 9.962, event_id: ID-1774885557968-10811600}",
+          "gameflex - [GoogleAnalyticsV2] timed events {first_spin: 1774954622817, game_close: 1774954622817}",
+          "gameflex - [GoogleAnalyticsV2] Tracking event first_spin tracked with elapsed time: 11.686 seconds",
+          "gameflex - [GoogleAnalyticsV2] Custom event tracked: first_spin {elapsed_time: 11.686, event_id: ID-1774954634510-12662900}",
           "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.spin.start undefined",
           "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event player_activity",
           "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event balance_updated",
@@ -107,53 +89,379 @@
           "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event idle",
           "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event close_application",
           "gameflex - [GoogleAnalyticsV2] tracked events Map(3)",
-          "gameflex - [GoogleAnalyticsV2] timed events {game_close: 1774885547999}",
-          "gameflex - [GoogleAnalyticsV2] Tracking event game_close tracked with elapsed time: 35.153 seconds",
-          "gameflex - [GoogleAnalyticsV2] Custom event tracked: game_close {elapsed_time: 35.153, event_id: ID-1774885583157-36000800}",
+          "gameflex - [GoogleAnalyticsV2] timed events {game_close: 1774954622817}",
+          "gameflex - [GoogleAnalyticsV2] Tracking event game_close tracked with elapsed time: 35.275 seconds",
+          "gameflex - [GoogleAnalyticsV2] Custom event tracked: game_close {elapsed_time: 35.275, event_id: ID-1774954658100-36252400}",
           "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.close undefined",
           "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event operator.game.session.end"
         ],
         "steps": [
           {
             "title": "Launch game via harness",
-            "duration": 5450
+            "duration": 5974,
+            "status": "passed"
           },
           {
             "title": "gel.load.progress",
-            "duration": 0
+            "duration": 0,
+            "status": "passed",
+            "optional": true
           },
           {
             "title": "gel.ready",
-            "duration": 11080
+            "duration": 6648,
+            "status": "passed"
           },
           {
             "title": "Spin start: gel.spin.start",
-            "duration": 272
+            "duration": 464,
+            "status": "passed"
           },
           {
             "title": "Spin end: gel.spin.end",
-            "duration": 2406
+            "duration": 2419,
+            "status": "passed"
           },
           {
             "title": "Game close: gel.close",
-            "duration": 174
+            "duration": 176,
+            "status": "passed"
           }
         ],
         "metadata": {
           "playmode": "demo"
         },
-        "gifUrl": "/api/screenshots/958db1d8-544d-4329-91b5-e7cb817a59c2/desktop/animated.gif"
+        "gifUrl": "/api/screenshots/8c50b5b4-1638-4622-b76d-f5ebcf83e09c/desktop/animated.gif"
       }
     },
     "logs": [
-      "[runner] Starting run 958db1d8-544d-4329-91b5-e7cb817a59c2:",
-      "[runner] Command: npx tsx src/server/scripts/test-runner.ts --runID=958db1d8-544d-4329-91b5-e7cb817a59c2 --gameIDs=6733624c-554e-4081-a92f-4616af3317e5 --deviceTypes=desktop --playmode=demo --steps=gameLoad,spinCycle,gameClose:",
+      "[runner] Starting run 8c50b5b4-1638-4622-b76d-f5ebcf83e09c:",
+      "[runner] Command: npx tsx src/server/scripts/test-runner.ts --runID=8c50b5b4-1638-4622-b76d-f5ebcf83e09c --gameIDs=6733624c-554e-4081-a92f-4616af3317e5 --deviceTypes=desktop --playmode=demo --steps=gameLoad,spinCycle,gameClose:",
       "[runner] Spawning playwright process:",
       "[runner] Process exited with code 0:"
     ],
     "playwrightErrors": [],
-    "finishedAt": "2026-03-30T15:46:32.236Z",
-    "durationMs": 55871
+    "finishedAt": "2026-03-31T10:57:47.342Z",
+    "durationMs": 99624
+  },
+  {
+    "runID": "663e1059-a68b-41ba-8979-8f01c3f2bb06",
+    "gameIDs": [
+      "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"
+    ],
+    "status": "completed",
+    "startedAt": "2026-03-31T10:23:42.198Z",
+    "results": {
+      "desktop": {
+        "title": "spin: 9 Masks of Fire",
+        "status": "failed",
+        "duration": 36110,
+        "error": "Timed out waiting for event 'gel.spin.start' after 15000ms",
+        "failedStep": "Spin start: gel.spin.start (cached)",
+        "logs": [
+          "Failed to load resource: the server responded with a status of 404 (Not Found)",
+          "show preloader",
+          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.initialise {origin: https://s009-gel.test-flex.us}",
+          "hide preloader",
+          "gameflex - [GoogleAnalyticsV2] GA4 script loaded successfully.",
+          "gameflex - [GoogleAnalyticsV2] Custom event tracked: loaded_analytics {params: value, event_id: ID-1774952636832-1957600}",
+          "gameflex - [GoogleAnalyticsV2] Started Tracking Event game_ready",
+          "gameflex - [GoogleAnalyticsV2] Started Tracking Event first_spin",
+          "gameflex - [GoogleAnalyticsV2] Started Tracking Event game_close",
+          "gameflex - [GoogleAnalyticsV2] Timer started for event: game_ready",
+          "gameflex - [GoogleAnalyticsV2] Timer started for event: first_spin",
+          "gameflex - [GoogleAnalyticsV2] Timer started for event: game_close",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event preloader_shown",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event framework_loaded",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event bridge_api_ready",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event idle",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
+          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 12}",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
+          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 24}",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
+          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 36}",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
+          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 48}",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
+          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 60}",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
+          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 72}",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
+          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 84}",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
+          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 96}",
+          "\n %c %c %c PixiJS 4.8.7 - ✰ WebGL ✰  %c  %c  http://www.pixijs.com/  %c %c ♥%c♥%c♥ \n\n background: #ff66a5; padding:5px 0; background: #ff66a5; padding:5px 0; color: #ff66a5; background: #030307; padding:5px 0; background: #ff66a5; padding:5px 0; background: #ffc3dc; padding:5px 0; background: #ff66a5; padding:5px 0; color: #ff2424; background: #fff; padding:5px 0; color: #ff2424; background: #fff; padding:5px 0; color: #ff2424; background: #fff; padding:5px 0;",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event balance_updated",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event bet_value_updated",
+          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.stake.update {amount: 1}",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event balance_updated",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
+          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 99}",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event progress_updated",
+          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.load.progress {percent: 100}",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event preloader_hidden",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event client_ready",
+          "gameflex - [GoogleAnalyticsV2] tracked events Map(3)",
+          "gameflex - [GoogleAnalyticsV2] timed events {game_ready: 1774952636833, first_spin: 1774952636834, game_close: 1774952636834}",
+          "gameflex - [GoogleAnalyticsV2] Tracking event game_ready tracked with elapsed time: 4.673 seconds",
+          "gameflex - [GoogleAnalyticsV2] Custom event tracked: game_ready {elapsed_time: 4.673, event_id: ID-1774952641518-6643500}",
+          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.ready {game: Object}",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event busy",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event wager_started",
+          "gameflex - [GoogleAnalyticsV2] tracked events Map(3)",
+          "gameflex - [GoogleAnalyticsV2] timed events {first_spin: 1774952636834, game_close: 1774952636834}",
+          "gameflex - [GoogleAnalyticsV2] Tracking event first_spin tracked with elapsed time: 20.469 seconds",
+          "gameflex - [GoogleAnalyticsV2] Custom event tracked: first_spin {elapsed_time: 20.469, event_id: ID-1774952657307-22431900}",
+          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.spin.start undefined",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event player_activity",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event balance_updated",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event wager_completed",
+          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.spin.end undefined",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event player_activity",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event balance_updated",
+          "%cgameflex - color: aqua; font-weight: bold; [ProviderEventsManager] received event idle"
+        ],
+        "steps": [
+          {
+            "title": "Launch game via harness",
+            "duration": 6725,
+            "status": "passed"
+          },
+          {
+            "title": "gel.load.progress",
+            "duration": 0,
+            "status": "passed",
+            "optional": true
+          },
+          {
+            "title": "gel.ready",
+            "duration": 6645,
+            "status": "passed"
+          },
+          {
+            "title": "Spin start: gel.spin.start (cached)",
+            "duration": 1,
+            "status": "failed",
+            "error": "Timed out waiting for event 'gel.spin.start' after 15000ms"
+          },
+          {
+            "title": "Spin end: gel.spin.end",
+            "duration": 0,
+            "status": "skipped"
+          },
+          {
+            "title": "Game close: gel.close",
+            "duration": 0,
+            "status": "skipped"
+          }
+        ],
+        "metadata": {
+          "playmode": "demo"
+        },
+        "screenshotUrls": [
+          "/api/screenshots/663e1059-a68b-41ba-8979-8f01c3f2bb06/desktop/failure-3.png"
+        ],
+        "gifUrl": "/api/screenshots/663e1059-a68b-41ba-8979-8f01c3f2bb06/desktop/animated.gif"
+      }
+    },
+    "logs": [
+      "[runner] Starting run 663e1059-a68b-41ba-8979-8f01c3f2bb06:",
+      "[runner] Command: npx tsx src/server/scripts/test-runner.ts --runID=663e1059-a68b-41ba-8979-8f01c3f2bb06 --gameIDs=9d8a0d44-5fcf-4b66-b4a2-80961c8ba986 --deviceTypes=desktop --playmode=demo --steps=gameLoad,spinCycle,gameClose:",
+      "[runner] Spawning playwright process:",
+      "[runner] Process exited with code 0:",
+      "[runner] Run finished in 43230ms — 0 passed, 1 failed, 0 skipped:"
+    ],
+    "playwrightErrors": [],
+    "finishedAt": "2026-03-31T10:24:25.428Z",
+    "durationMs": 43230
+  },
+  {
+    "runID": "59642d2e-b142-47f2-86ea-b593a3703922",
+    "gameIDs": [
+      "0ebed9bf-627d-45b9-8931-7c98ea53968f"
+    ],
+    "status": "completed",
+    "startedAt": "2026-03-31T10:20:55.432Z",
+    "results": {
+      "desktop": {
+        "title": "spin: Money Train 4",
+        "status": "failed",
+        "duration": 38809,
+        "error": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Demo' }).first()\u001b[22m\n",
+        "failedStep": "Launch game via harness",
+        "logs": [
+          "Failed to load resource: the server responded with a status of 404 (Not Found)"
+        ],
+        "steps": [
+          {
+            "title": "Launch game via harness",
+            "duration": 32439,
+            "status": "failed",
+            "error": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Demo' }).first()\u001b[22m\n"
+          },
+          {
+            "title": "gel.load.progress",
+            "duration": 0,
+            "status": "skipped",
+            "optional": true
+          },
+          {
+            "title": "gel.ready",
+            "duration": 0,
+            "status": "skipped"
+          },
+          {
+            "title": "Spin start: gel.spin.start",
+            "duration": 0,
+            "status": "skipped"
+          },
+          {
+            "title": "Spin end: gel.spin.end",
+            "duration": 0,
+            "status": "skipped"
+          },
+          {
+            "title": "Game close: gel.close",
+            "duration": 0,
+            "status": "skipped"
+          }
+        ],
+        "metadata": {
+          "playmode": "demo"
+        },
+        "screenshotUrls": [
+          "/api/screenshots/59642d2e-b142-47f2-86ea-b593a3703922/desktop/failure-3.png"
+        ]
+      }
+    },
+    "logs": [
+      "[runner] Starting run 59642d2e-b142-47f2-86ea-b593a3703922:",
+      "[runner] Command: npx tsx src/server/scripts/test-runner.ts --runID=59642d2e-b142-47f2-86ea-b593a3703922 --gameIDs=0ebed9bf-627d-45b9-8931-7c98ea53968f --deviceTypes=desktop --playmode=demo --steps=gameLoad,spinCycle,gameClose:",
+      "[runner] Spawning playwright process:",
+      "[runner] Process exited with code 0:",
+      "[runner] Run finished in 92718ms — 0 passed, 1 failed, 0 skipped:"
+    ],
+    "playwrightErrors": [],
+    "finishedAt": "2026-03-31T10:22:28.150Z",
+    "durationMs": 92718
+  },
+  {
+    "runID": "8250353f-689d-4bab-8eca-a2e342f01e87",
+    "gameIDs": [
+      "b4c51f69-e28f-4c66-9b3c-0be918e9af91"
+    ],
+    "status": "completed",
+    "startedAt": "2026-03-31T10:08:30.779Z",
+    "results": {
+      "desktop": {
+        "title": "spin: Barn Busters",
+        "status": "failed",
+        "duration": 153873,
+        "error": "Could not find target for 'gameClose' on Barn Busters (63174) after 20 attempts. See src/server/screenshots/8250353f-689d-4bab-8eca-a2e342f01e87/desktop/discovery-failed.png",
+        "logs": [
+          "Failed to load resource: the server responded with a status of 404 (Not Found)",
+          "show preloader",
+          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.initialise {origin: https://s009-gel.test-flex.us}",
+          "hide preloader",
+          "gameflex - [GoogleAnalyticsV2] GA4 script loaded successfully.",
+          "gameflex - [GoogleAnalyticsV2] Custom event tracked: loaded_analytics {params: value, event_id: ID-1774951762112-1472900}",
+          "gameflex - [GoogleAnalyticsV2] Started Tracking Event game_ready",
+          "gameflex - [GoogleAnalyticsV2] Started Tracking Event first_spin",
+          "gameflex - [GoogleAnalyticsV2] Started Tracking Event game_close",
+          "gameflex - [GoogleAnalyticsV2] Timer started for event: game_ready",
+          "gameflex - [GoogleAnalyticsV2] Timer started for event: first_spin",
+          "gameflex - [GoogleAnalyticsV2] Timer started for event: game_close",
+          "Wrapper says:  MessageEvent",
+          "Wrapper says:  MessageEvent",
+          "Wrapper says:  MessageEvent",
+          "Wrapper says:  MessageEvent",
+          "Wrapper says:  MessageEvent",
+          "Wrapper says:  MessageEvent",
+          "Wrapper says:  MessageEvent",
+          "The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio",
+          "The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio",
+          "[2026-03-31T10:09:24.800Z] Information: WebSocket connected to wss://mltstageflyp.playngonetwork.com/gamehub.",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Game says:  {type: gameReady}",
+          "The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio",
+          "The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio",
+          "The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio",
+          "The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio",
+          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.ready {game: Object}",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently",
+          "Game says:  {type: roundStarted}",
+          "Game says:  {type: spinStarted}",
+          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.spin.start undefined",
+          "Game says:  {type: spinEnded}",
+          "%cgameflex - color: aqua; font-weight: bold; [GulV2DefaultConnector] send message - gel.spin.end undefined",
+          "Game says:  {type: roundEnded}"
+        ],
+        "steps": [
+          {
+            "title": "Launch game via harness",
+            "duration": 5240,
+            "status": "passed"
+          },
+          {
+            "title": "gel.load.progress",
+            "duration": 0,
+            "status": "warning",
+            "optional": true
+          },
+          {
+            "title": "gel.ready",
+            "duration": 9492,
+            "status": "passed"
+          },
+          {
+            "title": "Spin start: gel.spin.start",
+            "duration": 202,
+            "status": "passed"
+          },
+          {
+            "title": "Spin end: gel.spin.end",
+            "duration": 2172,
+            "status": "passed"
+          },
+          {
+            "title": "Game close: gel.close",
+            "duration": 0,
+            "status": "skipped"
+          }
+        ],
+        "metadata": {
+          "playmode": "demo"
+        },
+        "screenshotUrls": [
+          "/api/screenshots/8250353f-689d-4bab-8eca-a2e342f01e87/desktop/failure-3.png"
+        ],
+        "gifUrl": "/api/screenshots/8250353f-689d-4bab-8eca-a2e342f01e87/desktop/animated.gif"
+      }
+    },
+    "logs": [
+      "[runner] Starting run 8250353f-689d-4bab-8eca-a2e342f01e87:",
+      "[runner] Command: npx tsx src/server/scripts/test-runner.ts --runID=8250353f-689d-4bab-8eca-a2e342f01e87 --gameIDs=b4c51f69-e28f-4c66-9b3c-0be918e9af91 --deviceTypes=desktop --playmode=demo --steps=gameLoad,spinCycle,gameClose:",
+      "[runner] Spawning playwright process:",
+      "[runner] Process exited with code 0:",
+      "[runner] Run finished in 199214ms — 0 passed, 1 failed, 0 skipped:"
+    ],
+    "playwrightErrors": [],
+    "finishedAt": "2026-03-31T10:11:49.993Z",
+    "durationMs": 199214
   },
   {
     "runID": "a1fd12ba-1560-4440-9c15-cec436f61e30",

@@ -72,7 +72,11 @@ async function main() {
   } catch (err) {
     errors.push(err instanceof Error ? err.message : String(err));
   } finally {
-    await browser.close();
+    try {
+      await browser.close();
+    } catch {
+      // browser may have already crashed — don't let this swallow the results
+    }
   }
 
   process.stdout.write(JSON.stringify({ results, errors }));
@@ -128,17 +132,6 @@ async function runGame(
     screenshotPaths: [],
   };
 
-  for (const step of steps) {
-    for (const descriptor of step.plan) {
-      runState.steps.push({
-        title: descriptor.title,
-        duration: 0,
-        status: 'skipped',
-        optional: descriptor.optional,
-      });
-    }
-  }
-
   const accumulator = eventAccumulator.createEventAccumulator(page);
 
   const ctx = { page, accumulator, game, viewport, deviceType, runID, playmode, runState };
@@ -146,6 +139,17 @@ async function runGame(
   let failure: Error | null = null;
 
   try {
+    for (const step of steps) {
+      for (const descriptor of step.plan) {
+        runState.steps.push({
+          title: descriptor.title,
+          duration: 0,
+          status: 'skipped',
+          optional: descriptor.optional,
+        });
+      }
+    }
+
     for (const step of steps) {
       await step.discover(ctx);
       await step.execute(ctx);

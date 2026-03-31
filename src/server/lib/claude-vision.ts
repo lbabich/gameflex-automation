@@ -41,11 +41,17 @@ async function query(screenshotPath: string, prompt: string): Promise<ClickResul
 
   const text = response.content[0].type === 'text' ? response.content[0].text : '';
 
-  try {
-    return JSON.parse(text.trim()) as ClickResult;
-  } catch {
-    throw new Error(`Claude returned non-JSON: ${text.slice(0, 200)}`);
+  const jsonStart = text.lastIndexOf('{');
+
+  if (jsonStart !== -1) {
+    try {
+      return JSON.parse(text.slice(jsonStart).trim()) as ClickResult;
+    } catch {
+      // fall through to throw below
+    }
   }
+
+  throw new Error(`Claude returned non-JSON: ${text.slice(0, 200)}`);
 }
 
 export { query };

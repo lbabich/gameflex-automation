@@ -6,18 +6,35 @@ import type { Viewport } from '../../types';
 import type { FailedButton } from './discovery-loop';
 import * as discoveryLoop from './discovery-loop';
 import { track } from './track';
-import type { StepContext } from './types';
+import type { StepContext, StepDescriptor } from './types';
+
+const plan: StepDescriptor[] = [
+  { title: `Spin start: ${GEL_EVENT.SPIN_START}` },
+  { title: `Spin end: ${GEL_EVENT.SPIN_END}` },
+];
 
 const STEP_NAME = 'spinCycle';
 const SPIN_START_WAIT_MS = 15_000;
 const SPIN_END_WAIT_MS = 15_000;
+const SPIN_VERIFY_TIMEOUT_MS = 3_000;
 
 async function discover(ctx: StepContext): Promise<void> {
-  const { page, game, viewport, deviceType, runID } = ctx;
+  const { page, game, viewport, deviceType, runID, accumulator } = ctx;
 
   if (stepCache.getSteps(game.id, deviceType, viewport, STEP_NAME)) {
     return;
   }
+
+  const verifySpinClick = () => {
+    return accumulator
+      .waitFor(GEL_EVENT.SPIN_START, SPIN_VERIFY_TIMEOUT_MS)
+      .then(() => {
+        return true;
+      })
+      .catch(() => {
+        return false;
+      });
+  };
 
   return discoveryLoop.runDiscoveryLoop(
     page,
@@ -26,8 +43,8 @@ async function discover(ctx: StepContext): Promise<void> {
     deviceType,
     runID,
     STEP_NAME,
-    buildSpinButtonPrompt,
     buildNextClickPrompt,
+    verifySpinClick,
   );
 }
 
@@ -39,40 +56,25 @@ async function execute(ctx: StepContext): Promise<void> {
     await replay.replaySteps(page, runID, cached.steps, deviceType);
   }
 
+  const spinStartPromise = accumulator.waitFor(GEL_EVENT.SPIN_START, SPIN_START_WAIT_MS);
   const suffix = cached ? ' (cached)' : '';
 
   await track(runState.steps, `Spin start: ${GEL_EVENT.SPIN_START}${suffix}`, async () => {
-    await accumulator.waitFor(GEL_EVENT.SPIN_START, SPIN_START_WAIT_MS);
+    await spinStartPromise;
     await screenshot.snap(page, `${runID}/${deviceType}/spin-start.png`);
   });
 
+  const spinEndPromise = accumulator.waitFor(GEL_EVENT.SPIN_END, SPIN_END_WAIT_MS);
+
   await track(runState.steps, `Spin end: ${GEL_EVENT.SPIN_END}${suffix}`, () => {
-    return accumulator.waitFor(GEL_EVENT.SPIN_END, SPIN_END_WAIT_MS);
+    return spinEndPromise;
   });
-}
-
-function buildSpinButtonPrompt(viewport: Viewport, failedButtons: FailedButton[]): string {
-  const { width, height } = viewport;
-
-  let prompt = `Is the main spin button visible and unobstructed in this screenshot? It is typically the most prominent interactive element on screen — generally the largest circular button visible. It is most commonly a large circular button with clockwise-rotating arrow or arrows around its edge (like a circular refresh/rotate icon), or a play/triangle icon in the centre, or labeled SPIN. It must be fully visible.\n\nRespond with exactly one of:\n  {"found": false}\n  {"found": true, "x": <number>, "y": <number>, "label": "<short description>"}\n\nImage dimensions: ${width}x${height}`;
-
-  if (failedButtons.length > 0) {
-    const list = failedButtons
-      .map((button: FailedButton) => {
-        return `- "${button.label}" at (${button.x}, ${button.y})`;
-      })
-      .join('\n');
-
-    prompt += `\n\nPreviously clicked buttons that looked like spin buttons but did NOT trigger a real spin (do NOT click these):\n${list}\nLook for a DIFFERENT spin trigger. If no other candidate exists, return {"found": false} — it is better to say not found than to repeat a known failure.`;
-  }
-
-  return prompt;
 }
 
 function buildNextClickPrompt(viewport: Viewport, failedButtons: FailedButton[]): string {
   const { width, height } = viewport;
 
-  let prompt = `The spin button is not yet accessible. What is the single most important element to click to progress — a dialog button (Continue, OK, Accept, Yes, No), close X, age/terms prompt, overlay, or promo/bonus intro screen? Also includes full-screen brand logo or game-title splash screens with no spin UI visible — if you see one, return the centre of the screen as the click target. If the screen appears fully interactive with no blockers and no splash (spin button may still be loading), return {"found": false}.\n\nDo NOT suggest clicking loading bars, progress indicators, loading spinners, or percentage counters — these are not interactive elements. If the game is still loading (spinner visible, assets loading), return {"found": false}.\n\nRespond with:\n  {"found": false}\n  {"found": true, "x": <number>, "y": <number>, "label": "<short description>"}\n\nImage dimensions: ${width}x${height}`;
+  let prompt = `What is the single most important element to click to either trigger a spin or navigate toward the spin button?\n\nIf the spin button is visible and unobstructed, click it. The spin button is typically the largest circular button on screen — commonly has clockwise-rotating arrows around its edge, a play/triangle icon in the centre, or is labeled SPIN. It must be fully visible and not covered by any overlay.\n\nIf the spin button is not accessible, click whatever would unblock it: a dialog button (Continue, OK, Accept, Yes, No), close X, age/terms prompt, overlay, promo/bonus intro screen, or a full-screen brand logo or game-title splash screen (click the centre of the screen for those).\n\nDo NOT suggest: loading bars, progress indicators, loading spinners, percentage counters, autoplay buttons, or bet/settings controls.\nIf the game is still loading (spinner visible), return {"found": false}.\n\nRespond with:\n  {"found": false}\n  {"found": true, "x": <number>, "y": <number>, "label": "<short description>"}\n\nImage dimensions: ${width}x${height}`;
 
   if (failedButtons.length > 0) {
     const list = failedButtons
@@ -87,4 +89,4 @@ function buildNextClickPrompt(viewport: Viewport, failedButtons: FailedButton[])
   return prompt;
 }
 
-export { discover, execute };
+export { discover, execute, plan };

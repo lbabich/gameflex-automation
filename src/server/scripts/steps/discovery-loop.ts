@@ -27,8 +27,8 @@ async function runDiscoveryLoop(
   deviceType: DeviceType,
   runID: string,
   stepName: string,
-  buildPrimaryPrompt: PromptBuilder,
-  buildNavPrompt: PromptBuilder,
+  buildPrompt: PromptBuilder,
+  verifyClick: () => Promise<boolean>,
 ): Promise<void> {
   const allFailedButtons: FailedButton[] = [];
   const preTargetSteps: CachedStep[] = [];
@@ -41,41 +41,30 @@ async function runDiscoveryLoop(
       `${runID}/${deviceType}/discovery-${attempt}.png`,
     );
 
-    const primaryResult = await claudeVision.query(
+    const result = await claudeVision.query(
       screenshotPath,
-      buildPrimaryPrompt(viewport, allFailedButtons),
+      buildPrompt(viewport, allFailedButtons),
     );
 
-    if (primaryResult.found) {
+    if (result.found) {
       const waitMs = Date.now() - lastClickTime;
 
-      preTargetSteps.push({
-        waitMs,
-        x: primaryResult.x,
-        y: primaryResult.y,
-        label: primaryResult.label,
-      });
+      await page.mouse.click(result.x, result.y);
 
-      await page.mouse.click(primaryResult.x, primaryResult.y);
+      const verified = await verifyClick();
 
-      stepCache.setPendingSteps(game.id, deviceType, viewport, stepName, {
-        discoveredAt: new Date().toISOString(),
-        steps: preTargetSteps,
-      });
+      preTargetSteps.push({ waitMs, x: result.x, y: result.y, label: result.label });
 
-      return;
-    }
+      if (verified) {
+        stepCache.setPendingSteps(game.id, deviceType, viewport, stepName, {
+          discoveredAt: new Date().toISOString(),
+          steps: preTargetSteps,
+        });
 
-    const navResult = await claudeVision.query(
-      screenshotPath,
-      buildNavPrompt(viewport, allFailedButtons),
-    );
+        return;
+      }
 
-    if (navResult.found) {
-      const waitMs = Date.now() - lastClickTime;
-
-      preTargetSteps.push({ waitMs, x: navResult.x, y: navResult.y, label: navResult.label });
-      await page.mouse.click(navResult.x, navResult.y);
+      allFailedButtons.push({ x: result.x, y: result.y, label: result.label });
       lastClickTime = Date.now();
     }
 
