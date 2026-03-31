@@ -1,50 +1,4 @@
 {
-  "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986": {
-    "desktop": {
-      "1280x720": {
-        "spinCycle": {
-          "discoveredAt": "2026-03-30T15:32:10.858Z",
-          "steps": [
-            {
-              "waitMs": 9953,
-              "x": 664,
-              "y": 687,
-              "label": "Continue button"
-            },
-            {
-              "waitMs": 4831,
-              "x": 664,
-              "y": 683,
-              "label": "Circular spin button with rotating arrows"
-            }
-          ]
-        },
-        "gameClose": {
-          "discoveredAt": "2026-03-30T15:32:36.037Z",
-          "steps": [
-            {
-              "waitMs": 6805,
-              "x": 139,
-              "y": 687,
-              "label": "Hamburger menu (≡) in bottom bar"
-            },
-            {
-              "waitMs": 8579,
-              "x": 140,
-              "y": 641,
-              "label": "Home/house icon in left sidebar"
-            },
-            {
-              "waitMs": 5747,
-              "x": 771,
-              "y": 455,
-              "label": "YES button in Exit to Lobby confirmation dialog"
-            }
-          ]
-        }
-      }
-    }
-  },
   "6733624c-554e-4081-a92f-4616af3317e5": {
     "desktop": {
       "1280x720": {
@@ -81,6 +35,118 @@
               "label": "YES button in exit confirmation dialog"
             }
           ]
+        }
+      }
+    }
+  },
+  "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986": {
+    "desktop": {
+      "1280x720": {
+        "spinCycle": {
+          "discoveredAt": "2026-03-31T13:43:06.237Z",
+          "steps": [
+            {
+              "waitMs": 4676,
+              "x": 664,
+              "y": 687,
+              "label": "CONTINUE button to dismiss intro overlay"
+            },
+            {
+              "waitMs": 6211,
+              "x": 664,
+              "y": 684,
+              "label": "Spin button - circular button with rotating arrows"
+            }
+          ]
+        },
+        "gameClose": {
+          "discoveredAt": "2026-03-31T13:43:34.094Z",
+          "steps": [
+            {
+              "waitMs": 7924,
+              "x": 139,
+              "y": 687,
+              "label": "Hamburger menu button in game controls"
+            },
+            {
+              "waitMs": 5665,
+              "x": 139,
+              "y": 641,
+              "label": "Home/house icon in game controls panel"
+            },
+            {
+              "waitMs": 5280,
+              "x": 771,
+              "y": 455,
+              "label": "YES button in exit to lobby confirmation dialog"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "b334f577-df52-401b-b5db-d86559a07b3f": {
+    "desktop": {
+      "1280x720": {
+        "gameClose": {
+          "discoveredAt": "2026-03-31T13:48:33.055Z",
+          "steps": [
+            {
+              "waitMs": 7466,
+              "x": 220,
+              "y": 689,
+              "label": "Hamburger menu button"
+            },
+            {
+              "waitMs": 15869,
+              "x": 220,
+              "y": 519,
+              "label": "Settings gear icon in opened menu"
+            },
+            {
+              "waitMs": 7405,
+              "x": 26,
+              "y": 689,
+              "label": "In-game home/house icon in bottom-left of game frame"
+            },
+            {
+              "waitMs": 9568,
+              "x": 1159,
+              "y": 397,
+              "label": "X close button to dismiss settings overlay"
+            },
+            {
+              "waitMs": 21385,
+              "x": 26,
+              "y": 689,
+              "label": "Home icon in bottom-left game UI area (different from hamburger)"
+            },
+            {
+              "waitMs": 20505,
+              "x": 26,
+              "y": 689,
+              "label": "Home icon - trying precise coordinates in game UI bottom-left"
+            },
+            {
+              "waitMs": 9091,
+              "x": 26,
+              "y": 689,
+              "label": "Home icon in game UI - trying slightly different coordinates"
+            },
+            {
+              "waitMs": 10346,
+              "x": 1159,
+              "y": 294,
+              "label": "Auto-spin/home button in game UI right side"
+            },
+            {
+              "waitMs": 6473,
+              "x": 26,
+              "y": 34,
+              "label": "Home/house icon in top-left game UI"
+            }
+          ],
+          "partial": true
         }
       }
     }
