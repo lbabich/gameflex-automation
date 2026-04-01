@@ -92,19 +92,24 @@ export const NodeRunnerService = Layer.effect(
   }),
 );
 
-function startRun(state: RunnerState, services: StartRunServices, params: StartRunParams) {
-  const { gamesService, fileService, runLoggerService } = services;
-  const { gameIDs, deviceTypes, playmode, steps, hints } = params;
-
-  return Effect.gen(function* () {
-    const conflicting = gameIDs.filter((id: string) => {
+function checkNoActiveRuns(state: RunnerState, gameIDs: string[]) {
+  return Effect.sync(() => {
+    return gameIDs.find((id: string) => {
       return state.activeRunsByGame.has(id);
     });
+  }).pipe(
+    Effect.flatMap((conflicting) => {
+      if (conflicting !== undefined) {
+        return Effect.fail(new RunAlreadyActiveError({ gameID: conflicting }));
+      }
 
-    if (conflicting.length > 0) {
-      return yield* Effect.fail(new RunAlreadyActiveError({ gameID: conflicting[0] ?? '' }));
-    }
+      return Effect.void;
+    }),
+  );
+}
 
+function fetchAndValidateGames(gamesService: StartRunServices['gamesService'], gameIDs: string[]) {
+  return Effect.gen(function* () {
     const gameList = yield* gamesService.list();
     const firstMissingID = gameIDs.find((id: string) => {
       return !gameList.some((game: GameEntry) => {
@@ -115,6 +120,16 @@ function startRun(state: RunnerState, services: StartRunServices, params: StartR
     if (firstMissingID !== undefined) {
       return yield* Effect.fail(new GameNotFoundError({ id: firstMissingID }));
     }
+  });
+}
+
+function startRun(state: RunnerState, services: StartRunServices, params: StartRunParams) {
+  const { gamesService, fileService, runLoggerService } = services;
+  const { gameIDs, deviceTypes, playmode, steps, hints } = params;
+
+  return Effect.gen(function* () {
+    yield* checkNoActiveRuns(state, gameIDs);
+    yield* fetchAndValidateGames(gamesService, gameIDs);
 
     const runID = randomUUID();
     const record = createRecord(runID, gameIDs);
