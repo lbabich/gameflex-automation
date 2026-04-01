@@ -92,38 +92,6 @@ export const NodeRunnerService = Layer.effect(
   }),
 );
 
-function checkNoActiveRuns(state: RunnerState, gameIDs: string[]) {
-  return Effect.sync(() => {
-    return gameIDs.find((id: string) => {
-      return state.activeRunsByGame.has(id);
-    });
-  }).pipe(
-    Effect.flatMap((conflicting) => {
-      if (conflicting !== undefined) {
-        return Effect.fail(new RunAlreadyActiveError({ gameID: conflicting }));
-      }
-
-      return Effect.void;
-    }),
-  );
-}
-
-function fetchAndValidateGames(gamesService: StartRunServices['gamesService'], gameIDs: string[]) {
-  return Effect.gen(function* () {
-    const gameList = yield* gamesService.list();
-
-    const firstMissingID = gameIDs.find((id: string) => {
-      return !gameList.some((game: GameEntry) => {
-        return game.id === id;
-      });
-    });
-
-    if (firstMissingID !== undefined) {
-      return yield* Effect.fail(new GameNotFoundError({ id: firstMissingID }));
-    }
-  });
-}
-
 function startRun(state: RunnerState, services: StartRunServices, params: StartRunParams) {
   const { gamesService, fileService, runLoggerService } = services;
   const { gameIDs, deviceTypes, playmode, steps, hints } = params;
@@ -168,102 +136,78 @@ function startRun(state: RunnerState, services: StartRunServices, params: StartR
   });
 }
 
-function cleanupActive(state: RunnerState, runID: string, gameIDs: string[]) {
-  state.activeFibers.delete(runID);
+function checkNoActiveRuns(state: RunnerState, gameIDs: string[]) {
+  return Effect.sync(() => {
+    return gameIDs.find((id: string) => {
+      return state.activeRunsByGame.has(id);
+    });
+  }).pipe(
+    Effect.flatMap((conflicting) => {
+      if (conflicting !== undefined) {
+        return Effect.fail(new RunAlreadyActiveError({ gameID: conflicting }));
+      }
 
-  for (const id of gameIDs) {
-    state.activeRunsByGame.delete(id);
-  }
-}
-
-function saveRunsIgnoreError(
-  fileService: FileService['Type'],
-  runs: RunnerState['runs'],
-  runLoggerService: RunLoggerService['Type'],
-  runID: string,
-) {
-  return saveRuns(fileService, runs).pipe(
-    Effect.tapError((err) => {
-      return runLoggerService.error(runID, 'runner', 'Failed to save runs', err);
-    }),
-    Effect.orElse(() => {
-      return Effect.succeed(undefined);
+      return Effect.void;
     }),
   );
 }
 
-function cancelRun(
-  state: RunnerState,
-  fileService: FileService['Type'],
-  runLoggerService: RunLoggerService['Type'],
-  runID: string,
-) {
+function fetchAndValidateGames(gamesService: StartRunServices['gamesService'], gameIDs: string[]) {
   return Effect.gen(function* () {
-    const fiber = state.activeFibers.get(runID);
-    const record = state.runs.get(runID);
+    const gameList = yield* gamesService.list();
 
-    if (!fiber || !record) {
-      return yield* Effect.fail(new RunNotFoundError({ runID }));
+    const firstMissingID = gameIDs.find((id: string) => {
+      return !gameList.some((game: GameEntry) => {
+        return game.id === id;
+      });
+    });
+
+    if (firstMissingID !== undefined) {
+      return yield* Effect.fail(new GameNotFoundError({ id: firstMissingID }));
     }
-
-    record.status = 'cancelled';
-    record.finishedAt = new Date().toISOString();
-    record.durationMs =
-      new Date(record.finishedAt).getTime() - new Date(record.startedAt).getTime();
-
-    yield* Fiber.interrupt(fiber);
-
-    cleanupActive(state, runID, record.gameIDs);
-
-    yield* saveRunsIgnoreError(fileService, state.runs, runLoggerService, runID);
   });
 }
 
-function getRun(state: RunnerState, runID: string) {
+function createRecord(runID: string, gameIDs: string[]): InternalRunRecord {
+  return {
+    runID,
+    gameIDs,
+    status: 'running',
+    startedAt: new Date().toISOString(),
+    results: {},
+    logs: [],
+    playwrightErrors: [],
+    rawOutput: '',
+  };
+}
+
+function finalizeRun(state: RunnerState, services: FinalizeServices, result: FinalizeResult) {
+  const { runLoggerService, fileService } = services;
+  const { runID, code, stdout } = result;
+
   return Effect.gen(function* () {
     const record = state.runs.get(runID);
 
     if (!record) {
-      return yield* Effect.fail(new RunNotFoundError({ runID }));
+      return;
     }
 
-    return record;
-  });
-}
+    const finishedAt = new Date().toISOString();
+    const durationMs = new Date(finishedAt).getTime() - new Date(record.startedAt).getTime();
 
-function getRecentRuns(state: RunnerState, limit = 10) {
-  return Effect.sync(() => {
-    return [...state.runs.values()]
-      .sort((runA: RunRecord, runB: RunRecord) => {
-        return new Date(runB.startedAt).getTime() - new Date(runA.startedAt).getTime();
-      })
-      .slice(0, limit);
-  });
-}
+    let updated: InternalRunRecord = { ...record, rawOutput: stdout, finishedAt, durationMs };
 
-function handleFiberError(
-  state: RunnerState,
-  runLoggerService: RunLoggerService['Type'],
-  runID: string,
-  error: unknown,
-) {
-  return Effect.gen(function* () {
-    yield* runLoggerService.error(runID, 'runner', 'Background fiber error:', error);
+    if (record.status !== 'cancelled') {
+      const parsed = yield* parseRunOutput(runLoggerService, runID, stdout, code);
 
-    const run = state.runs.get(runID);
-
-    if (run?.status === 'running') {
-      const finishedAt = new Date().toISOString();
-
-      state.runs.set(runID, {
-        ...run,
-        status: 'error',
-        finishedAt,
-        durationMs: new Date(finishedAt).getTime() - new Date(run.startedAt).getTime(),
-      });
+      updated = { ...updated, ...parsed };
     }
 
-    cleanupActive(state, runID, run?.gameIDs ?? []);
+    yield* attachScreenshotUrls(updated.results);
+    yield* attachGifUrls(runLoggerService, runID, updated.results);
+    yield* cleanupImages(runLoggerService, runID, updated.results);
+
+    yield* persistFinishedRun(state, fileService, runLoggerService, runID, updated);
   });
 }
 
@@ -324,36 +268,6 @@ function persistFinishedRun(
   });
 }
 
-function finalizeRun(state: RunnerState, services: FinalizeServices, result: FinalizeResult) {
-  const { runLoggerService, fileService } = services;
-  const { runID, code, stdout } = result;
-
-  return Effect.gen(function* () {
-    const record = state.runs.get(runID);
-
-    if (!record) {
-      return;
-    }
-
-    const finishedAt = new Date().toISOString();
-    const durationMs = new Date(finishedAt).getTime() - new Date(record.startedAt).getTime();
-
-    let updated: InternalRunRecord = { ...record, rawOutput: stdout, finishedAt, durationMs };
-
-    if (record.status !== 'cancelled') {
-      const parsed = yield* parseRunOutput(runLoggerService, runID, stdout, code);
-
-      updated = { ...updated, ...parsed };
-    }
-
-    yield* attachScreenshotUrls(updated.results);
-    yield* attachGifUrls(runLoggerService, runID, updated.results);
-    yield* cleanupImages(runLoggerService, runID, updated.results);
-
-    yield* persistFinishedRun(state, fileService, runLoggerService, runID, updated);
-  });
-}
-
 function logSummary(runLoggerService: RunLoggerService['Type'], record: InternalRunRecord) {
   let passed = 0;
   let failed = 0;
@@ -376,6 +290,105 @@ function logSummary(runLoggerService: RunLoggerService['Type'], record: Internal
   );
 }
 
+function handleFiberError(
+  state: RunnerState,
+  runLoggerService: RunLoggerService['Type'],
+  runID: string,
+  error: unknown,
+) {
+  return Effect.gen(function* () {
+    yield* runLoggerService.error(runID, 'runner', 'Background fiber error:', error);
+
+    const run = state.runs.get(runID);
+
+    if (run?.status === 'running') {
+      const finishedAt = new Date().toISOString();
+
+      state.runs.set(runID, {
+        ...run,
+        status: 'error',
+        finishedAt,
+        durationMs: new Date(finishedAt).getTime() - new Date(run.startedAt).getTime(),
+      });
+    }
+
+    cleanupActive(state, runID, run?.gameIDs ?? []);
+  });
+}
+
+function cancelRun(
+  state: RunnerState,
+  fileService: FileService['Type'],
+  runLoggerService: RunLoggerService['Type'],
+  runID: string,
+) {
+  return Effect.gen(function* () {
+    const fiber = state.activeFibers.get(runID);
+    const record = state.runs.get(runID);
+
+    if (!fiber || !record) {
+      return yield* Effect.fail(new RunNotFoundError({ runID }));
+    }
+
+    record.status = 'cancelled';
+    record.finishedAt = new Date().toISOString();
+    record.durationMs =
+      new Date(record.finishedAt).getTime() - new Date(record.startedAt).getTime();
+
+    yield* Fiber.interrupt(fiber);
+
+    cleanupActive(state, runID, record.gameIDs);
+
+    yield* saveRunsIgnoreError(fileService, state.runs, runLoggerService, runID);
+  });
+}
+
+function cleanupActive(state: RunnerState, runID: string, gameIDs: string[]) {
+  state.activeFibers.delete(runID);
+
+  for (const id of gameIDs) {
+    state.activeRunsByGame.delete(id);
+  }
+}
+
+function saveRunsIgnoreError(
+  fileService: FileService['Type'],
+  runs: RunnerState['runs'],
+  runLoggerService: RunLoggerService['Type'],
+  runID: string,
+) {
+  return saveRuns(fileService, runs).pipe(
+    Effect.tapError((err) => {
+      return runLoggerService.error(runID, 'runner', 'Failed to save runs', err);
+    }),
+    Effect.orElse(() => {
+      return Effect.succeed(undefined);
+    }),
+  );
+}
+
+function getRun(state: RunnerState, runID: string) {
+  return Effect.gen(function* () {
+    const record = state.runs.get(runID);
+
+    if (!record) {
+      return yield* Effect.fail(new RunNotFoundError({ runID }));
+    }
+
+    return record;
+  });
+}
+
+function getRecentRuns(state: RunnerState, limit = 10) {
+  return Effect.sync(() => {
+    return [...state.runs.values()]
+      .sort((runA: RunRecord, runB: RunRecord) => {
+        return new Date(runB.startedAt).getTime() - new Date(runA.startedAt).getTime();
+      })
+      .slice(0, limit);
+  });
+}
+
 function clearGameRuns(state: RunnerState, fileService: FileService['Type'], gameID: string) {
   return Effect.gen(function* () {
     for (const [runID, run] of state.runs.entries()) {
@@ -394,19 +407,6 @@ function clearGameRuns(state: RunnerState, fileService: FileService['Type'], gam
       }),
     );
   });
-}
-
-function createRecord(runID: string, gameIDs: string[]): InternalRunRecord {
-  return {
-    runID,
-    gameIDs,
-    status: 'running',
-    startedAt: new Date().toISOString(),
-    results: {},
-    logs: [],
-    playwrightErrors: [],
-    rawOutput: '',
-  };
 }
 
 export { RunnerService };
