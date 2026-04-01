@@ -15,6 +15,14 @@ export class RunLoggerService extends Effect.Tag('RunLoggerService')<
   }
 >() {}
 
+function appendLog(runs: Map<string, { logs?: string[] }>, runID: string, msg: string) {
+  const run = runs.get(runID);
+
+  if (run) {
+    runs.set(runID, { ...run, logs: [...(run.logs ?? []), msg] });
+  }
+}
+
 export const NodeRunLoggerService = Layer.effect(
   RunLoggerService,
   Effect.gen(function* () {
@@ -24,45 +32,24 @@ export const NodeRunLoggerService = Layer.effect(
       log: (runID: string, context: string, message: string) => {
         return Effect.sync(() => {
           const msg = `[${context}] ${message}:`;
-          const run = state.runs.get(runID);
 
-          if (run) {
-            state.runs.set(runID, {
-              ...run,
-              logs: [...(run.logs ?? []), msg],
-            });
-          }
-
+          appendLog(state.runs, runID, msg);
           console.log(msg);
         });
       },
       warn: (runID: string, context: string, message: string) => {
         return Effect.sync(() => {
           const msg = `[${context}] ${message}:`;
-          const run = state.runs.get(runID);
 
-          if (run) {
-            state.runs.set(runID, {
-              ...run,
-              logs: [...(run.logs ?? []), msg],
-            });
-          }
-
+          appendLog(state.runs, runID, msg);
           console.warn(msg);
         });
       },
       error: (runID: string, context: string, message: string, error?: unknown) => {
         return Effect.sync(() => {
           const msg = `[${context}] ${message}:`;
-          const run = state.runs.get(runID);
 
-          if (run) {
-            state.runs.set(runID, {
-              ...run,
-              logs: [...(run.logs ?? []), msg],
-            });
-          }
-
+          appendLog(state.runs, runID, msg);
           console.error(msg, error);
         });
       },
