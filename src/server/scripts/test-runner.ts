@@ -4,7 +4,7 @@ import * as dotenv from 'dotenv';
 import { type DeviceType, PLAY_MODE, type PlayMode, type RunHints } from '../../shared/types';
 import * as eventAccumulator from '../lib/event-accumulator';
 import type { GameEntry } from '../lib/games';
-import { readGames } from '../lib/games';
+import * as games from '../lib/games';
 import * as screenshot from '../lib/screenshot';
 import * as stepCache from '../lib/step-cache';
 import type { InternalTestResult, Viewport } from '../types';
@@ -54,8 +54,8 @@ async function main() {
     return [step];
   });
 
-  const allGames = readGames();
-  const games = allGames.filter((game: GameEntry) => {
+  const allGames = games.readGames();
+  const selectedGames = allGames.filter((game: GameEntry) => {
     return gameIDs.includes(game.id);
   });
 
@@ -65,7 +65,7 @@ async function main() {
   const errors: string[] = [];
 
   try {
-    for (const game of games) {
+    for (const game of selectedGames) {
       for (const deviceType of deviceTypes) {
         const result = await runGame(
           { browser, game, deviceType, viewport: VIEWPORT },
