@@ -1,5 +1,88 @@
 # Code Style Guide
 
+## Function declaration order
+
+Functions in every file are ordered top-to-bottom by call depth — the reader should be able to start at the top and follow the logic downward without ever having to scroll back up.
+
+### Rule
+
+1. **Type declarations** at the top
+2. **Constants** next
+3. **The exported (or top-level entry) function** immediately after — this is the reader's entry point
+4. **Helpers in call order** — every helper function appears *below* the first function that calls it, in the order it is called (depth-first)
+5. **Deepest utilities last** — if a helper is shared by multiple callers, place it below the *last* function that calls it
+6. **`export { ... }` statement** at the very bottom
+
+### Examples
+
+```ts
+// ✓ correct — helpers below callers
+export function run(options: RunOptions) {
+  const result = validate(options);
+  return execute(result);
+}
+
+function validate(options: RunOptions) { ... }   // called first by run
+function execute(result: ValidResult) { ... }    // called second by run
+
+export {}
+```
+
+```ts
+// ✗ wrong — helpers hoisted above callers
+function validate(options: RunOptions) { ... }   // called by run, must be below run
+function execute(result: ValidResult) { ... }
+
+export function run(options: RunOptions) {
+  const result = validate(options);
+  return execute(result);
+}
+```
+
+### Shared helpers
+
+When a helper is called by more than one function in the file, place it below the **last** function that calls it.
+
+```ts
+// ✓ correct — shared helper below both callers
+function cancelRun(...) {
+  cleanupActive(...);
+}
+
+function finalizeRun(...) {
+  cleanupActive(...);
+}
+
+function cleanupActive(...) { ... }  // below both callers; last caller is finalizeRun
+```
+
+### In test files
+
+`describe` blocks are the entry points. All helper functions (`makeX`, `buildX`, `makeTestRuntime`, etc.) go **after** the last `describe` block that calls them.
+
+```ts
+// ✓ correct
+describe('MyService', () => {
+  it('does the thing', () => {
+    const data = makeData();
+    ...
+  });
+});
+
+function makeData() { ... }   // helper appears after the describe block
+
+// ✗ wrong — helper hoisted above the describe
+function makeData() { ... }
+
+describe('MyService', () => {
+  it('does the thing', () => {
+    const data = makeData();
+  });
+});
+```
+
+---
+
 ## Blank-line conventions
 
 These rules apply to all TypeScript files in this project.
