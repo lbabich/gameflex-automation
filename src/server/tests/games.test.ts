@@ -10,11 +10,6 @@ beforeEach(() => {
   fs.writeFileSync(GAMES_PATH, '[]');
 });
 
-function makeDesktopGameID() {
-  // Use a unique numeric-style ID unlikely to collide with real games
-  return `test-${crypto.randomUUID()}`;
-}
-
 describe('addGame', () => {
   it('assigns a GUID when adding a game', () => {
     const SUT = addGame;
@@ -111,3 +106,8 @@ describe('updateGame', () => {
     expect(result?.name).toBe('Updated Name');
   });
 });
+
+function makeDesktopGameID() {
+  // Use a unique numeric-style ID unlikely to collide with real games
+  return `test-${crypto.randomUUID()}`;
+}

@@ -9,30 +9,6 @@ beforeEach(() => {
   fs.writeFileSync(path.resolve(process.env.GAMES_JSON_PATH ?? 'src/server/data/games.json'), '[]');
 });
 
-function makeDesktopGameID() {
-  return `test-${crypto.randomUUID()}`;
-}
-
-function addTestGame() {
-  const desktopGameID = makeDesktopGameID();
-
-  addGame({
-    desktopGameID,
-    name: 'Update Test',
-    gameProviderID: '51',
-  });
-
-  const found = readGames().find((game) => {
-    return game.desktopGameID === desktopGameID;
-  });
-
-  if (!found) {
-    throw new Error(`addTestGame: ${desktopGameID} not found after addGame`);
-  }
-
-  return found;
-}
-
 describe('updateGame + stepCache integration', () => {
   it('clears the cache when desktopGameID changes', () => {
     const SUT = updateGame;
@@ -127,3 +103,27 @@ describe('updateGame + stepCache integration', () => {
     stepCache.clearAllSteps(game.id);
   });
 });
+
+function addTestGame() {
+  const desktopGameID = makeDesktopGameID();
+
+  addGame({
+    desktopGameID,
+    name: 'Update Test',
+    gameProviderID: '51',
+  });
+
+  const found = readGames().find((game) => {
+    return game.desktopGameID === desktopGameID;
+  });
+
+  if (!found) {
+    throw new Error(`addTestGame: ${desktopGameID} not found after addGame`);
+  }
+
+  return found;
+}
+
+function makeDesktopGameID() {
+  return `test-${crypto.randomUUID()}`;
+}

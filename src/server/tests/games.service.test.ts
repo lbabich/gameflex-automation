@@ -14,14 +14,6 @@ beforeEach(() => {
   fs.writeFileSync(GAMES_PATH, '[]');
 });
 
-function makeEntry() {
-  return {
-    desktopGameID: `test-${crypto.randomUUID()}`,
-    name: 'Test Game',
-    gameProviderID: '51',
-  };
-}
-
 describe('GamesService', () => {
   it('list returns games that have been added', async () => {
     const entry = makeEntry();
@@ -232,3 +224,11 @@ describe('GamesService', () => {
     stepCache.clearAllSteps(gameID);
   });
 });
+
+function makeEntry() {
+  return {
+    desktopGameID: `test-${crypto.randomUUID()}`,
+    name: 'Test Game',
+    gameProviderID: '51',
+  };
+}

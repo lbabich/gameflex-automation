@@ -10,89 +10,6 @@ import { RunLoggerService } from '../services/runner/run-logger.service';
 import { RunStateService } from '../services/runner/run-state.service';
 import { NodeRunnerService, RunnerService } from '../services/runner/runner.service';
 
-function makeTestRuntime(runsJson = '[]', gameEntries: GameEntry[] = []) {
-  const testFileService = Layer.succeed(FileService, {
-    read: () => {
-      return Effect.succeed(runsJson);
-    },
-    write: () => {
-      return Effect.succeed(undefined);
-    },
-    exists: () => {
-      return Effect.succeed(false);
-    },
-  });
-
-  const testGamesService = Layer.succeed(GamesService, {
-    list: () => {
-      return Effect.succeed(gameEntries);
-    },
-    getCachedDeviceMap: () => {
-      return Effect.succeed(new Map());
-    },
-    add: () => {
-      return Effect.succeed(undefined);
-    },
-    update: () => {
-      return Effect.succeed(undefined);
-    },
-    clearAllSteps: () => {
-      return Effect.succeed(undefined);
-    },
-    clearSteps: () => {
-      return Effect.succeed(undefined);
-    },
-  });
-
-  const testRunStateService = Layer.succeed(RunStateService, {
-    runs: new Map(),
-    activeRunsByGame: new Map(),
-    activeFibers: new Map(),
-  });
-
-  const testRunLoggerService = Layer.succeed(RunLoggerService, {
-    log: () => {
-      return Effect.succeed(undefined);
-    },
-    warn: () => {
-      return Effect.succeed(undefined);
-    },
-    error: () => {
-      return Effect.succeed(undefined);
-    },
-  });
-
-  return ManagedRuntime.make(
-    Layer.provide(
-      NodeRunnerService,
-      Layer.mergeAll(testFileService, testGamesService, testRunStateService, testRunLoggerService),
-    ),
-  );
-}
-
-function makeRunRecord(overrides: Partial<RunRecord> = {}): RunRecord {
-  return {
-    runID: 'test-run',
-    gameIDs: [],
-    status: 'completed',
-    startedAt: '2024-01-01T00:00:00.000Z',
-    results: {},
-    playwrightErrors: [],
-    logs: [],
-    ...overrides,
-  };
-}
-
-function makeTestGame(overrides: Partial<GameEntry> = {}): GameEntry {
-  return {
-    id: randomUUID(),
-    desktopGameID: `test-${randomUUID()}`,
-    name: 'Runner Test Game',
-    gameProviderID: '',
-    ...overrides,
-  };
-}
-
 describe('RunnerService', () => {
   describe('getRun', () => {
     it('returns a run loaded from storage', async () => {
@@ -261,3 +178,86 @@ describe('RunnerService', () => {
     });
   });
 });
+
+function makeTestRuntime(runsJson = '[]', gameEntries: GameEntry[] = []) {
+  const testFileService = Layer.succeed(FileService, {
+    read: () => {
+      return Effect.succeed(runsJson);
+    },
+    write: () => {
+      return Effect.succeed(undefined);
+    },
+    exists: () => {
+      return Effect.succeed(false);
+    },
+  });
+
+  const testGamesService = Layer.succeed(GamesService, {
+    list: () => {
+      return Effect.succeed(gameEntries);
+    },
+    getCachedDeviceMap: () => {
+      return Effect.succeed(new Map());
+    },
+    add: () => {
+      return Effect.succeed(undefined);
+    },
+    update: () => {
+      return Effect.succeed(undefined);
+    },
+    clearAllSteps: () => {
+      return Effect.succeed(undefined);
+    },
+    clearSteps: () => {
+      return Effect.succeed(undefined);
+    },
+  });
+
+  const testRunStateService = Layer.succeed(RunStateService, {
+    runs: new Map(),
+    activeRunsByGame: new Map(),
+    activeFibers: new Map(),
+  });
+
+  const testRunLoggerService = Layer.succeed(RunLoggerService, {
+    log: () => {
+      return Effect.succeed(undefined);
+    },
+    warn: () => {
+      return Effect.succeed(undefined);
+    },
+    error: () => {
+      return Effect.succeed(undefined);
+    },
+  });
+
+  return ManagedRuntime.make(
+    Layer.provide(
+      NodeRunnerService,
+      Layer.mergeAll(testFileService, testGamesService, testRunStateService, testRunLoggerService),
+    ),
+  );
+}
+
+function makeRunRecord(overrides: Partial<RunRecord> = {}): RunRecord {
+  return {
+    runID: 'test-run',
+    gameIDs: [],
+    status: 'completed',
+    startedAt: '2024-01-01T00:00:00.000Z',
+    results: {},
+    playwrightErrors: [],
+    logs: [],
+    ...overrides,
+  };
+}
+
+function makeTestGame(overrides: Partial<GameEntry> = {}): GameEntry {
+  return {
+    id: randomUUID(),
+    desktopGameID: `test-${randomUUID()}`,
+    name: 'Runner Test Game',
+    gameProviderID: '',
+    ...overrides,
+  };
+}

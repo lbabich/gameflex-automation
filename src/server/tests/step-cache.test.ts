@@ -7,14 +7,6 @@ import * as stepCache from '../lib/step-cache';
 
 const created: Array<{ id: string }> = [];
 
-function makeId(): string {
-  const id = crypto.randomUUID();
-
-  created.push({ id });
-
-  return id;
-}
-
 const VP_DESK = { width: 1280, height: 720 };
 const VP_MOB = { width: 390, height: 844 };
 const STEP = 'spin-cycle';
@@ -100,3 +92,11 @@ describe('step-cache', () => {
     expect(resultMobile).toBeUndefined();
   });
 });
+
+function makeId(): string {
+  const id = crypto.randomUUID();
+
+  created.push({ id });
+
+  return id;
+}
