@@ -13,7 +13,6 @@ const HintsSchema = Schema.Struct({
 const PostBody = Schema.Struct({
   gameIDs: Schema.NonEmptyArray(Schema.String),
   deviceTypes: Schema.NonEmptyArray(Schema.Literal('desktop', 'mobile')),
-  playmode: Schema.Literal('demo', 'real'),
   steps: Schema.optional(Schema.Array(Schema.String)),
   hints: Schema.optional(HintsSchema),
 });
@@ -42,7 +41,6 @@ function makeRunsRouter(runtime: AppRuntime) {
         const record = yield* runnerService.startRun({
           gameIDs: [...body.gameIDs],
           deviceTypes: [...body.deviceTypes],
-          playmode: body.playmode,
           steps: body.steps ? [...body.steps] : undefined,
           hints: body.hints,
         });
@@ -51,7 +49,7 @@ function makeRunsRouter(runtime: AppRuntime) {
       }).pipe(
         Effect.catchTag('ParseError', () => {
           return Effect.sync(() => {
-            res.status(400).json({ error: 'gameIDs, deviceTypes, and playmode are required' });
+            res.status(400).json({ error: 'gameIDs and deviceTypes are required' });
           });
         }),
         Effect.catchTag('RunAlreadyActiveError', (error: RunAlreadyActiveError) => {

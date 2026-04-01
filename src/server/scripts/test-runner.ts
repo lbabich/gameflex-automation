@@ -1,7 +1,7 @@
 import type { Browser, Page } from '@playwright/test';
 import { chromium } from '@playwright/test';
 import * as dotenv from 'dotenv';
-import { type DeviceType, PLAY_MODE, type PlayMode, type RunHints } from '../../shared/types';
+import type { DeviceType, RunHints } from '../../shared/types';
 import * as eventAccumulator from '../lib/event-accumulator';
 import type { GameEntry } from '../lib/games';
 import * as games from '../lib/games';
@@ -25,7 +25,6 @@ type GameRunContext = {
 
 type GameRunOptions = {
   runID: string;
-  playmode: PlayMode;
   steps: Step[];
   hints: RunHints;
 };
@@ -43,7 +42,7 @@ const STEP_REGISTRY: Record<string, Step> = {
 };
 
 async function main() {
-  const { runID, gameIDs, deviceTypes, playmode, steps, hints } = parseArgs();
+  const { runID, gameIDs, deviceTypes, steps, hints } = parseArgs();
 
   const resolvedSteps = steps.flatMap((name) => {
     const step = STEP_REGISTRY[name];
@@ -71,7 +70,7 @@ async function main() {
       for (const deviceType of deviceTypes) {
         const result = await runGame(
           { browser, game, deviceType, viewport: VIEWPORT },
-          { runID, playmode, steps: resolvedSteps, hints },
+          { runID, steps: resolvedSteps, hints },
         );
 
         results[deviceType] = {
@@ -99,7 +98,6 @@ function parseArgs() {
   let runID = '';
   let gameIDs: string[] = [];
   let deviceTypes: DeviceType[] = [];
-  let playmode: PlayMode = PLAY_MODE.DEMO;
   let steps: string[] = DEFAULT_STEPS;
   let hints: RunHints = {};
 
@@ -110,8 +108,6 @@ function parseArgs() {
       gameIDs = arg.slice('--gameIDs='.length).split(',').filter(Boolean);
     } else if (arg.startsWith('--deviceTypes=')) {
       deviceTypes = arg.slice('--deviceTypes='.length).split(',').filter(Boolean) as DeviceType[];
-    } else if (arg.startsWith('--playmode=')) {
-      playmode = arg.slice('--playmode='.length) as PlayMode;
     } else if (arg.startsWith('--steps=')) {
       steps = arg.slice('--steps='.length).split(',').filter(Boolean);
     } else if (arg.startsWith('--hints=')) {
@@ -121,12 +117,12 @@ function parseArgs() {
     }
   }
 
-  return { runID, gameIDs, deviceTypes, playmode, steps, hints };
+  return { runID, gameIDs, deviceTypes, steps, hints };
 }
 
 async function runGame(context: GameRunContext, run: GameRunOptions): Promise<InternalTestResult> {
   const { browser, game, deviceType, viewport } = context;
-  const { runID, playmode, steps, hints } = run;
+  const { runID, steps, hints } = run;
 
   const httpCredentials =
     process.env.BASIC_AUTH_USER && process.env.BASIC_AUTH_PASS
@@ -139,13 +135,12 @@ async function runGame(context: GameRunContext, run: GameRunOptions): Promise<In
   const startTime = Date.now();
   const runState: RunState = {
     steps: [],
-    metadata: { playmode },
     screenshotPaths: [],
   };
 
   const accumulator = eventAccumulator.createEventAccumulator(page);
 
-  const ctx = { page, accumulator, game, viewport, deviceType, runID, playmode, runState, hints };
+  const ctx = { page, accumulator, game, viewport, deviceType, runID, runState, hints };
 
   let failure: Error | null = null;
 
@@ -190,7 +185,6 @@ async function runGame(context: GameRunContext, run: GameRunOptions): Promise<In
       logs,
       steps: runState.steps,
       screenshotPaths: runState.screenshotPaths,
-      metadata: runState.metadata,
     };
   }
 
@@ -200,7 +194,6 @@ async function runGame(context: GameRunContext, run: GameRunOptions): Promise<In
     duration,
     logs,
     steps: runState.steps,
-    metadata: runState.metadata,
   };
 }
 

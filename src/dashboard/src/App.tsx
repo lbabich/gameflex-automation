@@ -13,14 +13,13 @@ import { useGames } from './hooks/useGames';
 import { useRecentRuns } from './hooks/useRecentRuns';
 import { useRun } from './hooks/useRun';
 import { QUERY_KEY } from './queryKeys';
-import { PLAY_MODE, GameEntry, PlayMode } from '@shared/types';
+import type { GameEntry } from '@shared/types';
 
 export default function App() {
   const [selectedGameID, setSelectedGameID] = useState<string | null>(null);
   const [addGameOpen, setAddGameOpen] = useState(false);
   const [editGame, setEditGame] = useState<GameEntry | null>(null);
   const [viewRunID, setViewRunID] = useState<string | null>(null);
-  const [playmode, setPlaymode] = useState<PlayMode>(PLAY_MODE.DEMO);
   const [spinCycleHint, setSpinCycleHint] = useState('');
   const [gameCloseHint, setGameCloseHint] = useState('');
   const [audioToggleHint, setAudioToggleHint] = useState('');
@@ -124,11 +123,9 @@ export default function App() {
             game={selectedGame}
             isRunning={selectedGameIsRunning}
             runID={selectedGameRunID}
-            playmode={playmode}
             spinCycleHint={spinCycleHint}
             gameCloseHint={gameCloseHint}
             audioToggleHint={audioToggleHint}
-            onPlaymodeChange={setPlaymode}
             onRunComplete={handleRunComplete}
           />
         )}
@@ -136,7 +133,6 @@ export default function App() {
           <GameDeviceSettings
             game={selectedGame}
             isRunning={selectedGameIsRunning}
-            playmode={playmode}
             spinCycleHint={spinCycleHint}
             gameCloseHint={gameCloseHint}
             audioToggleHint={audioToggleHint}

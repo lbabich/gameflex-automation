@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import type { Page } from '@playwright/test';
-import { DEVICE_TYPE, type DeviceType, PLAY_MODE, type PlayMode } from '../../shared/types';
+import { DEVICE_TYPE, type DeviceType } from '../../shared/types';
 import type { GameEntry } from './games';
 
 type LaunchConfig = {
@@ -16,12 +16,7 @@ type LaunchConfig = {
   regulationsEnabled: boolean;
 };
 
-async function launch(
-  page: Page,
-  game: GameEntry,
-  deviceType: DeviceType,
-  playMode: PlayMode,
-): Promise<void> {
+async function launch(page: Page, game: GameEntry, deviceType: DeviceType): Promise<void> {
   if (!game.gameProviderID) {
     throw new Error(`Game '${game.name}' has no gameProviderID — add one via the web UI`);
   }
@@ -70,10 +65,6 @@ async function launch(
       await checkbox.uncheck();
     }
   }
-
-  const buttonText = playMode === PLAY_MODE.REAL ? 'Real' : 'Demo';
-
-  await page.getByRole('button', { name: buttonText }).first().click();
 }
 
 function loadConfig(): LaunchConfig {

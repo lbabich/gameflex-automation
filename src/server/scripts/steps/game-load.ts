@@ -14,13 +14,13 @@ async function discover(_ctx: StepContext): Promise<void> {
 }
 
 async function execute(ctx: StepContext): Promise<void> {
-  const { page, game, deviceType, playmode, accumulator, runState } = ctx;
+  const { page, game, deviceType, accumulator, runState } = ctx;
   const readyPromise = accumulator.waitFor(GEL_EVENT.READY, GEL_READY_TIMEOUT_MS);
 
   readyPromise.catch(() => {}); // prevent unhandled rejection if timeout fires during launch
 
   await track(runState.steps, 'Launch game via harness', () => {
-    return preLaunch.launch(page, game, deviceType, playmode);
+    return preLaunch.launch(page, game, deviceType);
   });
 
   await track(runState.steps, GEL_EVENT.READY, () => {

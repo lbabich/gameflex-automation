@@ -2,12 +2,11 @@ import { useState } from 'react';
 import { DEFAULT_STEPS, createRun } from '../api';
 import { useClearChannelSteps } from '../hooks/useClearChannelSteps';
 import { DEVICE_TYPE } from '@shared/types';
-import type { DeviceType, GameEntry, PlayMode } from '@shared/types';
+import type { DeviceType, GameEntry } from '@shared/types';
 
 type Props = {
   game: GameEntry;
   isRunning: boolean;
-  playmode: PlayMode;
   spinCycleHint: string;
   gameCloseHint: string;
   audioToggleHint: string;
@@ -60,7 +59,6 @@ function DeviceCard({
 export function GameDeviceSettings({
   game,
   isRunning,
-  playmode,
   spinCycleHint,
   gameCloseHint,
   audioToggleHint,
@@ -80,7 +78,6 @@ export function GameDeviceSettings({
       const data = await createRun({
         gameIDs: [game.id],
         deviceTypes: [deviceType],
-        playmode,
         steps: [...DEFAULT_STEPS],
         hints,
       });

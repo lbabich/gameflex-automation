@@ -97,8 +97,7 @@ export function ResultsPanel({ run, isLoading }: Props) {
                   const hasDetails =
                     (result.logs ?? []).some((line) => !line.startsWith('Screenshot saved:')) ||
                     !!result.gifUrl ||
-                    (result.steps?.length ?? 0) > 0 ||
-                    !!result.metadata;
+                    (result.steps?.length ?? 0) > 0;
 
                   return (
                     <Fragment key={deviceType}>
@@ -169,7 +168,7 @@ export function ResultsPanel({ run, isLoading }: Props) {
                                 ))}
                               </div>
                             )}
-                            {(result.steps?.length || result.metadata) && (
+                            {(result.steps?.length) && (
                               <div className="rounded border border-gray-200 overflow-hidden mb-3">
                                 <div className="text-xs font-medium text-gray-500 bg-gray-50 px-3 py-1.5 border-b border-gray-200">
                                   Steps

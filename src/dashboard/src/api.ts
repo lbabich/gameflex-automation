@@ -1,4 +1,4 @@
-import type { DeviceType, GameEntry, PlayMode, RunHints, RunRecord } from '@shared/types';
+import type { DeviceType, GameEntry, RunHints, RunRecord } from '@shared/types';
 
 export type NewGame = {
   desktopGameID: string;
@@ -14,12 +14,11 @@ export type GameUpdates = {
   gameProviderID?: string;
 };
 
-export const DEFAULT_STEPS = ['gameLoad', 'spinCycle', 'gameClose'] as const;
+export const DEFAULT_STEPS = ['gameLoad', 'spinCycle', 'audioToggle', 'gameClose'] as const;
 
 export type NewRun = {
   gameIDs: string[];
   deviceTypes: DeviceType[];
-  playmode: PlayMode;
   steps: string[];
   hints?: RunHints;
 };

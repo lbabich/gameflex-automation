@@ -39,52 +39,6 @@
       }
     }
   },
-  "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986": {
-    "desktop": {
-      "1280x720": {
-        "spinCycle": {
-          "discoveredAt": "2026-03-31T13:43:06.237Z",
-          "steps": [
-            {
-              "waitMs": 4676,
-              "x": 664,
-              "y": 687,
-              "label": "CONTINUE button to dismiss intro overlay"
-            },
-            {
-              "waitMs": 6211,
-              "x": 664,
-              "y": 684,
-              "label": "Spin button - circular button with rotating arrows"
-            }
-          ]
-        },
-        "gameClose": {
-          "discoveredAt": "2026-03-31T13:43:34.094Z",
-          "steps": [
-            {
-              "waitMs": 7924,
-              "x": 139,
-              "y": 687,
-              "label": "Hamburger menu button in game controls"
-            },
-            {
-              "waitMs": 5665,
-              "x": 139,
-              "y": 641,
-              "label": "Home/house icon in game controls panel"
-            },
-            {
-              "waitMs": 5280,
-              "x": 771,
-              "y": 455,
-              "label": "YES button in exit to lobby confirmation dialog"
-            }
-          ]
-        }
-      }
-    }
-  },
   "b334f577-df52-401b-b5db-d86559a07b3f": {
     "desktop": {
       "1280x720": {
@@ -279,6 +233,104 @@
             }
           ],
           "partial": true
+        }
+      }
+    }
+  },
+  "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986": {
+    "desktop": {
+      "1280x720": {
+        "spinCycle": {
+          "discoveredAt": "2026-04-01T09:46:20.278Z",
+          "steps": [
+            {
+              "waitMs": 4708,
+              "x": 664,
+              "y": 687,
+              "label": "CONTINUE button to dismiss intro overlay"
+            },
+            {
+              "waitMs": 5654,
+              "x": 664,
+              "y": 684,
+              "label": "Spin button - circular button with refresh/rotate arrows"
+            }
+          ]
+        },
+        "gameClose": {
+          "discoveredAt": "2026-04-01T09:46:47.232Z",
+          "steps": [
+            {
+              "waitMs": 6489,
+              "x": 139,
+              "y": 687,
+              "label": "Hamburger/menu button (≡) in game controls"
+            },
+            {
+              "waitMs": 5721,
+              "x": 139,
+              "y": 641,
+              "label": "In-game home/house icon in left control panel"
+            },
+            {
+              "waitMs": 5568,
+              "x": 771,
+              "y": 455,
+              "label": "YES button in exit confirmation dialog"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "62d8cc14-b2a7-4053-9c83-6c4923fc8b52": {
+    "desktop": {
+      "1280x720": {
+        "spinCycle": {
+          "discoveredAt": "2026-04-01T09:50:19.662Z",
+          "steps": [
+            {
+              "waitMs": 4495,
+              "x": 664,
+              "y": 575,
+              "label": "BACK TO GAME button to dismiss free games complete overlay"
+            },
+            {
+              "waitMs": 5136,
+              "x": 664,
+              "y": 623,
+              "label": "CONTINUE button to dismiss intro overlay"
+            },
+            {
+              "waitMs": 5798,
+              "x": 664,
+              "y": 619,
+              "label": "Spin button - large circular red button with rotating arrows"
+            }
+          ]
+        },
+        "gameClose": {
+          "discoveredAt": "2026-04-01T09:50:49.689Z",
+          "steps": [
+            {
+              "waitMs": 6735,
+              "x": 254,
+              "y": 622,
+              "label": "hamburger menu (≡) in game controls"
+            },
+            {
+              "waitMs": 4775,
+              "x": 256,
+              "y": 588,
+              "label": "home/house icon in game UI sidebar"
+            },
+            {
+              "waitMs": 4984,
+              "x": 747,
+              "y": 442,
+              "label": "YES button in exit to lobby confirmation dialog"
+            }
+          ]
         }
       }
     }

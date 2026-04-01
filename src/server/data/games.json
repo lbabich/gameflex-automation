@@ -29,5 +29,12 @@
     "name": "Eternal Link Princess Empire",
     "desktopGameID": "65445",
     "gameProviderID": "89"
+  },
+  {
+    "desktopGameID": "16669",
+    "mobileGameID": "16670",
+    "name": "9 Masks of Fire (DGC)",
+    "gameProviderID": "51",
+    "id": "62d8cc14-b2a7-4053-9c83-6c4923fc8b52"
   }
 ]

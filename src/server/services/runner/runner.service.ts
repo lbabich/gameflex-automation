@@ -29,7 +29,6 @@ type StartRunServices = {
 type StartRunParams = {
   gameIDs: string[];
   deviceTypes: string[];
-  playmode: string;
   steps?: string[];
   hints?: RunHints;
 };
@@ -94,7 +93,7 @@ export const NodeRunnerService = Layer.effect(
 
 function startRun(state: RunnerState, services: StartRunServices, params: StartRunParams) {
   const { gamesService, fileService, runLoggerService } = services;
-  const { gameIDs, deviceTypes, playmode, steps, hints } = params;
+  const { gameIDs, deviceTypes, steps, hints } = params;
 
   return Effect.gen(function* () {
     yield* checkNoActiveRuns(state, gameIDs);
@@ -109,7 +108,7 @@ function startRun(state: RunnerState, services: StartRunServices, params: StartR
       state.activeRunsByGame.set(id, runID);
     }
 
-    const cmd = buildSpinCommand(runID, gameIDs, deviceTypes, playmode, steps, hints);
+    const cmd = buildSpinCommand(runID, gameIDs, deviceTypes, steps, hints);
 
     yield* runLoggerService.log(runID, 'runner', `Starting run ${runID}`);
     yield* runLoggerService.log(runID, 'runner', `Command: ${cmd}`);
