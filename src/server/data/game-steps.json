@@ -155,50 +155,130 @@
     "desktop": {
       "1280x720": {
         "spinCycle": {
-          "discoveredAt": "2026-03-31T15:32:16.584Z",
+          "discoveredAt": "2026-03-31T15:37:02.490Z",
           "steps": [
             {
-              "waitMs": 6576,
-              "x": 662,
+              "waitMs": 5554,
+              "x": 661,
               "y": 635,
-              "label": "Continue button to dismiss intro overlay"
+              "label": "CONTINUE button"
             },
             {
-              "waitMs": 6792,
-              "x": 662,
-              "y": 400,
-              "label": "Click center of splash screen to dismiss intro overlay"
+              "waitMs": 5057,
+              "x": 661,
+              "y": 635,
+              "label": "CONTINUE button"
             },
             {
-              "waitMs": 8358,
-              "x": 1040,
-              "y": 297,
-              "label": "Spin button (orange play icon, top right of reels)"
+              "waitMs": 7397,
+              "x": 661,
+              "y": 635,
+              "label": "CONTINUE button"
             },
             {
-              "waitMs": 5510,
-              "x": 1063,
-              "y": 644,
-              "label": "Back arrow button to exit settings/autoplay and return to main game screen with spin button"
+              "waitMs": 6159,
+              "x": 661,
+              "y": 635,
+              "label": "CONTINUE button"
             },
             {
-              "waitMs": 6318,
-              "x": 1040,
-              "y": 385,
-              "label": "Green spin button below orange play button"
+              "waitMs": 7001,
+              "x": 661,
+              "y": 635,
+              "label": "CONTINUE button"
+            },
+            {
+              "waitMs": 11181,
+              "x": 661,
+              "y": 635,
+              "label": "CONTINUE button"
+            },
+            {
+              "waitMs": 6903,
+              "x": 661,
+              "y": 635,
+              "label": "CONTINUE button"
+            },
+            {
+              "waitMs": 5628,
+              "x": 661,
+              "y": 635,
+              "label": "CONTINUE button"
+            },
+            {
+              "waitMs": 6450,
+              "x": 661,
+              "y": 635,
+              "label": "CONTINUE button"
+            },
+            {
+              "waitMs": 6517,
+              "x": 661,
+              "y": 635,
+              "label": "CONTINUE button"
+            },
+            {
+              "waitMs": 5855,
+              "x": 661,
+              "y": 635,
+              "label": "CONTINUE button"
+            },
+            {
+              "waitMs": 6282,
+              "x": 661,
+              "y": 635,
+              "label": "CONTINUE button"
+            },
+            {
+              "waitMs": 5581,
+              "x": 661,
+              "y": 635,
+              "label": "CONTINUE button"
+            },
+            {
+              "waitMs": 5968,
+              "x": 661,
+              "y": 635,
+              "label": "CONTINUE button"
+            },
+            {
+              "waitMs": 5541,
+              "x": 661,
+              "y": 635,
+              "label": "CONTINUE button"
+            },
+            {
+              "waitMs": 7101,
+              "x": 661,
+              "y": 635,
+              "label": "CONTINUE button"
+            },
+            {
+              "waitMs": 6158,
+              "x": 661,
+              "y": 635,
+              "label": "CONTINUE button"
+            },
+            {
+              "waitMs": 6159,
+              "x": 661,
+              "y": 635,
+              "label": "CONTINUE button"
+            },
+            {
+              "waitMs": 6997,
+              "x": 661,
+              "y": 635,
+              "label": "CONTINUE button"
+            },
+            {
+              "waitMs": 6904,
+              "x": 661,
+              "y": 635,
+              "label": "CONTINUE button"
             }
-          ]
-        },
-        "gameClose": {
-          "discoveredAt": "2026-03-31T15:32:25.603Z",
-          "steps": [
-            {
-              "waitMs": 6305,
-              "x": 264,
-              "y": 644,
-              "label": "In-game home/house icon button"
-            }
-          ]
+          ],
+          "partial": true
         }
       }
     }
