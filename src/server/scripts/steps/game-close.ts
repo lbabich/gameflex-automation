@@ -1,3 +1,4 @@
+import * as discoveryPrompt from '../../lib/discovery-prompt';
 import { GEL_EVENT } from '../../lib/gel-events';
 import * as replay from '../../lib/replay';
 import * as screenshot from '../../lib/screenshot';
@@ -72,35 +73,14 @@ function buildNextClickPrompt(
 
   const defaultInstructions = `What is the single most important element to click to exit the game?\n\nCRITICAL EXCLUSION — NEVER click anything in the top ${Math.round(height * 0.08)}px strip of the screen (y < ${Math.round(height * 0.08)}). That strip is the harness navigation bar, not part of the game. This includes any home/house icon, back arrow, or any other element positioned there. Clicking it will break the test.\n\nLook for targets in this order:\n1. A home/house icon that is part of the game's own UI — rendered inside the game frame as a game control button (y >= ${Math.round(height * 0.08)}). Click it immediately — this is always the highest priority, even if menus or overlays are currently open.\n2. An exit confirmation button — a button labeled "YES", "Yes", "Confirm", "OK", or similar inside a dialog explicitly asking you to confirm leaving/exiting the game. Only suggest this if the confirmation dialog is currently visible.\n3. A hamburger menu (≡) or settings icon — only if no in-game home icon is visible.\n4. A back arrow (←) to close an overlay or sub-menu blocking navigation.\n\nDo NOT suggest: spin buttons, bet controls, autoplay buttons, win displays, loading bars, or progress indicators.\n\nRespond with:\n  {"found": false}\n  {"found": true, "x": <number>, "y": <number>, "label": "<short description>"}\n\nImage dimensions: ${width}x${height}`;
 
-  if (hint) {
-    let prompt = `OPERATOR INSTRUCTION (highest priority — this overrides the default guidance below):\n${hint}\n\nApply the operator instruction above first. If it specifies a sequence of steps, follow them in order and do not skip ahead — re-clicking a previously clicked button is correct if the sequence calls for it. If it specifies constraints or exclusions, honour them while using the default guidance below for anything not covered.\n\n---\n\n${defaultInstructions}`;
-
-    if (failedButtons.length > 0) {
-      const list = failedButtons
-        .map((button: FailedButton, i: number) => {
-          return `  ${i + 1}. "${button.label}" at (${button.x}, ${button.y})`;
-        })
-        .join('\n');
-
-      prompt += `\n\nClicks made so far this session (use these to track your position in any sequence — the operator instruction may require revisiting some of them):\n${list}`;
-    }
-
-    return prompt;
-  }
-
-  let prompt = defaultInstructions;
-
-  if (failedButtons.length > 0) {
-    const list = failedButtons
-      .map((button: FailedButton) => {
-        return `- "${button.label}" at (${button.x}, ${button.y})`;
-      })
-      .join('\n');
-
-    prompt += `\n\nPreviously clicked buttons that did NOT result in game exit — try a different approach:\n${list}`;
-  }
-
-  return prompt;
+  return discoveryPrompt.buildDiscoveryPrompt(
+    defaultInstructions,
+    (list) => {
+      return `Previously clicked buttons that did NOT result in game exit — try a different approach:\n${list}`;
+    },
+    hint,
+    failedButtons,
+  );
 }
 
 export { discover, execute, plan };
