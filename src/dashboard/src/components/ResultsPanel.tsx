@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 import type { DeviceType, RunRecord, TestResult, TestStep } from '@shared/types';
 
 const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
@@ -11,13 +11,9 @@ function StepIcon({ step }: { step: TestStep }) {
     skipped: { icon: '○', color: 'text-gray-400' },
   };
   const { icon, color } = map[step.status ?? (step.error ? 'failed' : 'passed')];
+
   return <span className={`text-sm leading-none ${color}`}>{icon}</span>;
 }
-
-type Props = {
-  run: RunRecord | undefined;
-  isLoading: boolean;
-};
 
 function StatusBadge({ status }: { status: TestResult['status'] }) {
   const classes: Record<TestResult['status'], string> = {
@@ -26,42 +22,160 @@ function StatusBadge({ status }: { status: TestResult['status'] }) {
     skipped: 'bg-gray-100 text-gray-600',
     timedOut: 'bg-orange-100 text-orange-700',
   };
+
   return (
     <span className={`px-2 py-0.5 rounded text-xs font-medium ${classes[status]}`}>{status}</span>
   );
 }
 
-function SkeletonRow() {
+function SkeletonCard() {
   return (
-    <tr className="border-b">
-      <td className="py-3 px-3">
-        <div className="h-3 bg-gray-200 rounded animate-pulse w-48" />
-      </td>
-      <td className="py-3 px-3">
-        <div className="h-3 bg-gray-200 rounded animate-pulse w-20" />
-      </td>
-      <td className="py-3 px-3">
-        <div className="h-3 bg-gray-200 rounded animate-pulse w-14" />
-      </td>
-      <td className="py-3 px-3 text-right">
-        <div className="h-3 bg-gray-200 rounded animate-pulse w-10 ml-auto" />
-      </td>
-    </tr>
+    <div className="rounded-lg border border-gray-200 bg-white p-4 animate-pulse">
+      <div className="flex items-center justify-between mb-3">
+        <div className="h-3 bg-gray-200 rounded w-32" />
+        <div className="h-3 bg-gray-200 rounded w-16" />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <div className="h-2.5 bg-gray-200 rounded w-full" />
+        <div className="h-2.5 bg-gray-200 rounded w-4/5" />
+        <div className="h-2.5 bg-gray-200 rounded w-3/5" />
+      </div>
+    </div>
   );
 }
 
-export function ResultsPanel({ run, isLoading }: Props) {
-  const [expandedRows, setExpandedRows] = useState<Set<DeviceType>>(new Set());
-  const [openLogs, setOpenLogs] = useState<Set<DeviceType>>(new Set());
-  const [openRunLog, setOpenRunLog] = useState(true);
+function formatDuration(ms: number) {
+  const s = Math.floor(ms / 1000);
+  const m = Math.floor(s / 60);
 
-  const toggleRow = useCallback((deviceType: DeviceType) => {
-    setExpandedRows((prev) => {
-      const next = new Set(prev);
-      next.has(deviceType) ? next.delete(deviceType) : next.add(deviceType);
-      return next;
-    });
-  }, []);
+  return m > 0 ? `${m}m ${s % 60}s` : `${s}s`;
+}
+
+type DeviceCardProps = {
+  deviceType: DeviceType;
+  result: TestResult;
+  logOpen: boolean;
+  onToggleLog: () => void;
+};
+
+function DeviceResultCard({ deviceType, result, logOpen, onToggleLog }: DeviceCardProps) {
+  const filteredLogs = (result.logs ?? []).filter((line) => !line.startsWith('Screenshot saved:'));
+
+  const deviceLabel = deviceType === 'desktop' ? 'Desktop Chrome' : 'Mobile Chrome';
+
+  return (
+    <div className="rounded-lg border border-gray-200 bg-white overflow-hidden">
+      <div className="flex items-center justify-between px-4 py-3 border-b bg-gray-50">
+        <span className="text-sm font-semibold text-gray-700">{deviceLabel}</span>
+
+        <div className="flex items-center gap-3">
+          <StatusBadge status={result.status} />
+          <span className="text-xs text-gray-400">{formatDuration(result.duration)}</span>
+        </div>
+      </div>
+
+      {result.error && (
+        <div className="px-4 py-2 bg-red-50 border-b border-red-100 text-xs text-red-700 font-mono whitespace-pre-wrap">
+          {result.error}
+        </div>
+      )}
+
+      {result.failedStep && !result.error && (
+        <div className="px-4 py-2 bg-red-50 border-b border-red-100 text-xs text-red-600 font-mono">
+          Failed at: {result.failedStep}
+        </div>
+      )}
+
+      {(result.gifUrl || (result.screenshotUrls && result.screenshotUrls.length > 0)) && (
+        <div className="px-4 py-3 flex gap-3 flex-wrap border-b border-gray-100">
+          {result.gifUrl && (
+            <img
+              src={`${API_BASE}${result.gifUrl}`}
+              alt="Test replay"
+              className="rounded"
+              style={{ maxHeight: '240px' }}
+            />
+          )}
+
+          {result.screenshotUrls?.map((url, si) => (
+            <a key={si} href={`${API_BASE}${url}`} target="_blank" rel="noreferrer">
+              <img
+                src={`${API_BASE}${url}`}
+                alt={`Failure screenshot ${si + 1}`}
+                className="rounded border border-red-200"
+                style={{ maxHeight: '240px' }}
+              />
+            </a>
+          ))}
+        </div>
+      )}
+
+      {(result.steps?.length ?? 0) > 0 && (
+        <div className="divide-y divide-gray-100">
+          {result.steps?.map((step, si) => {
+            const rowBg =
+              step.status === 'failed'
+                ? 'bg-red-50'
+                : step.status === 'warning'
+                  ? 'bg-yellow-50'
+                  : '';
+            const textColor = step.status === 'skipped' ? 'text-gray-400' : 'text-gray-700';
+
+            return (
+              <div key={si} className={`flex items-center gap-3 px-4 py-2 ${rowBg}`}>
+                <StepIcon step={step} />
+
+                <div className="flex-1 min-w-0">
+                  <span className={`text-xs ${textColor}`}>{step.title}</span>
+
+                  {step.error && (
+                    <div className="text-xs text-red-500 font-mono mt-0.5">{step.error}</div>
+                  )}
+                </div>
+
+                {step.status !== 'skipped' && (
+                  <span className="text-xs text-gray-400 shrink-0">
+                    {(step.duration / 1000).toFixed(1)}s
+                  </span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {filteredLogs.length > 0 && (
+        <div className="px-4 py-2 border-t border-gray-100">
+          <button
+            type="button"
+            className="text-xs text-blue-600 hover:underline"
+            onClick={onToggleLog}
+          >
+            {logOpen ? 'Hide log' : 'View log'}
+          </button>
+
+          {logOpen && (
+            <textarea
+              readOnly
+              className="mt-2 w-full h-48 text-xs text-gray-600 font-mono leading-relaxed resize-y border border-gray-200 rounded p-2 bg-gray-50"
+              value={filteredLogs.join('\n')}
+            />
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+type Props = {
+  run: RunRecord | undefined;
+  isLoading: boolean;
+};
+
+export function ResultsPanel({ run, isLoading }: Props) {
+  const [openLogs, setOpenLogs] = useState<Set<DeviceType>>(new Set());
+  const [openRunLog, setOpenRunLog] = useState(false);
 
   const toggleLog = useCallback((deviceType: DeviceType) => {
     setOpenLogs((prev) => {
@@ -78,178 +192,36 @@ export function ResultsPanel({ run, isLoading }: Props) {
   if (!run) return null;
 
   const isRunning = run.status === 'running';
+  const resultEntries = Object.entries(run.results) as [DeviceType, TestResult][];
+  const allDevices: DeviceType[] = ['desktop', 'mobile'];
+  const missingDevices = isRunning
+    ? allDevices.filter((d) => !(d in run.results))
+    : [];
 
   return (
-    <div className="flex flex-col gap-4">
-      <table className="w-full text-sm border-collapse bg-white rounded shadow-sm overflow-hidden">
-        <thead>
-          <tr className="border-b bg-gray-50">
-            <th className="text-left py-2 px-3 font-medium text-gray-600">Test</th>
-            <th className="text-left py-2 px-3 font-medium text-gray-600">Project</th>
-            <th className="text-left py-2 px-3 font-medium text-gray-600">Status</th>
-            <th className="text-right py-2 px-3 font-medium text-gray-600">Duration</th>
-          </tr>
-        </thead>
-        <tbody>
-          {Object.keys(run.results).length > 0
-            ? (Object.entries(run.results) as [DeviceType, TestResult][]).map(
-                ([deviceType, result]) => {
-                  const hasDetails =
-                    (result.logs ?? []).some((line) => !line.startsWith('Screenshot saved:')) ||
-                    !!result.gifUrl ||
-                    (result.steps?.length ?? 0) > 0;
+    <div className="flex flex-col gap-3">
+      {resultEntries.map(([deviceType, result]) => (
+        <DeviceResultCard
+          key={deviceType}
+          deviceType={deviceType}
+          result={result}
+          logOpen={openLogs.has(deviceType)}
+          onToggleLog={() => toggleLog(deviceType)}
+        />
+      ))}
 
-                  return (
-                    <Fragment key={deviceType}>
-                      <tr
-                        className={`border-b hover:bg-gray-50 ${hasDetails ? 'cursor-pointer' : ''}`}
-                        onClick={() => {
-                          if (hasDetails) {
-                            toggleRow(deviceType);
-                          }
-                        }}
-                      >
-                        <td className="py-2 px-3">
-                          <div className="flex items-center gap-1">
-                            {hasDetails && (
-                              <span className="text-gray-400 text-xs select-none">
-                                {expandedRows.has(deviceType) ? '▼' : '▶'}
-                              </span>
-                            )}
-                            {result.title}
-                          </div>
-                          {result.error && (
-                            <div className="text-xs text-red-600 mt-1 font-mono whitespace-pre-wrap">
-                              {result.error}
-                            </div>
-                          )}
-                          {result.failedStep && (
-                            <div className="text-xs text-red-500 mt-0.5 font-mono">
-                              ↳ failed at: {result.failedStep}
-                            </div>
-                          )}
-                        </td>
-                        <td className="py-2 px-3 text-gray-500">{deviceType}</td>
-                        <td className="py-2 px-3">
-                          <StatusBadge status={result.status} />
-                        </td>
-                        <td className="py-2 px-3 text-right text-gray-500">
-                          {(result.duration / 1000).toFixed(1)}s
-                        </td>
-                      </tr>
-                      {expandedRows.has(deviceType) && (
-                        <tr className="border-b bg-gray-50">
-                          <td colSpan={4} className="px-6 py-3">
-                            {(result.gifUrl ||
-                              (result.screenshotUrls && result.screenshotUrls.length > 0)) && (
-                              <div className="flex gap-3 mb-3 flex-wrap">
-                                {result.gifUrl && (
-                                  <img
-                                    src={`${API_BASE}${result.gifUrl}`}
-                                    alt="Test replay"
-                                    className="rounded"
-                                    style={{ maxHeight: '240px' }}
-                                  />
-                                )}
-                                {result.screenshotUrls?.map((url, si) => (
-                                  <a
-                                    key={si}
-                                    href={`${API_BASE}${url}`}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                  >
-                                    <img
-                                      src={`${API_BASE}${url}`}
-                                      alt={`Failure screenshot ${si + 1}`}
-                                      className="rounded border border-red-200"
-                                      style={{ maxHeight: '240px' }}
-                                    />
-                                  </a>
-                                ))}
-                              </div>
-                            )}
-                            {(result.steps?.length) && (
-                              <div className="rounded border border-gray-200 overflow-hidden mb-3">
-                                <div className="text-xs font-medium text-gray-500 bg-gray-50 px-3 py-1.5 border-b border-gray-200">
-                                  Steps
-                                </div>
-                                {result.steps?.map((step, si) => {
-                                  const rowBg =
-                                    step.status === 'failed'
-                                      ? 'bg-red-50'
-                                      : step.status === 'warning'
-                                        ? 'bg-yellow-50'
-                                        : 'bg-white';
-                                  const textColor =
-                                    step.status === 'skipped' ? 'text-gray-400' : 'text-gray-700';
+      {missingDevices.map((d) => (
+        <SkeletonCard key={d} />
+      ))}
 
-                                  return (
-                                    <div
-                                      key={si}
-                                      className={`flex items-center gap-3 px-3 py-2 border-b last:border-b-0 border-gray-100 ${rowBg}`}
-                                    >
-                                      <StepIcon step={step} />
-                                      <span className={`flex-1 text-xs ${textColor}`}>
-                                        {step.title}
-                                      </span>
-                                      {step.status !== 'skipped' && (
-                                        <span className="text-xs text-gray-400">
-                                          {(step.duration / 1000).toFixed(1)}s
-                                        </span>
-                                      )}
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            )}
-                            {(result.logs ?? []).filter((line) => !line.startsWith('Screenshot saved:'))
-                              .length > 0 && (
-                              <div>
-                                <button
-                                  type="button"
-                                  className="text-xs text-blue-600 hover:underline"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    toggleLog(deviceType);
-                                  }}
-                                >
-                                  {openLogs.has(deviceType) ? 'Hide log' : 'View log'}
-                                </button>
-
-                                {openLogs.has(deviceType) && (
-                                  <textarea
-                                    readOnly
-                                    className="mt-2 w-full h-48 text-xs text-gray-600 font-mono leading-relaxed resize-y border border-gray-200 rounded p-2 bg-gray-50"
-                                    value={(result.logs ?? [])
-                                      .filter((line) => !line.startsWith('Screenshot saved:'))
-                                      .join('\n')}
-                                  />
-                                )}
-                              </div>
-                            )}
-                          </td>
-                        </tr>
-                      )}
-                    </Fragment>
-                  );
-                },
-              )
-            : isRunning && (
-                <>
-                  <SkeletonRow />
-                  <SkeletonRow />
-                  <SkeletonRow />
-                </>
-              )}
-        </tbody>
-      </table>
-
-      {!isRunning && Object.keys(run.results).length === 0 && (
+      {!isRunning && resultEntries.length === 0 && (
         <div className="flex flex-col gap-2">
           <div className="text-gray-500 text-sm">No test results found.</div>
+
           {run.playwrightErrors.length > 0 && (
             <div className="rounded border border-red-200 bg-red-50 p-3">
               <div className="text-xs font-semibold text-red-700 mb-1">Playwright errors</div>
+
               {run.playwrightErrors.map((msg, i) => (
                 <pre key={i} className="text-xs text-red-700 whitespace-pre-wrap font-mono">
                   {msg}

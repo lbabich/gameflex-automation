@@ -4,9 +4,9 @@ import { AddGameModal } from './components/AddGameModal';
 import { DiscoveryHints } from './components/DiscoveryHints';
 import { EditGameModal } from './components/EditGameModal';
 import { GameActionBar } from './components/GameActionBar';
-import { GameDeviceSettings } from './components/GameDeviceSettings';
+
 import { GameSelector } from './components/GameSelector';
-import { PreviousRunsAccordion } from './components/PreviousRunsAccordion';
+import { RunHistory } from './components/PreviousRunsAccordion';
 import { ResultsPanel } from './components/ResultsPanel';
 import { useClearGameRuns } from './hooks/useClearGameRuns';
 import { useGames } from './hooks/useGames';
@@ -130,16 +130,6 @@ export default function App() {
           />
         )}
         {selectedGame && (
-          <GameDeviceSettings
-            game={selectedGame}
-            isRunning={selectedGameIsRunning}
-            spinCycleHint={spinCycleHint}
-            gameCloseHint={gameCloseHint}
-            audioToggleHint={audioToggleHint}
-            onRunComplete={handleRunComplete}
-          />
-        )}
-        {selectedGame && (
           <DiscoveryHints
             spinCycleHint={spinCycleHint}
             gameCloseHint={gameCloseHint}
@@ -150,16 +140,24 @@ export default function App() {
           />
         )}
         {selectedGame ? (
-          <>
-            {viewRunID !== null && <ResultsPanel key={viewRunID} run={run} isLoading={runLoading} />}
-
-            <PreviousRunsAccordion
+          <div className="flex gap-4 items-start">
+            <div className="flex-[2] min-w-0">
+              {viewRunID !== null
+                  ? <ResultsPanel key={viewRunID} run={run} isLoading={runLoading} />
+                  : (
+                      <div className="text-sm text-gray-400 text-center py-8">
+                        Select a run to view results.
+                      </div>
+                  )
+              }
+            </div>
+            <RunHistory
               runs={selectedGameRuns}
-              onSelect={handleRunSelect}
               selectedRunID={viewRunID}
+              onSelect={handleRunSelect}
               onClear={handleClearRuns}
             />
-          </>
+          </div>
         ) : (
           <div className="flex flex-col items-center justify-center h-full gap-3 text-gray-400">
             <svg
@@ -175,6 +173,7 @@ export default function App() {
                 d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z"
               />
             </svg>
+
             <p className="text-sm">Select a game to view its runs.</p>
           </div>
         )}

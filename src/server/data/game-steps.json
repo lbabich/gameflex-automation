@@ -237,96 +237,79 @@
       }
     }
   },
-  "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986": {
-    "desktop": {
-      "1280x720": {
-        "spinCycle": {
-          "discoveredAt": "2026-04-01T09:46:20.278Z",
-          "steps": [
-            {
-              "waitMs": 4708,
-              "x": 664,
-              "y": 687,
-              "label": "CONTINUE button to dismiss intro overlay"
-            },
-            {
-              "waitMs": 5654,
-              "x": 664,
-              "y": 684,
-              "label": "Spin button - circular button with refresh/rotate arrows"
-            }
-          ]
-        },
-        "gameClose": {
-          "discoveredAt": "2026-04-01T09:46:47.232Z",
-          "steps": [
-            {
-              "waitMs": 6489,
-              "x": 139,
-              "y": 687,
-              "label": "Hamburger/menu button (≡) in game controls"
-            },
-            {
-              "waitMs": 5721,
-              "x": 139,
-              "y": 641,
-              "label": "In-game home/house icon in left control panel"
-            },
-            {
-              "waitMs": 5568,
-              "x": 771,
-              "y": 455,
-              "label": "YES button in exit confirmation dialog"
-            }
-          ]
-        }
-      }
-    }
-  },
   "62d8cc14-b2a7-4053-9c83-6c4923fc8b52": {
     "desktop": {
       "1280x720": {
         "spinCycle": {
-          "discoveredAt": "2026-04-01T09:50:19.662Z",
+          "discoveredAt": "2026-04-01T10:15:22.538Z",
           "steps": [
             {
-              "waitMs": 4495,
-              "x": 664,
-              "y": 575,
-              "label": "BACK TO GAME button to dismiss free games complete overlay"
-            },
-            {
-              "waitMs": 5136,
-              "x": 664,
+              "waitMs": 4137,
+              "x": 663,
               "y": 623,
               "label": "CONTINUE button to dismiss intro overlay"
             },
             {
-              "waitMs": 5798,
-              "x": 664,
+              "waitMs": 6020,
+              "x": 724,
               "y": 619,
-              "label": "Spin button - large circular red button with rotating arrows"
+              "label": "Play/spin button (triangle icon)"
+            },
+            {
+              "waitMs": 5026,
+              "x": 663,
+              "y": 450,
+              "label": "Click empty area of Autoplay overlay to dismiss it"
+            },
+            {
+              "waitMs": 6280,
+              "x": 597,
+              "y": 320,
+              "label": "10x autoplay option to dismiss autoplay overlay by selecting a value"
+            },
+            {
+              "waitMs": 5709,
+              "x": 838,
+              "y": 290,
+              "label": "Close (X) button to dismiss Autoplay dialog"
+            },
+            {
+              "waitMs": 5130,
+              "x": 663,
+              "y": 619,
+              "label": "Spin button (circular arrow icon)"
+            }
+          ]
+        },
+        "audioToggle": {
+          "discoveredAt": "2026-04-01T10:15:34.594Z",
+          "steps": [
+            {
+              "waitMs": 5325,
+              "x": 1077,
+              "y": 622,
+              "label": "Speaker/audio toggle button in game UI bottom bar"
             }
           ]
         },
         "gameClose": {
-          "discoveredAt": "2026-04-01T09:50:49.689Z",
+          "discoveredAt": "2026-04-01T10:15:57.872Z",
           "steps": [
             {
-              "waitMs": 6735,
+              "waitMs": 6626,
               "x": 254,
               "y": 622,
               "label": "hamburger menu (≡) in game controls"
             },
             {
-              "waitMs": 4775,
+              "waitMs": 4751,
               "x": 256,
               "y": 588,
-              "label": "home/house icon in game UI sidebar"
+              "label": "home/house icon in game UI"
             },
             {
-              "waitMs": 4984,
-              "x": 747,
+              "waitMs": 4825,
+              "x": 748,
               "y": 442,
               "label": "YES button in exit to lobby confirmation dialog"
             }

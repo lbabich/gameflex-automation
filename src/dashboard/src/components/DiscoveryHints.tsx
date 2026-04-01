@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 type Props = {
   spinCycleHint: string;
   gameCloseHint: string;
@@ -7,6 +9,26 @@ type Props = {
   onAudioToggleHintChange: (value: string) => void;
 };
 
+const TABS = [
+  {
+    key: 'spinCycle' as const,
+    label: 'Spin',
+    placeholder: 'Describe the spin button or steps needed to reach it...',
+  },
+  {
+    key: 'audioToggle' as const,
+    label: 'Audio',
+    placeholder: 'Describe the audio toggle button or steps needed to reach it...',
+  },
+  {
+    key: 'gameClose' as const,
+    label: 'Close',
+    placeholder: 'Describe how to close the game...',
+  },
+];
+
+type TabKey = (typeof TABS)[number]['key'];
+
 export function DiscoveryHints({
   spinCycleHint,
   gameCloseHint,
@@ -15,37 +37,56 @@ export function DiscoveryHints({
   onCloseHintChange,
   onAudioToggleHintChange,
 }: Props) {
+  const [activeTab, setActiveTab] = useState<TabKey>('spinCycle');
+
+  const values: Record<TabKey, string> = {
+    spinCycle: spinCycleHint,
+    audioToggle: audioToggleHint,
+    gameClose: gameCloseHint,
+  };
+
+  const handlers: Record<TabKey, (v: string) => void> = {
+    spinCycle: onSpinHintChange,
+    audioToggle: onAudioToggleHintChange,
+    gameClose: onCloseHintChange,
+  };
+
+  const active = TABS.find((t) => t.key === activeTab)!;
+
   return (
     <div className="bg-white border rounded p-4 mb-4">
-      <div className="flex flex-col gap-3">
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold text-gray-600">Spin hint</label>
-          <textarea
-            value={spinCycleHint}
-            onChange={(e) => onSpinHintChange(e.target.value)}
-            placeholder="Describe the spin button or steps needed to reach it..."
-            className="text-sm border rounded px-2 py-1.5 text-gray-800 resize-y min-h-[60px]"
-          />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold text-gray-600">Audio hint</label>
-          <textarea
-            value={audioToggleHint}
-            onChange={(e) => onAudioToggleHintChange(e.target.value)}
-            placeholder="Describe the audio toggle button or steps needed to reach it..."
-            className="text-sm border rounded px-2 py-1.5 text-gray-800 resize-y min-h-[60px]"
-          />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold text-gray-600">Close hint</label>
-          <textarea
-            value={gameCloseHint}
-            onChange={(e) => onCloseHintChange(e.target.value)}
-            placeholder="Describe how to close the game..."
-            className="text-sm border rounded px-2 py-1.5 text-gray-800 resize-y min-h-[60px]"
-          />
-        </div>
+      <div className="flex gap-1 border-b mb-3">
+        {TABS.map((tab) => {
+          const isActive = tab.key === activeTab;
+          const hasContent = values[tab.key].trim() !== '';
+
+          return (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => setActiveTab(tab.key)}
+              className={[
+                'px-3 py-1.5 text-xs font-semibold rounded-t transition-colors',
+                isActive
+                  ? 'border-b-2 border-blue-500 text-blue-600'
+                  : 'text-gray-500 hover:text-gray-700',
+              ].join(' ')}
+            >
+              {tab.label}
+              {hasContent && (
+                <span className="ml-1 text-blue-400">●</span>
+              )}
+            </button>
+          );
+        })}
       </div>
+
+      <textarea
+        value={values[activeTab]}
+        onChange={(e) => handlers[activeTab](e.target.value)}
+        placeholder={active.placeholder}
+        className="w-full text-sm border rounded px-2 py-1.5 text-gray-800 resize-y min-h-[60px]"
+      />
     </div>
   );
 }

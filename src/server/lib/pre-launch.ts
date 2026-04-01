@@ -38,6 +38,7 @@ async function launch(page: Page, game: GameEntry, deviceType: DeviceType): Prom
   url.searchParams.set('launchtype', config.launchtype);
 
   await page.goto(url.toString());
+  await page.waitForTimeout(2_000);
   await page.locator('#gameLaunchLoader').waitFor({ state: 'visible' });
 
   await page.locator('#gameLaunchLoader').evaluate((select, loaderType) => {
@@ -65,6 +66,8 @@ async function launch(page: Page, game: GameEntry, deviceType: DeviceType): Prom
       await checkbox.uncheck();
     }
   }
+
+  await page.getByRole('button', { name: 'Real' }).first().click();
 }
 
 function loadConfig(): LaunchConfig {

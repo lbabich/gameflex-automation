@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import type { RunRecord, RunStatus } from '@shared/types';
 
 type Props = {
@@ -8,19 +7,29 @@ type Props = {
   onClear?: () => void;
 };
 
-function statusBadgeClass(status: RunStatus) {
+function statusPillClass(status: RunStatus) {
   switch (status) {
     case 'running':
       return 'bg-yellow-100 text-yellow-700';
     case 'error':
       return 'bg-red-100 text-red-700';
+    case 'cancelled':
+      return 'bg-gray-100 text-gray-500';
     default:
       return null;
   }
 }
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleString();
+function overallPassed(run: RunRecord) {
+  const results = Object.values(run.results);
+
+  if (results.length === 0) return null;
+
+  return results.every((r) => r.status === 'passed');
+}
+
+function formatTime(iso: string) {
+  return new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
 function formatDuration(ms: number) {
@@ -30,105 +39,80 @@ function formatDuration(ms: number) {
   return m > 0 ? `${m}m ${s % 60}s` : `${s}s`;
 }
 
-export function PreviousRunsAccordion({ runs, onSelect, selectedRunID, onClear }: Props) {
-  const [open, setOpen] = useState(false);
-  const [openLogs, setOpenLogs] = useState<Set<string>>(new Set());
+export function RunHistory({ runs, onSelect, selectedRunID, onClear }: Props) {
+  if (runs.length === 0) {
+    return (
+      <div className="w-48 shrink-0 flex flex-1 flex-col bg-white border rounded overflow-hidden">
+        <div className="px-3 py-2 border-b">
+          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Runs</span>
+        </div>
 
-  const completedRuns = runs.filter((r) => r.status !== 'running');
-
-  if (completedRuns.length === 0) return null;
-
-  function toggleLog(runID: string) {
-    setOpenLogs((prev) => {
-      const next = new Set(prev);
-      next.has(runID) ? next.delete(runID) : next.add(runID);
-      return next;
-    });
+        <div className="flex items-center justify-center py-8 text-xs text-gray-400">
+          No runs yet
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="border rounded bg-white overflow-hidden mt-4">
-      <div className="flex items-center">
-        <button
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          className="flex-1 flex items-center justify-between px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-        >
-          <span>Previous Runs ({completedRuns.length})</span>
-          <span className="text-gray-400 text-xs select-none">{open ? '▲' : '▼'}</span>
-        </button>
+    <div className="w-48 shrink-0 flex flex-col bg-white border rounded overflow-hidden">
+      <div className="px-3 py-2 border-b flex items-center justify-between">
+        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Runs</span>
 
         {onClear && (
           <button
             type="button"
             onClick={onClear}
-            className="px-3 py-3 text-xs text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors border-l shrink-0"
+            className="text-xs text-red-500 hover:text-red-700 transition-colors"
           >
-            Clear All
+            Clear
           </button>
         )}
       </div>
 
-      {open && (
-        <div className="border-t divide-y">
-          {completedRuns.map((run) => {
-            const hasLogs = (run.logs ?? []).length > 0;
-            const isSelected = selectedRunID === run.runID;
-            const isLogOpen = openLogs.has(run.runID);
+      <div className="overflow-y-auto max-h-[520px] divide-y">
+        {runs.map((run) => {
+          const isSelected = selectedRunID === run.runID;
+          const isRunning = run.status === 'running';
+          const passed = overallPassed(run);
 
-            return (
-              <div
-                key={run.runID}
-                className={`${isSelected ? 'bg-blue-50 border-l-2 border-blue-400' : ''}`}
-              >
-                <div
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => onSelect(run.runID)}
-                  onKeyDown={(e) => e.key === 'Enter' && onSelect(run.runID)}
-                  className="w-full text-left px-4 py-3 hover:bg-blue-50 transition-colors cursor-pointer"
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-sm text-gray-800">{formatDate(run.startedAt)}</span>
-                    {statusBadgeClass(run.status) && (
-                      <span className={`text-xs font-semibold px-2 py-0.5 rounded shrink-0 ${statusBadgeClass(run.status)}`}>
-                        {run.status}
-                      </span>
-                    )}
-                  </div>
+          const rowBase = 'px-3 py-2.5 cursor-pointer transition-colors';
+          const rowSelected = isSelected ? 'border-l-2 border-blue-400 bg-blue-50' : '';
+          const rowRunning = isRunning && !isSelected ? 'border-l-2 border-yellow-400 bg-yellow-50' : '';
+          const rowHover = !isSelected ? 'hover:bg-gray-50' : '';
 
-                  {run.durationMs !== undefined && (
-                    <div className="mt-1 text-xs text-gray-400">{formatDuration(run.durationMs)}</div>
-                  )}
-                </div>
+          return (
+            <div
+              key={run.runID}
+              role="button"
+              tabIndex={0}
+              onClick={() => onSelect(run.runID)}
+              onKeyDown={(e) => e.key === 'Enter' && onSelect(run.runID)}
+              className={`${rowBase} ${rowSelected} ${rowRunning} ${rowHover}`}
+            >
+              <div className="flex items-center justify-between gap-1">
+                <span className="text-xs text-gray-800 truncate">{formatTime(run.startedAt)}</span>
 
-                {hasLogs && (
-                  <div className="px-4 pb-3">
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleLog(run.runID);
-                      }}
-                      className="text-xs text-blue-600 hover:underline"
-                    >
-                      {isLogOpen ? 'Hide run log' : 'View run log'}
-                    </button>
-
-                    {isLogOpen && (
-                      <textarea
-                        readOnly
-                        className="mt-2 w-full h-32 text-xs text-gray-600 font-mono leading-relaxed resize-y border border-gray-200 rounded p-2 bg-gray-50"
-                        value={(run.logs ?? []).join('\n')}
-                      />
-                    )}
-                  </div>
-                )}
+                {isRunning ? (
+                  <span className="w-2 h-2 rounded-full bg-yellow-400 shrink-0 animate-pulse" />
+                ) : statusPillClass(run.status) ? (
+                  <span className={`text-xs font-semibold px-1.5 py-0.5 rounded shrink-0 ${statusPillClass(run.status)}`}>
+                    {run.status}
+                  </span>
+                ) : passed === true ? (
+                  <span className="w-2 h-2 rounded-full bg-green-400 shrink-0" />
+                ) : passed === false ? (
+                  <span className="w-2 h-2 rounded-full bg-red-400 shrink-0" />
+                ) : null}
               </div>
-            );
-          })}
-        </div>
-      )}
+
+              {run.durationMs !== undefined && (
+                <div className="text-xs text-gray-400 mt-0.5">{formatDuration(run.durationMs)}</div>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
