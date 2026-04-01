@@ -20,8 +20,7 @@ function addGame(entry: Omit<GameEntry, 'id'> & { id?: string }) {
   const full = { ...entry, id: entry.id ?? crypto.randomUUID() };
 
   games.push(full);
-  fs.mkdirSync(path.dirname(gamesPath()), { recursive: true });
-  fs.writeFileSync(gamesPath(), JSON.stringify(games, null, 2));
+  writeGamesToDisk(games);
 }
 
 function updateGame(id: string, updates: GameUpdates) {
@@ -52,8 +51,7 @@ function updateGame(id: string, updates: GameUpdates) {
     gameProviderID: updates.gameProviderID ?? game.gameProviderID,
   };
 
-  fs.mkdirSync(path.dirname(gamesPath()), { recursive: true });
-  fs.writeFileSync(gamesPath(), JSON.stringify(games, null, 2));
+  writeGamesToDisk(games);
 }
 
 function readGames() {
@@ -96,11 +94,15 @@ function readGames() {
   });
 
   if (dirty) {
-    fs.mkdirSync(path.dirname(gamesPath()), { recursive: true });
-    fs.writeFileSync(gamesPath(), JSON.stringify(games, null, 2));
+    writeGamesToDisk(games);
   }
 
   return games;
+}
+
+function writeGamesToDisk(entries: GameEntry[]) {
+  fs.mkdirSync(path.dirname(gamesPath()), { recursive: true });
+  fs.writeFileSync(gamesPath(), JSON.stringify(entries, null, 2));
 }
 
 function gamesPath() {
