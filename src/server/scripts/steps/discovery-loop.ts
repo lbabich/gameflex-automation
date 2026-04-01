@@ -9,6 +9,7 @@ import type { CachedStep, Viewport } from '../../types';
 import type { StepContext } from './types';
 
 type PromptBuilder = (viewport: Viewport, failedButtons: FailedButton[]) => string;
+type VerifyClickFn = (page: Page, x: number, y: number) => Promise<boolean>;
 
 type DiscoveryContext = {
   page: Page;
@@ -21,7 +22,8 @@ type DiscoveryConfig = {
   runID: string;
   stepName: string;
   buildPrompt: PromptBuilder;
-  verifyClick: () => Promise<boolean>;
+  verifyClick: VerifyClickFn;
+  savePartialOnFailure?: boolean;
 };
 
 const DISCOVERY_MAX_ATTEMPTS = 20;
@@ -61,7 +63,7 @@ async function runDiscoveryLoop(ctx: DiscoveryContext, config: DiscoveryConfig):
       await screenshot.snap(page, `${runID}/${deviceType}/discovery-${attempt}-click.png`);
       await page.mouse.click(result.x, result.y);
 
-      const verified = await verifyClick();
+      const verified = await verifyClick(page, result.x, result.y);
 
       preTargetSteps.push({ waitMs, x: result.x, y: result.y, label: result.label });
 
@@ -81,7 +83,7 @@ async function runDiscoveryLoop(ctx: DiscoveryContext, config: DiscoveryConfig):
     await page.waitForTimeout(DISCOVERY_POLL_INTERVAL_MS);
   }
 
-  if (preTargetSteps.length > 0) {
+  if (preTargetSteps.length > 0 && (config.savePartialOnFailure ?? true)) {
     stepCache.setSteps(
       { id: game.id, deviceType, viewport, stepName },
       { discoveredAt: new Date().toISOString(), steps: preTargetSteps, partial: true },

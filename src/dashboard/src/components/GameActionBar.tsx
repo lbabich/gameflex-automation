@@ -9,6 +9,7 @@ type Props = {
   playmode: PlayMode;
   spinCycleHint: string;
   gameCloseHint: string;
+  audioToggleHint: string;
   onPlaymodeChange: (mode: PlayMode) => void;
   onRunComplete: (runID: string) => void;
 };
@@ -51,6 +52,7 @@ export function GameActionBar({
   playmode,
   spinCycleHint,
   gameCloseHint,
+  audioToggleHint,
   onPlaymodeChange,
   onRunComplete,
 }: Props) {
@@ -59,8 +61,8 @@ export function GameActionBar({
   async function handleRun() {
     if (isRunning) return;
 
-    const hints = spinCycleHint || gameCloseHint
-      ? { spinCycle: spinCycleHint || undefined, gameClose: gameCloseHint || undefined }
+    const hints = spinCycleHint || gameCloseHint || audioToggleHint
+      ? { spinCycle: spinCycleHint || undefined, gameClose: gameCloseHint || undefined, audioToggle: audioToggleHint || undefined }
       : undefined;
 
     try {

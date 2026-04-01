@@ -71,4 +71,5 @@ export type GameUpdates = {
 export type RunHints = {
   spinCycle?: string;
   gameClose?: string;
+  audioToggle?: string;
 };

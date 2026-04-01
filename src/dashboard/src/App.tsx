@@ -23,6 +23,7 @@ export default function App() {
   const [playmode, setPlaymode] = useState<PlayMode>(PLAY_MODE.DEMO);
   const [spinCycleHint, setSpinCycleHint] = useState('');
   const [gameCloseHint, setGameCloseHint] = useState('');
+  const [audioToggleHint, setAudioToggleHint] = useState('');
 
   const queryClient = useQueryClient();
   const { data: games, isLoading: gamesLoading } = useGames();
@@ -63,6 +64,7 @@ export default function App() {
     setSelectedGameID(id);
     setSpinCycleHint('');
     setGameCloseHint('');
+    setAudioToggleHint('');
     const found = (recentRuns ?? []).find((r) => r.gameIDs.includes(id));
     setViewRunID(found?.runID ?? null);
   }
@@ -125,6 +127,7 @@ export default function App() {
             playmode={playmode}
             spinCycleHint={spinCycleHint}
             gameCloseHint={gameCloseHint}
+            audioToggleHint={audioToggleHint}
             onPlaymodeChange={setPlaymode}
             onRunComplete={handleRunComplete}
           />
@@ -136,6 +139,7 @@ export default function App() {
             playmode={playmode}
             spinCycleHint={spinCycleHint}
             gameCloseHint={gameCloseHint}
+            audioToggleHint={audioToggleHint}
             onRunComplete={handleRunComplete}
           />
         )}
@@ -143,8 +147,10 @@ export default function App() {
           <DiscoveryHints
             spinCycleHint={spinCycleHint}
             gameCloseHint={gameCloseHint}
+            audioToggleHint={audioToggleHint}
             onSpinHintChange={setSpinCycleHint}
             onCloseHintChange={setGameCloseHint}
+            onAudioToggleHintChange={setAudioToggleHint}
           />
         )}
         {selectedGame ? (

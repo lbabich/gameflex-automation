@@ -10,6 +10,7 @@ type Props = {
   playmode: PlayMode;
   spinCycleHint: string;
   gameCloseHint: string;
+  audioToggleHint: string;
   onRunComplete: (runID: string) => void;
 };
 
@@ -62,6 +63,7 @@ export function GameDeviceSettings({
   playmode,
   spinCycleHint,
   gameCloseHint,
+  audioToggleHint,
   onRunComplete,
 }: Props) {
   const clearChannel = useClearChannelSteps();
@@ -70,8 +72,8 @@ export function GameDeviceSettings({
   async function handleLaunch(deviceType: DeviceType) {
     setPendingDevice(deviceType);
 
-    const hints = spinCycleHint || gameCloseHint
-      ? { spinCycle: spinCycleHint || undefined, gameClose: gameCloseHint || undefined }
+    const hints = spinCycleHint || gameCloseHint || audioToggleHint
+      ? { spinCycle: spinCycleHint || undefined, gameClose: gameCloseHint || undefined, audioToggle: audioToggleHint || undefined }
       : undefined;
 
     try {

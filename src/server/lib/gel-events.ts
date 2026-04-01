@@ -1,16 +1,20 @@
 import type { Page } from '@playwright/test';
 
 export const GEL_EVENT = {
-  // Optional — absence is recorded as a warning, not a test failure.
+  // Optional
   LOAD_PROGRESS: 'gel.load.progress',
-  // Required — absence hard-fails the test via SlowLoadError.
+  // Required
   READY: 'gel.ready',
-  // Required — absence hard-fails the test via Playwright waitForEvent timeout.
+  // Required
   SPIN_START: 'gel.spin.start',
-  // Required — absence hard-fails the test via Playwright waitForEvent timeout.
+  // Required
   SPIN_END: 'gel.spin.end',
-  // Required - Test if game close works
+  // Required
   GAME_CLOSE: 'gel.close',
+  // Optional
+  AUDIO_ENABLE: 'gel.audio.enable',
+  // Optional
+  AUDIO_DISABLE: 'gel.audio.disable',
 } as const;
 
 export const GEL_READY_TIMEOUT_MS = 90_000;

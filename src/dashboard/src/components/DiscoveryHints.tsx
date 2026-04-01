@@ -1,15 +1,19 @@
 type Props = {
   spinCycleHint: string;
   gameCloseHint: string;
+  audioToggleHint: string;
   onSpinHintChange: (value: string) => void;
   onCloseHintChange: (value: string) => void;
+  onAudioToggleHintChange: (value: string) => void;
 };
 
 export function DiscoveryHints({
   spinCycleHint,
   gameCloseHint,
+  audioToggleHint,
   onSpinHintChange,
   onCloseHintChange,
+  onAudioToggleHintChange,
 }: Props) {
   return (
     <div className="bg-white border rounded p-4 mb-4">
@@ -20,6 +24,15 @@ export function DiscoveryHints({
             value={spinCycleHint}
             onChange={(e) => onSpinHintChange(e.target.value)}
             placeholder="Describe the spin button or steps needed to reach it..."
+            className="text-sm border rounded px-2 py-1.5 text-gray-800 resize-y min-h-[60px]"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-semibold text-gray-600">Audio hint</label>
+          <textarea
+            value={audioToggleHint}
+            onChange={(e) => onAudioToggleHintChange(e.target.value)}
+            placeholder="Describe the audio toggle button or steps needed to reach it..."
             className="text-sm border rounded px-2 py-1.5 text-gray-800 resize-y min-h-[60px]"
           />
         </div>

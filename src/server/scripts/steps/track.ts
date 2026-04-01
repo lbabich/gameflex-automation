@@ -26,7 +26,7 @@ async function track<T>(steps: TestStep[], title: string, fn: () => Promise<T>):
     const entry: TestStep = {
       title,
       duration: Date.now() - start,
-      status: 'failed',
+      status: optional ? 'warning' : 'failed',
       error: err instanceof Error ? err.message : String(err),
       optional,
     };
@@ -37,7 +37,9 @@ async function track<T>(steps: TestStep[], title: string, fn: () => Promise<T>):
       steps.push(entry);
     }
 
-    throw err;
+    if (!optional) {
+      throw err;
+    }
   }
 }
 
