@@ -3,9 +3,11 @@ import type { TestStep } from '../../../shared/types';
 async function track<T>(steps: TestStep[], title: string, fn: () => Promise<T>): Promise<T> {
   const start = Date.now();
   const planTitle = title.replace(' (cached)', '');
+
   const idx = steps.findIndex((s) => {
     return s.title === planTitle;
   });
+
   const optional = idx >= 0 ? steps[idx].optional : undefined;
 
   try {

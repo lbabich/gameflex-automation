@@ -111,6 +111,7 @@ function checkNoActiveRuns(state: RunnerState, gameIDs: string[]) {
 function fetchAndValidateGames(gamesService: StartRunServices['gamesService'], gameIDs: string[]) {
   return Effect.gen(function* () {
     const gameList = yield* gamesService.list();
+
     const firstMissingID = gameIDs.find((id: string) => {
       return !gameList.some((game: GameEntry) => {
         return game.id === id;
