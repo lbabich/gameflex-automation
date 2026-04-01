@@ -266,6 +266,63 @@ function handleFiberError(
   });
 }
 
+function parseRunOutput(
+  runLoggerService: RunLoggerService['Type'],
+  runID: string,
+  stdout: string,
+  code: number,
+) {
+  return Effect.gen(function* () {
+    yield* runLoggerService.log(runID, 'finalize', `parsing output for run ${runID}`);
+
+    const emptyResult = {
+      results: {} as Partial<Record<DeviceType, TestResult>>,
+      errors: [] as string[],
+    };
+
+    const parsed = yield* parseSpinOutput(stdout).pipe(
+      Effect.tapError((error) => {
+        return runLoggerService.error(runID, 'finalize', 'Failed to parse spin output', error);
+      }),
+      Effect.tapError(() => {
+        return runLoggerService.error(runID, 'finalize', `stdout snippet: ${stdout.slice(0, 200)}`);
+      }),
+      Effect.orElse(() => {
+        return Effect.succeed(emptyResult);
+      }),
+    );
+
+    yield* runLoggerService.log(
+      runID,
+      'finalize',
+      `${Object.keys(parsed.results).length} result(s), ${parsed.errors.length} error(s)`,
+    );
+
+    return {
+      results: parsed.results,
+      playwrightErrors: parsed.errors,
+      status: (code === 0 ? 'completed' : 'error') as InternalRunRecord['status'],
+    };
+  });
+}
+
+function persistFinishedRun(
+  state: RunnerState,
+  fileService: FileService['Type'],
+  runLoggerService: RunLoggerService['Type'],
+  runID: string,
+  updated: InternalRunRecord,
+) {
+  return Effect.gen(function* () {
+    state.runs.set(runID, updated);
+
+    yield* saveRunsIgnoreError(fileService, state.runs, runLoggerService, runID);
+    yield* logSummary(runLoggerService, updated);
+    trimMemory(state.runs);
+    cleanupActive(state, runID, updated.gameIDs);
+  });
+}
+
 function finalizeRun(state: RunnerState, services: FinalizeServices, result: FinalizeResult) {
   const { runLoggerService, fileService } = services;
   const { runID, code, stdout } = result;
@@ -280,61 +337,19 @@ function finalizeRun(state: RunnerState, services: FinalizeServices, result: Fin
     const finishedAt = new Date().toISOString();
     const durationMs = new Date(finishedAt).getTime() - new Date(record.startedAt).getTime();
 
-    let updated: InternalRunRecord = {
-      ...record,
-      rawOutput: stdout,
-      finishedAt,
-      durationMs,
-    };
+    let updated: InternalRunRecord = { ...record, rawOutput: stdout, finishedAt, durationMs };
 
     if (record.status !== 'cancelled') {
-      yield* runLoggerService.log(runID, 'finalize', `parsing output for run ${runID}`);
+      const parsed = yield* parseRunOutput(runLoggerService, runID, stdout, code);
 
-      const emptyResult = {
-        results: {} as Partial<Record<DeviceType, TestResult>>,
-        errors: [] as string[],
-      };
-
-      const parsed = yield* parseSpinOutput(stdout).pipe(
-        Effect.tapError((error) => {
-          return runLoggerService.error(runID, 'finalize', 'Failed to parse spin output', error);
-        }),
-        Effect.tapError(() => {
-          return runLoggerService.error(
-            runID,
-            'finalize',
-            `stdout snippet: ${stdout.slice(0, 200)}`,
-          );
-        }),
-        Effect.orElse(() => {
-          return Effect.succeed(emptyResult);
-        }),
-      );
-
-      yield* runLoggerService.log(
-        runID,
-        'finalize',
-        `${Object.keys(parsed.results).length} result(s), ${parsed.errors.length} error(s)`,
-      );
-
-      updated = {
-        ...updated,
-        results: parsed.results,
-        playwrightErrors: parsed.errors,
-        status: code === 0 ? 'completed' : 'error',
-      };
+      updated = { ...updated, ...parsed };
     }
 
     yield* attachScreenshotUrls(updated.results);
     yield* attachGifUrls(runLoggerService, runID, updated.results);
     yield* cleanupImages(runLoggerService, runID, updated.results);
 
-    state.runs.set(runID, updated);
-
-    yield* saveRunsIgnoreError(fileService, state.runs, runLoggerService, runID);
-    yield* logSummary(runLoggerService, updated);
-    trimMemory(state.runs);
-    cleanupActive(state, runID, updated.gameIDs);
+    yield* persistFinishedRun(state, fileService, runLoggerService, runID, updated);
   });
 }
 
