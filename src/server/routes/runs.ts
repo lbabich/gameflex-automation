@@ -18,6 +18,18 @@ const PostBody = Schema.Struct({
   hints: Schema.optional(HintsSchema),
 });
 
+function serverDefectHandler(res: Response) {
+  return (defect: unknown) => {
+    console.error('[server] Unhandled defect:', defect);
+
+    return Effect.sync(() => {
+      if (!res.headersSent) {
+        res.status(500).json({ error: 'Internal server error' });
+      }
+    });
+  };
+}
+
 function makeRunsRouter(runtime: AppRuntime) {
   const router = Router();
 
@@ -52,15 +64,7 @@ function makeRunsRouter(runtime: AppRuntime) {
             res.status(404).json({ error: `Game '${error.id}' not found` });
           });
         }),
-        Effect.catchAllDefect((defect: unknown) => {
-          console.error('[server] Unhandled defect:', defect);
-
-          return Effect.sync(() => {
-            if (!res.headersSent) {
-              res.status(500).json({ error: 'Internal server error' });
-            }
-          });
-        }),
+        Effect.catchAllDefect(serverDefectHandler(res)),
       ),
     );
   });
@@ -72,17 +76,7 @@ function makeRunsRouter(runtime: AppRuntime) {
         const runs = yield* runnerService.getRecentRuns();
 
         res.json(runs);
-      }).pipe(
-        Effect.catchAllDefect((defect: unknown) => {
-          console.error('[server] Unhandled defect:', defect);
-
-          return Effect.sync(() => {
-            if (!res.headersSent) {
-              res.status(500).json({ error: 'Internal server error' });
-            }
-          });
-        }),
-      ),
+      }).pipe(Effect.catchAllDefect(serverDefectHandler(res))),
     );
   });
 
@@ -101,15 +95,7 @@ function makeRunsRouter(runtime: AppRuntime) {
             res.status(404).json({ error: 'Run not found' });
           });
         }),
-        Effect.catchAllDefect((defect: unknown) => {
-          console.error('[server] Unhandled defect:', defect);
-
-          return Effect.sync(() => {
-            if (!res.headersSent) {
-              res.status(500).json({ error: 'Internal server error' });
-            }
-          });
-        }),
+        Effect.catchAllDefect(serverDefectHandler(res)),
       ),
     );
   });
@@ -130,15 +116,7 @@ function makeRunsRouter(runtime: AppRuntime) {
             res.status(404).json({ error: 'Run not found or not active' });
           });
         }),
-        Effect.catchAllDefect((defect: unknown) => {
-          console.error('[server] Unhandled defect:', defect);
-
-          return Effect.sync(() => {
-            if (!res.headersSent) {
-              res.status(500).json({ error: 'Internal server error' });
-            }
-          });
-        }),
+        Effect.catchAllDefect(serverDefectHandler(res)),
       ),
     );
   });
