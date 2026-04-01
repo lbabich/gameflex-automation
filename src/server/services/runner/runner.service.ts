@@ -152,6 +152,30 @@ function startRun(state: RunnerState, services: StartRunServices, params: StartR
   });
 }
 
+function cleanupActive(state: RunnerState, runID: string, gameIDs: string[]) {
+  state.activeFibers.delete(runID);
+
+  for (const id of gameIDs) {
+    state.activeRunsByGame.delete(id);
+  }
+}
+
+function saveRunsIgnoreError(
+  fileService: FileService['Type'],
+  runs: RunnerState['runs'],
+  runLoggerService: RunLoggerService['Type'],
+  runID: string,
+) {
+  return saveRuns(fileService, runs).pipe(
+    Effect.tapError((err) => {
+      return runLoggerService.error(runID, 'runner', 'Failed to save runs', err);
+    }),
+    Effect.orElse(() => {
+      return Effect.succeed(undefined);
+    }),
+  );
+}
+
 function cancelRun(
   state: RunnerState,
   fileService: FileService['Type'],
@@ -173,20 +197,9 @@ function cancelRun(
 
     yield* Fiber.interrupt(fiber);
 
-    state.activeFibers.delete(runID);
+    cleanupActive(state, runID, record.gameIDs);
 
-    for (const id of record.gameIDs) {
-      state.activeRunsByGame.delete(id);
-    }
-
-    yield* saveRuns(fileService, state.runs).pipe(
-      Effect.tapError((err) => {
-        return runLoggerService.error(runID, 'runner', 'Failed to save runs', err);
-      }),
-      Effect.orElse(() => {
-        return Effect.succeed(undefined);
-      }),
-    );
+    yield* saveRunsIgnoreError(fileService, state.runs, runLoggerService, runID);
   });
 }
 
@@ -234,11 +247,7 @@ function handleFiberError(
       });
     }
 
-    state.activeFibers.delete(runID);
-
-    for (const id of run?.gameIDs ?? []) {
-      state.activeRunsByGame.delete(id);
-    }
+    cleanupActive(state, runID, run?.gameIDs ?? []);
   });
 }
 
@@ -307,23 +316,10 @@ function finalizeRun(state: RunnerState, services: FinalizeServices, result: Fin
 
     state.runs.set(runID, updated);
 
-    yield* saveRuns(fileService, state.runs).pipe(
-      Effect.tapError((err) => {
-        return runLoggerService.error(runID, 'runner', 'Failed to save runs', err);
-      }),
-      Effect.orElse(() => {
-        return Effect.succeed(undefined);
-      }),
-    );
-
+    yield* saveRunsIgnoreError(fileService, state.runs, runLoggerService, runID);
     yield* logSummary(runLoggerService, updated);
     trimMemory(state.runs);
-
-    state.activeFibers.delete(runID);
-
-    for (const id of updated.gameIDs) {
-      state.activeRunsByGame.delete(id);
-    }
+    cleanupActive(state, runID, updated.gameIDs);
   });
 }
 
