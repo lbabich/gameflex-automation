@@ -96,5 +96,4 @@ async function runDiscoveryLoop(ctx: DiscoveryContext, config: DiscoveryConfig):
 }
 
 export type { DiscoveryConfig, DiscoveryContext, PromptBuilder };
-export type { FailedButton } from '../../lib/discovery-prompt';
 export { DiscoveryError, runDiscoveryLoop };
