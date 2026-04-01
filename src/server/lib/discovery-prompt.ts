@@ -1,4 +1,4 @@
-import type { FailedButton } from '../scripts/steps/discovery-loop';
+type FailedButton = { x: number; y: number; label: string };
 
 function buildDiscoveryPrompt(
   defaultInstructions: string,
@@ -37,4 +37,5 @@ function buildDiscoveryPrompt(
   return prompt;
 }
 
+export type { FailedButton };
 export { buildDiscoveryPrompt };

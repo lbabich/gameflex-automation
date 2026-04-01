@@ -2,12 +2,11 @@ import type { Page } from '@playwright/test';
 import type { DeviceType } from '../../../shared/types';
 import * as claudeVision from '../../lib/claude-vision';
 import * as clickMarker from '../../lib/click-marker';
+import type { FailedButton } from '../../lib/discovery-prompt';
 import * as screenshot from '../../lib/screenshot';
 import * as stepCache from '../../lib/step-cache';
 import type { CachedStep, Viewport } from '../../types';
 import type { StepContext } from './types';
-
-type FailedButton = { x: number; y: number; label: string };
 
 type PromptBuilder = (viewport: Viewport, failedButtons: FailedButton[]) => string;
 
@@ -96,5 +95,6 @@ async function runDiscoveryLoop(ctx: DiscoveryContext, config: DiscoveryConfig):
   );
 }
 
-export type { DiscoveryConfig, DiscoveryContext, FailedButton, PromptBuilder };
+export type { DiscoveryConfig, DiscoveryContext, PromptBuilder };
+export type { FailedButton } from '../../lib/discovery-prompt';
 export { DiscoveryError, runDiscoveryLoop };
