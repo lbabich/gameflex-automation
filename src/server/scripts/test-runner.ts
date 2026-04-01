@@ -105,7 +105,7 @@ function parseArgs() {
     if (arg.startsWith('--runID=')) {
       runID = arg.slice('--runID='.length);
     } else if (arg.startsWith('--gameIDs=')) {
-      gameIDs = arg.slice('--gameIDs='.length).split(',').filter(Boolean) as DeviceType[];
+      gameIDs = arg.slice('--gameIDs='.length).split(',').filter(Boolean);
     } else if (arg.startsWith('--deviceTypes=')) {
       deviceTypes = arg.slice('--deviceTypes='.length).split(',').filter(Boolean) as DeviceType[];
     } else if (arg.startsWith('--playmode=')) {
