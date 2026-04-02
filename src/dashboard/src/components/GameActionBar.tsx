@@ -2,8 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import { DEFAULT_STEPS, createRun, deleteRun } from '../api';
 import { useClearChannelSteps } from '../hooks/useClearChannelSteps';
 import { useClearSteps } from '../hooks/useClearSteps';
-import { DEVICE_TYPE } from '@shared/types';
 import type { DeviceType, GameEntry } from '@shared/types';
+import { DEVICE_TYPE } from '@shared/types';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 
 const ALL_DEVICES: DeviceType[] = [DEVICE_TYPE.DESKTOP, DEVICE_TYPE.MOBILE];
 const DEVICE_LABEL: Record<DeviceType, string> = { desktop: 'Desktop', mobile: 'Mobile' };
@@ -18,15 +19,16 @@ type SplitDropdownButtonProps = {
   chevronClass: string;
 };
 
-function SplitDropdownButton({
-  label,
-  onClick,
-  disabled,
-  selected,
-  onToggle,
-  mainButtonClass,
-  chevronClass,
-}: SplitDropdownButtonProps) {
+function SplitDropdownButton(props: SplitDropdownButtonProps) {
+  const {
+    label,
+    onClick,
+    disabled,
+    selected,
+    onToggle,
+    mainButtonClass,
+    chevronClass,
+  } = props;
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -95,33 +97,37 @@ type Props = {
   onRunComplete: (runID: string) => void;
 };
 
-export function GameActionBar({
-  game,
-  isRunning,
-  runID,
-  spinCycleHint,
-  gameCloseHint,
-  audioToggleHint,
-  onRunComplete,
-}: Props) {
+export function GameActionBar(props: Props) {
+  const {
+    game,
+    isRunning,
+    runID,
+    spinCycleHint,
+    gameCloseHint,
+    audioToggleHint,
+    onRunComplete,
+  } = props;
   const clearSteps = useClearSteps();
   const clearChannel = useClearChannelSteps();
+  const localStorage = useLocalStorage();
 
-  const [runDevices, setRunDevices] = useState<Set<DeviceType>>(new Set(ALL_DEVICES));
-  const [resetDevices, setResetDevices] = useState<Set<DeviceType>>(new Set(ALL_DEVICES));
+  const [runDevices, setRunDevices] = useState<Set<DeviceType>>(new Set(localStorage.getItem('run_devices') || ALL_DEVICES));
+  const [resetCacheDevices, setResetCacheDevices] = useState<Set<DeviceType>>(new Set(localStorage.getItem('cache_reset_devices') || ALL_DEVICES));
 
   function toggleRunDevice(d: DeviceType) {
     setRunDevices((prev) => {
       const next = new Set(prev);
       next.has(d) ? next.delete(d) : next.add(d);
+      localStorage.setItem('run_devices', Array.from(next));
       return next;
     });
   }
 
   function toggleResetDevice(d: DeviceType) {
-    setResetDevices((prev) => {
+    setResetCacheDevices((prev) => {
       const next = new Set(prev);
       next.has(d) ? next.delete(d) : next.add(d);
+      localStorage.setItem('cache_reset_devices', Array.from(next));
       return next;
     });
   }
@@ -143,23 +149,34 @@ export function GameActionBar({
   }
 
   function resetLabel() {
-    if (resetDevices.has('desktop') && resetDevices.has('mobile')) return 'Reset Cache';
-    if (resetDevices.has('desktop')) return 'Reset Desktop';
-    if (resetDevices.has('mobile')) return 'Reset Mobile';
+    if (resetCacheDevices.has('desktop') && resetCacheDevices.has('mobile')) {
+      return 'Reset Cache';
+    }
+
+    if (resetCacheDevices.has('desktop')) {
+      return 'Reset Desktop';
+    }
+
+    if (resetCacheDevices.has('mobile')) {
+      return 'Reset Mobile';
+    }
 
     return 'Reset Cache';
   }
 
   async function handleRun() {
-    if (isRunning || runDevices.size === 0) return;
+    if (isRunning || runDevices.size === 0) {
+      return;
+    }
 
-    const hints =
-      spinCycleHint || gameCloseHint || audioToggleHint
+    const hasHints = spinCycleHint || gameCloseHint || audioToggleHint;
+
+    const hints = hasHints
         ? {
-            spinCycle: spinCycleHint || undefined,
-            gameClose: gameCloseHint || undefined,
-            audioToggle: audioToggleHint || undefined,
-          }
+          spinCycle: spinCycleHint || undefined,
+          gameClose: gameCloseHint || undefined,
+          audioToggle: audioToggleHint || undefined,
+        }
         : undefined;
 
     try {
@@ -171,8 +188,8 @@ export function GameActionBar({
       });
 
       onRunComplete(data.runID);
-    } catch {
-      // ignore
+    } catch (e) {
+      console.warn('Failed to create run:', e);
     }
   }
 
@@ -181,17 +198,17 @@ export function GameActionBar({
 
     try {
       await deleteRun(runID);
-    } catch {
-      // ignore
+    } catch (e) {
+      console.warn('Failed to cancel run:', e);
     }
   }
 
   function handleReset() {
-    if (resetDevices.size === ALL_DEVICES.length) {
+    if (resetCacheDevices.size === ALL_DEVICES.length) {
       clearSteps.mutate(game.id);
-    } else if (resetDevices.has('desktop')) {
+    } else if (resetCacheDevices.has('desktop')) {
       clearChannel.mutate({ id: game.id, deviceType: DEVICE_TYPE.DESKTOP });
-    } else if (resetDevices.has('mobile')) {
+    } else if (resetCacheDevices.has('mobile')) {
       clearChannel.mutate({ id: game.id, deviceType: DEVICE_TYPE.MOBILE });
     }
   }
@@ -227,7 +244,7 @@ export function GameActionBar({
           label={resetLabel()}
           onClick={handleReset}
           disabled={isRunning || resetPending}
-          selected={resetDevices}
+          selected={resetCacheDevices}
           onToggle={toggleResetDevice}
           mainButtonClass="rounded-l border-t border-b border-l border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
           chevronClass="rounded-r border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"

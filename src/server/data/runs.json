@@ -1,9 +1,7 @@
 [
   {
     "runID": "105d52ee-1e5c-4609-b1d3-2c6f5610680f",
-    "gameIDs": [
-      "62d8cc14-b2a7-4053-9c83-6c4923fc8b52"
-    ],
+    "gameIDs": ["62d8cc14-b2a7-4053-9c83-6c4923fc8b52"],
     "status": "completed",
     "startedAt": "2026-04-01T10:14:00.150Z",
     "results": {
@@ -146,9 +144,7 @@
   },
   {
     "runID": "a97f5efb-30bb-42d5-9948-607aa6fc2644",
-    "gameIDs": [
-      "b4c51f69-e28f-4c66-9b3c-0be918e9af91"
-    ],
+    "gameIDs": ["b4c51f69-e28f-4c66-9b3c-0be918e9af91"],
     "status": "completed",
     "startedAt": "2026-03-31T15:33:22.759Z",
     "results": {
@@ -257,9 +253,7 @@
   },
   {
     "runID": "2131319d-05c6-45d1-8852-1b9f5d447210",
-    "gameIDs": [
-      "b334f577-df52-401b-b5db-d86559a07b3f"
-    ],
+    "gameIDs": ["b334f577-df52-401b-b5db-d86559a07b3f"],
     "status": "completed",
     "startedAt": "2026-03-31T13:43:51.266Z",
     "results": {
@@ -457,9 +451,7 @@
   },
   {
     "runID": "8c50b5b4-1638-4622-b76d-f5ebcf83e09c",
-    "gameIDs": [
-      "6733624c-554e-4081-a92f-4616af3317e5"
-    ],
+    "gameIDs": ["6733624c-554e-4081-a92f-4616af3317e5"],
     "status": "completed",
     "startedAt": "2026-03-31T10:56:07.718Z",
     "results": {
@@ -603,9 +595,7 @@
   },
   {
     "runID": "59642d2e-b142-47f2-86ea-b593a3703922",
-    "gameIDs": [
-      "0ebed9bf-627d-45b9-8931-7c98ea53968f"
-    ],
+    "gameIDs": ["0ebed9bf-627d-45b9-8931-7c98ea53968f"],
     "status": "completed",
     "startedAt": "2026-03-31T10:20:55.432Z",
     "results": {
@@ -615,9 +605,7 @@
         "duration": 38809,
         "error": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Demo' }).first()\u001b[22m\n",
         "failedStep": "Launch game via harness",
-        "logs": [
-          "Failed to load resource: the server responded with a status of 404 (Not Found)"
-        ],
+        "logs": ["Failed to load resource: the server responded with a status of 404 (Not Found)"],
         "steps": [
           {
             "title": "Launch game via harness",
