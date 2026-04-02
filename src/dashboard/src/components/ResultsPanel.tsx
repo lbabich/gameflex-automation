@@ -59,7 +59,23 @@ type DeviceCardProps = {
   onToggleLog: () => void;
 };
 
+type SectionState = {
+  error: boolean;
+  screenshots: boolean;
+  steps: boolean;
+};
+
 function DeviceResultCard({ deviceType, result, logOpen, onToggleLog }: DeviceCardProps) {
+  const [sections, setSections] = useState<SectionState>({
+    error: false,
+    screenshots: false,
+    steps: false,
+  });
+
+  const toggleSection = (section: keyof SectionState) => {
+    setSections((prev) => ({ ...prev, [section]: !prev[section] }));
+  };
+
   const filteredLogs = (result.logs ?? []).filter((line) => !line.startsWith('Screenshot saved:'));
 
   const deviceLabel = deviceType === 'desktop' ? 'Desktop Chrome' : 'Mobile Chrome';
@@ -75,73 +91,118 @@ function DeviceResultCard({ deviceType, result, logOpen, onToggleLog }: DeviceCa
         </div>
       </div>
 
-      {result.error && (
-        <div className="px-4 py-2 bg-red-50 border-b border-red-100 text-xs text-red-700 font-mono whitespace-pre-wrap">
-          {result.error}
-        </div>
-      )}
+      {(result.error || result.failedStep) && (
+        <div>
+          <button
+            type="button"
+            onClick={() => toggleSection('error')}
+            className="w-full flex items-center justify-between px-4 py-2 bg-red-50 border-b border-red-100 hover:bg-red-100 transition-colors"
+          >
+            <span className="text-xs font-medium text-red-700">
+              {result.error ? 'Error' : 'Failed Step'}
+            </span>
+            <span className={`text-red-700 select-none transition-transform text-lg font-bold ${sections.error ? 'rotate-90' : ''}`}>
+              ›
+            </span>
+          </button>
 
-      {result.failedStep && !result.error && (
-        <div className="px-4 py-2 bg-red-50 border-b border-red-100 text-xs text-red-600 font-mono">
-          Failed at: {result.failedStep}
+          {sections.error && (
+            <div className="px-4 py-2 bg-red-50 border-b border-red-100 text-xs text-red-700 font-mono whitespace-pre-wrap">
+              {result.error
+                ? result.error
+                : `Failed at: ${result.failedStep}`}
+            </div>
+          )}
         </div>
       )}
 
       {(result.gifUrl || (result.screenshotUrls && result.screenshotUrls.length > 0)) && (
-        <div className="px-4 py-3 flex gap-3 flex-wrap border-b border-gray-100">
-          {result.gifUrl && (
-            <img
-              src={`${API_BASE}${result.gifUrl}`}
-              alt="Test replay"
-              className="rounded"
-              style={{ maxHeight: '240px' }}
-            />
-          )}
+        <div>
+          <button
+            type="button"
+            onClick={() => toggleSection('screenshots')}
+            className="w-full flex items-center justify-between px-4 py-2 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+          >
+            <span className="text-xs font-medium text-gray-700">Screenshots</span>
+            <span className={`text-gray-400 select-none transition-transform text-lg font-bold ${sections.screenshots ? 'rotate-90' : ''}`}>
+              ›
+            </span>
+          </button>
 
-          {result.screenshotUrls?.map((url, si) => (
-            <a key={si} href={`${API_BASE}${url}`} target="_blank" rel="noreferrer">
-              <img
-                src={`${API_BASE}${url}`}
-                alt={`Failure screenshot ${si + 1}`}
-                className="rounded border border-red-200"
-                style={{ maxHeight: '240px' }}
-              />
-            </a>
-          ))}
+          {sections.screenshots && (
+            <div className="px-4 py-3 flex gap-3 flex-wrap border-b border-gray-100">
+              {result.gifUrl && (
+                <img
+                  src={`${API_BASE}${result.gifUrl}`}
+                  alt="Test replay"
+                  className="rounded"
+                  style={{ maxHeight: '240px' }}
+                />
+              )}
+
+              {result.screenshotUrls?.map((url, si) => (
+                <a key={si} href={`${API_BASE}${url}`} target="_blank" rel="noreferrer">
+                  <img
+                    src={`${API_BASE}${url}`}
+                    alt={`Failure screenshot ${si + 1}`}
+                    className="rounded border border-red-200"
+                    style={{ maxHeight: '240px' }}
+                  />
+                </a>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
       {(result.steps?.length ?? 0) > 0 && (
-        <div className="divide-y divide-gray-100">
-          {result.steps?.map((step, si) => {
-            const rowBg =
-              step.status === 'failed'
-                ? 'bg-red-50'
-                : step.status === 'warning'
-                  ? 'bg-yellow-50'
-                  : '';
-            const textColor = step.status === 'skipped' ? 'text-gray-400' : 'text-gray-700';
+        <div>
+          <button
+            type="button"
+            onClick={() => toggleSection('steps')}
+            className="w-full flex items-center justify-between px-4 py-2 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+          >
+            <span className="text-xs font-medium text-gray-700">
+              Steps ({result.steps?.length ?? 0})
+            </span>
+            <span className={`text-gray-400 select-none transition-transform text-lg font-bold ${sections.steps ? 'rotate-90' : ''}`}>
+              ›
+            </span>
+          </button>
 
-            return (
-              <div key={si} className={`flex items-center gap-3 px-4 py-2 ${rowBg}`}>
-                <StepIcon step={step} />
+          {sections.steps && (
+            <div className="divide-y divide-gray-100">
+              {result.steps?.map((step, si) => {
+                const rowBg =
+                  step.status === 'failed'
+                    ? 'bg-red-50'
+                    : step.status === 'warning'
+                      ? 'bg-yellow-50'
+                      : '';
+                const textColor = step.status === 'skipped' ? 'text-gray-400' : 'text-gray-700';
 
-                <div className="flex-1 min-w-0">
-                  <span className={`text-xs ${textColor}`}>{step.title}</span>
+                return (
+                  <div key={si} className={`flex items-center gap-3 px-4 py-2 ${rowBg}`}>
+                    <StepIcon step={step} />
 
-                  {step.error && (
-                    <div className="text-xs text-red-500 font-mono mt-0.5">{step.error}</div>
-                  )}
-                </div>
+                    <div className="flex-1 min-w-0">
+                      <span className={`text-xs ${textColor}`}>{step.title}</span>
 
-                {step.status !== 'skipped' && (
-                  <span className="text-xs text-gray-400 shrink-0">
-                    {(step.duration / 1000).toFixed(1)}s
-                  </span>
-                )}
-              </div>
-            );
-          })}
+                      {step.error && (
+                        <div className="text-xs text-red-500 font-mono mt-0.5">{step.error}</div>
+                      )}
+                    </div>
+
+                    {step.status !== 'skipped' && (
+                      <span className="text-xs text-gray-400 shrink-0">
+                        {(step.duration / 1000).toFixed(1)}s
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 
