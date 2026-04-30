@@ -1,8 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import type { Page } from '@playwright/test';
-import { DEVICE_TYPE, type DeviceType } from '../../shared/types';
-import type { GameEntry } from './games';
+import { DEVICE_TYPE, type DeviceType, type GameEntry } from '../../shared/types';
 
 type LaunchConfig = {
   harnessBaseUrl: string;
@@ -16,7 +15,7 @@ type LaunchConfig = {
   regulationsEnabled: boolean;
 };
 
-async function launch(page: Page, game: GameEntry, deviceType: DeviceType): Promise<void> {
+export async function launch(page: Page, game: GameEntry, deviceType: DeviceType): Promise<void> {
   if (!game.gameProviderID) {
     throw new Error(`Game '${game.name}' has no gameProviderID — add one via the web UI`);
   }
@@ -75,5 +74,3 @@ function loadConfig(): LaunchConfig {
 
   return JSON.parse(fs.readFileSync(configPath, 'utf8')) as LaunchConfig;
 }
-
-export { launch };

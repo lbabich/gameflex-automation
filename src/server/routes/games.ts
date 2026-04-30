@@ -4,7 +4,7 @@ import { Router } from 'express';
 import type { DeviceType } from '../../shared/types';
 import type { DuplicateGameIDError, GameNotFoundError } from '../errors';
 import type { GameEntry } from '../lib/games';
-import * as stepCache from '../lib/step-cache';
+import { stepCache } from '../lib/step-cache';
 import type { AppRuntime } from '../runtime';
 import { GamesService } from '../services/games.service';
 import { RunnerService } from '../services/runner/runner.service';

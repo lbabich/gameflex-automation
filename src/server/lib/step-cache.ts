@@ -112,24 +112,8 @@ function viewportKey(viewport: Viewport) {
   return `${viewport.width}x${viewport.height}`;
 }
 
-const {
-  getSteps,
-  setSteps,
-  setPendingSteps,
-  saveToCache,
-  clearAllSteps,
-  clearChannelSteps,
-  loadAll,
-} = createStepCache(stepStore.createDiskStore());
-
 export type { StepCacheKey };
-export {
-  createStepCache,
-  getSteps,
-  setSteps,
-  setPendingSteps,
-  saveToCache,
-  clearAllSteps,
-  clearChannelSteps,
-  loadAll,
-};
+export { createStepCache };
+
+const diskStore = stepStore.createDiskStore();
+export const stepCache = createStepCache(diskStore);

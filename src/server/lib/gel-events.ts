@@ -24,7 +24,7 @@ export type GameReadyResult = {
   hadLoadProgress: boolean;
 };
 
-async function waitForGameReady(
+export async function waitForGameReady(
   page: Page,
   timeout = GEL_READY_TIMEOUT_MS,
 ): Promise<GameReadyResult> {
@@ -59,11 +59,9 @@ async function waitForGameReady(
   }
 }
 
-class SlowLoadError extends Error {
+export class SlowLoadError extends Error {
   constructor(elapsedMs: number) {
     super(`Game did not emit gel.ready within ${elapsedMs}ms`);
     this.name = 'SlowLoadError';
   }
 }
-
-export { SlowLoadError, waitForGameReady };

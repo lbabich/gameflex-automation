@@ -31,7 +31,7 @@ const GIF_DELAY_MS = 1000;
  * Returns the absolute path to the generated GIF.
  * @throws if no PNG files exist in the screenshots directory
  */
-async function generateGif(runID: string, deviceType: DeviceType) {
+export async function generateGif(runID: string, deviceType: DeviceType) {
   const screenshotsDir = path.resolve('src/server/screenshots', runID, deviceType);
   const gifPath = path.resolve(screenshotsDir, ANIMATED_GIF_FILENAME);
 
@@ -100,5 +100,3 @@ function parseSortKey(filename: string): [number, number] {
 
   return [4, 0];
 }
-
-export { generateGif };

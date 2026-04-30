@@ -3,7 +3,7 @@ import * as discoveryPrompt from '../../lib/discovery-prompt';
 import { GEL_EVENT } from '../../lib/gel-events';
 import * as replay from '../../lib/replay';
 import * as screenshot from '../../lib/screenshot';
-import * as stepCache from '../../lib/step-cache';
+import { stepCache } from '../../lib/step-cache';
 import type { Viewport } from '../../types';
 import * as discoveryLoop from './discovery-loop';
 import { track } from './track';

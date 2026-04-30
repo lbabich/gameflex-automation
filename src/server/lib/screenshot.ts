@@ -3,7 +3,7 @@ import * as path from 'node:path';
 import type { Page } from '@playwright/test';
 
 /** Takes a screenshot of the current page and saves it as a PNG. Returns the absolute path to the saved file. */
-async function snap(page: Page, name: string) {
+export async function snap(page: Page, name: string) {
   const file = path.resolve('src/server/screenshots', name);
 
   fs.mkdirSync(path.dirname(file), { recursive: true });
@@ -12,5 +12,3 @@ async function snap(page: Page, name: string) {
 
   return file;
 }
-
-export { snap };

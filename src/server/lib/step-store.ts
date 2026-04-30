@@ -14,7 +14,7 @@ type StepStore = {
 
 const CACHE_PATH = path.resolve('src', 'server', 'data', 'game-steps.json');
 
-function createDiskStore(): StepStore {
+export function createDiskStore(): StepStore {
   return {
     load() {
       try {
@@ -34,4 +34,3 @@ function createDiskStore(): StepStore {
 }
 
 export type { StepCache, StepStore };
-export { createDiskStore };

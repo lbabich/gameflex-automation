@@ -5,7 +5,7 @@ type EventAccumulator = {
   getAll: () => string[];
 };
 
-function createEventAccumulator(page: Page): EventAccumulator {
+export function createEventAccumulator(page: Page): EventAccumulator {
   const captured: string[] = [];
   const waiters = new Map<string, Array<() => void>>();
 
@@ -74,4 +74,3 @@ function createEventAccumulator(page: Page): EventAccumulator {
 }
 
 export type { EventAccumulator };
-export { createEventAccumulator };

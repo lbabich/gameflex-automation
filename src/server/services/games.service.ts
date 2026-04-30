@@ -1,7 +1,7 @@
 import { Effect, Layer } from 'effect';
 import { DuplicateGameIDError, GameNotFoundError } from '../errors';
 import * as games from '../lib/games';
-import * as stepCache from '../lib/step-cache';
+import { stepCache } from '../lib/step-cache';
 
 class GamesService extends Effect.Tag('GamesService')<
   GamesService,

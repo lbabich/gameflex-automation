@@ -11,7 +11,7 @@ const SYSTEM = 'You are a visual UI analyst. Return ONLY valid JSON.';
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-async function query(screenshotPath: string, prompt: string) {
+export async function query(screenshotPath: string, prompt: string) {
   const base64Image = fs.readFileSync(screenshotPath).toString('base64');
 
   const response = await client.messages.create({
@@ -53,5 +53,3 @@ async function query(screenshotPath: string, prompt: string) {
 
   throw new Error(`Claude returned non-JSON: ${text.slice(0, 200)}`);
 }
-
-export { query };

@@ -1,12 +1,12 @@
 import * as crypto from 'node:crypto';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import type { GameEntry, GameUpdates } from '../../../shared/types';
-import * as stepCache from './step-cache';
+import type { GameEntry, GameUpdates } from '../../shared/types';
+import { stepCache } from './step-cache';
 
-export type { GameEntry, GameUpdates } from '../../../shared/types';
+export type { GameEntry, GameUpdates } from '../../shared/types';
 
-function addGame(entry: Omit<GameEntry, 'id'> & { id?: string }) {
+export function addGame(entry: Omit<GameEntry, 'id'> & { id?: string }) {
   const games = readGames();
 
   if (
@@ -23,7 +23,7 @@ function addGame(entry: Omit<GameEntry, 'id'> & { id?: string }) {
   writeGamesToDisk(games);
 }
 
-function updateGame(id: string, updates: GameUpdates) {
+export function updateGame(id: string, updates: GameUpdates) {
   const games = readGames();
   const index = games.findIndex((game: GameEntry) => {
     return game.id === id;
@@ -54,7 +54,7 @@ function updateGame(id: string, updates: GameUpdates) {
   writeGamesToDisk(games);
 }
 
-function reorderGames(ids: string[]) {
+export function reorderGames(ids: string[]) {
   const games = readGames();
 
   const sorted = ids.map((id: string) => {
@@ -72,7 +72,7 @@ function reorderGames(ids: string[]) {
   writeGamesToDisk(sorted);
 }
 
-function deleteGame(id: string) {
+export function deleteGame(id: string) {
   const games = readGames();
   const index = games.findIndex((game: GameEntry) => {
     return game.id === id;
@@ -87,7 +87,7 @@ function deleteGame(id: string) {
   writeGamesToDisk(games);
 }
 
-function readGames() {
+export function readGames() {
   let entries: unknown[];
 
   try {
@@ -143,5 +143,3 @@ function gamesPath() {
     ? path.resolve(process.env.GAMES_JSON_PATH)
     : path.resolve('src', 'server', 'data', 'games.json');
 }
-
-export { readGames, addGame, updateGame, reorderGames, deleteGame };

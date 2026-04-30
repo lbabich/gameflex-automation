@@ -4,7 +4,7 @@ import * as claudeVision from '../../lib/claude-vision';
 import * as clickMarker from '../../lib/click-marker';
 import type { FailedButton } from '../../lib/discovery-prompt';
 import * as screenshot from '../../lib/screenshot';
-import * as stepCache from '../../lib/step-cache';
+import { stepCache } from '../../lib/step-cache';
 import type { CachedStep, Viewport } from '../../types';
 import type { StepContext } from './types';
 

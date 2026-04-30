@@ -4,7 +4,7 @@ import type { CachedStep } from '../types';
 import * as clickMarker from './click-marker';
 import * as screenshot from './screenshot';
 
-async function replaySteps(
+export async function replaySteps(
   page: Page,
   runID: string,
   steps: CachedStep[],
@@ -18,5 +18,3 @@ async function replaySteps(
     await page.mouse.click(steps[i].x, steps[i].y);
   }
 }
-
-export { replaySteps };

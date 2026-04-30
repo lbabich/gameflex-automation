@@ -1,6 +1,6 @@
 type FailedButton = { x: number; y: number; label: string };
 
-function buildDiscoveryPrompt(
+export function buildDiscoveryPrompt(
   defaultInstructions: string,
   formatFailedButtons: (list: string) => string,
   hint: string | undefined,
@@ -38,4 +38,3 @@ function buildDiscoveryPrompt(
 }
 
 export type { FailedButton };
-export { buildDiscoveryPrompt };

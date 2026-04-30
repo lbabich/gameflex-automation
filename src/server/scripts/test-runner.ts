@@ -6,7 +6,7 @@ import * as eventAccumulator from '../lib/event-accumulator';
 import type { GameEntry } from '../lib/games';
 import * as games from '../lib/games';
 import * as screenshot from '../lib/screenshot';
-import * as stepCache from '../lib/step-cache';
+import { stepCache } from '../lib/step-cache';
 import type { InternalTestResult, Viewport } from '../types';
 import * as audioToggle from './steps/audio-toggle';
 import * as gameClose from './steps/game-close';
