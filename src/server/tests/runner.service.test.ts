@@ -206,12 +206,6 @@ function makeTestRuntime(runsJson = '[]', gameEntries: GameEntry[] = []) {
     delete: () => {
       return Effect.succeed(undefined);
     },
-    clearAllSteps: () => {
-      return Effect.succeed(undefined);
-    },
-    clearSteps: () => {
-      return Effect.succeed(undefined);
-    },
     reorder: () => {
       return Effect.succeed(undefined);
     },

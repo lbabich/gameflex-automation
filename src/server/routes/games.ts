@@ -4,6 +4,7 @@ import { Router } from 'express';
 import type { DeviceType } from '../../shared/types';
 import type { DuplicateGameIDError, GameNotFoundError } from '../errors';
 import type { GameEntry } from '../lib/games';
+import * as stepCache from '../lib/step-cache';
 import type { AppRuntime } from '../runtime';
 import { GamesService } from '../services/games.service';
 import { RunnerService } from '../services/runner/runner.service';
@@ -160,10 +161,8 @@ function makeGamesRouter(runtime: AppRuntime) {
     const { id } = req.params;
 
     void runtime.runPromise(
-      Effect.gen(function* () {
-        const gamesService = yield* GamesService;
-
-        yield* gamesService.clearAllSteps(id);
+      Effect.sync(() => {
+        stepCache.clearAllSteps(id);
         res.sendStatus(204);
       }).pipe(Effect.catchAllDefect(serverDefectHandler(res))),
     );
@@ -178,10 +177,8 @@ function makeGamesRouter(runtime: AppRuntime) {
     }
 
     void runtime.runPromise(
-      Effect.gen(function* () {
-        const gamesService = yield* GamesService;
-
-        yield* gamesService.clearSteps(id, channel as DeviceType);
+      Effect.sync(() => {
+        stepCache.clearChannelSteps(id, channel as DeviceType);
         res.sendStatus(204);
       }).pipe(Effect.catchAllDefect(serverDefectHandler(res))),
     );
