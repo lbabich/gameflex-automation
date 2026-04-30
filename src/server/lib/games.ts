@@ -20,7 +20,7 @@ export function addGame(entry: Omit<GameEntry, 'id'> & { id?: string }) {
   writeGamesToDisk(games);
 }
 
-export function updateGame(id: string, updates: GameUpdates): { idChanged: boolean } {
+export function updateGame(id: string, updates: GameUpdates) {
   const games = readGames();
   const index = games.findIndex((game: GameEntry) => {
     return game.id === id;
