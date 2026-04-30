@@ -3,12 +3,13 @@ import * as path from 'node:path';
 import { Effect } from 'effect';
 import type { DeviceType } from '../../../shared/types';
 import * as gifGenerator from '../../lib/gif-generator';
+import { SCREENSHOTS_DIR } from '../../lib/screenshot';
 import type { InternalTestResult } from '../../types';
 import type { RunLoggerService } from './run-logger.service';
 
 function attachScreenshotUrls(results: Partial<Record<DeviceType, InternalTestResult>>) {
   return Effect.sync(() => {
-    const screenshotsBase = path.resolve('src/server/screenshots');
+    const screenshotsBase = path.resolve(SCREENSHOTS_DIR);
 
     for (const result of Object.values(results)) {
       if (!result) {

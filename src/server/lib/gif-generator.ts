@@ -3,6 +3,7 @@ import { createRequire } from 'node:module';
 import * as path from 'node:path';
 import { Jimp } from 'jimp';
 import type { DeviceType } from '../../shared/types';
+import { SCREENSHOTS_DIR } from './screenshot';
 
 type GifEncoderInstance = {
   setDelay(ms: number): void;
@@ -32,7 +33,7 @@ const GIF_DELAY_MS = 1000;
  * @throws if no PNG files exist in the screenshots directory
  */
 export async function generateGif(runID: string, deviceType: DeviceType) {
-  const screenshotsDir = path.resolve('src/server/screenshots', runID, deviceType);
+  const screenshotsDir = path.resolve(SCREENSHOTS_DIR, runID, deviceType);
   const gifPath = path.resolve(screenshotsDir, ANIMATED_GIF_FILENAME);
 
   const pngFiles = fs
