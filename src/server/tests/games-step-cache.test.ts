@@ -1,17 +1,21 @@
 import * as crypto from 'node:crypto';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { Effect, ManagedRuntime } from 'effect';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { addGame, readGames, updateGame } from '../lib/games';
+import { addGame, readGames } from '../lib/games';
 import { stepCache } from '../lib/step-cache';
+import { GamesService, NodeGamesService } from '../services/games.service';
+
+const GAMES_PATH = path.resolve(process.env.GAMES_JSON_PATH ?? 'src/server/data/games.json');
+const runtime = ManagedRuntime.make(NodeGamesService);
 
 beforeEach(() => {
-  fs.writeFileSync(path.resolve(process.env.GAMES_JSON_PATH ?? 'src/server/data/games.json'), '[]');
+  fs.writeFileSync(GAMES_PATH, '[]');
 });
 
-describe('updateGame + stepCache integration', () => {
-  it('clears the cache when desktopGameID changes', () => {
-    const SUT = updateGame;
+describe('GamesService update + stepCache invalidation', () => {
+  it('clears the cache when desktopGameID changes', async () => {
     const game = addTestGame();
     const VP = { width: 1280, height: 720 };
     const steps = { discoveredAt: new Date().toISOString(), steps: [] };
@@ -21,29 +25,36 @@ describe('updateGame + stepCache integration', () => {
       steps,
     );
 
-    const resultBefore = stepCache.getSteps({
-      id: game.id,
-      deviceType: 'desktop',
-      viewport: VP,
-      stepName: 'spin-cycle',
-    });
+    expect(
+      stepCache.getSteps({
+        id: game.id,
+        deviceType: 'desktop',
+        viewport: VP,
+        stepName: 'spin-cycle',
+      }),
+      'cache should exist before update',
+    ).toBeTruthy();
 
-    expect(resultBefore, 'cache should exist before update').toBeTruthy();
+    await runtime.runPromise(
+      Effect.gen(function* () {
+        const SUT = yield* GamesService;
 
-    SUT(game.id, { desktopGameID: makeDesktopGameID() });
+        yield* SUT.update(game.id, { desktopGameID: makeGameID() });
+      }),
+    );
 
-    const result = stepCache.getSteps({
-      id: game.id,
-      deviceType: 'desktop',
-      viewport: VP,
-      stepName: 'spin-cycle',
-    });
-
-    expect(result, 'cache should be cleared after ID change').toBeUndefined();
+    expect(
+      stepCache.getSteps({
+        id: game.id,
+        deviceType: 'desktop',
+        viewport: VP,
+        stepName: 'spin-cycle',
+      }),
+      'cache should be cleared after ID change',
+    ).toBeUndefined();
   });
 
-  it('clears the cache when mobileGameID changes', () => {
-    const SUT = updateGame;
+  it('clears the cache when mobileGameID changes', async () => {
     const game = addTestGame();
     const VP = { width: 390, height: 844 };
     const steps = { discoveredAt: new Date().toISOString(), steps: [] };
@@ -53,29 +64,26 @@ describe('updateGame + stepCache integration', () => {
       steps,
     );
 
-    const resultBefore = stepCache.getSteps({
-      id: game.id,
-      deviceType: 'mobile',
-      viewport: VP,
-      stepName: 'spin-cycle',
-    });
+    await runtime.runPromise(
+      Effect.gen(function* () {
+        const SUT = yield* GamesService;
 
-    expect(resultBefore, 'cache should exist before update').toBeTruthy();
+        yield* SUT.update(game.id, { mobileGameID: makeGameID() });
+      }),
+    );
 
-    SUT(game.id, { mobileGameID: makeDesktopGameID() });
-
-    const result = stepCache.getSteps({
-      id: game.id,
-      deviceType: 'mobile',
-      viewport: VP,
-      stepName: 'spin-cycle',
-    });
-
-    expect(result, 'cache should be cleared after mobile ID change').toBeUndefined();
+    expect(
+      stepCache.getSteps({
+        id: game.id,
+        deviceType: 'mobile',
+        viewport: VP,
+        stepName: 'spin-cycle',
+      }),
+      'cache should be cleared after mobile ID change',
+    ).toBeUndefined();
   });
 
-  it('does not clear the cache when only name changes', () => {
-    const SUT = updateGame;
+  it('does not clear the cache when only name changes', async () => {
     const game = addTestGame();
     const VP = { width: 1280, height: 720 };
     const steps = {
@@ -88,30 +96,61 @@ describe('updateGame + stepCache integration', () => {
       steps,
     );
 
-    SUT(game.id, { name: 'New Name' });
+    await runtime.runPromise(
+      Effect.gen(function* () {
+        const SUT = yield* GamesService;
 
-    const result = stepCache.getSteps({
-      id: game.id,
-      deviceType: 'desktop',
-      viewport: VP,
-      stepName: 'spin-cycle',
-    });
+        yield* SUT.update(game.id, { name: 'New Name' });
+      }),
+    );
 
-    expect(result, 'cache should survive a name-only update').toEqual(steps);
+    expect(
+      stepCache.getSteps({
+        id: game.id,
+        deviceType: 'desktop',
+        viewport: VP,
+        stepName: 'spin-cycle',
+      }),
+      'cache should survive a name-only update',
+    ).toEqual(steps);
 
-    // Cleanup
     stepCache.clearAllSteps(game.id);
+  });
+
+  it('clears the cache when game is deleted', async () => {
+    const game = addTestGame();
+    const VP = { width: 1280, height: 720 };
+    const steps = { discoveredAt: new Date().toISOString(), steps: [] };
+
+    stepCache.setSteps(
+      { id: game.id, deviceType: 'desktop', viewport: VP, stepName: 'spin-cycle' },
+      steps,
+    );
+
+    await runtime.runPromise(
+      Effect.gen(function* () {
+        const SUT = yield* GamesService;
+
+        yield* SUT.delete(game.id);
+      }),
+    );
+
+    expect(
+      stepCache.getSteps({
+        id: game.id,
+        deviceType: 'desktop',
+        viewport: VP,
+        stepName: 'spin-cycle',
+      }),
+      'cache should be cleared after deletion',
+    ).toBeUndefined();
   });
 });
 
 function addTestGame() {
-  const desktopGameID = makeDesktopGameID();
+  const desktopGameID = makeGameID();
 
-  addGame({
-    desktopGameID,
-    name: 'Update Test',
-    gameProviderID: '51',
-  });
+  addGame({ desktopGameID, name: 'Update Test', gameProviderID: '51' });
 
   const found = readGames().find((game) => {
     return game.desktopGameID === desktopGameID;
@@ -124,6 +163,6 @@ function addTestGame() {
   return found;
 }
 
-function makeDesktopGameID() {
+function makeGameID() {
   return `test-${crypto.randomUUID()}`;
 }

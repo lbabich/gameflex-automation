@@ -50,24 +50,34 @@ export const NodeGamesService = Layer.succeed(GamesService, {
   },
 
   update: (id: string, updates: games.GameUpdates) => {
-    return Effect.try({
-      try: () => {
-        return games.updateGame(id, updates);
-      },
-      catch: (_error: unknown) => {
-        return new GameNotFoundError({ id });
-      },
+    return Effect.gen(function* () {
+      const result = yield* Effect.try({
+        try: () => {
+          return games.updateGame(id, updates);
+        },
+        catch: () => {
+          return new GameNotFoundError({ id });
+        },
+      });
+
+      if (result.idChanged) {
+        stepCache.clearAllSteps(id);
+      }
     });
   },
 
   delete: (id: string) => {
-    return Effect.try({
-      try: () => {
-        return games.deleteGame(id);
-      },
-      catch: (_error: unknown) => {
-        return new GameNotFoundError({ id });
-      },
+    return Effect.gen(function* () {
+      yield* Effect.try({
+        try: () => {
+          return games.deleteGame(id);
+        },
+        catch: () => {
+          return new GameNotFoundError({ id });
+        },
+      });
+
+      stepCache.clearAllSteps(id);
     });
   },
 

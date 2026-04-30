@@ -2,7 +2,6 @@ import * as crypto from 'node:crypto';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import type { GameEntry, GameUpdates } from '../../shared/types';
-import { stepCache } from './step-cache';
 
 export type { GameEntry, GameUpdates } from '../../shared/types';
 
@@ -23,7 +22,7 @@ export function addGame(entry: Omit<GameEntry, 'id'> & { id?: string }) {
   writeGamesToDisk(games);
 }
 
-export function updateGame(id: string, updates: GameUpdates) {
+export function updateGame(id: string, updates: GameUpdates): { idChanged: boolean } {
   const games = readGames();
   const index = games.findIndex((game: GameEntry) => {
     return game.id === id;
@@ -39,10 +38,6 @@ export function updateGame(id: string, updates: GameUpdates) {
     (updates.desktopGameID !== undefined && updates.desktopGameID !== game.desktopGameID) ||
     (updates.mobileGameID !== undefined && updates.mobileGameID !== game.mobileGameID);
 
-  if (idChanged) {
-    stepCache.clearAllSteps(id);
-  }
-
   games[index] = {
     ...game,
     name: updates.name ?? game.name,
@@ -52,6 +47,8 @@ export function updateGame(id: string, updates: GameUpdates) {
   };
 
   writeGamesToDisk(games);
+
+  return { idChanged };
 }
 
 export function reorderGames(ids: string[]) {
@@ -82,7 +79,6 @@ export function deleteGame(id: string) {
     throw new Error(`Game ${id} not found`);
   }
 
-  stepCache.clearAllSteps(id);
   games.splice(index, 1);
   writeGamesToDisk(games);
 }
