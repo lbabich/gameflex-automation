@@ -27,7 +27,17 @@ export const NodeGamesService = Layer.succeed(GamesService, {
 
   getCachedDeviceMap: () => {
     return Effect.sync(() => {
-      return stepCache.getCachedDeviceMap();
+      const cache = stepCache.loadAll();
+      const result = new Map<string, { desktop: boolean; mobile: boolean }>();
+
+      for (const [gameID, devices] of Object.entries(cache)) {
+        result.set(gameID, {
+          desktop: 'desktop' in devices,
+          mobile: 'mobile' in devices,
+        });
+      }
+
+      return result;
     });
   },
 
