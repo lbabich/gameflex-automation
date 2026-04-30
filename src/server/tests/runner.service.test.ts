@@ -5,6 +5,7 @@ import type { GameEntry, RunRecord } from '../../shared/types';
 import { GameNotFoundError, RunNotFoundError } from '../errors';
 import { FileService } from '../services/file.service';
 import { GamesService } from '../services/games.service';
+import { ProcessExecutorService } from '../services/runner/process';
 import { RunLoggerService } from '../services/runner/run-logger.service';
 import { RunStateService } from '../services/runner/run-state.service';
 import { NodeRunnerService, RunnerService } from '../services/runner/runner.service';
@@ -228,10 +229,22 @@ function makeTestRuntime(runsJson = '[]', gameEntries: GameEntry[] = []) {
     },
   });
 
+  const testProcessExecutorService = Layer.succeed(ProcessExecutorService, {
+    execute: () => {
+      return Effect.succeed({ code: 0, stdout: '' });
+    },
+  });
+
   return ManagedRuntime.make(
     Layer.provide(
       NodeRunnerService,
-      Layer.mergeAll(testFileService, testGamesService, testRunStateService, testRunLoggerService),
+      Layer.mergeAll(
+        testFileService,
+        testGamesService,
+        testRunStateService,
+        testRunLoggerService,
+        testProcessExecutorService,
+      ),
     ),
   );
 }

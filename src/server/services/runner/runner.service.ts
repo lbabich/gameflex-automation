@@ -9,7 +9,7 @@ import { buildSpinCommand } from './command';
 import { attachGifUrls, attachScreenshotUrls, cleanupImages } from './media';
 import { parseSpinOutput } from './output-parser';
 import { loadRuns, saveRuns, trimMemory } from './persistence';
-import { spawnProcess } from './process';
+import { ProcessExecutorService } from './process';
 import { RunLoggerService } from './run-logger.service';
 import { RunStateService } from './run-state.service';
 
@@ -23,6 +23,7 @@ type StartRunServices = {
   gamesService: GamesService['Type'];
   fileService: FileService['Type'];
   runLoggerService: RunLoggerService['Type'];
+  processExecutorService: ProcessExecutorService['Type'];
 };
 
 type StartRunParams = {
@@ -63,6 +64,7 @@ export const NodeRunnerService = Layer.effect(
     const runLoggerService = yield* RunLoggerService;
     const fileService = yield* FileService;
     const gamesService = yield* GamesService;
+    const processExecutorService = yield* ProcessExecutorService;
 
     const loadedRuns = yield* loadRuns();
 
@@ -72,7 +74,11 @@ export const NodeRunnerService = Layer.effect(
 
     return {
       startRun: (params: StartRunParams) => {
-        return startRun(state, { gamesService, fileService, runLoggerService }, params);
+        return startRun(
+          state,
+          { gamesService, fileService, runLoggerService, processExecutorService },
+          params,
+        );
       },
       cancelRun: (runID: string) => {
         return cancelRun(state, fileService, runLoggerService, runID);
@@ -91,7 +97,7 @@ export const NodeRunnerService = Layer.effect(
 );
 
 function startRun(state: RunnerState, services: StartRunServices, params: StartRunParams) {
-  const { gamesService, fileService, runLoggerService } = services;
+  const { gamesService, fileService, runLoggerService, processExecutorService } = services;
   const { gameIDs, deviceTypes, steps, hints } = params;
 
   return Effect.gen(function* () {
@@ -115,7 +121,7 @@ function startRun(state: RunnerState, services: StartRunServices, params: StartR
     const background = Effect.gen(function* () {
       yield* runLoggerService.log(runID, 'runner', 'Spawning playwright process');
 
-      const { code, stdout } = yield* spawnProcess(cmd);
+      const { code, stdout } = yield* processExecutorService.execute(cmd);
 
       yield* runLoggerService.log(runID, 'runner', `Process exited with code ${code}`);
 
