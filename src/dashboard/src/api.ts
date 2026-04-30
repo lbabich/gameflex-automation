@@ -81,6 +81,27 @@ export async function updateGame(id: string, updates: GameUpdates) {
   }
 }
 
+export async function deleteGame(id: string) {
+  const response = await fetch(`/api/games/${id}`, { method: 'DELETE' });
+
+  if (!response.ok) {
+    const text = await response.text();
+    let message = 'Failed to delete game';
+
+    try {
+      const body = JSON.parse(text) as { error?: string };
+
+      if (body.error) {
+        message = body.error;
+      }
+    } catch {
+      // response was not JSON
+    }
+
+    throw new Error(message);
+  }
+}
+
 export async function clearSteps(id: string) {
   const response = await fetch(`/api/games/${id}/steps`, { method: 'DELETE' });
 
@@ -120,5 +141,17 @@ export async function clearGameRuns(gameID: string) {
 
   if (!response.ok) {
     throw new Error('Failed to clear runs');
+  }
+}
+
+export async function reorderGames(ids: string[]) {
+  const response = await fetch('/api/games/reorder', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ids }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to reorder games');
   }
 }

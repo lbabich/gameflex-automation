@@ -1,19 +1,22 @@
 import { useState } from 'react';
+import { useDeleteGame } from '../hooks/useDeleteGame';
 import { useUpdateGame } from '../hooks/useUpdateGame';
 import type { GameEntry } from '@shared/types';
 
 type Props = {
   game: GameEntry;
   onClose: () => void;
+  onDelete: () => void;
 };
 
-export function EditGameModal({ game, onClose }: Props) {
+export function EditGameModal({ game, onClose, onDelete }: Props) {
   const [name, setName] = useState(game.name);
   const [desktopGameID, setDesktopGameID] = useState(game.desktopGameID);
   const [mobileGameID, setMobileGameID] = useState(game.mobileGameID ?? '');
   const [gameProviderID, setGameProviderID] = useState(game.gameProviderID);
   const [error, setError] = useState<string | null>(null);
   const { mutate, isPending } = useUpdateGame();
+  const { mutate: deleteGameMutate, isPending: isDeleting } = useDeleteGame();
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -32,6 +35,17 @@ export function EditGameModal({ game, onClose }: Props) {
         onError: (err) => setError((err as Error).message),
       },
     );
+  }
+
+  function handleDelete() {
+    setError(null);
+    deleteGameMutate(game.id, {
+      onSuccess: () => {
+        onDelete();
+        onClose();
+      },
+      onError: (err) => setError((err as Error).message),
+    });
   }
 
   return (
@@ -97,21 +111,33 @@ export function EditGameModal({ game, onClose }: Props) {
 
           {error && <p className="text-sm text-red-600">{error}</p>}
 
-          <div className="flex justify-end gap-2 pt-1">
+          <div className="flex items-center justify-between pt-1">
             <button
               type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-sm rounded border hover:bg-gray-50 transition-colors"
+              onClick={handleDelete}
+              disabled={isDeleting || isPending}
+              className="px-4 py-2 text-sm rounded border border-red-300 text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
             >
-              Cancel
+              {isDeleting ? 'Deleting...' : 'Delete'}
             </button>
-            <button
-              type="submit"
-              disabled={isPending}
-              className="px-4 py-2 text-sm rounded bg-blue-600 text-white font-semibold hover:bg-blue-700 disabled:opacity-50 transition-colors"
-            >
-              {isPending ? 'Saving...' : 'Save'}
-            </button>
+
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={isPending || isDeleting}
+                className="px-4 py-2 text-sm rounded border hover:bg-gray-50 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isPending || isDeleting}
+                className="px-4 py-2 text-sm rounded bg-blue-600 text-white font-semibold hover:bg-blue-700 disabled:opacity-50 transition-colors"
+              >
+                {isPending ? 'Saving...' : 'Save'}
+              </button>
+            </div>
           </div>
         </form>
       </div>
