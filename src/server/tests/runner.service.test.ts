@@ -1,9 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import { Effect, Layer, ManagedRuntime } from 'effect';
 import { describe, expect, it } from 'vitest';
-import type { RunRecord } from '../../shared/types';
+import type { GameEntry, RunRecord } from '../../shared/types';
 import { GameNotFoundError, RunNotFoundError } from '../errors';
-import type { GameEntry } from '../lib/games';
 import { FileService } from '../services/file.service';
 import { GamesService } from '../services/games.service';
 import { RunLoggerService } from '../services/runner/run-logger.service';

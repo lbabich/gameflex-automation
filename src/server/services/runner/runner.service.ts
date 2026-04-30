@@ -1,8 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { Effect, Fiber, Layer } from 'effect';
-import type { DeviceType, RunHints, RunRecord, TestResult } from '../../../shared/types';
+import type { DeviceType, GameEntry, RunHints, RunRecord, TestResult } from '../../../shared/types';
 import { GameNotFoundError, RunAlreadyActiveError, RunNotFoundError } from '../../errors';
-import type { GameEntry } from '../../lib/games';
 import type { InternalRunRecord } from '../../types';
 import { FileService } from '../file.service';
 import { GamesService } from '../games.service';

@@ -1,4 +1,5 @@
 import { Effect, Layer } from 'effect';
+import type { GameEntry, GameUpdates } from '../../shared/types';
 import { DuplicateGameIDError, GameNotFoundError } from '../errors';
 import * as games from '../lib/games';
 import { stepCache } from '../lib/step-cache';
@@ -6,10 +7,10 @@ import { stepCache } from '../lib/step-cache';
 class GamesService extends Effect.Tag('GamesService')<
   GamesService,
   {
-    list: () => Effect.Effect<games.GameEntry[]>;
+    list: () => Effect.Effect<GameEntry[]>;
     getCachedDeviceMap: () => Effect.Effect<Map<string, { desktop: boolean; mobile: boolean }>>;
-    add: (entry: Omit<games.GameEntry, 'id'>) => Effect.Effect<void, DuplicateGameIDError>;
-    update: (id: string, updates: games.GameUpdates) => Effect.Effect<void, GameNotFoundError>;
+    add: (entry: Omit<GameEntry, 'id'>) => Effect.Effect<void, DuplicateGameIDError>;
+    update: (id: string, updates: GameUpdates) => Effect.Effect<void, GameNotFoundError>;
     delete: (id: string) => Effect.Effect<void, GameNotFoundError>;
     reorder: (ids: string[]) => Effect.Effect<void>;
   }
@@ -38,7 +39,7 @@ export const NodeGamesService = Layer.succeed(GamesService, {
     });
   },
 
-  add: (entry: Omit<games.GameEntry, 'id'>) => {
+  add: (entry: Omit<GameEntry, 'id'>) => {
     return Effect.try({
       try: () => {
         return games.addGame(entry);
@@ -49,7 +50,7 @@ export const NodeGamesService = Layer.succeed(GamesService, {
     });
   },
 
-  update: (id: string, updates: games.GameUpdates) => {
+  update: (id: string, updates: GameUpdates) => {
     return Effect.gen(function* () {
       const result = yield* Effect.try({
         try: () => {

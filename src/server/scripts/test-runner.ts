@@ -1,9 +1,8 @@
 import type { Browser, Page } from '@playwright/test';
 import { chromium } from '@playwright/test';
 import * as dotenv from 'dotenv';
-import type { DeviceType, RunHints } from '../../shared/types';
+import type { DeviceType, GameEntry, RunHints } from '../../shared/types';
 import * as eventAccumulator from '../lib/event-accumulator';
-import type { GameEntry } from '../lib/games';
 import * as games from '../lib/games';
 import * as screenshot from '../lib/screenshot';
 import { stepCache } from '../lib/step-cache';

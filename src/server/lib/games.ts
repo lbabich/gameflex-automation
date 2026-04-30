@@ -3,8 +3,6 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import type { GameEntry, GameUpdates } from '../../shared/types';
 
-export type { GameEntry, GameUpdates } from '../../shared/types';
-
 export function addGame(entry: Omit<GameEntry, 'id'> & { id?: string }) {
   const games = readGames();
 

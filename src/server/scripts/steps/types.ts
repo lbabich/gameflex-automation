@@ -1,7 +1,6 @@
 import type { Page } from '@playwright/test';
-import type { DeviceType, RunHints, TestStep } from '../../../shared/types';
+import type { DeviceType, GameEntry, RunHints, TestStep } from '../../../shared/types';
 import type { EventAccumulator } from '../../lib/event-accumulator';
-import type { GameEntry } from '../../lib/games';
 import type { Viewport } from '../../types';
 
 type RunState = {
