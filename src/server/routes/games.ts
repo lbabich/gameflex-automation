@@ -90,6 +90,25 @@ function makeGamesRouter(runtime: AppRuntime) {
     );
   });
 
+  router.patch('/reorder', (req: Request, res: Response) => {
+    void runtime.runPromise(
+      Effect.gen(function* () {
+        const { ids } = req.body as { ids: unknown };
+
+        if (!Array.isArray(ids)) {
+          res.status(400).json({ error: 'ids must be an array' });
+
+          return;
+        }
+
+        const gamesService = yield* GamesService;
+
+        yield* gamesService.reorder(ids as string[]);
+        res.sendStatus(204);
+      }).pipe(Effect.catchAllDefect(serverDefectHandler(res))),
+    );
+  });
+
   router.patch('/:id', (req: Request<Record<string, string>>, res: Response) => {
     const { id } = req.params;
 
@@ -107,6 +126,26 @@ function makeGamesRouter(runtime: AppRuntime) {
             res.status(400).json({ error: 'Invalid field types' });
           });
         }),
+        Effect.catchTag('GameNotFoundError', (err: GameNotFoundError) => {
+          return Effect.sync(() => {
+            res.status(404).json({ error: `Game '${err.id}' not found` });
+          });
+        }),
+        Effect.catchAllDefect(serverDefectHandler(res)),
+      ),
+    );
+  });
+
+  router.delete('/:id', (req: Request<Record<string, string>>, res: Response) => {
+    const { id } = req.params;
+
+    void runtime.runPromise(
+      Effect.gen(function* () {
+        const gamesService = yield* GamesService;
+
+        yield* gamesService.delete(id);
+        res.sendStatus(204);
+      }).pipe(
         Effect.catchTag('GameNotFoundError', (err: GameNotFoundError) => {
           return Effect.sync(() => {
             res.status(404).json({ error: `Game '${err.id}' not found` });

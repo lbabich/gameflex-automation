@@ -54,6 +54,39 @@ function updateGame(id: string, updates: GameUpdates) {
   writeGamesToDisk(games);
 }
 
+function reorderGames(ids: string[]) {
+  const games = readGames();
+
+  const sorted = ids.map((id: string) => {
+    const game = games.find((g: GameEntry) => {
+      return g.id === id;
+    });
+
+    if (!game) {
+      throw new Error(`Game ${id} not found`);
+    }
+
+    return game;
+  });
+
+  writeGamesToDisk(sorted);
+}
+
+function deleteGame(id: string) {
+  const games = readGames();
+  const index = games.findIndex((game: GameEntry) => {
+    return game.id === id;
+  });
+
+  if (index === -1) {
+    throw new Error(`Game ${id} not found`);
+  }
+
+  stepCache.clearAllSteps(id);
+  games.splice(index, 1);
+  writeGamesToDisk(games);
+}
+
 function readGames() {
   let entries: unknown[];
 
@@ -111,4 +144,4 @@ function gamesPath() {
     : path.resolve('src', 'server', 'data', 'games.json');
 }
 
-export { readGames, addGame, updateGame };
+export { readGames, addGame, updateGame, reorderGames, deleteGame };

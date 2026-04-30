@@ -11,8 +11,10 @@ class GamesService extends Effect.Tag('GamesService')<
     getCachedDeviceMap: () => Effect.Effect<Map<string, { desktop: boolean; mobile: boolean }>>;
     add: (entry: Omit<games.GameEntry, 'id'>) => Effect.Effect<void, DuplicateGameIDError>;
     update: (id: string, updates: games.GameUpdates) => Effect.Effect<void, GameNotFoundError>;
+    delete: (id: string) => Effect.Effect<void, GameNotFoundError>;
     clearAllSteps: (id: string) => Effect.Effect<void>;
     clearSteps: (id: string, deviceType: DeviceType) => Effect.Effect<void>;
+    reorder: (ids: string[]) => Effect.Effect<void>;
   }
 >() {}
 
@@ -51,6 +53,17 @@ export const NodeGamesService = Layer.succeed(GamesService, {
     });
   },
 
+  delete: (id: string) => {
+    return Effect.try({
+      try: () => {
+        return games.deleteGame(id);
+      },
+      catch: (_error: unknown) => {
+        return new GameNotFoundError({ id });
+      },
+    });
+  },
+
   clearAllSteps: (id: string) => {
     return Effect.sync(() => {
       return stepCache.clearAllSteps(id);
@@ -60,6 +73,12 @@ export const NodeGamesService = Layer.succeed(GamesService, {
   clearSteps: (id: string, deviceType: DeviceType) => {
     return Effect.sync(() => {
       return stepCache.clearChannelSteps(id, deviceType);
+    });
+  },
+
+  reorder: (ids: string[]) => {
+    return Effect.sync(() => {
+      return games.reorderGames(ids);
     });
   },
 });
