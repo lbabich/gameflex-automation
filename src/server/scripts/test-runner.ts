@@ -43,15 +43,14 @@ const STEP_REGISTRY: Record<string, Step> = {
 async function main() {
   const { runID, gameIDs, deviceTypes, steps, hints } = parseArgs();
 
-  const resolvedSteps = steps.flatMap((name) => {
+  const resolvedSteps = steps.map((name) => {
     const step = STEP_REGISTRY[name];
 
     if (!step) {
-      console.warn(`[test-runner] Unknown step '${name}' — skipping`);
-      return [];
+      throw new Error(`Unknown step '${name}'`);
     }
 
-    return [step];
+    return step;
   });
 
   const allGames = games.readGames();
