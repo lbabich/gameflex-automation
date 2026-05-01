@@ -1,0 +1,33 @@
+import { Layer, ManagedRuntime } from 'effect';
+import { NodeFileService } from './file.service';
+import { NodeGamesService } from './game-catalog/game-catalog.module';
+import {
+  NodeProcessExecutorService,
+  NodeRunLoggerService,
+  NodeRunnerService,
+  NodeRunStateService,
+} from './run/run.module';
+
+const ProvidedRunLoggerService = Layer.provide(NodeRunLoggerService, NodeRunStateService);
+const ProvidedNodeRunnerService = Layer.provide(
+  NodeRunnerService,
+  Layer.mergeAll(
+    NodeRunStateService,
+    NodeFileService,
+    NodeGamesService,
+    NodeProcessExecutorService,
+    ProvidedRunLoggerService,
+  ),
+);
+
+const AppLayer = Layer.mergeAll(
+  NodeRunStateService,
+  NodeFileService,
+  NodeGamesService,
+  ProvidedRunLoggerService,
+  ProvidedNodeRunnerService,
+);
+
+export const appRuntime = ManagedRuntime.make(AppLayer);
+
+export type AppRuntime = typeof appRuntime;

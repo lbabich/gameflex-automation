@@ -1,0 +1,445 @@
+{
+  "b334f577-df52-401b-b5db-d86559a07b3f": {
+    "desktop": {
+      "1280x720": {
+        "gameClose": {
+          "discoveredAt": "2026-03-31T13:48:33.055Z",
+          "steps": [
+            {
+              "waitMs": 7466,
+              "x": 220,
+              "y": 689,
+              "label": "Hamburger menu button"
+            },
+            {
+              "waitMs": 15869,
+              "x": 220,
+              "y": 519,
+              "label": "Settings gear icon in opened menu"
+            },
+            {
+              "waitMs": 7405,
+              "x": 26,
+              "y": 689,
+              "label": "In-game home/house icon in bottom-left of game frame"
+            },
+            {
+              "waitMs": 9568,
+              "x": 1159,
+              "y": 397,
+              "label": "X close button to dismiss settings overlay"
+            },
+            {
+              "waitMs": 21385,
+              "x": 26,
+              "y": 689,
+              "label": "Home icon in bottom-left game UI area (different from hamburger)"
+            },
+            {
+              "waitMs": 20505,
+              "x": 26,
+              "y": 689,
+              "label": "Home icon - trying precise coordinates in game UI bottom-left"
+            },
+            {
+              "waitMs": 9091,
+              "x": 26,
+              "y": 689,
+              "label": "Home icon in game UI - trying slightly different coordinates"
+            },
+            {
+              "waitMs": 10346,
+              "x": 1159,
+              "y": 294,
+              "label": "Auto-spin/home button in game UI right side"
+            },
+            {
+              "waitMs": 6473,
+              "x": 26,
+              "y": 34,
+              "label": "Home/house icon in top-left game UI"
+            }
+          ],
+          "partial": true
+        }
+      }
+    }
+  },
+  "b4c51f69-e28f-4c66-9b3c-0be918e9af91": {
+    "desktop": {
+      "1280x720": {
+        "spinCycle": {
+          "discoveredAt": "2026-03-31T15:37:02.490Z",
+          "steps": [
+            {
+              "waitMs": 5554,
+              "x": 661,
+              "y": 635,
+              "label": "CONTINUE button"
+            },
+            {
+              "waitMs": 5057,
+              "x": 661,
+              "y": 635,
+              "label": "CONTINUE button"
+            },
+            {
+              "waitMs": 7397,
+              "x": 661,
+              "y": 635,
+              "label": "CONTINUE button"
+            },
+            {
+              "waitMs": 6159,
+              "x": 661,
+              "y": 635,
+              "label": "CONTINUE button"
+            },
+            {
+              "waitMs": 7001,
+              "x": 661,
+              "y": 635,
+              "label": "CONTINUE button"
+            },
+            {
+              "waitMs": 11181,
+              "x": 661,
+              "y": 635,
+              "label": "CONTINUE button"
+            },
+            {
+              "waitMs": 6903,
+              "x": 661,
+              "y": 635,
+              "label": "CONTINUE button"
+            },
+            {
+              "waitMs": 5628,
+              "x": 661,
+              "y": 635,
+              "label": "CONTINUE button"
+            },
+            {
+              "waitMs": 6450,
+              "x": 661,
+              "y": 635,
+              "label": "CONTINUE button"
+            },
+            {
+              "waitMs": 6517,
+              "x": 661,
+              "y": 635,
+              "label": "CONTINUE button"
+            },
+            {
+              "waitMs": 5855,
+              "x": 661,
+              "y": 635,
+              "label": "CONTINUE button"
+            },
+            {
+              "waitMs": 6282,
+              "x": 661,
+              "y": 635,
+              "label": "CONTINUE button"
+            },
+            {
+              "waitMs": 5581,
+              "x": 661,
+              "y": 635,
+              "label": "CONTINUE button"
+            },
+            {
+              "waitMs": 5968,
+              "x": 661,
+              "y": 635,
+              "label": "CONTINUE button"
+            },
+            {
+              "waitMs": 5541,
+              "x": 661,
+              "y": 635,
+              "label": "CONTINUE button"
+            },
+            {
+              "waitMs": 7101,
+              "x": 661,
+              "y": 635,
+              "label": "CONTINUE button"
+            },
+            {
+              "waitMs": 6158,
+              "x": 661,
+              "y": 635,
+              "label": "CONTINUE button"
+            },
+            {
+              "waitMs": 6159,
+              "x": 661,
+              "y": 635,
+              "label": "CONTINUE button"
+            },
+            {
+              "waitMs": 6997,
+              "x": 661,
+              "y": 635,
+              "label": "CONTINUE button"
+            },
+            {
+              "waitMs": 6904,
+              "x": 661,
+              "y": 635,
+              "label": "CONTINUE button"
+            }
+          ],
+          "partial": true
+        }
+      }
+    }
+  },
+  "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986": {
+    "desktop": {
+      "1280x720": {
+        "gameClose": {
+          "discoveredAt": "2026-04-02T10:05:10.295Z",
+          "steps": [
+            {
+              "waitMs": 6281,
+              "x": 139,
+              "y": 684,
+              "label": "hamburger menu button"
+            },
+            {
+              "waitMs": 11279,
+              "x": 140,
+              "y": 589,
+              "label": "settings/gear icon in game sidebar"
+            },
+            {
+              "waitMs": 4542,
+              "x": 27,
+              "y": 102,
+              "label": "777 home/logo button in game frame"
+            },
+            {
+              "waitMs": 4784,
+              "x": 27,
+              "y": 687,
+              "label": "back/return arrow button in game sidebar"
+            },
+            {
+              "waitMs": 6775,
+              "x": 95,
+              "y": 102,
+              "label": "777 logo/home button inside game frame"
+            },
+            {
+              "waitMs": 53003,
+              "x": 88,
+              "y": 61,
+              "label": "three-dot menu button inside game frame"
+            }
+          ],
+          "partial": true
+        }
+      }
+    }
+  },
+  "6733624c-554e-4081-a92f-4616af3317e5": {
+    "desktop": {
+      "1280x720": {
+        "gameClose": {
+          "discoveredAt": "2026-04-02T12:42:06.585Z",
+          "steps": [
+            {
+              "waitMs": 5957,
+              "x": 141,
+              "y": 687,
+              "label": "Hamburger menu button"
+            },
+            {
+              "waitMs": 4661,
+              "x": 26,
+              "y": 687,
+              "label": "Home/house icon in game UI"
+            },
+            {
+              "waitMs": 7165,
+              "x": 95,
+              "y": 102,
+              "label": "777 game logo/home button in game frame"
+            },
+            {
+              "waitMs": 6454,
+              "x": 88,
+              "y": 61,
+              "label": "Three-dot menu button in game frame"
+            }
+          ],
+          "partial": true
+        }
+      }
+    }
+  },
+  "62d8cc14-b2a7-4053-9c83-6c4923fc8b52": {
+    "desktop": {
+      "1280x720": {
+        "spinCycle": {
+          "discoveredAt": "2026-04-30T10:49:13.921Z",
+          "steps": [
+            {
+              "waitMs": 5613,
+              "x": 660,
+              "y": 375,
+              "label": "SPIN button in the center of the wheel"
+            },
+            {
+              "waitMs": 3819,
+              "x": 884,
+              "y": 497,
+              "label": "FREE SPINY overlay area - click to dismiss bonus wheel overlay"
+            },
+            {
+              "waitMs": 2830,
+              "x": 664,
+              "y": 390,
+              "label": "Bonus wheel overlay - click center to advance/dismiss"
+            },
+            {
+              "waitMs": 3335,
+              "x": 664,
+              "y": 617,
+              "label": "Spin/Refresh button in bottom center control bar"
+            },
+            {
+              "waitMs": 3394,
+              "x": 664,
+              "y": 617,
+              "label": "Red circular spin button in bottom center control bar"
+            },
+            {
+              "waitMs": 3701,
+              "x": 664,
+              "y": 390,
+              "label": "Free spins in progress - click reels area to advance spin animation"
+            },
+            {
+              "waitMs": 3928,
+              "x": 754,
+              "y": 467,
+              "label": "Click center of reels to dismiss Big Win overlay and advance free spin"
+            },
+            {
+              "waitMs": 3515,
+              "x": 254,
+              "y": 622,
+              "label": "Hamburger menu button - attempt to access different game state"
+            },
+            {
+              "waitMs": 3846,
+              "x": 254,
+              "y": 622,
+              "label": "Red circular back/undo button bottom-left to change game state"
+            },
+            {
+              "waitMs": 3717,
+              "x": 754,
+              "y": 180,
+              "label": "57.00 win display - click to dismiss win animation and advance free spin"
+            },
+            {
+              "waitMs": 3359,
+              "x": 546,
+              "y": 185
+            },
+            {
+              "waitMs": 4148,
+              "x": 1046,
+              "y": 622,
+              "label": "Sound/action button bottom-right control area to advance free spin state"
+            },
+            {
+              "waitMs": 3219,
+              "x": 754,
+              "y": 320,
+              "label": "Big Win amount display - click to dismiss Big Win celebration overlay"
+            },
+            {
+              "waitMs": 3669,
+              "x": 1046,
+              "y": 622,
+              "label": "Lightning/turbo button bottom-right to advance free spin state"
+            },
+            {
+              "waitMs": 4224,
+              "x": 1089,
+              "y": 61,
+              "label": "Help button top-right to navigate to a different state and reset free spins overlay"
+            },
+            {
+              "waitMs": 3402,
+              "x": 664,
+              "y": 563,
+              "label": "LINE PAYS / bottom bar area - click to dismiss win overlay"
+            },
+            {
+              "waitMs": 4063,
+              "x": 1037,
+              "y": 71,
+              "label": "Close X button on help dialog to dismiss overlay and access spin button"
+            },
+            {
+              "waitMs": 4162,
+              "x": 722,
+              "y": 617,
+              "label": "Auto-play/play button (triangle icon) to the right of the spin button"
+            },
+            {
+              "waitMs": 6866,
+              "x": 664,
+              "y": 460,
+              "label": "Outside/bottom area of Autoplay dialog - click to dismiss overlay"
+            }
+          ],
+          "partial": true
+        }
+      }
+    }
+  },
+  "3a4c3341-ba9d-4bdd-bd82-6ec2aad0105c": {
+    "desktop": {
+      "1280x720": {
+        "spin-cycle": {
+          "discoveredAt": "2026-04-30T13:58:41.318Z",
+          "steps": []
+        }
+      }
+    },
+    "mobile": {
+      "390x844": {
+        "spin-cycle": {
+          "discoveredAt": "2026-04-30T13:58:41.318Z",
+          "steps": []
+        }
+      }
+    }
+  },
+  "48cd138a-fd63-4d67-8d0e-bbbeea029196": {
+    "desktop": {
+      "1280x720": {
+        "spin-cycle": {
+          "discoveredAt": "2026-04-30T13:58:41.327Z",
+          "steps": []
+        }
+      }
+    },
+    "mobile": {
+      "390x844": {
+        "spin-cycle": {
+          "discoveredAt": "2026-04-30T13:58:41.327Z",
+          "steps": []
+        }
+      }
+    }
+  }
+}
