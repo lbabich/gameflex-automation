@@ -1,7 +1,7 @@
 import { execSync, spawn } from 'node:child_process';
 import { Effect, Layer } from 'effect';
 
-class ProcessExecutorService extends Effect.Tag('ProcessExecutorService')<
+export class ProcessExecutorService extends Effect.Tag('ProcessExecutorService')<
   ProcessExecutorService,
   {
     execute: (cmd: string) => Effect.Effect<{ code: number; stdout: string }>;
@@ -72,5 +72,3 @@ export const NodeProcessExecutorService = Layer.succeed(ProcessExecutorService, 
     );
   },
 });
-
-export { ProcessExecutorService };

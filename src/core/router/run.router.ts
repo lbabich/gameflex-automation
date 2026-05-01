@@ -29,7 +29,7 @@ function serverDefectHandler(res: Response) {
   };
 }
 
-function makeRunsRouter(runtime: AppRuntime) {
+export function makeRunsRouter(runtime: AppRuntime) {
   const router = Router();
 
   router.post('/', (req: Request, res: Response) => {
@@ -121,5 +121,3 @@ function makeRunsRouter(runtime: AppRuntime) {
 
   return router;
 }
-
-export { makeRunsRouter };

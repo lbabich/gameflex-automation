@@ -11,7 +11,8 @@ Functions in every file are ordered top-to-bottom by call depth — the reader s
 3. **The exported (or top-level entry) function** immediately after — this is the reader's entry point
 4. **Helpers in call order** — every helper function appears *below* the first function that calls it, in the order it is called (depth-first)
 5. **Deepest utilities last** — if a helper is shared by multiple callers, place it below the *last* function that calls it
-6. **`export { ... }` statement** at the very bottom
+
+Exported symbols carry the `export` keyword inline at their declaration site — there is no trailing `export { ... }` block.
 
 ### Examples
 
@@ -24,8 +25,6 @@ export function run(options: RunOptions) {
 
 function validate(options: RunOptions) { ... }   // called first by run
 function execute(result: ValidResult) { ... }    // called second by run
-
-export {}
 ```
 
 ```ts

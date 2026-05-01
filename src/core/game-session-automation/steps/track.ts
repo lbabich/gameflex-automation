@@ -1,6 +1,6 @@
 import type { TestStep } from '../../../shared/types';
 
-async function track<T>(steps: TestStep[], title: string, fn: () => Promise<T>): Promise<T> {
+export async function track<T>(steps: TestStep[], title: string, fn: () => Promise<T>): Promise<T> {
   const start = Date.now();
   const planTitle = title.replace(' (cached)', '');
 
@@ -42,5 +42,3 @@ async function track<T>(steps: TestStep[], title: string, fn: () => Promise<T>):
     }
   }
 }
-
-export { track };

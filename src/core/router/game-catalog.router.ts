@@ -3,7 +3,7 @@ import type { Request, Response } from 'express';
 import { Router } from 'express';
 import type { DeviceType, GameEntry } from '../../shared/types';
 import type { DuplicateGameIDError, GameNotFoundError } from '../errors';
-import { GamesService } from '../game-catalog/games';
+import { GamesService } from '../game-catalog/game-catalog.module';
 import { RunnerService } from '../run/run.module';
 import type { AppRuntime } from '../runtime';
 import { stepCache } from '../step-cache';
@@ -35,7 +35,7 @@ function serverDefectHandler(res: Response) {
   };
 }
 
-function makeGamesRouter(runtime: AppRuntime) {
+export function makeGamesRouter(runtime: AppRuntime) {
   const router = Router();
 
   router.get('/', (_req: Request, res: Response) => {
@@ -198,5 +198,3 @@ function makeGamesRouter(runtime: AppRuntime) {
 
   return router;
 }
-
-export { makeGamesRouter };

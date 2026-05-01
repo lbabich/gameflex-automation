@@ -7,7 +7,7 @@ import { SCREENSHOTS_DIR } from '../types';
 import * as gifGenerator from './gif-generator';
 import type { RunLoggerService } from './run-logger.service';
 
-function attachScreenshotUrls(results: Partial<Record<DeviceType, InternalTestResult>>) {
+export function attachScreenshotUrls(results: Partial<Record<DeviceType, InternalTestResult>>) {
   return Effect.sync(() => {
     const screenshotsBase = path.resolve(SCREENSHOTS_DIR);
 
@@ -30,7 +30,7 @@ function attachScreenshotUrls(results: Partial<Record<DeviceType, InternalTestRe
   });
 }
 
-function attachGifUrls(
+export function attachGifUrls(
   runLoggerService: RunLoggerService['Type'],
   runID: string,
   results: Partial<Record<DeviceType, InternalTestResult>>,
@@ -69,7 +69,7 @@ function attachGifUrls(
   });
 }
 
-function cleanupImages(
+export function cleanupImages(
   runLoggerService: RunLoggerService['Type'],
   runID: string,
   results: Partial<Record<DeviceType, InternalTestResult>>,
@@ -109,5 +109,3 @@ function cleanupImages(
     }
   });
 }
-
-export { attachScreenshotUrls, attachGifUrls, cleanupImages };

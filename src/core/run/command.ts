@@ -2,7 +2,7 @@ import type { RunHints } from '../../shared/types';
 
 const DEFAULT_STEPS = ['gameLoad', 'spinCycle'];
 
-function buildSpinCommand(
+export function buildSpinCommand(
   runID: string,
   gameIDs: string[],
   deviceTypes: string[],
@@ -22,5 +22,3 @@ function buildSpinCommand(
 
   return cmd;
 }
-
-export { buildSpinCommand };

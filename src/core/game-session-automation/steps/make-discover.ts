@@ -7,7 +7,7 @@ import { DiscoveryError } from '../discovery/loop';
 import type { FailedButton } from '../discovery/prompt';
 import type { StepContext } from './types';
 
-type MakeDiscoverConfig = {
+export type MakeDiscoverConfig = {
   stepName: string;
   buildPrompt: (
     hint: string | undefined,
@@ -20,7 +20,7 @@ type MakeDiscoverConfig = {
   swallowDiscoveryError?: boolean;
 };
 
-function makeDiscover(config: MakeDiscoverConfig): (ctx: StepContext) => Promise<void> {
+export function makeDiscover(config: MakeDiscoverConfig): (ctx: StepContext) => Promise<void> {
   return async (ctx: StepContext) => {
     const { page, game, viewport, deviceType, runID, hints } = ctx;
 
@@ -69,6 +69,3 @@ function makeDiscover(config: MakeDiscoverConfig): (ctx: StepContext) => Promise
     }
   };
 }
-
-export { makeDiscover };
-export type { MakeDiscoverConfig };

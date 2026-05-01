@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import { Effect, Layer } from 'effect';
 import { FileReadError, FileWriteError } from './errors';
 
-class FileService extends Effect.Tag('FileService')<
+export class FileService extends Effect.Tag('FileService')<
   FileService,
   {
     read: (path: string) => Effect.Effect<string, FileReadError>;
@@ -38,5 +38,3 @@ export const NodeFileService = Layer.succeed(FileService, {
     return Effect.succeed(fs.existsSync(path));
   },
 });
-
-export { FileService };

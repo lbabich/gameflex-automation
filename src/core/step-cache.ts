@@ -6,14 +6,14 @@ import type { GameSteps, Viewport } from './types';
 type StepMap = Record<string, GameSteps>;
 type ViewportMap = Record<string, StepMap>;
 type DeviceMap = Record<string, ViewportMap>;
-type StepCache = Record<string, DeviceMap>;
+export type StepCache = Record<string, DeviceMap>;
 
-type StepStore = {
+export type StepStore = {
   load(): StepCache;
   save(cache: StepCache): void;
 };
 
-type StepCacheKey = {
+export type StepCacheKey = {
   id: string;
   deviceType: DeviceType;
   viewport: Viewport;
@@ -41,7 +41,7 @@ function createDiskStore(): StepStore {
   };
 }
 
-function createStepCache(store: StepStore) {
+export function createStepCache(store: StepStore) {
   const pending = new Map<string, GameSteps>();
 
   function getSteps(key: StepCacheKey) {
@@ -143,9 +143,6 @@ function pendingKey(key: StepCacheKey): string {
 function viewportKey(viewport: Viewport) {
   return `${viewport.width}x${viewport.height}`;
 }
-
-export type { StepCache, StepCacheKey, StepStore };
-export { createStepCache };
 
 const diskStore = createDiskStore();
 export const stepCache = createStepCache(diskStore);

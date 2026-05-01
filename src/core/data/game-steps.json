@@ -316,5 +316,62 @@
         }
       }
     }
+  },
+  "62d8cc14-b2a7-4053-9c83-6c4923fc8b52": {
+    "desktop": {
+      "1280x720": {
+        "spinCycle": {
+          "discoveredAt": "2026-05-01T09:43:44.125Z",
+          "steps": [
+            {
+              "waitMs": 2253,
+              "x": 1047,
+              "y": 622,
+              "label": "Lightning/spin button"
+            },
+            {
+              "waitMs": 3372,
+              "x": 664,
+              "y": 617,
+              "label": "Spin button - circular button with rotating arrows"
+            }
+          ]
+        },
+        "audioToggle": {
+          "discoveredAt": "2026-05-01T09:43:51.024Z",
+          "steps": [
+            {
+              "waitMs": 2039,
+              "x": 1079,
+              "y": 622,
+              "label": "Speaker/audio toggle button in game UI bottom bar"
+            }
+          ]
+        },
+        "gameClose": {
+          "discoveredAt": "2026-05-01T09:44:09.667Z",
+          "steps": [
+            {
+              "waitMs": 4436,
+              "x": 254,
+              "y": 622,
+              "label": "Hamburger menu (≡) game control button"
+            },
+            {
+              "waitMs": 2925,
+              "x": 255,
+              "y": 588,
+              "label": "Home/house icon in game UI"
+            },
+            {
+              "waitMs": 4181,
+              "x": 748,
+              "y": 442,
+              "label": "YES button in exit confirmation dialog"
+            }
+          ]
+        }
+      }
+    }
   }
 }

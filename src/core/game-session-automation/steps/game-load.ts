@@ -3,17 +3,17 @@ import * as preLaunch from '../pre-launch';
 import { track } from './track';
 import type { StepContext, StepDescriptor } from './types';
 
-const plan: StepDescriptor[] = [
+export const plan: StepDescriptor[] = [
   { title: 'Launch game via harness' },
   { title: GEL_EVENT.LOAD_PROGRESS, optional: true },
   { title: GEL_EVENT.READY },
 ];
 
-async function discover(_ctx: StepContext): Promise<void> {
+export async function discover(_ctx: StepContext): Promise<void> {
   console.log('[game-load] No discovery process');
 }
 
-async function execute(ctx: StepContext): Promise<void> {
+export async function execute(ctx: StepContext): Promise<void> {
   const { page, game, deviceType, accumulator, runState } = ctx;
   const readyPromise = accumulator.waitFor(GEL_EVENT.READY, GEL_READY_TIMEOUT_MS);
 
@@ -37,5 +37,3 @@ async function execute(ctx: StepContext): Promise<void> {
 
   loadProgressStep.status = hadLoadProgress ? 'passed' : 'warning';
 }
-
-export { discover, execute, plan };

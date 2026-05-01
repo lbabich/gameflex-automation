@@ -45,7 +45,7 @@ type FinalizeResult = {
   outputFilePath: string;
 };
 
-class RunnerService extends Effect.Tag('RunnerService')<
+export class RunnerService extends Effect.Tag('RunnerService')<
   RunnerService,
   {
     startRun: (
@@ -424,5 +424,3 @@ function clearGameRuns(state: RunnerState, fileService: FileService['Type'], gam
     );
   });
 }
-
-export { RunnerService };

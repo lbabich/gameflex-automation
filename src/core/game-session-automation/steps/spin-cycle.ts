@@ -9,7 +9,7 @@ import { makeDiscover } from './make-discover';
 import { track } from './track';
 import type { StepContext, StepDescriptor } from './types';
 
-const plan: StepDescriptor[] = [
+export const plan: StepDescriptor[] = [
   { title: `Spin start: ${GEL_EVENT.SPIN_START}` },
   { title: `Spin end: ${GEL_EVENT.SPIN_END}` },
 ];
@@ -19,7 +19,7 @@ const SPIN_START_WAIT_MS = 15_000;
 const SPIN_END_WAIT_MS = 15_000;
 const SPIN_VERIFY_TIMEOUT_MS = 3_000;
 
-const discover = makeDiscover({
+export const discover = makeDiscover({
   stepName: STEP_NAME,
   buildPrompt: buildNextClickPrompt,
   getHint: (hints) => {
@@ -39,7 +39,7 @@ const discover = makeDiscover({
   },
 });
 
-async function execute(ctx: StepContext): Promise<void> {
+export async function execute(ctx: StepContext): Promise<void> {
   const { page, accumulator, game, viewport, runID, deviceType, runState } = ctx;
   const cached = stepCache.getSteps({ id: game.id, deviceType, viewport, stepName: STEP_NAME });
 
@@ -80,5 +80,3 @@ function buildNextClickPrompt(
     failedButtons,
   );
 }
-
-export { discover, execute, plan };

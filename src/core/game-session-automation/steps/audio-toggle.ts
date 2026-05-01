@@ -14,9 +14,9 @@ const PLAN_TITLE = `Audio toggle: ${GEL_EVENT.AUDIO_ENABLE} / ${GEL_EVENT.AUDIO_
 const AUDIO_TOGGLE_WAIT_MS = 10_000;
 const AUDIO_VERIFY_TIMEOUT_MS = 3_000;
 
-const plan: StepDescriptor[] = [{ title: PLAN_TITLE, optional: true }];
+export const plan: StepDescriptor[] = [{ title: PLAN_TITLE, optional: true }];
 
-const discover = makeDiscover({
+export const discover = makeDiscover({
   stepName: STEP_NAME,
   buildPrompt: buildNextClickPrompt,
   getHint: (hints) => {
@@ -48,7 +48,7 @@ const discover = makeDiscover({
   swallowDiscoveryError: true,
 });
 
-async function execute(ctx: StepContext): Promise<void> {
+export async function execute(ctx: StepContext): Promise<void> {
   const { page, accumulator, game, viewport, runID, deviceType, runState } = ctx;
 
   const cached = stepCache.getSteps({ id: game.id, deviceType, viewport, stepName: STEP_NAME });
@@ -91,5 +91,3 @@ function buildNextClickPrompt(
     failedButtons,
   );
 }
-
-export { discover, execute, plan };

@@ -9,13 +9,13 @@ import { makeDiscover } from './make-discover';
 import { track } from './track';
 import type { StepContext, StepDescriptor } from './types';
 
-const plan: StepDescriptor[] = [{ title: `Game close: ${GEL_EVENT.GAME_CLOSE}` }];
+export const plan: StepDescriptor[] = [{ title: `Game close: ${GEL_EVENT.GAME_CLOSE}` }];
 
 const STEP_NAME = 'gameClose';
 const GAME_CLOSE_TIMEOUT_MS = 10_000;
 const CLOSE_VERIFY_TIMEOUT_MS = 3_000;
 
-const discover = makeDiscover({
+export const discover = makeDiscover({
   stepName: STEP_NAME,
   buildPrompt: buildNextClickPrompt,
   getHint: (hints) => {
@@ -35,7 +35,7 @@ const discover = makeDiscover({
   },
 });
 
-async function execute(ctx: StepContext): Promise<void> {
+export async function execute(ctx: StepContext): Promise<void> {
   const { page, accumulator, game, viewport, runID, deviceType, runState } = ctx;
   const cached = stepCache.getSteps({ id: game.id, deviceType, viewport, stepName: STEP_NAME });
 
@@ -71,5 +71,3 @@ function buildNextClickPrompt(
     failedButtons,
   );
 }
-
-export { discover, execute, plan };

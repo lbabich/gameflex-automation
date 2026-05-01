@@ -1,7 +1,7 @@
 import { Effect } from 'effect';
 import type { DeviceType, TestResult } from '../../shared/types';
 
-function parseSpinOutput(json: string) {
+export function parseSpinOutput(json: string) {
   return Effect.try({
     try: () => {
       const parsed = JSON.parse(json) as {
@@ -16,5 +16,3 @@ function parseSpinOutput(json: string) {
     },
   });
 }
-
-export { parseSpinOutput };
