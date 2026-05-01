@@ -1,12 +1,11 @@
 import { useMemo } from 'react';
-import * as localStorageService from '../lib/local-storage.service';
 
 export function useLocalStorage() {
 	return useMemo(
 		() => ({
 			setItem<T>(key: string, value: T) {
 				try {
-					localStorageService.store(key, JSON.stringify(value));
+					localStorage.setItem(key, JSON.stringify(value));
 					return true;
 				} catch (err: unknown) {
 					console.error(`useLocalStorage: could not store "${key}"`, err);
@@ -15,7 +14,7 @@ export function useLocalStorage() {
 			},
 			getItem<T>(key: string) {
 				try {
-					const raw = localStorageService.get(key);
+					const raw = localStorage.getItem(key);
 
 					if (raw === null) {
 						return null;

@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { type NewGame } from '../api';
-import { useAddGame } from '../hooks/useAddGame';
+import type { NewGame } from '../shared/api';
+import { useGameCatalog } from './useGameCatalog';
 
 type Props = {
   onClose: () => void;
@@ -15,7 +15,7 @@ const DEFAULTS: NewGame = {
 export function AddGameModal({ onClose }: Props) {
   const [fields, setFields] = useState<NewGame>(DEFAULTS);
   const [error, setError] = useState<string | null>(null);
-  const { mutate, isPending } = useAddGame();
+  const { add } = useGameCatalog();
 
   function set<K extends keyof NewGame>(key: K, value: NewGame[K]) {
     setFields((f) => ({ ...f, [key]: value }));
@@ -25,7 +25,7 @@ export function AddGameModal({ onClose }: Props) {
     e.preventDefault();
     setError(null);
 
-    mutate(
+    add.mutate(
       { ...fields, desktopGameID: fields.desktopGameID.trim(), name: fields.name.trim() },
       {
         onSuccess: () => onClose(),
@@ -104,10 +104,10 @@ export function AddGameModal({ onClose }: Props) {
             </button>
             <button
               type="submit"
-              disabled={isPending}
+              disabled={add.isPending}
               className="px-4 py-2 text-sm rounded bg-blue-600 text-white font-semibold hover:bg-blue-700 disabled:opacity-50 transition-colors"
             >
-              {isPending ? 'Adding...' : 'Add Game'}
+              {add.isPending ? 'Adding...' : 'Add Game'}
             </button>
           </div>
         </form>

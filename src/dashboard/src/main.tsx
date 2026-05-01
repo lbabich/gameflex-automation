@@ -3,8 +3,8 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
-import { QUERY_KEY } from './queryKeys';
-import type { RunRecord } from './types';
+import { QUERY_KEY } from './shared/queryKeys';
+import type { RunRecord } from '@shared/types';
 
 const queryClient = new QueryClient({
   queryCache: new QueryCache({

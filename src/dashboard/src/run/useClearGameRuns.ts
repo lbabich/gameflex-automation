@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { clearGameRuns } from '../api';
-import { QUERY_KEY } from '../queryKeys';
+import { clearGameRuns } from '../shared/api';
+import { QUERY_KEY } from '../shared/queryKeys';
 
 export function useClearGameRuns() {
   const queryClient = useQueryClient();

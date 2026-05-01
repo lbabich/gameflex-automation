@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { getGames } from '../api';
-import { QUERY_KEY } from '../queryKeys';
+import { getGames } from '../shared/api';
+import { QUERY_KEY } from '../shared/queryKeys';
 
 export function useGames() {
   return useQuery({

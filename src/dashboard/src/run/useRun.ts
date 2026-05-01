@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { getRun } from '../api';
-import { QUERY_KEY } from '../queryKeys';
+import { getRun } from '../shared/api';
+import { QUERY_KEY } from '../shared/queryKeys';
 
 export function useRun(runID: string | null) {
   return useQuery({

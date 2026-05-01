@@ -1,20 +1,18 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { Play } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { AddGameModal } from './components/AddGameModal';
-import { DiscoveryHints } from './components/DiscoveryHints';
-import { EditGameModal } from './components/EditGameModal';
-import { GameActionBar } from './components/GameActionBar';
-
-import { GameSelector } from './components/GameSelector';
-import { RunHistory } from './components/PreviousRunsAccordion';
-import { ResultsPanel } from './components/ResultsPanel';
-import { useClearGameRuns } from './hooks/useClearGameRuns';
-import { useGames } from './hooks/useGames';
-import { useRecentRuns } from './hooks/useRecentRuns';
-import { useReorderGames } from './hooks/useReorderGames';
-import { useRun } from './hooks/useRun';
-import { QUERY_KEY } from './queryKeys';
+import { AddGameModal, EditGameModal, GameSelector, useGameCatalog, useGames } from './game-catalog';
+import {
+  DiscoveryHints,
+  GameActionBar,
+  ResultsPanel,
+  RunHistory,
+  useClearGameRuns,
+  useRecentRuns,
+  useRun,
+  useRunConfiguration,
+} from './run';
+import { QUERY_KEY } from './shared/queryKeys';
 import type { GameEntry } from '@shared/types';
 
 export default function App() {
@@ -22,16 +20,14 @@ export default function App() {
   const [addGameOpen, setAddGameOpen] = useState(false);
   const [editGame, setEditGame] = useState<GameEntry | null>(null);
   const [viewRunID, setViewRunID] = useState<string | null>(null);
-  const [spinCycleHint, setSpinCycleHint] = useState('');
-  const [gameCloseHint, setGameCloseHint] = useState('');
-  const [audioToggleHint, setAudioToggleHint] = useState('');
 
   const queryClient = useQueryClient();
   const { data: games, isLoading: gamesLoading } = useGames();
   const { data: run, isLoading: runLoading } = useRun(viewRunID);
   const { data: recentRuns } = useRecentRuns();
   const clearGameRunsMutation = useClearGameRuns();
-  const reorderGamesMutation = useReorderGames();
+  const { reorder } = useGameCatalog();
+  const runConfig = useRunConfiguration(selectedGameID);
 
   const gameStatuses = useMemo(() => {
     const result: Record<string, { isRunning: boolean }> = {};
@@ -64,9 +60,6 @@ export default function App() {
 
   function handleGameSelect(id: string) {
     setSelectedGameID(id);
-    setSpinCycleHint('');
-    setGameCloseHint('');
-    setAudioToggleHint('');
     const found = (recentRuns ?? []).find((r) => r.gameIDs.includes(id));
     setViewRunID(found?.runID ?? null);
   }
@@ -107,7 +100,7 @@ export default function App() {
             gameStatuses={gameStatuses}
             onSelect={handleGameSelect}
             onEdit={setEditGame}
-            onReorder={(ids) => reorderGamesMutation.mutate(ids)}
+            onReorder={(ids) => reorder.mutate(ids)}
           />
         )}
         <div className="mt-auto pt-4 border-t flex flex-col gap-2">
@@ -127,20 +120,22 @@ export default function App() {
             game={selectedGame}
             isRunning={selectedGameIsRunning}
             runID={selectedGameRunID}
-            spinCycleHint={spinCycleHint}
-            gameCloseHint={gameCloseHint}
-            audioToggleHint={audioToggleHint}
+            runDevices={runConfig.runDevices}
+            resetCacheDevices={runConfig.resetCacheDevices}
+            onToggleRunDevice={runConfig.toggleRunDevice}
+            onToggleResetDevice={runConfig.toggleResetDevice}
+            hints={runConfig.hints}
             onRunComplete={handleRunComplete}
           />
         )}
         {selectedGame && (
           <DiscoveryHints
-            spinCycleHint={spinCycleHint}
-            gameCloseHint={gameCloseHint}
-            audioToggleHint={audioToggleHint}
-            onSpinHintChange={setSpinCycleHint}
-            onCloseHintChange={setGameCloseHint}
-            onAudioToggleHintChange={setAudioToggleHint}
+            spinCycleHint={runConfig.spinCycleHint}
+            gameCloseHint={runConfig.gameCloseHint}
+            audioToggleHint={runConfig.audioToggleHint}
+            onSpinHintChange={runConfig.setSpinCycleHint}
+            onCloseHintChange={runConfig.setGameCloseHint}
+            onAudioToggleHintChange={runConfig.setAudioToggleHint}
           />
         )}
         {selectedGame ? (

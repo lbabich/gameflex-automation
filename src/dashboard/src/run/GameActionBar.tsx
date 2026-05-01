@@ -1,10 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { DEFAULT_STEPS, createRun, deleteRun } from '../api';
-import { useClearChannelSteps } from '../hooks/useClearChannelSteps';
-import { useClearSteps } from '../hooks/useClearSteps';
-import type { DeviceType, GameEntry } from '@shared/types';
+import type { DeviceType, GameEntry, RunHints } from '@shared/types';
 import { DEVICE_TYPE } from '@shared/types';
-import { useLocalStorage } from '../hooks/useLocalStorage';
+import { useGameCatalog } from '../game-catalog';
+import { DEFAULT_STEPS, createRun, deleteRun } from '../shared/api';
 
 const ALL_DEVICES: DeviceType[] = [DEVICE_TYPE.DESKTOP, DEVICE_TYPE.MOBILE];
 const DEVICE_LABEL: Record<DeviceType, string> = { desktop: 'Desktop', mobile: 'Mobile' };
@@ -91,9 +89,11 @@ type Props = {
   game: GameEntry;
   isRunning: boolean;
   runID: string | null;
-  spinCycleHint: string;
-  gameCloseHint: string;
-  audioToggleHint: string;
+  runDevices: Set<DeviceType>;
+  resetCacheDevices: Set<DeviceType>;
+  onToggleRunDevice: (d: DeviceType) => void;
+  onToggleResetDevice: (d: DeviceType) => void;
+  hints: RunHints | undefined;
   onRunComplete: (runID: string) => void;
 };
 
@@ -102,35 +102,14 @@ export function GameActionBar(props: Props) {
     game,
     isRunning,
     runID,
-    spinCycleHint,
-    gameCloseHint,
-    audioToggleHint,
+    runDevices,
+    resetCacheDevices,
+    onToggleRunDevice,
+    onToggleResetDevice,
+    hints,
     onRunComplete,
   } = props;
-  const clearSteps = useClearSteps();
-  const clearChannel = useClearChannelSteps();
-  const localStorage = useLocalStorage();
-
-  const [runDevices, setRunDevices] = useState<Set<DeviceType>>(new Set(localStorage.getItem('run_devices') || ALL_DEVICES));
-  const [resetCacheDevices, setResetCacheDevices] = useState<Set<DeviceType>>(new Set(localStorage.getItem('cache_reset_devices') || ALL_DEVICES));
-
-  function toggleRunDevice(d: DeviceType) {
-    setRunDevices((prev) => {
-      const next = new Set(prev);
-      next.has(d) ? next.delete(d) : next.add(d);
-      localStorage.setItem('run_devices', Array.from(next));
-      return next;
-    });
-  }
-
-  function toggleResetDevice(d: DeviceType) {
-    setResetCacheDevices((prev) => {
-      const next = new Set(prev);
-      next.has(d) ? next.delete(d) : next.add(d);
-      localStorage.setItem('cache_reset_devices', Array.from(next));
-      return next;
-    });
-  }
+  const { clearAllSteps, clearDeviceSteps } = useGameCatalog();
 
   function runLabel() {
     if (runDevices.has('desktop') && runDevices.has('mobile')) {
@@ -169,16 +148,6 @@ export function GameActionBar(props: Props) {
       return;
     }
 
-    const hasHints = spinCycleHint || gameCloseHint || audioToggleHint;
-
-    const hints = hasHints
-        ? {
-          spinCycle: spinCycleHint || undefined,
-          gameClose: gameCloseHint || undefined,
-          audioToggle: audioToggleHint || undefined,
-        }
-        : undefined;
-
     try {
       const data = await createRun({
         gameIDs: [game.id],
@@ -205,15 +174,15 @@ export function GameActionBar(props: Props) {
 
   function handleReset() {
     if (resetCacheDevices.size === ALL_DEVICES.length) {
-      clearSteps.mutate(game.id);
+      clearAllSteps.mutate(game.id);
     } else if (resetCacheDevices.has('desktop')) {
-      clearChannel.mutate({ id: game.id, deviceType: DEVICE_TYPE.DESKTOP });
+      clearDeviceSteps.mutate({ id: game.id, deviceType: DEVICE_TYPE.DESKTOP });
     } else if (resetCacheDevices.has('mobile')) {
-      clearChannel.mutate({ id: game.id, deviceType: DEVICE_TYPE.MOBILE });
+      clearDeviceSteps.mutate({ id: game.id, deviceType: DEVICE_TYPE.MOBILE });
     }
   }
 
-  const resetPending = clearSteps.isPending || clearChannel.isPending;
+  const resetPending = clearAllSteps.isPending || clearDeviceSteps.isPending;
 
   return (
     <div className="flex items-center justify-between px-4 py-3 bg-white border rounded mb-4">
@@ -234,7 +203,7 @@ export function GameActionBar(props: Props) {
             label={runLabel()}
             onClick={handleRun}
             selected={runDevices}
-            onToggle={toggleRunDevice}
+            onToggle={onToggleRunDevice}
             mainButtonClass="rounded-l bg-blue-600 text-white hover:bg-blue-700"
             chevronClass="rounded-r bg-blue-600 text-white hover:bg-blue-700 border-l border-blue-500"
           />
@@ -245,7 +214,7 @@ export function GameActionBar(props: Props) {
           onClick={handleReset}
           disabled={isRunning || resetPending}
           selected={resetCacheDevices}
-          onToggle={toggleResetDevice}
+          onToggle={onToggleResetDevice}
           mainButtonClass="rounded-l border-t border-b border-l border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
           chevronClass="rounded-r border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
         />

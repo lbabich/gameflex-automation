@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { useDeleteGame } from '../hooks/useDeleteGame';
-import { useUpdateGame } from '../hooks/useUpdateGame';
 import type { GameEntry } from '@shared/types';
+import { useGameCatalog } from './useGameCatalog';
 
 type Props = {
   game: GameEntry;
@@ -15,14 +14,13 @@ export function EditGameModal({ game, onClose, onDelete }: Props) {
   const [mobileGameID, setMobileGameID] = useState(game.mobileGameID ?? '');
   const [gameProviderID, setGameProviderID] = useState(game.gameProviderID);
   const [error, setError] = useState<string | null>(null);
-  const { mutate, isPending } = useUpdateGame();
-  const { mutate: deleteGameMutate, isPending: isDeleting } = useDeleteGame();
+  const { update, remove } = useGameCatalog();
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
 
-    mutate(
+    update.mutate(
       {
         id: game.id,
         name: name.trim(),
@@ -39,7 +37,8 @@ export function EditGameModal({ game, onClose, onDelete }: Props) {
 
   function handleDelete() {
     setError(null);
-    deleteGameMutate(game.id, {
+
+    remove.mutate(game.id, {
       onSuccess: () => {
         onDelete();
         onClose();
@@ -115,27 +114,27 @@ export function EditGameModal({ game, onClose, onDelete }: Props) {
             <button
               type="button"
               onClick={handleDelete}
-              disabled={isDeleting || isPending}
+              disabled={remove.isPending || update.isPending}
               className="px-4 py-2 text-sm rounded border border-red-300 text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
             >
-              {isDeleting ? 'Deleting...' : 'Delete'}
+              {remove.isPending ? 'Deleting...' : 'Delete'}
             </button>
 
             <div className="flex gap-2">
               <button
                 type="button"
                 onClick={onClose}
-                disabled={isPending || isDeleting}
+                disabled={update.isPending || remove.isPending}
                 className="px-4 py-2 text-sm rounded border hover:bg-gray-50 transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                disabled={isPending || isDeleting}
+                disabled={update.isPending || remove.isPending}
                 className="px-4 py-2 text-sm rounded bg-blue-600 text-white font-semibold hover:bg-blue-700 disabled:opacity-50 transition-colors"
               >
-                {isPending ? 'Saving...' : 'Save'}
+                {update.isPending ? 'Saving...' : 'Save'}
               </button>
             </div>
           </div>

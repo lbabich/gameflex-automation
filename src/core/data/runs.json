@@ -1,9 +1,7 @@
 [
   {
     "runID": "0581649c-dc65-4e14-b47f-3f4b481fc64d",
-    "gameIDs": [
-      "62d8cc14-b2a7-4053-9c83-6c4923fc8b52"
-    ],
+    "gameIDs": ["62d8cc14-b2a7-4053-9c83-6c4923fc8b52"],
     "status": "completed",
     "startedAt": "2026-05-01T08:32:58.239Z",
     "results": {
@@ -71,9 +69,7 @@
   },
   {
     "runID": "ade7a3b1-b925-468d-9eac-940317ea65f8",
-    "gameIDs": [
-      "6733624c-554e-4081-a92f-4616af3317e5"
-    ],
+    "gameIDs": ["6733624c-554e-4081-a92f-4616af3317e5"],
     "status": "completed",
     "startedAt": "2026-04-02T12:36:00.876Z",
     "results": {
@@ -262,9 +258,7 @@
   },
   {
     "runID": "d78fd91e-bf64-4383-b755-90582fd983da",
-    "gameIDs": [
-      "9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"
-    ],
+    "gameIDs": ["9d8a0d44-5fcf-4b66-b4a2-80961c8ba986"],
     "status": "completed",
     "startedAt": "2026-04-02T09:58:39.117Z",
     "results": {
@@ -406,9 +400,7 @@
   },
   {
     "runID": "a97f5efb-30bb-42d5-9948-607aa6fc2644",
-    "gameIDs": [
-      "b4c51f69-e28f-4c66-9b3c-0be918e9af91"
-    ],
+    "gameIDs": ["b4c51f69-e28f-4c66-9b3c-0be918e9af91"],
     "status": "completed",
     "startedAt": "2026-03-31T15:33:22.759Z",
     "results": {
