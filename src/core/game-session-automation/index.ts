@@ -1,12 +1,13 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import type { Browser, Page } from '@playwright/test';
+import type { Browser, BrowserContext, Page } from '@playwright/test';
 import { chromium } from '@playwright/test';
 import * as dotenv from 'dotenv';
 import type { DeviceType, GameEntry, RunHints, TestStep } from '../../shared/types';
 import type { NodeStepCache } from '../step-cache';
 import { createDiskStore, createStepCache } from '../step-cache';
 import type { InternalTestResult, Viewport } from '../types';
+import type { EventAccumulator } from './event-accumulator';
 import * as eventAccumulator from './event-accumulator';
 import * as screenshot from './screenshot';
 import * as audioToggle from './steps/audio-toggle';
@@ -30,6 +31,12 @@ type GameRunOptions = {
   steps: Step[];
   hints: RunHints;
   cache: NodeStepCache;
+};
+
+type StepOutcome = {
+  collectedSteps: TestStep[];
+  screenshotPaths: string[];
+  failure: Error | null;
 };
 
 const VIEWPORT: Viewport = { width: 1280, height: 720 };
@@ -125,9 +132,27 @@ function parseArgs() {
 }
 
 async function runGame(context: GameRunContext, run: GameRunOptions): Promise<InternalTestResult> {
-  const { browser, game, deviceType, viewport } = context;
-  const { runID, steps, hints, cache } = run;
+  const { page, browserContext } = await openSession(context.browser, context.viewport);
+  const accumulator = eventAccumulator.createEventAccumulator(page);
+  const ctx = buildSessionContext(page, accumulator, context, run);
+  const plannedSteps = planSteps(run.steps);
+  const startTime = Date.now();
 
+  const outcome = await executeSteps(ctx, run.steps);
+
+  await browserContext.close();
+
+  const duration = Date.now() - startTime;
+  const logs = accumulator.getAll();
+  const allSteps = mergeSteps(plannedSteps, outcome.collectedSteps);
+
+  return buildResult(context.game, duration, logs, allSteps, outcome);
+}
+
+async function openSession(
+  browser: Browser,
+  viewport: Viewport,
+): Promise<{ page: Page; browserContext: BrowserContext }> {
   const httpCredentials =
     process.env.BASIC_AUTH_USER && process.env.BASIC_AUTH_PASS
       ? { username: process.env.BASIC_AUTH_USER, password: process.env.BASIC_AUTH_PASS }
@@ -136,20 +161,29 @@ async function runGame(context: GameRunContext, run: GameRunOptions): Promise<In
   const browserContext = await browser.newContext({ viewport, httpCredentials });
   const page = await browserContext.newPage();
 
-  const startTime = Date.now();
-  const accumulator = eventAccumulator.createEventAccumulator(page);
-  const ctx: SessionContext = {
+  return { page, browserContext };
+}
+
+function buildSessionContext(
+  page: Page,
+  accumulator: EventAccumulator,
+  context: GameRunContext,
+  run: GameRunOptions,
+): SessionContext {
+  return {
     page,
     accumulator,
-    game,
-    viewport,
-    deviceType,
-    runID,
-    cache,
-    hints,
+    game: context.game,
+    viewport: context.viewport,
+    deviceType: context.deviceType,
+    runID: run.runID,
+    cache: run.cache,
+    hints: run.hints,
   };
+}
 
-  const plannedSteps: TestStep[] = steps.flatMap((step) => {
+function planSteps(steps: Step[]): TestStep[] {
+  return steps.flatMap((step) => {
     return step.plan.map((d) => {
       return {
         title: d.title,
@@ -159,10 +193,10 @@ async function runGame(context: GameRunContext, run: GameRunOptions): Promise<In
       };
     });
   });
+}
 
-  let collectedSteps: TestStep[] = [];
-  let screenshotPaths: string[] = [];
-  let failure: Error | null = null;
+async function executeSteps(ctx: SessionContext, steps: Step[]): Promise<StepOutcome> {
+  const collectedSteps: TestStep[] = [];
 
   try {
     for (const step of steps) {
@@ -170,43 +204,51 @@ async function runGame(context: GameRunContext, run: GameRunOptions): Promise<In
 
       const stepSteps = await step.execute(ctx);
 
-      collectedSteps = [...collectedSteps, ...stepSteps];
+      collectedSteps.push(...stepSteps);
     }
 
-    await takePostRunSnapshots(page, runID, deviceType);
+    await takePostRunSnapshots(ctx.page, ctx.runID, ctx.deviceType);
+
+    return { collectedSteps, screenshotPaths: [], failure: null };
   } catch (err) {
-    failure = err as Error;
+    const failure = err as Error;
 
     if (err instanceof StepFailure) {
-      collectedSteps = [...collectedSteps, err.step];
+      collectedSteps.push(err.step);
     }
 
-    screenshotPaths = await takeFailureSnapshots(page, runID, deviceType);
+    const screenshotPaths = await takeFailureSnapshots(ctx.page, ctx.runID, ctx.deviceType);
+
+    return { collectedSteps, screenshotPaths, failure };
   }
+}
 
-  await browserContext.close();
+function buildResult(
+  game: GameEntry,
+  duration: number,
+  logs: string[],
+  allSteps: TestStep[],
+  outcome: StepOutcome,
+): InternalTestResult {
+  const title = `spin: ${game.name}`;
 
-  const duration = Date.now() - startTime;
-  const logs = accumulator.getAll();
-  const allSteps = mergeSteps(plannedSteps, collectedSteps);
-
-  if (failure) {
+  if (outcome.failure) {
     return {
-      title: `spin: ${game.name}`,
+      title,
       status: 'failed',
       duration,
-      error: failure.message,
+      error: outcome.failure.message,
       failedStep: allSteps.find((step) => {
         return step.status === 'failed';
       })?.title,
       logs,
       steps: allSteps,
-      screenshotPaths,
+      screenshotPaths: outcome.screenshotPaths,
     };
   }
 
   return {
-    title: `spin: ${game.name}`,
+    title,
     status: 'passed',
     duration,
     logs,
@@ -234,22 +276,33 @@ function mergeSteps(planned: TestStep[], actual: TestStep[]): TestStep[] {
 }
 
 async function takePostRunSnapshots(page: Page, runID: string, deviceType: DeviceType) {
-  await page.waitForTimeout(POST_RUN_BUFFER_MS);
-  await screenshot.snap(page, `${runID}/${deviceType}/final-1.png`);
-  await page.waitForTimeout(1_500);
-  await screenshot.snap(page, `${runID}/${deviceType}/final-2.png`);
-  await page.waitForTimeout(1_500);
-  await screenshot.snap(page, `${runID}/${deviceType}/final-3.png`);
+  await snapSequence(page, `${runID}/${deviceType}`, 'final', {
+    initialWaitMs: POST_RUN_BUFFER_MS,
+    betweenWaitMs: 1_500,
+  });
 }
 
 async function takeFailureSnapshots(page: Page, runID: string, deviceType: DeviceType) {
+  return snapSequence(page, `${runID}/${deviceType}`, 'failure', { betweenWaitMs: 3_000 });
+}
+
+async function snapSequence(
+  page: Page,
+  dir: string,
+  prefix: string,
+  options: { initialWaitMs?: number; betweenWaitMs: number },
+): Promise<string[]> {
   const paths: string[] = [];
 
-  paths.push(await screenshot.snap(page, `${runID}/${deviceType}/failure-1.png`));
-  await page.waitForTimeout(3_000);
-  paths.push(await screenshot.snap(page, `${runID}/${deviceType}/failure-2.png`));
-  await page.waitForTimeout(3_000);
-  paths.push(await screenshot.snap(page, `${runID}/${deviceType}/failure-3.png`));
+  if (options.initialWaitMs) {
+    await page.waitForTimeout(options.initialWaitMs);
+  }
+
+  paths.push(await screenshot.snap(page, `${dir}/${prefix}-1.png`));
+  await page.waitForTimeout(options.betweenWaitMs);
+  paths.push(await screenshot.snap(page, `${dir}/${prefix}-2.png`));
+  await page.waitForTimeout(options.betweenWaitMs);
+  paths.push(await screenshot.snap(page, `${dir}/${prefix}-3.png`));
 
   return paths;
 }
