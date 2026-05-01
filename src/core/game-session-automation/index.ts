@@ -4,7 +4,6 @@ import type { Browser, Page } from '@playwright/test';
 import { chromium } from '@playwright/test';
 import * as dotenv from 'dotenv';
 import type { DeviceType, GameEntry, RunHints } from '../../shared/types';
-import * as games from '../game-catalog/game-catalog.module';
 import type { NodeStepCache } from '../step-cache';
 import { createDiskStore, createStepCache } from '../step-cache';
 import type { InternalTestResult, Viewport } from '../types';
@@ -45,7 +44,7 @@ const STEP_REGISTRY: Record<string, Step> = {
 };
 
 async function main() {
-  const { runID, gameIDs, deviceTypes, steps, hints, outputFile } = parseArgs();
+  const { runID, selectedGames, deviceTypes, steps, hints, outputFile } = parseArgs();
   const cache = createStepCache(createDiskStore());
 
   const resolvedSteps = steps.map((name) => {
@@ -56,11 +55,6 @@ async function main() {
     }
 
     return step;
-  });
-
-  const allGames = games.readGames();
-  const selectedGames = allGames.filter((game: GameEntry) => {
-    return gameIDs.includes(game.id);
   });
 
   const browser = await chromium.launch({ headless: false });
@@ -100,7 +94,7 @@ function parseArgs() {
   const args = process.argv.slice(2);
 
   let runID = '';
-  let gameIDs: string[] = [];
+  let selectedGames: GameEntry[] = [];
   let deviceTypes: DeviceType[] = [];
   let steps = DEFAULT_STEPS;
   let hints: RunHints = {};
@@ -109,8 +103,10 @@ function parseArgs() {
   for (const arg of args) {
     if (arg.startsWith('--runID=')) {
       runID = arg.slice('--runID='.length);
-    } else if (arg.startsWith('--gameIDs=')) {
-      gameIDs = arg.slice('--gameIDs='.length).split(',').filter(Boolean);
+    } else if (arg.startsWith('--games=')) {
+      selectedGames = JSON.parse(
+        Buffer.from(arg.slice('--games='.length), 'base64').toString('utf8'),
+      ) as GameEntry[];
     } else if (arg.startsWith('--deviceTypes=')) {
       deviceTypes = arg.slice('--deviceTypes='.length).split(',').filter(Boolean) as DeviceType[];
     } else if (arg.startsWith('--steps=')) {
@@ -124,7 +120,7 @@ function parseArgs() {
     }
   }
 
-  return { runID, gameIDs, deviceTypes, steps, hints, outputFile };
+  return { runID, selectedGames, deviceTypes, steps, hints, outputFile };
 }
 
 async function runGame(context: GameRunContext, run: GameRunOptions): Promise<InternalTestResult> {

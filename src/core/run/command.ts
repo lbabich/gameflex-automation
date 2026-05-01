@@ -1,20 +1,20 @@
-import type { RunHints } from '../../shared/types';
+import type { GameEntry, RunHints } from '../../shared/types';
 
 const DEFAULT_STEPS = ['gameLoad', 'spinCycle'];
 
-export function buildSpinCommand(
+export function buildCommand(
   runID: string,
-  gameIDs: string[],
+  games: GameEntry[],
   deviceTypes: string[],
   outputFilePath: string,
   steps: string[] = DEFAULT_STEPS,
   hints?: RunHints,
 ) {
-  const ids = gameIDs.join(',');
+  const gamesArg = Buffer.from(JSON.stringify(games)).toString('base64');
   const devices = deviceTypes.join(',');
   const stepsArg = steps.join(',');
 
-  let cmd = `npx tsx src/core/game-session-automation/index.ts --runID=${runID} --gameIDs=${ids} --deviceTypes=${devices} --steps=${stepsArg} --outputFile=${outputFilePath}`;
+  let cmd = `npx tsx src/core/game-session-automation/index.ts --runID=${runID} --games=${gamesArg} --deviceTypes=${devices} --steps=${stepsArg} --outputFile=${outputFilePath}`;
 
   if (hints && (hints.spinCycle || hints.gameClose)) {
     cmd += ` --hints=${Buffer.from(JSON.stringify(hints)).toString('base64')}`;

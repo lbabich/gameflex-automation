@@ -98,7 +98,7 @@ export const NodeGamesService = Layer.effect(
   }),
 );
 
-export function addGame(entry: Omit<GameEntry, 'id'> & { id?: string }) {
+function addGame(entry: Omit<GameEntry, 'id'> & { id?: string }) {
   const games = readGames();
 
   if (
@@ -115,7 +115,7 @@ export function addGame(entry: Omit<GameEntry, 'id'> & { id?: string }) {
   writeGamesToDisk(games);
 }
 
-export function updateGame(id: string, updates: GameUpdates) {
+function updateGame(id: string, updates: GameUpdates) {
   const games = readGames();
   const index = games.findIndex((game: GameEntry) => {
     return game.id === id;
@@ -144,7 +144,7 @@ export function updateGame(id: string, updates: GameUpdates) {
   return { idChanged };
 }
 
-export function reorderGames(ids: string[]) {
+function reorderGames(ids: string[]) {
   const games = readGames();
 
   const sorted = ids.map((id: string) => {
@@ -162,7 +162,7 @@ export function reorderGames(ids: string[]) {
   writeGamesToDisk(sorted);
 }
 
-export function deleteGame(id: string) {
+function deleteGame(id: string) {
   const games = readGames();
   const index = games.findIndex((game: GameEntry) => {
     return game.id === id;
@@ -176,7 +176,7 @@ export function deleteGame(id: string) {
   writeGamesToDisk(games);
 }
 
-export function readGames() {
+function readGames() {
   let entries: unknown[];
 
   try {

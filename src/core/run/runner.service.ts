@@ -1,12 +1,12 @@
 import { randomUUID } from 'node:crypto';
 import * as path from 'node:path';
 import { Effect, Fiber, Layer } from 'effect';
-import type { DeviceType, GameEntry, RunHints, RunRecord, TestResult } from '../../shared/types';
+import type { DeviceType, GameEntry, RunHints, RunRecord, RunStatus, TestResult } from '../../shared/types';
 import { GameNotFoundError, RunAlreadyActiveError, RunNotFoundError } from '../errors';
 import { FileService } from '../file.service';
 import { GamesService } from '../game-catalog/game-catalog.module';
 import type { InternalRunRecord } from '../types';
-import { buildSpinCommand } from './command';
+import { buildCommand } from './command';
 import { attachGifUrls, attachScreenshotUrls, cleanupImages } from './media';
 import { parseSpinOutput } from './output-parser';
 import { loadRuns, saveRuns, trimMemory } from './persistence';
@@ -103,7 +103,8 @@ function startRun(state: RunnerState, services: StartRunServices, params: StartR
 
   return Effect.gen(function* () {
     yield* checkNoActiveRuns(state, gameIDs);
-    yield* fetchAndValidateGames(gamesService, gameIDs);
+
+    const selectedGames = yield* fetchAndValidateGames(gamesService, gameIDs);
 
     const runID = randomUUID();
     const record = createRecord(runID, gameIDs);
@@ -115,7 +116,7 @@ function startRun(state: RunnerState, services: StartRunServices, params: StartR
     }
 
     const outputFilePath = path.resolve('src/core/data/run-outputs', `${runID}.json`);
-    const cmd = buildSpinCommand(runID, gameIDs, deviceTypes, outputFilePath, steps, hints);
+    const cmd = buildCommand(runID, selectedGames, deviceTypes, outputFilePath, steps, hints);
 
     yield* runLoggerService.log(runID, 'runner', `Starting run ${runID}`);
     yield* runLoggerService.log(runID, 'runner', `Command: ${cmd}`);
@@ -171,6 +172,10 @@ function fetchAndValidateGames(gamesService: StartRunServices['gamesService'], g
     if (firstMissingID !== undefined) {
       return yield* Effect.fail(new GameNotFoundError({ id: firstMissingID }));
     }
+
+    return gameList.filter((game: GameEntry) => {
+      return gameIDs.includes(game.id);
+    });
   });
 }
 
@@ -259,10 +264,12 @@ function parseRunOutput(
       `${Object.keys(parsed.results).length} result(s), ${parsed.errors.length} error(s)`,
     );
 
+    const status: RunStatus = code === 0 ? 'completed' : 'error';
+
     return {
       results: parsed.results,
       playwrightErrors: parsed.errors,
-      status: code === 0 ? 'completed' : 'error',
+      status,
     };
   });
 }
