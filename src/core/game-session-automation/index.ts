@@ -1,3 +1,5 @@
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import type { Browser, Page } from '@playwright/test';
 import { chromium } from '@playwright/test';
 import * as dotenv from 'dotenv';
@@ -41,7 +43,7 @@ const STEP_REGISTRY: Record<string, Step> = {
 };
 
 async function main() {
-  const { runID, gameIDs, deviceTypes, steps, hints } = parseArgs();
+  const { runID, gameIDs, deviceTypes, steps, hints, outputFile } = parseArgs();
 
   const resolvedSteps = steps.map((name) => {
     const step = STEP_REGISTRY[name];
@@ -87,7 +89,8 @@ async function main() {
     }
   }
 
-  process.stdout.write(JSON.stringify({ results, errors }));
+  fs.mkdirSync(path.dirname(outputFile), { recursive: true });
+  fs.writeFileSync(outputFile, JSON.stringify({ results, errors }));
 }
 
 function parseArgs() {
@@ -98,6 +101,7 @@ function parseArgs() {
   let deviceTypes: DeviceType[] = [];
   let steps: string[] = DEFAULT_STEPS;
   let hints: RunHints = {};
+  let outputFile = '';
 
   for (const arg of args) {
     if (arg.startsWith('--runID=')) {
@@ -112,10 +116,12 @@ function parseArgs() {
       hints = JSON.parse(
         Buffer.from(arg.slice('--hints='.length), 'base64').toString('utf8'),
       ) as RunHints;
+    } else if (arg.startsWith('--outputFile=')) {
+      outputFile = arg.slice('--outputFile='.length);
     }
   }
 
-  return { runID, gameIDs, deviceTypes, steps, hints };
+  return { runID, gameIDs, deviceTypes, steps, hints, outputFile };
 }
 
 async function runGame(context: GameRunContext, run: GameRunOptions): Promise<InternalTestResult> {

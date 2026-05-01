@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import * as path from 'node:path';
 import { Effect, Fiber, Layer } from 'effect';
 import type { DeviceType, GameEntry, RunHints, RunRecord, TestResult } from '../../shared/types';
 import { GameNotFoundError, RunAlreadyActiveError, RunNotFoundError } from '../errors';
@@ -41,7 +42,7 @@ type FinalizeServices = {
 type FinalizeResult = {
   runID: string;
   code: number;
-  stdout: string;
+  outputFilePath: string;
 };
 
 class RunnerService extends Effect.Tag('RunnerService')<
@@ -113,7 +114,8 @@ function startRun(state: RunnerState, services: StartRunServices, params: StartR
       state.activeRunsByGame.set(id, runID);
     }
 
-    const cmd = buildSpinCommand(runID, gameIDs, deviceTypes, steps, hints);
+    const outputFilePath = path.resolve('src/core/data/run-outputs', `${runID}.json`);
+    const cmd = buildSpinCommand(runID, gameIDs, deviceTypes, outputFilePath, steps, hints);
 
     yield* runLoggerService.log(runID, 'runner', `Starting run ${runID}`);
     yield* runLoggerService.log(runID, 'runner', `Command: ${cmd}`);
@@ -121,11 +123,11 @@ function startRun(state: RunnerState, services: StartRunServices, params: StartR
     const background = Effect.gen(function* () {
       yield* runLoggerService.log(runID, 'runner', 'Spawning playwright process');
 
-      const { code, stdout } = yield* processExecutorService.execute(cmd);
+      const { code } = yield* processExecutorService.execute(cmd);
 
       yield* runLoggerService.log(runID, 'runner', `Process exited with code ${code}`);
 
-      yield* finalizeRun(state, { runLoggerService, fileService }, { runID, code, stdout });
+      yield* finalizeRun(state, { runLoggerService, fileService }, { runID, code, outputFilePath });
     }).pipe(
       Effect.catchAll((error: never) => {
         return handleFiberError(state, runLoggerService, runID, error);
@@ -187,7 +189,7 @@ function createRecord(runID: string, gameIDs: string[]): InternalRunRecord {
 
 function finalizeRun(state: RunnerState, services: FinalizeServices, result: FinalizeResult) {
   const { runLoggerService, fileService } = services;
-  const { runID, code, stdout } = result;
+  const { runID, code, outputFilePath } = result;
 
   return Effect.gen(function* () {
     const record = state.runs.get(runID);
@@ -196,13 +198,19 @@ function finalizeRun(state: RunnerState, services: FinalizeServices, result: Fin
       return;
     }
 
+    const outputJson = yield* fileService.read(outputFilePath).pipe(
+      Effect.orElse(() => {
+        return Effect.succeed('');
+      }),
+    );
+
     const finishedAt = new Date().toISOString();
     const durationMs = new Date(finishedAt).getTime() - new Date(record.startedAt).getTime();
 
-    let updated: InternalRunRecord = { ...record, rawOutput: stdout, finishedAt, durationMs };
+    let updated: InternalRunRecord = { ...record, rawOutput: outputJson, finishedAt, durationMs };
 
     if (record.status !== 'cancelled') {
-      const parsed = yield* parseRunOutput(runLoggerService, runID, stdout, code);
+      const parsed = yield* parseRunOutput(runLoggerService, runID, outputJson, code);
 
       updated = { ...updated, ...parsed };
     }
@@ -218,7 +226,7 @@ function finalizeRun(state: RunnerState, services: FinalizeServices, result: Fin
 function parseRunOutput(
   runLoggerService: RunLoggerService['Type'],
   runID: string,
-  stdout: string,
+  outputJson: string,
   code: number,
 ) {
   return Effect.gen(function* () {
@@ -229,12 +237,16 @@ function parseRunOutput(
       errors: [] as string[],
     };
 
-    const parsed = yield* parseSpinOutput(stdout).pipe(
+    const parsed = yield* parseSpinOutput(outputJson).pipe(
       Effect.tapError((error) => {
         return runLoggerService.error(runID, 'finalize', 'Failed to parse spin output', error);
       }),
       Effect.tapError(() => {
-        return runLoggerService.error(runID, 'finalize', `stdout snippet: ${stdout.slice(0, 200)}`);
+        return runLoggerService.error(
+          runID,
+          'finalize',
+          `output snippet: ${outputJson.slice(0, 200)}`,
+        );
       }),
       Effect.orElse(() => {
         return Effect.succeed(emptyResult);

@@ -1,16 +1,10 @@
 import { Effect } from 'effect';
 import type { DeviceType, TestResult } from '../../shared/types';
 
-function parseSpinOutput(stdout: string) {
+function parseSpinOutput(json: string) {
   return Effect.try({
     try: () => {
-      const jsonStart = stdout.indexOf('{"results":');
-
-      if (jsonStart === -1) {
-        throw new Error('No JSON output found in stdout');
-      }
-
-      const parsed = JSON.parse(stdout.slice(jsonStart)) as {
+      const parsed = JSON.parse(json) as {
         results: Partial<Record<DeviceType, TestResult>>;
         errors: string[];
       };
