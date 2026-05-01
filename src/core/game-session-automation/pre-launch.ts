@@ -70,7 +70,7 @@ export async function launch(page: Page, game: GameEntry, deviceType: DeviceType
 }
 
 function loadConfig(): LaunchConfig {
-  const configPath = path.resolve('src', 'server', 'config', 'launch-config.json');
+  const configPath = path.resolve('src', 'core', 'config', 'launch-config.json');
 
   return JSON.parse(fs.readFileSync(configPath, 'utf8')) as LaunchConfig;
 }

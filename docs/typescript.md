@@ -90,17 +90,17 @@ function getClickCoords(
 
 ## Namespace import convention
 
-All imports from internal `lib/` modules use `import * as moduleName`. Functions and types are
+All imports from internal modules use `import * as moduleName`. Functions and types are
 both accessed through the namespace.
 
 ```ts
 // before
-import { snap } from '../lib/screenshot';
-import type { CachedStep } from '../lib/step-cache';
+import { snap } from './screenshot';
+import type { CachedStep } from './step-cache';
 
 // after
-import * as screenshot from '../lib/screenshot';
-import * as stepCache from '../lib/step-cache';
+import * as screenshot from './screenshot';
+import * as stepCache from './step-cache';
 
 // usage
 screenshot.snap(page, name);
@@ -116,12 +116,12 @@ Never include the `.ts` extension in import paths. TypeScript resolves modules w
 
 ```ts
 // ✓ correct
-import { addGame } from '../../lib/games';
-import * as stepCache from '../../lib/step-cache';
+import * as games from './games';
+import { stepCache } from './step-cache';
 
 // ✗ wrong
-import { addGame } from '../../lib/games.ts';
-import * as stepCache from '../../lib/step-cache.ts';
+import * as games from './games.ts';
+import { stepCache } from './step-cache.ts';
 ```
 
 ---

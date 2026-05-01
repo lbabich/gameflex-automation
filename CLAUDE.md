@@ -11,7 +11,7 @@ npm run check
 ## Architecture
 
 See `docs/architecture.md` for the module map, data flow, and cross-module type contracts.
-Start there before reading any `lib/` file.
+Start there before reading any source file.
 
 ## Docs
 

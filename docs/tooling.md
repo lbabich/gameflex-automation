@@ -8,8 +8,8 @@ Run before committing:
 npm run check
 ```
 
-Biome must be run from the project root — not via an absolute path argument. Use the subshell pattern when CWD might be unreliable:
+Biome must be run from the project root — not via an absolute path argument. Use the subshell pattern when the working directory might be unreliable:
 
 ```
-(cd "C:/dev/gameflex/gameflex-automation" && node_modules/.bin/biome check --write .)
+(cd "<project-root>" && node_modules/.bin/biome check --write .)
 ```

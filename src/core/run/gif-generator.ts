@@ -28,7 +28,7 @@ const GIF_DELAY_MS = 1000;
 
 /**
  * Encodes all PNG screenshots for `runID`/`deviceType` into an animated GIF at
- * `src/server/screenshots/<runID>/<deviceType>/animated.gif`, then deletes the source PNGs.
+ * `src/core/screenshots/<runID>/<deviceType>/animated.gif`, then deletes the source PNGs.
  * Returns the absolute path to the generated GIF.
  * @throws if no PNG files exist in the screenshots directory
  */

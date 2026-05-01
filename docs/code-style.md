@@ -167,23 +167,23 @@ Consecutive single-line function calls that belong to the same logical step stay
 
 ```ts
 // ✓ correct
-const encoder = new GIFEncoder(width, height);
+const client = new Client(host, port);
 
-encoder.setDelay(1000);
-encoder.setRepeat(0);
-encoder.start();
+client.setOption('timeout', 5000);
+client.setOption('retries', 3);
+client.connect();
 
-for (const frame of frames) {
-  encoder.addFrame(frame);
+for (const item of queue) {
+  client.send(item);
 }
 
 // ✗ wrong — missing blank line before and after the group
-const encoder = new GIFEncoder(width, height);
-encoder.setDelay(1000);
-encoder.setRepeat(0);
-encoder.start();
-for (const frame of frames) {
-  encoder.addFrame(frame);
+const client = new Client(host, port);
+client.setOption('timeout', 5000);
+client.setOption('retries', 3);
+client.connect();
+for (const item of queue) {
+  client.send(item);
 }
 ```
 

@@ -302,7 +302,7 @@ app.get('/api/games', (req, res) => {
 })
 ```
 
-Avoids rebuilding Layers on every request. Lives in `src/server/runtime.ts`.
+Avoids rebuilding Layers on every request. Lives in the server's `runtime` module.
 
 ---
 
@@ -390,7 +390,7 @@ err.id     // 'abc-123'
 err.message // auto-generated from fields
 ```
 
-All server error classes are defined in `src/server/errors.ts`.
+Domain error classes are defined in the shared `errors` module.
 
 ---
 
