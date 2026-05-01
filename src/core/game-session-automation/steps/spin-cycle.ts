@@ -3,7 +3,7 @@ import * as replay from '../replay';
 import * as screenshot from '../screenshot';
 import { makeDiscover, onGelEvent } from './make-discover';
 import { track } from './track';
-import type { StepContext, StepDescriptor } from './types';
+import type { SessionContext, StepDescriptor } from './types';
 
 export const plan: StepDescriptor[] = [
   { title: `Spin start: ${GEL_EVENT.SPIN_START}` },
@@ -29,8 +29,8 @@ export const discover = makeDiscover({
   verifyClick: onGelEvent(GEL_EVENT.SPIN_START, SPIN_VERIFY_TIMEOUT_MS),
 });
 
-export async function execute(ctx: StepContext) {
-  const { page, accumulator, game, viewport, runID, deviceType, runState, cache } = ctx;
+export async function execute(ctx: SessionContext) {
+  const { page, accumulator, game, viewport, runID, deviceType, cache } = ctx;
   const cached = cache.getSteps({ id: game.id, deviceType, viewport, stepName: STEP_NAME });
 
   if (cached) {
@@ -40,14 +40,16 @@ export async function execute(ctx: StepContext) {
   const spinStartPromise = accumulator.waitFor(GEL_EVENT.SPIN_START, SPIN_START_WAIT_MS);
   const suffix = cached ? ' (cached)' : '';
 
-  await track(runState.steps, `Spin start: ${GEL_EVENT.SPIN_START}${suffix}`, async () => {
+  const spinStartStep = await track(`Spin start: ${GEL_EVENT.SPIN_START}${suffix}`, async () => {
     await spinStartPromise;
     await screenshot.snap(page, `${runID}/${deviceType}/spin-start.png`);
   });
 
   const spinEndPromise = accumulator.waitFor(GEL_EVENT.SPIN_END, SPIN_END_WAIT_MS);
 
-  await track(runState.steps, `Spin end: ${GEL_EVENT.SPIN_END}${suffix}`, () => {
+  const spinEndStep = await track(`Spin end: ${GEL_EVENT.SPIN_END}${suffix}`, () => {
     return spinEndPromise;
   });
+
+  return [spinStartStep, spinEndStep];
 }

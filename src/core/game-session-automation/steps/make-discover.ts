@@ -5,19 +5,19 @@ import * as discoveryLoop from '../discovery/loop';
 import { DiscoveryError } from '../discovery/loop';
 import type { FailedButton } from '../discovery/prompt';
 import { buildDiscoveryPrompt } from '../discovery/prompt';
-import type { StepContext } from './types';
+import type { SessionContext } from './types';
 
 export type MakeDiscoverConfig = {
   stepName: string;
   defaultInstructions: (viewport: Viewport) => string;
   failureContext: (list: string) => string;
   getHint: (hints: RunHints | undefined) => string | undefined;
-  verifyClick: (ctx: StepContext) => VerifyClickFn;
+  verifyClick: (ctx: SessionContext) => VerifyClickFn;
   swallowDiscoveryError?: boolean;
 };
 
 export function onGelEvent(event: string, timeoutMs: number) {
-  return (ctx: StepContext): VerifyClickFn => {
+  return (ctx: SessionContext): VerifyClickFn => {
     return (_page, _x, _y) => {
       return ctx.accumulator
         .waitFor(event, timeoutMs)
@@ -32,7 +32,7 @@ export function onGelEvent(event: string, timeoutMs: number) {
 }
 
 export function makeDiscover(config: MakeDiscoverConfig) {
-  return async (ctx: StepContext) => {
+  return async (ctx: SessionContext) => {
     const { page, game, viewport, deviceType, runID, hints, cache } = ctx;
 
     const cached = cache.getSteps({

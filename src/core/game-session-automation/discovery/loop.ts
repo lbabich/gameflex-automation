@@ -4,7 +4,7 @@ import type { NodeStepCache } from '../../step-cache';
 import type { CachedStep, Viewport } from '../../types';
 import * as clickMarker from '../click-marker';
 import * as screenshot from '../screenshot';
-import type { StepContext } from '../steps/types';
+import type { SessionContext } from '../steps/types';
 import type { FailedButton } from './prompt';
 import * as claudeVision from './vision';
 
@@ -13,7 +13,7 @@ export type VerifyClickFn = (page: Page, x: number, y: number) => Promise<boolea
 
 export type DiscoveryContext = {
   page: Page;
-  game: StepContext['game'];
+  game: SessionContext['game'];
   viewport: Viewport;
   deviceType: DeviceType;
   cache: NodeStepCache;

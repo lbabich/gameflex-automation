@@ -4,19 +4,13 @@ import type { NodeStepCache } from '../../step-cache';
 import type { Viewport } from '../../types';
 import type { EventAccumulator } from '../event-accumulator';
 
-type RunState = {
-  steps: TestStep[];
-  screenshotPaths: string[];
-};
-
-type StepContext = {
+type SessionContext = {
   page: Page;
   accumulator: EventAccumulator;
   game: GameEntry;
   viewport: Viewport;
   deviceType: DeviceType;
   runID: string;
-  runState: RunState;
   cache: NodeStepCache;
   hints?: RunHints;
 };
@@ -28,8 +22,8 @@ type StepDescriptor = {
 
 type Step = {
   plan: StepDescriptor[];
-  discover: (ctx: StepContext) => Promise<void>;
-  execute: (ctx: StepContext) => Promise<void>;
+  discover: (ctx: SessionContext) => Promise<void>;
+  execute: (ctx: SessionContext) => Promise<TestStep[]>;
 };
 
-export type { RunState, StepContext, Step, StepDescriptor };
+export type { SessionContext, Step, StepDescriptor };

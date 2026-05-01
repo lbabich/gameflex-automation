@@ -3,7 +3,7 @@ import * as path from 'node:path';
 import type { Browser, Page } from '@playwright/test';
 import { chromium } from '@playwright/test';
 import * as dotenv from 'dotenv';
-import type { DeviceType, GameEntry, RunHints } from '../../shared/types';
+import type { DeviceType, GameEntry, RunHints, TestStep } from '../../shared/types';
 import type { NodeStepCache } from '../step-cache';
 import { createDiskStore, createStepCache } from '../step-cache';
 import type { InternalTestResult, Viewport } from '../types';
@@ -13,7 +13,8 @@ import * as audioToggle from './steps/audio-toggle';
 import * as gameClose from './steps/game-close';
 import * as gameLoad from './steps/game-load';
 import * as spinCycle from './steps/spin-cycle';
-import type { RunState, Step } from './steps/types';
+import { StepFailure } from './steps/track';
+import type { SessionContext, Step } from './steps/types';
 
 dotenv.config();
 
@@ -136,44 +137,58 @@ async function runGame(context: GameRunContext, run: GameRunOptions): Promise<In
   const page = await browserContext.newPage();
 
   const startTime = Date.now();
-  const runState: RunState = {
-    steps: [],
-    screenshotPaths: [],
+  const accumulator = eventAccumulator.createEventAccumulator(page);
+  const ctx: SessionContext = {
+    page,
+    accumulator,
+    game,
+    viewport,
+    deviceType,
+    runID,
+    cache,
+    hints,
   };
 
-  const accumulator = eventAccumulator.createEventAccumulator(page);
+  const plannedSteps: TestStep[] = steps.flatMap((step) => {
+    return step.plan.map((d) => {
+      return {
+        title: d.title,
+        duration: 0,
+        status: 'skipped' as const,
+        optional: d.optional,
+      };
+    });
+  });
 
-  const ctx = { page, accumulator, game, viewport, deviceType, runID, runState, cache, hints };
-
+  let collectedSteps: TestStep[] = [];
+  let screenshotPaths: string[] = [];
   let failure: Error | null = null;
 
   try {
     for (const step of steps) {
-      for (const descriptor of step.plan) {
-        runState.steps.push({
-          title: descriptor.title,
-          duration: 0,
-          status: 'skipped',
-          optional: descriptor.optional,
-        });
-      }
-    }
-
-    for (const step of steps) {
       await step.discover(ctx);
-      await step.execute(ctx);
+
+      const stepSteps = await step.execute(ctx);
+
+      collectedSteps = [...collectedSteps, ...stepSteps];
     }
 
     await takePostRunSnapshots(page, runID, deviceType);
   } catch (err) {
     failure = err as Error;
-    runState.screenshotPaths = await takeFailureSnapshots(page, runID, deviceType);
+
+    if (err instanceof StepFailure) {
+      collectedSteps = [...collectedSteps, err.step];
+    }
+
+    screenshotPaths = await takeFailureSnapshots(page, runID, deviceType);
   }
 
   await browserContext.close();
 
   const duration = Date.now() - startTime;
   const logs = accumulator.getAll();
+  const allSteps = mergeSteps(plannedSteps, collectedSteps);
 
   if (failure) {
     return {
@@ -181,12 +196,12 @@ async function runGame(context: GameRunContext, run: GameRunOptions): Promise<In
       status: 'failed',
       duration,
       error: failure.message,
-      failedStep: runState.steps.find((step) => {
+      failedStep: allSteps.find((step) => {
         return step.status === 'failed';
       })?.title,
       logs,
-      steps: runState.steps,
-      screenshotPaths: runState.screenshotPaths,
+      steps: allSteps,
+      screenshotPaths,
     };
   }
 
@@ -195,8 +210,27 @@ async function runGame(context: GameRunContext, run: GameRunOptions): Promise<In
     status: 'passed',
     duration,
     logs,
-    steps: runState.steps,
+    steps: allSteps,
   };
+}
+
+function mergeSteps(planned: TestStep[], actual: TestStep[]): TestStep[] {
+  const result = [...planned];
+
+  for (const step of actual) {
+    const planTitle = step.title.replace(' (cached)', '');
+    const idx = result.findIndex((s) => {
+      return s.title === planTitle;
+    });
+
+    if (idx >= 0) {
+      result[idx] = step;
+    } else {
+      result.push(step);
+    }
+  }
+
+  return result;
 }
 
 async function takePostRunSnapshots(page: Page, runID: string, deviceType: DeviceType) {

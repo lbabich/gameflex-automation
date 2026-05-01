@@ -3,7 +3,7 @@ import * as replay from '../replay';
 import * as screenshot from '../screenshot';
 import { makeDiscover, onGelEvent } from './make-discover';
 import { track } from './track';
-import type { StepContext, StepDescriptor } from './types';
+import type { SessionContext, StepDescriptor } from './types';
 
 export const plan: StepDescriptor[] = [{ title: `Game close: ${GEL_EVENT.GAME_CLOSE}` }];
 
@@ -25,8 +25,8 @@ export const discover = makeDiscover({
   verifyClick: onGelEvent(GEL_EVENT.GAME_CLOSE, CLOSE_VERIFY_TIMEOUT_MS),
 });
 
-export async function execute(ctx: StepContext) {
-  const { page, accumulator, game, viewport, runID, deviceType, runState, cache } = ctx;
+export async function execute(ctx: SessionContext) {
+  const { page, accumulator, game, viewport, runID, deviceType, cache } = ctx;
   const cached = cache.getSteps({ id: game.id, deviceType, viewport, stepName: STEP_NAME });
 
   if (cached) {
@@ -34,11 +34,12 @@ export async function execute(ctx: StepContext) {
   }
 
   const gameClosePromise = accumulator.waitFor(GEL_EVENT.GAME_CLOSE, GAME_CLOSE_TIMEOUT_MS);
-
   const suffix = cached ? ' (cached)' : '';
 
-  await track(runState.steps, `Game close: ${GEL_EVENT.GAME_CLOSE}${suffix}`, async () => {
+  const closeStep = await track(`Game close: ${GEL_EVENT.GAME_CLOSE}${suffix}`, async () => {
     await gameClosePromise;
     await screenshot.snap(page, `${runID}/${deviceType}/game-close.png`);
   });
+
+  return [closeStep];
 }

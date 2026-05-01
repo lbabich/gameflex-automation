@@ -3,7 +3,7 @@ import * as replay from '../replay';
 import * as screenshot from '../screenshot';
 import { makeDiscover } from './make-discover';
 import { track } from './track';
-import type { StepContext, StepDescriptor } from './types';
+import type { SessionContext, StepDescriptor } from './types';
 
 const STEP_NAME = 'audioToggle';
 const PLAN_TITLE = `Audio toggle: ${GEL_EVENT.AUDIO_ENABLE} / ${GEL_EVENT.AUDIO_DISABLE}`;
@@ -48,8 +48,8 @@ export const discover = makeDiscover({
   swallowDiscoveryError: true,
 });
 
-export async function execute(ctx: StepContext) {
-  const { page, accumulator, game, viewport, runID, deviceType, runState, cache } = ctx;
+export async function execute(ctx: SessionContext) {
+  const { page, accumulator, game, viewport, runID, deviceType, cache } = ctx;
 
   const cached = cache.getSteps({ id: game.id, deviceType, viewport, stepName: STEP_NAME });
   const audioButton = cached?.steps.at(-1);
@@ -60,15 +60,21 @@ export async function execute(ctx: StepContext) {
 
   const suffix = cached ? ' (cached)' : '';
 
-  await track(runState.steps, `${PLAN_TITLE}${suffix}`, async () => {
-    const enablePromise = accumulator.waitFor(GEL_EVENT.AUDIO_ENABLE, AUDIO_TOGGLE_WAIT_MS);
-    const disablePromise = accumulator.waitFor(GEL_EVENT.AUDIO_DISABLE, AUDIO_TOGGLE_WAIT_MS);
+  const audioStep = await track(
+    `${PLAN_TITLE}${suffix}`,
+    async () => {
+      const enablePromise = accumulator.waitFor(GEL_EVENT.AUDIO_ENABLE, AUDIO_TOGGLE_WAIT_MS);
+      const disablePromise = accumulator.waitFor(GEL_EVENT.AUDIO_DISABLE, AUDIO_TOGGLE_WAIT_MS);
 
-    if (audioButton) {
-      await page.mouse.click(audioButton.x, audioButton.y);
-    }
+      if (audioButton) {
+        await page.mouse.click(audioButton.x, audioButton.y);
+      }
 
-    await Promise.all([enablePromise, disablePromise]);
-    await screenshot.snap(page, `${runID}/${deviceType}/audio-toggle.png`);
-  });
+      await Promise.all([enablePromise, disablePromise]);
+      await screenshot.snap(page, `${runID}/${deviceType}/audio-toggle.png`);
+    },
+    true,
+  );
+
+  return [audioStep];
 }
