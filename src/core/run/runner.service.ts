@@ -144,7 +144,7 @@ function startRun(state: RunnerState, services: StartRunServices, params: StartR
 
 function checkNoActiveRuns(state: RunnerState, gameIDs: string[]) {
   return Effect.sync(() => {
-    return gameIDs.find((id: string) => {
+    return gameIDs.find((id) => {
       return state.activeRunsByGame.has(id);
     });
   }).pipe(
@@ -262,7 +262,7 @@ function parseRunOutput(
     return {
       results: parsed.results,
       playwrightErrors: parsed.errors,
-      status: (code === 0 ? 'completed' : 'error') as InternalRunRecord['status'],
+      status: code === 0 ? 'completed' : 'error',
     };
   });
 }

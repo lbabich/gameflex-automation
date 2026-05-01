@@ -39,7 +39,7 @@ export const discover = makeDiscover({
   },
 });
 
-export async function execute(ctx: StepContext): Promise<void> {
+export async function execute(ctx: StepContext) {
   const { page, accumulator, game, viewport, runID, deviceType, runState } = ctx;
   const cached = stepCache.getSteps({ id: game.id, deviceType, viewport, stepName: STEP_NAME });
 
@@ -66,7 +66,7 @@ function buildNextClickPrompt(
   hint: string | undefined,
   viewport: Viewport,
   failedButtons: FailedButton[],
-): string {
+) {
   const { width, height } = viewport;
 
   const defaultInstructions = `What is the single most important element to click to either trigger a spin or navigate toward the spin button?\n\nIf the spin button is visible and unobstructed, click it. The spin button is typically the largest circular button on screen — commonly has clockwise-rotating arrows around its edge, a play/triangle icon in the centre, or is labeled SPIN. It must be fully visible and not covered by any overlay.\n\nIf the spin button is not accessible, click whatever would unblock it: a dialog button (Continue, OK, Accept, Yes, No), close X, age/terms prompt, overlay, promo/bonus intro screen, or a full-screen brand logo or game-title splash screen (click the centre of the screen for those).\n\nDo NOT suggest: loading bars, progress indicators, loading spinners, percentage counters, autoplay buttons, or bet/settings controls.\nIf the game is still loading (spinner visible), return {"found": false}.\n\nRespond with:\n  {"found": false}\n  {"found": true, "x": <number>, "y": <number>, "label": "<short description>"}\n\nImage dimensions: ${width}x${height}`;

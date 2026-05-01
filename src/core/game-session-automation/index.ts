@@ -99,7 +99,7 @@ function parseArgs() {
   let runID = '';
   let gameIDs: string[] = [];
   let deviceTypes: DeviceType[] = [];
-  let steps: string[] = DEFAULT_STEPS;
+  let steps = DEFAULT_STEPS;
   let hints: RunHints = {};
   let outputFile = '';
 
@@ -201,11 +201,7 @@ async function runGame(context: GameRunContext, run: GameRunOptions): Promise<In
   };
 }
 
-async function takePostRunSnapshots(
-  page: Page,
-  runID: string,
-  deviceType: DeviceType,
-): Promise<void> {
+async function takePostRunSnapshots(page: Page, runID: string, deviceType: DeviceType) {
   await page.waitForTimeout(POST_RUN_BUFFER_MS);
   await screenshot.snap(page, `${runID}/${deviceType}/final-1.png`);
   await page.waitForTimeout(1_500);
@@ -214,11 +210,7 @@ async function takePostRunSnapshots(
   await screenshot.snap(page, `${runID}/${deviceType}/final-3.png`);
 }
 
-async function takeFailureSnapshots(
-  page: Page,
-  runID: string,
-  deviceType: DeviceType,
-): Promise<string[]> {
+async function takeFailureSnapshots(page: Page, runID: string, deviceType: DeviceType) {
   const paths: string[] = [];
 
   paths.push(await screenshot.snap(page, `${runID}/${deviceType}/failure-1.png`));

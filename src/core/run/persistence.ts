@@ -10,7 +10,7 @@ export function loadRuns() {
     const fileService = yield* FileService;
 
     return yield* fileService.read(RUNS_FILE).pipe(
-      Effect.flatMap((content: string) => {
+      Effect.flatMap((content) => {
         return Effect.try({
           try: () => {
             return JSON.parse(content) as InternalRunRecord[];
@@ -29,16 +29,16 @@ export function loadRuns() {
 
 export function saveRuns(fileService: FileService['Type'], runs: Map<string, InternalRunRecord>) {
   return Effect.gen(function* () {
-    const completed = [...runs.values()].filter((run: InternalRunRecord) => {
+    const completed = [...runs.values()].filter((run) => {
       return run.status !== 'running';
     });
 
     const toSave = completed
-      .sort((runA: InternalRunRecord, runB: InternalRunRecord) => {
+      .sort((runA, runB) => {
         return new Date(runB.startedAt).getTime() - new Date(runA.startedAt).getTime();
       })
       .slice(0, 10)
-      .map(({ rawOutput: _raw, ...rest }: InternalRunRecord) => {
+      .map(({ rawOutput: _raw, ...rest }) => {
         return rest;
       });
 
@@ -52,7 +52,7 @@ export function trimMemory(runs: Map<string, InternalRunRecord>) {
   }
 
   const oldest = [...runs.entries()]
-    .sort(([, runA]: [string, InternalRunRecord], [, runB]: [string, InternalRunRecord]) => {
+    .sort(([, runA], [, runB]) => {
       return runA.startedAt < runB.startedAt ? -1 : 1;
     })
     .slice(0, runs.size - 10);

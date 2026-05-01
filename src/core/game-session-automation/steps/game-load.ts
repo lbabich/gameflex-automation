@@ -9,11 +9,11 @@ export const plan: StepDescriptor[] = [
   { title: GEL_EVENT.READY },
 ];
 
-export async function discover(_ctx: StepContext): Promise<void> {
+export async function discover(_ctx: StepContext) {
   console.log('[game-load] No discovery process');
 }
 
-export async function execute(ctx: StepContext): Promise<void> {
+export async function execute(ctx: StepContext) {
   const { page, game, deviceType, accumulator, runState } = ctx;
   const readyPromise = accumulator.waitFor(GEL_EVENT.READY, GEL_READY_TIMEOUT_MS);
 

@@ -5,7 +5,7 @@ export function buildDiscoveryPrompt(
   formatFailedButtons: (list: string) => string,
   hint: string | undefined,
   failedButtons: FailedButton[],
-): string {
+) {
   if (hint) {
     let prompt = `OPERATOR INSTRUCTION (highest priority — this overrides the default guidance below):\n${hint}\n\nApply the operator instruction above first. If it specifies a sequence of steps, follow them in order and do not skip ahead — re-clicking a previously clicked button is correct if the sequence calls for it. If it specifies constraints or exclusions, honour them while using the default guidance below for anything not covered.\n\n---\n\n${defaultInstructions}`;
 

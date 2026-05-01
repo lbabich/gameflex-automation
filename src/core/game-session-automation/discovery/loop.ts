@@ -36,7 +36,7 @@ class DiscoveryError extends Error {
   }
 }
 
-async function runDiscoveryLoop(ctx: DiscoveryContext, config: DiscoveryConfig): Promise<void> {
+async function runDiscoveryLoop(ctx: DiscoveryContext, config: DiscoveryConfig) {
   const { page, game, viewport, deviceType } = ctx;
   const { runID, stepName, buildPrompt, verifyClick } = config;
 

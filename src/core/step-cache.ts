@@ -136,7 +136,7 @@ export function createStepCache(store: StepStore) {
   };
 }
 
-function pendingKey(key: StepCacheKey): string {
+function pendingKey(key: StepCacheKey) {
   return `${key.id}/${key.deviceType}/${viewportKey(key.viewport)}/${key.stepName}`;
 }
 

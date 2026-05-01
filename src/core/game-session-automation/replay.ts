@@ -9,7 +9,7 @@ export async function replaySteps(
   runID: string,
   steps: CachedStep[],
   deviceType: DeviceType,
-): Promise<void> {
+) {
   for (let i = 0; i < steps.length; i++) {
     await page.waitForTimeout(Math.max(steps[i].waitMs, 1_000));
     await clickMarker.injectClickMarker(page, steps[i].x, steps[i].y);

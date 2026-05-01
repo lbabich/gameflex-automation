@@ -15,7 +15,7 @@ type LaunchConfig = {
   regulationsEnabled: boolean;
 };
 
-export async function launch(page: Page, game: GameEntry, deviceType: DeviceType): Promise<void> {
+export async function launch(page: Page, game: GameEntry, deviceType: DeviceType) {
   if (!game.gameProviderID) {
     throw new Error(`Game '${game.name}' has no gameProviderID — add one via the web UI`);
   }
