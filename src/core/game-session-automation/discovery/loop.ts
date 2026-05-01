@@ -97,5 +97,5 @@ async function runDiscoveryLoop(ctx: DiscoveryContext, config: DiscoveryConfig):
   );
 }
 
-export type { DiscoveryConfig, DiscoveryContext, PromptBuilder };
+export type { DiscoveryConfig, DiscoveryContext, PromptBuilder, VerifyClickFn };
 export { DiscoveryError, runDiscoveryLoop };

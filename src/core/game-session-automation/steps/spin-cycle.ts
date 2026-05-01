@@ -1,11 +1,11 @@
 import { stepCache } from '../../step-cache';
 import type { Viewport } from '../../types';
-import * as discoveryLoop from '../discovery/loop';
 import type { FailedButton } from '../discovery/prompt';
 import * as discoveryPrompt from '../discovery/prompt';
 import { GEL_EVENT } from '../gel-events';
 import * as replay from '../replay';
 import * as screenshot from '../screenshot';
+import { makeDiscover } from './make-discover';
 import { track } from './track';
 import type { StepContext, StepDescriptor } from './types';
 
@@ -19,36 +19,25 @@ const SPIN_START_WAIT_MS = 15_000;
 const SPIN_END_WAIT_MS = 15_000;
 const SPIN_VERIFY_TIMEOUT_MS = 3_000;
 
-async function discover(ctx: StepContext): Promise<void> {
-  const { page, game, viewport, deviceType, runID, accumulator, hints } = ctx;
-
-  const cached = stepCache.getSteps({ id: game.id, deviceType, viewport, stepName: STEP_NAME });
-
-  if (cached) {
-    return;
-  }
-
-  const verifySpinClick = () => {
-    return accumulator
-      .waitFor(GEL_EVENT.SPIN_START, SPIN_VERIFY_TIMEOUT_MS)
-      .then(() => {
-        return true;
-      })
-      .catch(() => {
-        return false;
-      });
-  };
-
-  const hint = hints?.spinCycle;
-  const promptBuilder = (v: Viewport, f: FailedButton[]) => {
-    return buildNextClickPrompt(hint, v, f);
-  };
-
-  return discoveryLoop.runDiscoveryLoop(
-    { page, game, viewport, deviceType },
-    { runID, stepName: STEP_NAME, buildPrompt: promptBuilder, verifyClick: verifySpinClick },
-  );
-}
+const discover = makeDiscover({
+  stepName: STEP_NAME,
+  buildPrompt: buildNextClickPrompt,
+  getHint: (hints) => {
+    return hints?.spinCycle;
+  },
+  getVerifyClick: (ctx) => {
+    return (_page, _x, _y) => {
+      return ctx.accumulator
+        .waitFor(GEL_EVENT.SPIN_START, SPIN_VERIFY_TIMEOUT_MS)
+        .then(() => {
+          return true;
+        })
+        .catch(() => {
+          return false;
+        });
+    };
+  },
+});
 
 async function execute(ctx: StepContext): Promise<void> {
   const { page, accumulator, game, viewport, runID, deviceType, runState } = ctx;

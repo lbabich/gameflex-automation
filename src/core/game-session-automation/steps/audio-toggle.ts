@@ -1,13 +1,11 @@
-import type { Page } from '@playwright/test';
 import { stepCache } from '../../step-cache';
 import type { Viewport } from '../../types';
-import * as discoveryLoop from '../discovery/loop';
-import { DiscoveryError } from '../discovery/loop';
 import type { FailedButton } from '../discovery/prompt';
 import * as discoveryPrompt from '../discovery/prompt';
 import { GEL_EVENT } from '../gel-events';
 import * as replay from '../replay';
 import * as screenshot from '../screenshot';
+import { makeDiscover } from './make-discover';
 import { track } from './track';
 import type { StepContext, StepDescriptor } from './types';
 
@@ -18,54 +16,37 @@ const AUDIO_VERIFY_TIMEOUT_MS = 3_000;
 
 const plan: StepDescriptor[] = [{ title: PLAN_TITLE, optional: true }];
 
-async function discover(ctx: StepContext): Promise<void> {
-  const { page, game, viewport, deviceType, runID, accumulator, hints } = ctx;
+const discover = makeDiscover({
+  stepName: STEP_NAME,
+  buildPrompt: buildNextClickPrompt,
+  getHint: (hints) => {
+    return hints?.audioToggle;
+  },
+  getVerifyClick: (ctx) => {
+    return async (page, x, y) => {
+      const enablePromise = ctx.accumulator.waitFor(
+        GEL_EVENT.AUDIO_ENABLE,
+        AUDIO_VERIFY_TIMEOUT_MS,
+      );
+      const disablePromise = ctx.accumulator.waitFor(
+        GEL_EVENT.AUDIO_DISABLE,
+        AUDIO_VERIFY_TIMEOUT_MS,
+      );
 
-  const cached = stepCache.getSteps({ id: game.id, deviceType, viewport, stepName: STEP_NAME });
+      await page.mouse.click(x, y);
 
-  if (cached) {
-    return;
-  }
-
-  const verifyAudioClick = async (p: Page, x: number, y: number) => {
-    const enablePromise = accumulator.waitFor(GEL_EVENT.AUDIO_ENABLE, AUDIO_VERIFY_TIMEOUT_MS);
-    const disablePromise = accumulator.waitFor(GEL_EVENT.AUDIO_DISABLE, AUDIO_VERIFY_TIMEOUT_MS);
-
-    await p.mouse.click(x, y);
-
-    return Promise.all([enablePromise, disablePromise])
-      .then(() => {
-        return true;
-      })
-      .catch(() => {
-        return false;
-      });
-  };
-
-  const hint = hints?.audioToggle;
-  const promptBuilder = (v: Viewport, f: FailedButton[]) => {
-    return buildNextClickPrompt(hint, v, f);
-  };
-
-  try {
-    await discoveryLoop.runDiscoveryLoop(
-      { page, game, viewport, deviceType },
-      {
-        runID,
-        stepName: STEP_NAME,
-        buildPrompt: promptBuilder,
-        verifyClick: verifyAudioClick,
-        savePartialOnFailure: false,
-      },
-    );
-  } catch (err) {
-    if (err instanceof DiscoveryError) {
-      return;
-    }
-
-    throw err;
-  }
-}
+      return Promise.all([enablePromise, disablePromise])
+        .then(() => {
+          return true;
+        })
+        .catch(() => {
+          return false;
+        });
+    };
+  },
+  savePartialOnFailure: false,
+  swallowDiscoveryError: true,
+});
 
 async function execute(ctx: StepContext): Promise<void> {
   const { page, accumulator, game, viewport, runID, deviceType, runState } = ctx;
