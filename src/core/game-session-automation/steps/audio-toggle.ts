@@ -1,4 +1,3 @@
-import { stepCache } from '../../step-cache';
 import type { Viewport } from '../../types';
 import type { FailedButton } from '../discovery/prompt';
 import * as discoveryPrompt from '../discovery/prompt';
@@ -44,14 +43,13 @@ export const discover = makeDiscover({
         });
     };
   },
-  savePartialOnFailure: false,
   swallowDiscoveryError: true,
 });
 
 export async function execute(ctx: StepContext) {
-  const { page, accumulator, game, viewport, runID, deviceType, runState } = ctx;
+  const { page, accumulator, game, viewport, runID, deviceType, runState, cache } = ctx;
 
-  const cached = stepCache.getSteps({ id: game.id, deviceType, viewport, stepName: STEP_NAME });
+  const cached = cache.getSteps({ id: game.id, deviceType, viewport, stepName: STEP_NAME });
   const audioButton = cached?.steps.at(-1);
 
   if (cached) {

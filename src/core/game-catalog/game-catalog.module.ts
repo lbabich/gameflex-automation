@@ -4,7 +4,7 @@ import * as path from 'node:path';
 import { Effect, Layer } from 'effect';
 import type { GameEntry, GameUpdates } from '../../shared/types';
 import { DuplicateGameIDError, GameNotFoundError } from '../errors';
-import { stepCache } from '../step-cache';
+import { StepCacheService } from '../step-cache.service';
 
 export class GamesService extends Effect.Tag('GamesService')<
   GamesService,
@@ -18,78 +18,85 @@ export class GamesService extends Effect.Tag('GamesService')<
   }
 >() {}
 
-export const NodeGamesService = Layer.succeed(GamesService, {
-  list: () => {
-    return Effect.sync(() => {
-      return readGames();
-    });
-  },
+export const NodeGamesService = Layer.effect(
+  GamesService,
+  Effect.gen(function* () {
+    const stepCacheService = yield* StepCacheService;
 
-  getCachedDeviceMap: () => {
-    return Effect.sync(() => {
-      const cache = stepCache.loadAll();
-      const result = new Map<string, { desktop: boolean; mobile: boolean }>();
-
-      for (const [gameID, devices] of Object.entries(cache)) {
-        result.set(gameID, {
-          desktop: 'desktop' in devices,
-          mobile: 'mobile' in devices,
+    return {
+      list: () => {
+        return Effect.sync(() => {
+          return readGames();
         });
-      }
-
-      return result;
-    });
-  },
-
-  add: (entry: Omit<GameEntry, 'id'>) => {
-    return Effect.try({
-      try: () => {
-        return addGame(entry);
       },
-      catch: (_error: unknown) => {
-        return new DuplicateGameIDError({ desktopGameID: entry.desktopGameID });
+
+      getCachedDeviceMap: () => {
+        return Effect.gen(function* () {
+          const cache = yield* stepCacheService.loadAll();
+          const result = new Map<string, { desktop: boolean; mobile: boolean }>();
+
+          for (const [gameID, devices] of Object.entries(cache)) {
+            result.set(gameID, {
+              desktop: 'desktop' in devices,
+              mobile: 'mobile' in devices,
+            });
+          }
+
+          return result;
+        });
       },
-    });
-  },
 
-  update: (id: string, updates: GameUpdates) => {
-    return Effect.gen(function* () {
-      const result = yield* Effect.try({
-        try: () => {
-          return updateGame(id, updates);
-        },
-        catch: () => {
-          return new GameNotFoundError({ id });
-        },
-      });
+      add: (entry: Omit<GameEntry, 'id'>) => {
+        return Effect.try({
+          try: () => {
+            return addGame(entry);
+          },
+          catch: (_error: unknown) => {
+            return new DuplicateGameIDError({ desktopGameID: entry.desktopGameID });
+          },
+        });
+      },
 
-      if (result.idChanged) {
-        stepCache.clearAllSteps(id);
-      }
-    });
-  },
+      update: (id: string, updates: GameUpdates) => {
+        return Effect.gen(function* () {
+          const result = yield* Effect.try({
+            try: () => {
+              return updateGame(id, updates);
+            },
+            catch: () => {
+              return new GameNotFoundError({ id });
+            },
+          });
 
-  delete: (id: string) => {
-    return Effect.gen(function* () {
-      yield* Effect.try({
-        try: () => {
-          return deleteGame(id);
-        },
-        catch: () => {
-          return new GameNotFoundError({ id });
-        },
-      });
+          if (result.idChanged) {
+            yield* stepCacheService.clearAllSteps(id);
+          }
+        });
+      },
 
-      stepCache.clearAllSteps(id);
-    });
-  },
+      delete: (id: string) => {
+        return Effect.gen(function* () {
+          yield* Effect.try({
+            try: () => {
+              return deleteGame(id);
+            },
+            catch: () => {
+              return new GameNotFoundError({ id });
+            },
+          });
 
-  reorder: (ids: string[]) => {
-    return Effect.sync(() => {
-      return reorderGames(ids);
-    });
-  },
-});
+          yield* stepCacheService.clearAllSteps(id);
+        });
+      },
+
+      reorder: (ids: string[]) => {
+        return Effect.sync(() => {
+          return reorderGames(ids);
+        });
+      },
+    };
+  }),
+);
 
 export function addGame(entry: Omit<GameEntry, 'id'> & { id?: string }) {
   const games = readGames();

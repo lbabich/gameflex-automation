@@ -1,14 +1,18 @@
 import * as crypto from 'node:crypto';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { Effect, ManagedRuntime } from 'effect';
+import { Effect, Layer, ManagedRuntime } from 'effect';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { DuplicateGameIDError, GameNotFoundError } from '../errors';
-import { stepCache } from '../step-cache';
+import { makeTestStepCacheService, StepCacheService } from '../step-cache.service';
 import { GamesService, NodeGamesService } from './game-catalog.module';
 
 const GAMES_PATH = path.resolve(process.env.GAMES_JSON_PATH ?? 'src/core/data/games.json');
-const runtime = ManagedRuntime.make(NodeGamesService);
+
+const testStepCacheLayer = makeTestStepCacheService();
+const runtime = ManagedRuntime.make(
+  Layer.mergeAll(testStepCacheLayer, Layer.provide(NodeGamesService, testStepCacheLayer)),
+);
 
 beforeEach(() => {
   fs.writeFileSync(GAMES_PATH, '[]');
@@ -115,7 +119,9 @@ describe('GamesService', () => {
             return g.desktopGameID === entry.desktopGameID;
           });
 
-          if (!game) throw new Error('game not found after add');
+          if (!game) {
+            throw new Error('game not found after add');
+          }
 
           yield* svc.update(game.id, { name: 'Updated Name' });
 
@@ -147,28 +153,28 @@ describe('GamesService', () => {
       const VP = { width: 1280, height: 720 };
       const steps = { discoveredAt: new Date().toISOString(), steps: [] };
 
-      stepCache.setSteps(
-        { id: game.id, deviceType: 'desktop', viewport: VP, stepName: 'spin-cycle' },
-        steps,
-      );
-
-      expect(
-        stepCache.getSteps({ id: game.id, deviceType: 'desktop', viewport: VP, stepName: 'spin-cycle' }),
-        'cache should exist before update',
-      ).toBeTruthy();
-
-      await runtime.runPromise(
+      const cached = await runtime.runPromise(
         Effect.gen(function* () {
           const svc = yield* GamesService;
+          const stepCacheSvc = yield* StepCacheService;
+
+          yield* stepCacheSvc.setSteps(
+            { id: game.id, deviceType: 'desktop', viewport: VP, stepName: 'spin-cycle' },
+            steps,
+          );
 
           yield* svc.update(game.id, { desktopGameID: makeGameID() });
+
+          return yield* stepCacheSvc.getSteps({
+            id: game.id,
+            deviceType: 'desktop',
+            viewport: VP,
+            stepName: 'spin-cycle',
+          });
         }),
       );
 
-      expect(
-        stepCache.getSteps({ id: game.id, deviceType: 'desktop', viewport: VP, stepName: 'spin-cycle' }),
-        'cache should be cleared after ID change',
-      ).toBeUndefined();
+      expect(cached, 'cache should be cleared after ID change').toBeUndefined();
     });
 
     it('clears step cache when mobileGameID changes', async () => {
@@ -176,23 +182,28 @@ describe('GamesService', () => {
       const VP = { width: 390, height: 844 };
       const steps = { discoveredAt: new Date().toISOString(), steps: [] };
 
-      stepCache.setSteps(
-        { id: game.id, deviceType: 'mobile', viewport: VP, stepName: 'spin-cycle' },
-        steps,
-      );
-
-      await runtime.runPromise(
+      const cached = await runtime.runPromise(
         Effect.gen(function* () {
           const svc = yield* GamesService;
+          const stepCacheSvc = yield* StepCacheService;
+
+          yield* stepCacheSvc.setSteps(
+            { id: game.id, deviceType: 'mobile', viewport: VP, stepName: 'spin-cycle' },
+            steps,
+          );
 
           yield* svc.update(game.id, { mobileGameID: makeGameID() });
+
+          return yield* stepCacheSvc.getSteps({
+            id: game.id,
+            deviceType: 'mobile',
+            viewport: VP,
+            stepName: 'spin-cycle',
+          });
         }),
       );
 
-      expect(
-        stepCache.getSteps({ id: game.id, deviceType: 'mobile', viewport: VP, stepName: 'spin-cycle' }),
-        'cache should be cleared after mobile ID change',
-      ).toBeUndefined();
+      expect(cached, 'cache should be cleared after mobile ID change').toBeUndefined();
     });
 
     it('does not clear step cache when only name changes', async () => {
@@ -203,25 +214,28 @@ describe('GamesService', () => {
         steps: [{ waitMs: 100, x: 10, y: 20, label: 'spin' }],
       };
 
-      stepCache.setSteps(
-        { id: game.id, deviceType: 'desktop', viewport: VP, stepName: 'spin-cycle' },
-        steps,
-      );
-
-      await runtime.runPromise(
+      const cached = await runtime.runPromise(
         Effect.gen(function* () {
           const svc = yield* GamesService;
+          const stepCacheSvc = yield* StepCacheService;
+
+          yield* stepCacheSvc.setSteps(
+            { id: game.id, deviceType: 'desktop', viewport: VP, stepName: 'spin-cycle' },
+            steps,
+          );
 
           yield* svc.update(game.id, { name: 'New Name' });
+
+          return yield* stepCacheSvc.getSteps({
+            id: game.id,
+            deviceType: 'desktop',
+            viewport: VP,
+            stepName: 'spin-cycle',
+          });
         }),
       );
 
-      expect(
-        stepCache.getSteps({ id: game.id, deviceType: 'desktop', viewport: VP, stepName: 'spin-cycle' }),
-        'cache should survive a name-only update',
-      ).toEqual(steps);
-
-      stepCache.clearAllSteps(game.id);
+      expect(cached, 'cache should survive a name-only update').toEqual(steps);
     });
   });
 
@@ -231,23 +245,28 @@ describe('GamesService', () => {
       const VP = { width: 1280, height: 720 };
       const steps = { discoveredAt: new Date().toISOString(), steps: [] };
 
-      stepCache.setSteps(
-        { id: game.id, deviceType: 'desktop', viewport: VP, stepName: 'spin-cycle' },
-        steps,
-      );
-
-      await runtime.runPromise(
+      const cached = await runtime.runPromise(
         Effect.gen(function* () {
           const svc = yield* GamesService;
+          const stepCacheSvc = yield* StepCacheService;
+
+          yield* stepCacheSvc.setSteps(
+            { id: game.id, deviceType: 'desktop', viewport: VP, stepName: 'spin-cycle' },
+            steps,
+          );
 
           yield* svc.delete(game.id);
+
+          return yield* stepCacheSvc.getSteps({
+            id: game.id,
+            deviceType: 'desktop',
+            viewport: VP,
+            stepName: 'spin-cycle',
+          });
         }),
       );
 
-      expect(
-        stepCache.getSteps({ id: game.id, deviceType: 'desktop', viewport: VP, stepName: 'spin-cycle' }),
-        'cache should be cleared after deletion',
-      ).toBeUndefined();
+      expect(cached, 'cache should be cleared after deletion').toBeUndefined();
     });
   });
 
@@ -260,6 +279,7 @@ describe('GamesService', () => {
       const [gameID, deviceMap] = await runtime.runPromise(
         Effect.gen(function* () {
           const svc = yield* GamesService;
+          const stepCacheSvc = yield* StepCacheService;
 
           yield* svc.add(entry);
 
@@ -268,16 +288,16 @@ describe('GamesService', () => {
             return item.desktopGameID === entry.desktopGameID;
           });
 
-          if (!game) throw new Error('game not found after add');
+          if (!game) {
+            throw new Error('game not found after add');
+          }
 
-          stepCache.setSteps(
+          yield* stepCacheSvc.setSteps(
             { id: game.id, deviceType: 'desktop', viewport: VP, stepName: 'spin-cycle' },
             cacheEntry,
           );
 
           const result = yield* svc.getCachedDeviceMap();
-
-          stepCache.clearAllSteps(game.id);
 
           return [game.id, result] as const;
         }),
@@ -314,7 +334,9 @@ async function addTestGame() {
         return g.desktopGameID === desktopGameID;
       });
 
-      if (!found) throw new Error(`addTestGame: ${desktopGameID} not found after add`);
+      if (!found) {
+        throw new Error(`addTestGame: ${desktopGameID} not found after add`);
+      }
 
       return found;
     }),

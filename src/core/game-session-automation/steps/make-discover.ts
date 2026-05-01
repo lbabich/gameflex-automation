@@ -1,5 +1,4 @@
 import type { RunHints } from '../../../shared/types';
-import { stepCache } from '../../step-cache';
 import type { Viewport } from '../../types';
 import type { VerifyClickFn } from '../discovery/loop';
 import * as discoveryLoop from '../discovery/loop';
@@ -16,15 +15,14 @@ export type MakeDiscoverConfig = {
   ) => string;
   getHint: (hints: RunHints | undefined) => string | undefined;
   getVerifyClick: (ctx: StepContext) => VerifyClickFn;
-  savePartialOnFailure?: boolean;
   swallowDiscoveryError?: boolean;
 };
 
 export function makeDiscover(config: MakeDiscoverConfig) {
   return async (ctx: StepContext) => {
-    const { page, game, viewport, deviceType, runID, hints } = ctx;
+    const { page, game, viewport, deviceType, runID, hints, cache } = ctx;
 
-    const cached = stepCache.getSteps({
+    const cached = cache.getSteps({
       id: game.id,
       deviceType,
       viewport,
@@ -36,20 +34,21 @@ export function makeDiscover(config: MakeDiscoverConfig) {
     }
 
     const hint = config.getHint(hints);
+
     const promptBuilder = (v: Viewport, f: FailedButton[]) => {
       return config.buildPrompt(hint, v, f);
     };
+
     const verifyClick = config.getVerifyClick(ctx);
 
     const run = () => {
       return discoveryLoop.runDiscoveryLoop(
-        { page, game, viewport, deviceType },
+        { page, game, viewport, deviceType, cache },
         {
           runID,
           stepName: config.stepName,
           buildPrompt: promptBuilder,
           verifyClick,
-          savePartialOnFailure: config.savePartialOnFailure,
         },
       );
     };

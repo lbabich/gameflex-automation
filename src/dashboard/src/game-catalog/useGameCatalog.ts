@@ -39,8 +39,9 @@ export function useGameCatalog() {
   });
 
   const clearDeviceSteps = useMutation({
-    mutationFn: ({ id, deviceType }: { id: string; deviceType: DeviceType }) =>
-      clearChannelSteps(id, deviceType),
+    mutationFn: ({ id, deviceType }: { id: string; deviceType: DeviceType }) => {
+      return clearChannelSteps(id, deviceType);
+    },
     onSuccess: invalidateGames,
   });
 

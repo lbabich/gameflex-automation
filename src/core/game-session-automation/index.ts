@@ -5,7 +5,8 @@ import { chromium } from '@playwright/test';
 import * as dotenv from 'dotenv';
 import type { DeviceType, GameEntry, RunHints } from '../../shared/types';
 import * as games from '../game-catalog/game-catalog.module';
-import { stepCache } from '../step-cache';
+import type { NodeStepCache } from '../step-cache';
+import { createDiskStore, createStepCache } from '../step-cache';
 import type { InternalTestResult, Viewport } from '../types';
 import * as eventAccumulator from './event-accumulator';
 import * as screenshot from './screenshot';
@@ -28,6 +29,7 @@ type GameRunOptions = {
   runID: string;
   steps: Step[];
   hints: RunHints;
+  cache: NodeStepCache;
 };
 
 const VIEWPORT: Viewport = { width: 1280, height: 720 };
@@ -44,6 +46,7 @@ const STEP_REGISTRY: Record<string, Step> = {
 
 async function main() {
   const { runID, gameIDs, deviceTypes, steps, hints, outputFile } = parseArgs();
+  const cache = createStepCache(createDiskStore());
 
   const resolvedSteps = steps.map((name) => {
     const step = STEP_REGISTRY[name];
@@ -70,7 +73,7 @@ async function main() {
       for (const deviceType of deviceTypes) {
         const result = await runGame(
           { browser, game, deviceType, viewport: VIEWPORT },
-          { runID, steps: resolvedSteps, hints },
+          { runID, steps: resolvedSteps, hints, cache },
         );
 
         results[deviceType] = {
@@ -126,7 +129,7 @@ function parseArgs() {
 
 async function runGame(context: GameRunContext, run: GameRunOptions): Promise<InternalTestResult> {
   const { browser, game, deviceType, viewport } = context;
-  const { runID, steps, hints } = run;
+  const { runID, steps, hints, cache } = run;
 
   const httpCredentials =
     process.env.BASIC_AUTH_USER && process.env.BASIC_AUTH_PASS
@@ -144,7 +147,7 @@ async function runGame(context: GameRunContext, run: GameRunOptions): Promise<In
 
   const accumulator = eventAccumulator.createEventAccumulator(page);
 
-  const ctx = { page, accumulator, game, viewport, deviceType, runID, runState, hints };
+  const ctx = { page, accumulator, game, viewport, deviceType, runID, runState, cache, hints };
 
   let failure: Error | null = null;
 
@@ -165,7 +168,6 @@ async function runGame(context: GameRunContext, run: GameRunOptions): Promise<In
       await step.execute(ctx);
     }
 
-    stepCache.saveToCache();
     await takePostRunSnapshots(page, runID, deviceType);
   } catch (err) {
     failure = err as Error;
