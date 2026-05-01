@@ -4,19 +4,32 @@ import type { VerifyClickFn } from '../discovery/loop';
 import * as discoveryLoop from '../discovery/loop';
 import { DiscoveryError } from '../discovery/loop';
 import type { FailedButton } from '../discovery/prompt';
+import { buildDiscoveryPrompt } from '../discovery/prompt';
 import type { StepContext } from './types';
 
 export type MakeDiscoverConfig = {
   stepName: string;
-  buildPrompt: (
-    hint: string | undefined,
-    viewport: Viewport,
-    failedButtons: FailedButton[],
-  ) => string;
+  defaultInstructions: (viewport: Viewport) => string;
+  failureContext: (list: string) => string;
   getHint: (hints: RunHints | undefined) => string | undefined;
-  getVerifyClick: (ctx: StepContext) => VerifyClickFn;
+  verifyClick: (ctx: StepContext) => VerifyClickFn;
   swallowDiscoveryError?: boolean;
 };
+
+export function onGelEvent(event: string, timeoutMs: number) {
+  return (ctx: StepContext): VerifyClickFn => {
+    return (_page, _x, _y) => {
+      return ctx.accumulator
+        .waitFor(event, timeoutMs)
+        .then(() => {
+          return true;
+        })
+        .catch(() => {
+          return false;
+        });
+    };
+  };
+}
 
 export function makeDiscover(config: MakeDiscoverConfig) {
   return async (ctx: StepContext) => {
@@ -36,10 +49,10 @@ export function makeDiscover(config: MakeDiscoverConfig) {
     const hint = config.getHint(hints);
 
     const promptBuilder = (v: Viewport, f: FailedButton[]) => {
-      return config.buildPrompt(hint, v, f);
+      return buildDiscoveryPrompt(config.defaultInstructions(v), config.failureContext, hint, f);
     };
 
-    const verifyClick = config.getVerifyClick(ctx);
+    const verifyClick = config.verifyClick(ctx);
 
     const run = () => {
       return discoveryLoop.runDiscoveryLoop(

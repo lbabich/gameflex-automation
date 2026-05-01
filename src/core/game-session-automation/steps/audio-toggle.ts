@@ -1,6 +1,3 @@
-import type { Viewport } from '../../types';
-import type { FailedButton } from '../discovery/prompt';
-import * as discoveryPrompt from '../discovery/prompt';
 import { GEL_EVENT } from '../gel-events';
 import * as replay from '../replay';
 import * as screenshot from '../screenshot';
@@ -17,11 +14,16 @@ export const plan: StepDescriptor[] = [{ title: PLAN_TITLE, optional: true }];
 
 export const discover = makeDiscover({
   stepName: STEP_NAME,
-  buildPrompt: buildNextClickPrompt,
+  defaultInstructions: ({ width, height }) => {
+    return `What is the single most important element to click to toggle the game's audio on or off?\n\nCRITICAL EXCLUSION — NEVER click anything in the top ${Math.round(height * 0.08)}px strip of the screen (y < ${Math.round(height * 0.08)}). That strip is the harness navigation bar, not part of the game. This includes any icon, button, or control positioned there. Clicking it will break the test.\n\nLook for targets in this order:\n1. A speaker icon, audio/sound toggle, or mute/unmute control that is part of the game's own UI — rendered inside the game frame (y >= ${Math.round(height * 0.08)}). Click it immediately — this is always the highest priority.\n2. A sound or audio settings button inside the game UI that leads to audio controls.\n3. A hamburger menu (≡) or settings icon — only if no direct audio control is visible.\n4. A back arrow (←) to close an overlay or sub-menu blocking access to audio controls.\n\nDo NOT suggest: spin buttons, bet controls, autoplay buttons, win displays, loading bars, progress indicators, or anything in the harness navigation bar.\n\nRespond with:\n  {"found": false}\n  {"found": true, "x": <number>, "y": <number>, "label": "<short description>"}\n\nImage dimensions: ${width}x${height}`;
+  },
+  failureContext: (list) => {
+    return `Previously clicked buttons that did NOT result in an audio toggle event — try a different approach:\n${list}`;
+  },
   getHint: (hints) => {
     return hints?.audioToggle;
   },
-  getVerifyClick: (ctx) => {
+  verifyClick: (ctx) => {
     return async (page, x, y) => {
       const enablePromise = ctx.accumulator.waitFor(
         GEL_EVENT.AUDIO_ENABLE,
@@ -69,23 +71,4 @@ export async function execute(ctx: StepContext) {
     await Promise.all([enablePromise, disablePromise]);
     await screenshot.snap(page, `${runID}/${deviceType}/audio-toggle.png`);
   });
-}
-
-function buildNextClickPrompt(
-  hint: string | undefined,
-  viewport: Viewport,
-  failedButtons: FailedButton[],
-) {
-  const { width, height } = viewport;
-
-  const defaultInstructions = `What is the single most important element to click to toggle the game's audio on or off?\n\nCRITICAL EXCLUSION — NEVER click anything in the top ${Math.round(height * 0.08)}px strip of the screen (y < ${Math.round(height * 0.08)}). That strip is the harness navigation bar, not part of the game. This includes any icon, button, or control positioned there. Clicking it will break the test.\n\nLook for targets in this order:\n1. A speaker icon, audio/sound toggle, or mute/unmute control that is part of the game's own UI — rendered inside the game frame (y >= ${Math.round(height * 0.08)}). Click it immediately — this is always the highest priority.\n2. A sound or audio settings button inside the game UI that leads to audio controls.\n3. A hamburger menu (≡) or settings icon — only if no direct audio control is visible.\n4. A back arrow (←) to close an overlay or sub-menu blocking access to audio controls.\n\nDo NOT suggest: spin buttons, bet controls, autoplay buttons, win displays, loading bars, progress indicators, or anything in the harness navigation bar.\n\nRespond with:\n  {"found": false}\n  {"found": true, "x": <number>, "y": <number>, "label": "<short description>"}\n\nImage dimensions: ${width}x${height}`;
-
-  return discoveryPrompt.buildDiscoveryPrompt(
-    defaultInstructions,
-    (list) => {
-      return `Previously clicked buttons that did NOT result in an audio toggle event — try a different approach:\n${list}`;
-    },
-    hint,
-    failedButtons,
-  );
 }
