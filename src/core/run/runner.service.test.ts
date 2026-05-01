@@ -8,6 +8,7 @@ import { GamesService } from '../game-catalog/game-catalog.module';
 import {
   NodeRunnerService,
   ProcessExecutorService,
+  RunFinalizationService,
   RunLoggerService,
   RunnerService,
   RunStateService,
@@ -238,6 +239,12 @@ function makeTestRuntime(runsJson = '[]', gameEntries: GameEntry[] = []) {
     },
   });
 
+  const testRunFinalizationService = Layer.succeed(RunFinalizationService, {
+    finalize: (record) => {
+      return Effect.succeed(record);
+    },
+  });
+
   return ManagedRuntime.make(
     Layer.provide(
       NodeRunnerService,
@@ -247,6 +254,7 @@ function makeTestRuntime(runsJson = '[]', gameEntries: GameEntry[] = []) {
         testRunStateService,
         testRunLoggerService,
         testProcessExecutorService,
+        testRunFinalizationService,
       ),
     ),
   );

@@ -3,6 +3,7 @@ import { NodeFileService } from './file.service';
 import { NodeGamesService } from './game-catalog/game-catalog.module';
 import {
   NodeProcessExecutorService,
+  NodeRunFinalizationService,
   NodeRunLoggerService,
   NodeRunnerService,
   NodeRunStateService,
@@ -11,6 +12,10 @@ import { NodeStepCacheService } from './step-cache.service';
 
 const ProvidedRunLoggerService = Layer.provide(NodeRunLoggerService, NodeRunStateService);
 const ProvidedNodeGamesService = Layer.provide(NodeGamesService, NodeStepCacheService);
+const ProvidedNodeRunFinalizationService = Layer.provide(
+  NodeRunFinalizationService,
+  Layer.mergeAll(NodeFileService, ProvidedRunLoggerService),
+);
 const ProvidedNodeRunnerService = Layer.provide(
   NodeRunnerService,
   Layer.mergeAll(
@@ -19,6 +24,7 @@ const ProvidedNodeRunnerService = Layer.provide(
     ProvidedNodeGamesService,
     NodeProcessExecutorService,
     ProvidedRunLoggerService,
+    ProvidedNodeRunFinalizationService,
   ),
 );
 
@@ -28,6 +34,7 @@ const AppLayer = Layer.mergeAll(
   NodeStepCacheService,
   ProvidedNodeGamesService,
   ProvidedRunLoggerService,
+  ProvidedNodeRunFinalizationService,
   ProvidedNodeRunnerService,
 );
 

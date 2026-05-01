@@ -1,16 +1,15 @@
 import { randomUUID } from 'node:crypto';
 import * as path from 'node:path';
 import { Effect, Fiber, Layer } from 'effect';
-import type { DeviceType, GameEntry, RunHints, RunRecord, RunStatus, TestResult } from '../../shared/types';
+import type { GameEntry, RunHints, RunRecord } from '../../shared/types';
 import { GameNotFoundError, RunAlreadyActiveError, RunNotFoundError } from '../errors';
 import { FileService } from '../file.service';
 import { GamesService } from '../game-catalog/game-catalog.module';
 import type { InternalRunRecord } from '../types';
 import { buildCommand } from './command';
-import { attachGifUrls, attachScreenshotUrls, cleanupImages } from './media';
-import { parseSpinOutput } from './output-parser';
 import { loadRuns, saveRuns, trimMemory } from './persistence';
 import { ProcessExecutorService } from './process';
+import { RunFinalizationService } from './run-finalization.service';
 import { RunLoggerService } from './run-logger.service';
 import { RunStateService } from './run-state.service';
 
@@ -25,6 +24,7 @@ type StartRunServices = {
   fileService: FileService['Type'];
   runLoggerService: RunLoggerService['Type'];
   processExecutorService: ProcessExecutorService['Type'];
+  runFinalizationService: RunFinalizationService['Type'];
 };
 
 type StartRunParams = {
@@ -35,6 +35,7 @@ type StartRunParams = {
 };
 
 type FinalizeServices = {
+  runFinalizationService: RunFinalizationService['Type'];
   runLoggerService: RunLoggerService['Type'];
   fileService: FileService['Type'];
 };
@@ -66,6 +67,7 @@ export const NodeRunnerService = Layer.effect(
     const fileService = yield* FileService;
     const gamesService = yield* GamesService;
     const processExecutorService = yield* ProcessExecutorService;
+    const runFinalizationService = yield* RunFinalizationService;
 
     const loadedRuns = yield* loadRuns();
 
@@ -77,7 +79,13 @@ export const NodeRunnerService = Layer.effect(
       startRun: (params: StartRunParams) => {
         return startRun(
           state,
-          { gamesService, fileService, runLoggerService, processExecutorService },
+          {
+            gamesService,
+            fileService,
+            runLoggerService,
+            processExecutorService,
+            runFinalizationService,
+          },
           params,
         );
       },
@@ -98,7 +106,13 @@ export const NodeRunnerService = Layer.effect(
 );
 
 function startRun(state: RunnerState, services: StartRunServices, params: StartRunParams) {
-  const { gamesService, fileService, runLoggerService, processExecutorService } = services;
+  const {
+    gamesService,
+    fileService,
+    runLoggerService,
+    processExecutorService,
+    runFinalizationService,
+  } = services;
   const { gameIDs, deviceTypes, steps, hints } = params;
 
   return Effect.gen(function* () {
@@ -128,7 +142,11 @@ function startRun(state: RunnerState, services: StartRunServices, params: StartR
 
       yield* runLoggerService.log(runID, 'runner', `Process exited with code ${code}`);
 
-      yield* finalizeRun(state, { runLoggerService, fileService }, { runID, code, outputFilePath });
+      yield* finalizeRun(
+        state,
+        { runFinalizationService, runLoggerService, fileService },
+        { runID, code, outputFilePath },
+      );
     }).pipe(
       Effect.catchAll((error: never) => {
         return handleFiberError(state, runLoggerService, runID, error);
@@ -193,7 +211,7 @@ function createRecord(runID: string, gameIDs: string[]): InternalRunRecord {
 }
 
 function finalizeRun(state: RunnerState, services: FinalizeServices, result: FinalizeResult) {
-  const { runLoggerService, fileService } = services;
+  const { runFinalizationService, runLoggerService, fileService } = services;
   const { runID, code, outputFilePath } = result;
 
   return Effect.gen(function* () {
@@ -203,74 +221,9 @@ function finalizeRun(state: RunnerState, services: FinalizeServices, result: Fin
       return;
     }
 
-    const outputJson = yield* fileService.read(outputFilePath).pipe(
-      Effect.orElse(() => {
-        return Effect.succeed('');
-      }),
-    );
+    const finalized = yield* runFinalizationService.finalize(record, code, outputFilePath);
 
-    const finishedAt = new Date().toISOString();
-    const durationMs = new Date(finishedAt).getTime() - new Date(record.startedAt).getTime();
-
-    let updated: InternalRunRecord = { ...record, rawOutput: outputJson, finishedAt, durationMs };
-
-    if (record.status !== 'cancelled') {
-      const parsed = yield* parseRunOutput(runLoggerService, runID, outputJson, code);
-
-      updated = { ...updated, ...parsed };
-    }
-
-    yield* attachScreenshotUrls(updated.results);
-    yield* attachGifUrls(runLoggerService, runID, updated.results);
-    yield* cleanupImages(runLoggerService, runID, updated.results);
-
-    yield* persistFinishedRun(state, fileService, runLoggerService, runID, updated);
-  });
-}
-
-function parseRunOutput(
-  runLoggerService: RunLoggerService['Type'],
-  runID: string,
-  outputJson: string,
-  code: number,
-) {
-  return Effect.gen(function* () {
-    yield* runLoggerService.log(runID, 'finalize', `parsing output for run ${runID}`);
-
-    const emptyResult = {
-      results: {} as Partial<Record<DeviceType, TestResult>>,
-      errors: [] as string[],
-    };
-
-    const parsed = yield* parseSpinOutput(outputJson).pipe(
-      Effect.tapError((error) => {
-        return runLoggerService.error(runID, 'finalize', 'Failed to parse spin output', error);
-      }),
-      Effect.tapError(() => {
-        return runLoggerService.error(
-          runID,
-          'finalize',
-          `output snippet: ${outputJson.slice(0, 200)}`,
-        );
-      }),
-      Effect.orElse(() => {
-        return Effect.succeed(emptyResult);
-      }),
-    );
-
-    yield* runLoggerService.log(
-      runID,
-      'finalize',
-      `${Object.keys(parsed.results).length} result(s), ${parsed.errors.length} error(s)`,
-    );
-
-    const status: RunStatus = code === 0 ? 'completed' : 'error';
-
-    return {
-      results: parsed.results,
-      playwrightErrors: parsed.errors,
-      status,
-    };
+    yield* persistFinishedRun(state, fileService, runLoggerService, runID, finalized);
   });
 }
 
