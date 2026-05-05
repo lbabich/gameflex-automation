@@ -23,18 +23,6 @@ const PatchBody = Schema.Struct({
   gameProviderID: Schema.optional(Schema.String),
 });
 
-function serverDefectHandler(res: Response) {
-  return (defect: unknown) => {
-    console.error('[server] Unhandled defect:', defect);
-
-    return Effect.sync(() => {
-      if (!res.headersSent) {
-        res.status(500).json({ error: 'Internal server error' });
-      }
-    });
-  };
-}
-
 export function makeGamesRouter(runtime: AppRuntime) {
   const router = Router();
 
@@ -201,4 +189,16 @@ export function makeGamesRouter(runtime: AppRuntime) {
   });
 
   return router;
+}
+
+function serverDefectHandler(res: Response) {
+  return (defect: unknown) => {
+    console.error('[server] Unhandled defect:', defect);
+
+    return Effect.sync(() => {
+      if (!res.headersSent) {
+        res.status(500).json({ error: 'Internal server error' });
+      }
+    });
+  };
 }

@@ -17,18 +17,6 @@ const PostBody = Schema.Struct({
   hints: Schema.optional(HintsSchema),
 });
 
-function serverDefectHandler(res: Response) {
-  return (defect: unknown) => {
-    console.error('[server] Unhandled defect:', defect);
-
-    return Effect.sync(() => {
-      if (!res.headersSent) {
-        res.status(500).json({ error: 'Internal server error' });
-      }
-    });
-  };
-}
-
 export function makeRunsRouter(runtime: AppRuntime) {
   const router = Router();
 
@@ -120,4 +108,16 @@ export function makeRunsRouter(runtime: AppRuntime) {
   });
 
   return router;
+}
+
+function serverDefectHandler(res: Response) {
+  return (defect: unknown) => {
+    console.error('[server] Unhandled defect:', defect);
+
+    return Effect.sync(() => {
+      if (!res.headersSent) {
+        res.status(500).json({ error: 'Internal server error' });
+      }
+    });
+  };
 }

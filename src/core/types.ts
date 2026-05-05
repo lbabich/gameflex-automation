@@ -23,10 +23,6 @@ export type InternalRunRecord = Omit<RunRecord, 'results'> & {
   logs: string[];
 };
 
-export const DEVICE_TYPES = ['desktop', 'mobile'] as const satisfies readonly DeviceType[];
-
-export const SCREENSHOTS_DIR = 'src/core/data/screenshots';
-
 export type Viewport = {
   width: number;
   height: number;
@@ -44,3 +40,7 @@ export type GameSteps = {
   steps: CachedStep[];
   partial?: boolean;
 };
+
+export const DEVICE_TYPES = ['desktop', 'mobile'] as const satisfies readonly DeviceType[];
+
+export const SCREENSHOTS_DIR = 'src/core/data/screenshots';

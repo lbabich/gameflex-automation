@@ -239,6 +239,57 @@ async function executeSteps(ctx: SessionContext, steps: Step[]): Promise<StepOut
   }
 }
 
+async function takePostRunSnapshots(page: Page, runID: string, deviceType: DeviceType) {
+  await snapSequence(page, `${runID}/${deviceType}`, 'final', {
+    initialWaitMs: POST_RUN_BUFFER_MS,
+    betweenWaitMs: 1_500,
+  });
+}
+
+async function takeFailureSnapshots(page: Page, runID: string, deviceType: DeviceType) {
+  return snapSequence(page, `${runID}/${deviceType}`, 'failure', { betweenWaitMs: 3_000 });
+}
+
+async function snapSequence(
+  page: Page,
+  dir: string,
+  prefix: string,
+  options: { initialWaitMs?: number; betweenWaitMs: number },
+): Promise<string[]> {
+  const paths: string[] = [];
+
+  if (options.initialWaitMs) {
+    await page.waitForTimeout(options.initialWaitMs);
+  }
+
+  paths.push(await screenshot.snap(page, `${dir}/${prefix}-1.png`));
+  await page.waitForTimeout(options.betweenWaitMs);
+  paths.push(await screenshot.snap(page, `${dir}/${prefix}-2.png`));
+  await page.waitForTimeout(options.betweenWaitMs);
+  paths.push(await screenshot.snap(page, `${dir}/${prefix}-3.png`));
+
+  return paths;
+}
+
+function mergeSteps(planned: TestStep[], actual: TestStep[]): TestStep[] {
+  const result = [...planned];
+
+  for (const step of actual) {
+    const planTitle = step.title.replace(' (cached)', '');
+    const idx = result.findIndex((s) => {
+      return s.title === planTitle;
+    });
+
+    if (idx >= 0) {
+      result[idx] = step;
+    } else {
+      result.push(step);
+    }
+  }
+
+  return result;
+}
+
 function buildResult(
   game: GameEntry,
   duration: number,
@@ -270,57 +321,6 @@ function buildResult(
     logs,
     steps: allSteps,
   };
-}
-
-function mergeSteps(planned: TestStep[], actual: TestStep[]): TestStep[] {
-  const result = [...planned];
-
-  for (const step of actual) {
-    const planTitle = step.title.replace(' (cached)', '');
-    const idx = result.findIndex((s) => {
-      return s.title === planTitle;
-    });
-
-    if (idx >= 0) {
-      result[idx] = step;
-    } else {
-      result.push(step);
-    }
-  }
-
-  return result;
-}
-
-async function takePostRunSnapshots(page: Page, runID: string, deviceType: DeviceType) {
-  await snapSequence(page, `${runID}/${deviceType}`, 'final', {
-    initialWaitMs: POST_RUN_BUFFER_MS,
-    betweenWaitMs: 1_500,
-  });
-}
-
-async function takeFailureSnapshots(page: Page, runID: string, deviceType: DeviceType) {
-  return snapSequence(page, `${runID}/${deviceType}`, 'failure', { betweenWaitMs: 3_000 });
-}
-
-async function snapSequence(
-  page: Page,
-  dir: string,
-  prefix: string,
-  options: { initialWaitMs?: number; betweenWaitMs: number },
-): Promise<string[]> {
-  const paths: string[] = [];
-
-  if (options.initialWaitMs) {
-    await page.waitForTimeout(options.initialWaitMs);
-  }
-
-  paths.push(await screenshot.snap(page, `${dir}/${prefix}-1.png`));
-  await page.waitForTimeout(options.betweenWaitMs);
-  paths.push(await screenshot.snap(page, `${dir}/${prefix}-2.png`));
-  await page.waitForTimeout(options.betweenWaitMs);
-  paths.push(await screenshot.snap(page, `${dir}/${prefix}-3.png`));
-
-  return paths;
 }
 
 main().catch((err: unknown) => {

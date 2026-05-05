@@ -39,6 +39,8 @@ type FinalizeResult = {
   outputFilePath: string;
 };
 
+const DEFAULT_STEPS = ['gameLoad', 'spinCycle'];
+
 export class RunnerService extends Effect.Tag('RunnerService')<
   RunnerService,
   {
@@ -197,8 +199,6 @@ function createRecord(runID: string, gameIDs: string[]): InternalRunRecord {
   };
 }
 
-const DEFAULT_STEPS = ['gameLoad', 'spinCycle'];
-
 function buildCommand(
   runID: string,
   games: GameEntry[],
@@ -213,7 +213,7 @@ function buildCommand(
 
   let cmd = `npx tsx src/core/game-session-automation/runner.ts --runID=${runID} --games=${gamesArg} --deviceTypes=${devices} --steps=${stepsArg} --outputFile=${outputFilePath}`;
 
-  if (hints && (hints.spinCycle || hints.gameClose)) {
+  if (hints?.spinCycle || hints?.gameClose) {
     cmd += ` --hints=${Buffer.from(JSON.stringify(hints)).toString('base64')}`;
   }
 
@@ -292,22 +292,6 @@ function cancelRun(
   });
 }
 
-function saveRunsIgnoreError(
-  fileService: FileService['Type'],
-  runs: Map<string, InternalRunRecord>,
-  runLoggerService: RunLoggerService['Type'],
-  runID: string,
-) {
-  return saveRuns(fileService, runs).pipe(
-    Effect.tapError((err) => {
-      return runLoggerService.error(runID, 'runner', 'Failed to save runs', err);
-    }),
-    Effect.orElse(() => {
-      return Effect.succeed(undefined);
-    }),
-  );
-}
-
 function getRun(runStateManager: RunState, runID: string) {
   return Effect.gen(function* () {
     const record = runStateManager.get(runID);
@@ -342,4 +326,20 @@ function clearGameRuns(
 
     yield* saveRunsIgnoreError(fileService, runStateManager.snapshot(), runLoggerService, gameID);
   });
+}
+
+function saveRunsIgnoreError(
+  fileService: FileService['Type'],
+  runs: Map<string, InternalRunRecord>,
+  runLoggerService: RunLoggerService['Type'],
+  runID: string,
+) {
+  return saveRuns(fileService, runs).pipe(
+    Effect.tapError((err) => {
+      return runLoggerService.error(runID, 'runner', 'Failed to save runs', err);
+    }),
+    Effect.orElse(() => {
+      return Effect.succeed(undefined);
+    }),
+  );
 }

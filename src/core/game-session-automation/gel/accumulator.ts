@@ -1,6 +1,6 @@
 import type { Page } from '@playwright/test';
 
-type EventAccumulator = {
+export type EventAccumulator = {
   waitFor: (eventName: string, timeout: number) => Promise<void>;
   getAll: () => string[];
 };
@@ -72,5 +72,3 @@ export function createEventAccumulator(page: Page): EventAccumulator {
     },
   };
 }
-
-export type { EventAccumulator };

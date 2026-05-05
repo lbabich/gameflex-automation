@@ -9,13 +9,6 @@ import type { SessionContext } from './steps/types';
 
 dotenv.config();
 
-const VISION_MODEL = 'claude-sonnet-4-6';
-const VISION_SYSTEM = 'You are a visual UI analyst. Return ONLY valid JSON.';
-const DISCOVERY_MAX_ATTEMPTS = 20;
-const DISCOVERY_POLL_INTERVAL_MS = 1_000;
-
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
 type ClickResult = { found: true; x: number; y: number; label: string } | { found: false };
 type FailedButton = { x: number; y: number; label: string };
 
@@ -27,6 +20,13 @@ export type DiscoverySpec = {
   verifyClick: (ctx: SessionContext, x: number, y: number) => Promise<boolean>;
   checkComplete?: (ctx: SessionContext) => Promise<boolean>;
 };
+
+const VISION_MODEL = 'claude-sonnet-4-6';
+const VISION_SYSTEM = 'You are a visual UI analyst. Return ONLY valid JSON.';
+const DISCOVERY_MAX_ATTEMPTS = 20;
+const DISCOVERY_POLL_INTERVAL_MS = 1_000;
+
+const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 export class DiscoveryError extends Error {
   constructor(message: string) {
