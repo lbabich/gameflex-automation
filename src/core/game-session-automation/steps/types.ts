@@ -1,7 +1,7 @@
 import type { Page } from '@playwright/test';
 import type { DeviceType, GameEntry, RunHints, TestStep } from '../../../shared/types';
 import type { NodeStepCache } from '../../step-cache/cache';
-import type { Viewport } from '../../types';
+import type { CachedStep, Viewport } from '../../types';
 import type { EventAccumulator } from '../gel/accumulator';
 
 type SessionContext = {
@@ -22,8 +22,9 @@ type StepDescriptor = {
 
 type Step = {
   plan: StepDescriptor[];
+  stepName: string;
   discover: (ctx: SessionContext) => Promise<void>;
-  execute: (ctx: SessionContext) => Promise<TestStep[]>;
+  run: (ctx: SessionContext, cachedSteps: CachedStep[] | null) => Promise<TestStep[]>;
 };
 
 export type { SessionContext, Step, StepDescriptor };

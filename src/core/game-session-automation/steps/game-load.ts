@@ -1,8 +1,11 @@
 import type { TestStep } from '../../../shared/types';
+import type { CachedStep } from '../../types';
 import { GEL_EVENT, GEL_READY_TIMEOUT_MS } from '../gel/events';
 import * as preLaunch from '../pre-launch';
 import { track } from './track';
 import type { SessionContext, StepDescriptor } from './types';
+
+export const stepName = 'gameLoad';
 
 export const plan: StepDescriptor[] = [
   { title: 'Launch game via harness' },
@@ -14,7 +17,7 @@ export async function discover(_ctx: SessionContext) {
   console.log('[game-load] No discovery process');
 }
 
-export async function execute(ctx: SessionContext) {
+export async function run(ctx: SessionContext, _cachedSteps: CachedStep[] | null) {
   const { page, game, deviceType, accumulator } = ctx;
   const readyPromise = accumulator.waitFor(GEL_EVENT.READY, GEL_READY_TIMEOUT_MS);
 

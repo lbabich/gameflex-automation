@@ -11,6 +11,7 @@ import type { ChildProcessOutput, InternalTestResult, Viewport } from '../types'
 import * as screenshot from './capture/screenshot';
 import type { EventAccumulator } from './gel/accumulator';
 import * as eventAccumulator from './gel/accumulator';
+import * as replay from './replay';
 import * as audioToggle from './steps/audio-toggle';
 import * as gameClose from './steps/game-close';
 import * as gameLoad from './steps/game-load';
@@ -205,7 +206,18 @@ async function executeSteps(ctx: SessionContext, steps: Step[]): Promise<StepOut
     for (const step of steps) {
       await step.discover(ctx);
 
-      const stepSteps = await step.execute(ctx);
+      const cached = ctx.cache.getSteps({
+        id: ctx.game.id,
+        deviceType: ctx.deviceType,
+        viewport: ctx.viewport,
+        stepName: step.stepName,
+      });
+
+      if (cached) {
+        await replay.replaySteps(ctx.page, ctx.runID, cached.steps, ctx.deviceType);
+      }
+
+      const stepSteps = await step.run(ctx, cached?.steps ?? null);
 
       collectedSteps.push(...stepSteps);
     }
