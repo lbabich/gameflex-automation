@@ -23,6 +23,7 @@ export const discover = makeDiscover({
     return hints?.gameClose;
   },
   verifyClick: onGelEvent(GEL_EVENT.GAME_CLOSE, CLOSE_VERIFY_TIMEOUT_MS),
+  checkComplete: onGelEvent(GEL_EVENT.GAME_CLOSE, 0),
 });
 
 export async function execute(ctx: SessionContext) {

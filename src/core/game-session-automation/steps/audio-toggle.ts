@@ -23,27 +23,22 @@ export const discover = makeDiscover({
   getHint: (hints) => {
     return hints?.audioToggle;
   },
-  verifyClick: (ctx) => {
-    return async (page, x, y) => {
-      const enablePromise = ctx.accumulator.waitFor(
-        GEL_EVENT.AUDIO_ENABLE,
-        AUDIO_VERIFY_TIMEOUT_MS,
-      );
-      const disablePromise = ctx.accumulator.waitFor(
-        GEL_EVENT.AUDIO_DISABLE,
-        AUDIO_VERIFY_TIMEOUT_MS,
-      );
+  verifyClick: async (ctx, x, y) => {
+    const enablePromise = ctx.accumulator.waitFor(GEL_EVENT.AUDIO_ENABLE, AUDIO_VERIFY_TIMEOUT_MS);
+    const disablePromise = ctx.accumulator.waitFor(
+      GEL_EVENT.AUDIO_DISABLE,
+      AUDIO_VERIFY_TIMEOUT_MS,
+    );
 
-      await page.mouse.click(x, y);
+    await ctx.page.mouse.click(x, y);
 
-      return Promise.all([enablePromise, disablePromise])
-        .then(() => {
-          return true;
-        })
-        .catch(() => {
-          return false;
-        });
-    };
+    return Promise.all([enablePromise, disablePromise])
+      .then(() => {
+        return true;
+      })
+      .catch(() => {
+        return false;
+      });
   },
   swallowDiscoveryError: true,
 });

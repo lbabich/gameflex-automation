@@ -7,27 +7,28 @@ import type { FailedButton } from '../discovery/prompt';
 import { buildDiscoveryPrompt } from '../discovery/prompt';
 import type { SessionContext } from './types';
 
+type VerifyFn = (ctx: SessionContext, x: number, y: number) => Promise<boolean>;
+
 export type MakeDiscoverConfig = {
   stepName: string;
   defaultInstructions: (viewport: Viewport) => string;
   failureContext: (list: string) => string;
   getHint: (hints: RunHints | undefined) => string | undefined;
-  verifyClick: (ctx: SessionContext) => VerifyClickFn;
+  verifyClick: VerifyFn;
+  checkComplete?: VerifyFn;
   swallowDiscoveryError?: boolean;
 };
 
-export function onGelEvent(event: string, timeoutMs: number) {
-  return (ctx: SessionContext): VerifyClickFn => {
-    return (_page, _x, _y) => {
-      return ctx.accumulator
-        .waitFor(event, timeoutMs)
-        .then(() => {
-          return true;
-        })
-        .catch(() => {
-          return false;
-        });
-    };
+export function onGelEvent(event: string, timeoutMs: number): VerifyFn {
+  return (ctx, _x, _y) => {
+    return ctx.accumulator
+      .waitFor(event, timeoutMs)
+      .then(() => {
+        return true;
+      })
+      .catch(() => {
+        return false;
+      });
   };
 }
 
@@ -52,7 +53,16 @@ export function makeDiscover(config: MakeDiscoverConfig) {
       return buildDiscoveryPrompt(config.defaultInstructions(v), config.failureContext, hint, f);
     };
 
-    const verifyClick = config.verifyClick(ctx);
+    const verifyClick: VerifyClickFn = (_page, x, y) => {
+      return config.verifyClick(ctx, x, y);
+    };
+
+    const { checkComplete: checkCompleteFn } = config;
+    const checkComplete: VerifyClickFn | undefined = checkCompleteFn
+      ? (_page, x, y) => {
+          return checkCompleteFn(ctx, x, y);
+        }
+      : undefined;
 
     const run = () => {
       return discoveryLoop.runDiscoveryLoop(
@@ -62,6 +72,7 @@ export function makeDiscover(config: MakeDiscoverConfig) {
           stepName: config.stepName,
           buildPrompt: promptBuilder,
           verifyClick,
+          checkComplete,
         },
       );
     };

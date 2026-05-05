@@ -24,6 +24,7 @@ export type DiscoveryConfig = {
   stepName: string;
   buildPrompt: PromptBuilder;
   verifyClick: VerifyClickFn;
+  checkComplete?: VerifyClickFn;
 };
 
 const DISCOVERY_MAX_ATTEMPTS = 20;
@@ -46,6 +47,15 @@ export async function runDiscoveryLoop(ctx: DiscoveryContext, config: DiscoveryC
   let lastClickTime = Date.now();
 
   for (let attempt = 1; attempt <= DISCOVERY_MAX_ATTEMPTS; attempt++) {
+    if (config.checkComplete && (await config.checkComplete(page, 0, 0))) {
+      cache.setSteps(
+        { id: game.id, deviceType, viewport, stepName },
+        { discoveredAt: new Date().toISOString(), steps: preTargetSteps },
+      );
+
+      return;
+    }
+
     const screenshotPath = await screenshot.snap(
       page,
       `${runID}/${deviceType}/discovery-${attempt}.png`,

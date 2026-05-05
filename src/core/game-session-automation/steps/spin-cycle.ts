@@ -27,6 +27,7 @@ export const discover = makeDiscover({
     return hints?.spinCycle;
   },
   verifyClick: onGelEvent(GEL_EVENT.SPIN_START, SPIN_VERIFY_TIMEOUT_MS),
+  checkComplete: onGelEvent(GEL_EVENT.SPIN_START, 0),
 });
 
 export async function execute(ctx: SessionContext) {
