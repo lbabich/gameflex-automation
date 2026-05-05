@@ -88,23 +88,36 @@ function getClickCoords(
 ): Promise<{ x: number; y: number }> { ... }
 ```
 
-## Namespace import convention
+## Module namespace convention
 
-All imports from internal modules use `import * as moduleName`. Functions and types are
-both accessed through the namespace.
+Each internal module file exports a single named const that groups all its public values.
+Callers import that const by name — the module boundary is explicit in both the source and
+at every call site.
 
 ```ts
-// before
-import { snap } from './screenshot';
-import type { CachedStep } from './step-cache';
+// screenshot.ts — the module declares its own name
+async function snap(page: Page, name: string) { ... }
+export const screenshot = { snap };
 
-// after
-import * as screenshot from './screenshot';
-import * as stepCache from './step-cache';
-
-// usage
+// consumer — one import, clear call site
+import { screenshot } from './capture/screenshot';
 screenshot.snap(page, name);
-const steps: stepCache.CachedStep[] = [];
+```
+
+Types are exported separately as `export type` (they are erased at runtime and cannot be
+placed in a const object):
+
+```ts
+// cache.ts
+export type StepCache = { ... };
+export type StepCacheKey = { ... };
+
+function createStepCache(store: StepStore) { ... }
+export const cache = { createStepCache };
+
+// consumer
+import { cache, type StepCache, type StepCacheKey } from './cache';
+const stepCache = cache.createStepCache(store);
 ```
 
 This makes every call site self-documenting — the module the function belongs to is visible

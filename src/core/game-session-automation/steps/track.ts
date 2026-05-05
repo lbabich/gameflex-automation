@@ -1,13 +1,13 @@
 import type { TestStep } from '../../../shared/types';
 
-export class StepFailure extends Error {
+class StepFailure extends Error {
   constructor(public readonly step: TestStep) {
     super(step.error ?? step.title);
     this.name = 'StepFailure';
   }
 }
 
-export async function track(
+async function track(
   title: string,
   fn: () => Promise<unknown>,
   optional?: boolean,
@@ -34,3 +34,5 @@ export async function track(
     return step;
   }
 }
+
+export const tracker = { StepFailure, track };

@@ -1,8 +1,8 @@
 import { Effect, Fiber, Layer } from 'effect';
 import { RunNotFoundError } from '../errors';
 import type { InternalRunRecord } from '../types';
-import { trimMemory } from './persistence';
-import { transition } from './run-transition';
+import { persistence } from './persistence';
+import { runTransition } from './run-transition';
 
 export class RunStateManager {
   private runs = new Map<string, InternalRunRecord>();
@@ -31,18 +31,21 @@ export class RunStateManager {
     const current = this.runs.get(runID);
 
     if (current) {
-      this.runs.set(runID, transition(current, { type: 'Finalized', record }));
+      this.runs.set(
+        runID,
+        runTransition.transition(current, { type: 'Finalized', record }),
+      );
     }
 
     this.deactivate(runID, record.gameIDs);
-    trimMemory(this.runs);
+    persistence.trimMemory(this.runs);
   }
 
   fiberError(runID: string): void {
     const run = this.runs.get(runID);
 
     if (run?.status === 'running') {
-      this.runs.set(runID, transition(run, { type: 'FiberError' }));
+      this.runs.set(runID, runTransition.transition(run, { type: 'FiberError' }));
     }
 
     this.deactivate(runID, run?.gameIDs ?? []);
@@ -56,7 +59,7 @@ export class RunStateManager {
       return Effect.fail(new RunNotFoundError({ runID }));
     }
 
-    this.runs.set(runID, transition(record, { type: 'Cancelled' }));
+    this.runs.set(runID, runTransition.transition(record, { type: 'Cancelled' }));
     this.deactivate(runID, record.gameIDs);
 
     return Fiber.interrupt(fiber).pipe(Effect.asVoid);

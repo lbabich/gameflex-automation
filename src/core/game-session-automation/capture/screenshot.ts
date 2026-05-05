@@ -3,7 +3,7 @@ import * as path from 'node:path';
 import type { Page } from '@playwright/test';
 import { SCREENSHOTS_DIR } from '../../types';
 
-export async function snap(page: Page, name: string) {
+async function snap(page: Page, name: string) {
   const file = path.resolve(SCREENSHOTS_DIR, name);
 
   fs.mkdirSync(path.dirname(file), { recursive: true });
@@ -12,3 +12,5 @@ export async function snap(page: Page, name: string) {
 
   return file;
 }
+
+export const screenshot = { snap };

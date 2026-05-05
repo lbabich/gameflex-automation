@@ -1,8 +1,8 @@
 import { Effect, Layer } from 'effect';
 import type { DeviceType } from '../../shared/types';
 import type { GameSteps } from '../types';
-import { createStepCache, type StepCache, type StepCacheKey } from './cache';
-import { createDiskStore } from './disk';
+import { cache, type StepCache, type StepCacheKey } from './cache';
+import { disk } from './disk';
 
 export class StepCacheService extends Effect.Tag('StepCacheService')<
   StepCacheService,
@@ -18,32 +18,32 @@ export class StepCacheService extends Effect.Tag('StepCacheService')<
 export const NodeStepCacheService = Layer.succeed(
   StepCacheService,
   (() => {
-    const cache = createStepCache(createDiskStore());
+    const stepCache = cache.createStepCache(disk.createDiskStore());
 
     return {
       getSteps: (key: StepCacheKey) => {
         return Effect.sync(() => {
-          return cache.getSteps(key);
+          return stepCache.getSteps(key);
         });
       },
       setSteps: (key: StepCacheKey, steps: GameSteps) => {
         return Effect.sync(() => {
-          return cache.setSteps(key, steps);
+          return stepCache.setSteps(key, steps);
         });
       },
       clearAllSteps: (id: string) => {
         return Effect.sync(() => {
-          return cache.clearAllSteps(id);
+          return stepCache.clearAllSteps(id);
         });
       },
       clearSteps: (id: string, deviceType: DeviceType) => {
         return Effect.sync(() => {
-          return cache.clearChannelSteps(id, deviceType);
+          return stepCache.clearChannelSteps(id, deviceType);
         });
       },
       loadAll: () => {
         return Effect.sync(() => {
-          return cache.loadAll();
+          return stepCache.loadAll();
         });
       },
     };

@@ -5,9 +5,9 @@ import type { DeviceType } from '../../../shared/types';
 import type { InternalTestResult, MediaDeviceResult, MediaResult } from '../../types';
 import { SCREENSHOTS_DIR } from '../../types';
 import type { RunLoggerService } from '../run-logger.service';
-import * as gifGenerator from './gif-generator';
+import { gifGenerator } from './gif-generator';
 
-export function attachScreenshotUrls(results: Partial<Record<DeviceType, InternalTestResult>>) {
+function attachScreenshotUrls(results: Partial<Record<DeviceType, InternalTestResult>>) {
   return Effect.sync(() => {
     const screenshotsBase = path.resolve(SCREENSHOTS_DIR);
 
@@ -30,7 +30,7 @@ export function attachScreenshotUrls(results: Partial<Record<DeviceType, Interna
   });
 }
 
-export function runMediaPipeline(
+function runMediaPipeline(
   runLoggerService: RunLoggerService['Type'],
   runID: string,
   results: Partial<Record<DeviceType, InternalTestResult>>,
@@ -128,3 +128,5 @@ function deleteScreenshotFiles(
     .warn(runID, 'media', `Failed to delete screenshot: ${lastError}`)
     .pipe(Effect.as({ error: lastError }));
 }
+
+export const media = { attachScreenshotUrls, runMediaPipeline };

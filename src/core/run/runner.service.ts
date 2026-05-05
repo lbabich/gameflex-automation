@@ -6,7 +6,7 @@ import { GameNotFoundError, RunAlreadyActiveError, RunNotFoundError } from '../e
 import { FileService } from '../file-service/service';
 import { GamesService } from '../game-catalog/game-catalog.module';
 import type { InternalRunRecord } from '../types';
-import { loadRuns, saveRuns } from './persistence';
+import { persistence } from './persistence';
 import { ProcessExecutorService } from './process-executor.service';
 import { RunFinalizationService } from './run-finalization.service';
 import { RunLoggerService } from './run-logger.service';
@@ -64,7 +64,7 @@ export const NodeRunnerService = Layer.effect(
     const processExecutorService = yield* ProcessExecutorService;
     const runFinalizationService = yield* RunFinalizationService;
 
-    const loadedRuns = yield* loadRuns();
+    const loadedRuns = yield* persistence.loadRuns();
 
     runStateManager.seed(loadedRuns);
 
@@ -334,7 +334,7 @@ function saveRunsIgnoreError(
   runLoggerService: RunLoggerService['Type'],
   runID: string,
 ) {
-  return saveRuns(fileService, runs).pipe(
+  return persistence.saveRuns(fileService, runs).pipe(
     Effect.tapError((err) => {
       return runLoggerService.error(runID, 'runner', 'Failed to save runs', err);
     }),

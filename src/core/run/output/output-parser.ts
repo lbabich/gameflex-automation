@@ -1,7 +1,7 @@
 import { Effect } from 'effect';
 import type { ChildProcessOutput } from '../../types';
 
-export function parseSpinOutput(json: string) {
+function parseSpinOutput(json: string) {
   return Effect.try({
     try: () => {
       const parsed: unknown = JSON.parse(json);
@@ -27,3 +27,5 @@ function isChildProcessOutput(val: unknown): val is ChildProcessOutput {
 
   return typeof obj.results === 'object' && obj.results !== null && Array.isArray(obj.errors);
 }
+
+export const outputParser = { parseSpinOutput };

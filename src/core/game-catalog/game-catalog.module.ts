@@ -2,7 +2,7 @@ import { Effect, Layer } from 'effect';
 import type { GameEntry, GameUpdates } from '../../shared/types';
 import { DuplicateGameIDError, GameNotFoundError } from '../errors';
 import { StepCacheService } from '../step-cache/service';
-import { createDiskGameRepository } from './disk';
+import { disk } from './disk';
 
 export type GameRepository = {
   readAll(): GameEntry[];
@@ -28,7 +28,7 @@ export const NodeGamesService = Layer.effect(
   GamesService,
   Effect.gen(function* () {
     const stepCacheService = yield* StepCacheService;
-    const repo = createDiskGameRepository();
+    const repo = disk.createDiskGameRepository();
 
     return {
       list: () => {

@@ -3,8 +3,8 @@ import Anthropic from '@anthropic-ai/sdk';
 import type { Page } from '@playwright/test';
 import * as dotenv from 'dotenv';
 import type { CachedStep, Viewport } from '../types';
-import * as clickMarker from './capture/click-marker';
-import * as screenshot from './capture/screenshot';
+import { clickMarker } from './capture/click-marker';
+import { screenshot } from './capture/screenshot';
 import type { SessionContext } from './steps/types';
 
 dotenv.config();
@@ -28,14 +28,14 @@ const DISCOVERY_POLL_INTERVAL_MS = 1_000;
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-export class DiscoveryError extends Error {
+class DiscoveryError extends Error {
   constructor(message: string) {
     super(message);
     this.name = 'DiscoveryError';
   }
 }
 
-export async function discoverTarget(ctx: SessionContext, spec: DiscoverySpec): Promise<void> {
+async function discoverTarget(ctx: SessionContext, spec: DiscoverySpec): Promise<void> {
   const { page, game, viewport, deviceType, runID, hints, cache } = ctx;
 
   const cached = cache.getSteps({ id: game.id, deviceType, viewport, stepName: spec.stepName });
@@ -183,3 +183,5 @@ async function queryVision(screenshotPath: string, prompt: string): Promise<Clic
 
   throw new Error(`Claude returned non-JSON: ${text.slice(0, 200)}`);
 }
+
+export const discovery = { DiscoveryError, discoverTarget };

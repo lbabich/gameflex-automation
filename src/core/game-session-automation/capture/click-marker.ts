@@ -1,6 +1,6 @@
 import type { Page } from '@playwright/test';
 
-export async function injectClickMarker(page: Page, x: number, y: number) {
+async function injectClickMarker(page: Page, x: number, y: number) {
   await page.evaluate(
     ({ x, y }) => {
       const existing = document.getElementById('__click_marker__');
@@ -18,3 +18,5 @@ export async function injectClickMarker(page: Page, x: number, y: number) {
     { x, y },
   );
 }
+
+export const clickMarker = { injectClickMarker };

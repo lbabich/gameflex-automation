@@ -3,9 +3,9 @@ import { Effect } from 'effect';
 import { FileService } from '../file-service/service';
 import type { InternalRunRecord } from '../types';
 
-export const RUNS_FILE = path.resolve('src/core/data/runs.json');
+const RUNS_FILE = path.resolve('src/core/data/runs.json');
 
-export function loadRuns() {
+function loadRuns() {
   return Effect.gen(function* () {
     const fileService = yield* FileService;
 
@@ -27,7 +27,7 @@ export function loadRuns() {
   });
 }
 
-export function saveRuns(fileService: FileService['Type'], runs: Map<string, InternalRunRecord>) {
+function saveRuns(fileService: FileService['Type'], runs: Map<string, InternalRunRecord>) {
   return Effect.gen(function* () {
     const completed = [...runs.values()].filter((run) => {
       return run.status !== 'running';
@@ -46,7 +46,7 @@ export function saveRuns(fileService: FileService['Type'], runs: Map<string, Int
   });
 }
 
-export function trimMemory(runs: Map<string, InternalRunRecord>) {
+function trimMemory(runs: Map<string, InternalRunRecord>) {
   if (runs.size <= 10) {
     return;
   }
@@ -61,3 +61,5 @@ export function trimMemory(runs: Map<string, InternalRunRecord>) {
     runs.delete(id);
   }
 }
+
+export const persistence = { RUNS_FILE, loadRuns, saveRuns, trimMemory };

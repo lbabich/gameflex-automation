@@ -4,7 +4,7 @@ import * as path from 'node:path';
 import type { GameEntry, GameUpdates } from '../../shared/types';
 import type { GameRepository } from './game-catalog.module';
 
-export function createDiskGameRepository(): GameRepository {
+function createDiskGameRepository(): GameRepository {
   return {
     readAll: readGames,
     add: addGame,
@@ -148,3 +148,5 @@ function gamesPath() {
     ? path.resolve(process.env.GAMES_JSON_PATH)
     : path.resolve('src', 'core', 'data', 'games.json');
 }
+
+export const disk = { createDiskGameRepository };

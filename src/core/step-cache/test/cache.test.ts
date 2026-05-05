@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createStepCache, type StepCache, type StepStore } from '../cache';
+import { cache, type StepCache, type StepStore } from '../cache';
 
 const VP_DESK = { width: 1280, height: 720 };
 const VP_MOB = { width: 390, height: 844 };
@@ -7,7 +7,7 @@ const STEP = 'spin-cycle';
 
 describe('step-cache', () => {
   it('round-trips steps by id', () => {
-    const SUT = createStepCache(createMemoryStore());
+    const SUT = cache.createStepCache(createMemoryStore());
     const id = 'game-1';
     const steps = {
       discoveredAt: '2024-01-01T00:00:00Z',
@@ -22,7 +22,7 @@ describe('step-cache', () => {
   });
 
   it('keeps desktop and mobile steps separate under the same id', () => {
-    const SUT = createStepCache(createMemoryStore());
+    const SUT = cache.createStepCache(createMemoryStore());
     const id = 'game-1';
     const desktopSteps = {
       discoveredAt: '2024-01-01T00:00:00Z',
@@ -54,7 +54,7 @@ describe('step-cache', () => {
   });
 
   it('clearAllSteps removes all device type entries for an id', () => {
-    const SUT = createStepCache(createMemoryStore());
+    const SUT = cache.createStepCache(createMemoryStore());
     const id = 'game-1';
     const steps = { discoveredAt: '2024-01-01T00:00:00Z', steps: [] };
 

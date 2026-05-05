@@ -1,6 +1,6 @@
 import type { SessionContext } from './types';
 
-export function onGelEvent(event: string, timeoutMs: number) {
+function onGelEvent(event: string, timeoutMs: number) {
   return (ctx: SessionContext, _x: number, _y: number): Promise<boolean> => {
     return ctx.accumulator
       .waitFor(event, timeoutMs)
@@ -13,7 +13,7 @@ export function onGelEvent(event: string, timeoutMs: number) {
   };
 }
 
-export function gelCheck(event: string) {
+function gelCheck(event: string) {
   return (ctx: SessionContext): Promise<boolean> => {
     return ctx.accumulator
       .waitFor(event, 0)
@@ -25,3 +25,5 @@ export function gelCheck(event: string) {
       });
   };
 }
+
+export const stepUtils = { onGelEvent, gelCheck };

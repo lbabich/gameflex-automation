@@ -21,7 +21,7 @@ type StepMap = Record<string, GameSteps>;
 type ViewportMap = Record<string, StepMap>;
 type DeviceMap = Record<string, ViewportMap>;
 
-export function createStepCache(store: StepStore) {
+function createStepCache(store: StepStore) {
   function getSteps(key: StepCacheKey) {
     const cache = store.load();
 
@@ -73,3 +73,5 @@ export function createStepCache(store: StepStore) {
 function viewportKey(viewport: Viewport) {
   return `${viewport.width}x${viewport.height}`;
 }
+
+export const cache = { createStepCache };

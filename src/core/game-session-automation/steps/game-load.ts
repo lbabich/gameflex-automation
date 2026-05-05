@@ -1,42 +1,45 @@
 import type { TestStep } from '../../../shared/types';
 import type { CachedStep } from '../../types';
-import { GEL_EVENT, GEL_READY_TIMEOUT_MS } from '../gel/events';
-import * as preLaunch from '../pre-launch';
-import { track } from './track';
+import { gelEvents } from '../gel/events';
+import { preLaunch } from '../pre-launch';
+import { tracker } from './track';
 import type { SessionContext, StepDescriptor } from './types';
 
-export const stepName = 'gameLoad';
+const stepName = 'gameLoad';
 
-export const plan: StepDescriptor[] = [
+const plan: StepDescriptor[] = [
   { title: 'Launch game via harness' },
-  { title: GEL_EVENT.LOAD_PROGRESS, optional: true },
-  { title: GEL_EVENT.READY },
+  { title: gelEvents.GEL_EVENT.LOAD_PROGRESS, optional: true },
+  { title: gelEvents.GEL_EVENT.READY },
 ];
 
-export async function discover(_ctx: SessionContext) {
+async function discover(_ctx: SessionContext) {
   console.log('[game-load] No discovery process');
 }
 
-export async function run(ctx: SessionContext, _cachedSteps: CachedStep[] | null) {
+async function run(ctx: SessionContext, _cachedSteps: CachedStep[] | null) {
   const { page, game, deviceType, accumulator } = ctx;
-  const readyPromise = accumulator.waitFor(GEL_EVENT.READY, GEL_READY_TIMEOUT_MS);
+  const readyPromise = accumulator.waitFor(
+    gelEvents.GEL_EVENT.READY,
+    gelEvents.GEL_READY_TIMEOUT_MS,
+  );
 
   readyPromise.catch(() => {}); // prevent unhandled rejection if timeout fires during launch
 
-  const launchStep = await track('Launch game via harness', () => {
+  const launchStep = await tracker.track('Launch game via harness', () => {
     return preLaunch.launch(page, game, deviceType);
   });
 
-  const readyStep = await track(GEL_EVENT.READY, () => {
+  const readyStep = await tracker.track(gelEvents.GEL_EVENT.READY, () => {
     return readyPromise;
   });
 
   const hadLoadProgress = accumulator.getAll().some((line) => {
-    return line.includes(GEL_EVENT.LOAD_PROGRESS);
+    return line.includes(gelEvents.GEL_EVENT.LOAD_PROGRESS);
   });
 
   const loadProgressStep: TestStep = {
-    title: GEL_EVENT.LOAD_PROGRESS,
+    title: gelEvents.GEL_EVENT.LOAD_PROGRESS,
     duration: 0,
     status: hadLoadProgress ? 'passed' : 'warning',
     optional: true,
@@ -44,3 +47,5 @@ export async function run(ctx: SessionContext, _cachedSteps: CachedStep[] | null
 
   return [launchStep, loadProgressStep, readyStep];
 }
+
+export const gameLoad = { stepName, plan, discover, run };

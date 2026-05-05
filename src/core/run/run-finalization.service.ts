@@ -2,8 +2,8 @@ import { Effect, Layer } from 'effect';
 import type { RunStatus } from '../../shared/types';
 import { FileService } from '../file-service/service';
 import type { ChildProcessOutput, InternalRunRecord } from '../types';
-import { attachScreenshotUrls, runMediaPipeline } from './output/media';
-import { parseSpinOutput } from './output/output-parser';
+import { media } from './output/media';
+import { outputParser } from './output/output-parser';
 import { RunLoggerService } from './run-logger.service';
 
 export class RunFinalizationService extends Effect.Tag('RunFinalizationService')<
@@ -50,9 +50,13 @@ export const NodeRunFinalizationService = Layer.effect(
             updated = { ...updated, ...parsed };
           }
 
-          yield* attachScreenshotUrls(updated.results);
+          yield* media.attachScreenshotUrls(updated.results);
 
-          const mediaResult = yield* runMediaPipeline(runLoggerService, runID, updated.results);
+          const mediaResult = yield* media.runMediaPipeline(
+            runLoggerService,
+            runID,
+            updated.results,
+          );
 
           return { ...updated, mediaResult };
         });
@@ -75,7 +79,7 @@ function parseOutput(
       errors: [],
     };
 
-    const parsed = yield* parseSpinOutput(outputJson).pipe(
+    const parsed = yield* outputParser.parseSpinOutput(outputJson).pipe(
       Effect.tapError((error) => {
         return runLoggerService.error(runID, 'finalize', 'Failed to parse spin output', error);
       }),

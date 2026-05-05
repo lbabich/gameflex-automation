@@ -2,9 +2,9 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import type { StepCache, StepStore } from './cache';
 
-export const CACHE_PATH = path.resolve('src', 'core', 'data', 'game-steps.json');
+const CACHE_PATH = path.resolve('src', 'core', 'data', 'game-steps.json');
 
-export function createDiskStore(): StepStore {
+function createDiskStore(): StepStore {
   return {
     load() {
       try {
@@ -20,3 +20,5 @@ export function createDiskStore(): StepStore {
     },
   };
 }
+
+export const disk = { CACHE_PATH, createDiskStore };

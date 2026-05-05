@@ -5,13 +5,13 @@ export type RunEvent =
   | { type: 'FiberError' }
   | { type: 'Finalized'; record: InternalRunRecord };
 
-export class InvalidTransitionError extends Error {
+class InvalidTransitionError extends Error {
   constructor(status: string, event: string) {
     super(`Cannot apply '${event}' to a run with status '${status}'`);
   }
 }
 
-export function transition(run: InternalRunRecord, event: RunEvent): InternalRunRecord {
+function transition(run: InternalRunRecord, event: RunEvent): InternalRunRecord {
   switch (event.type) {
     case 'Cancelled': {
       if (run.status !== 'running') {
@@ -50,3 +50,5 @@ export function transition(run: InternalRunRecord, event: RunEvent): InternalRun
     }
   }
 }
+
+export const runTransition = { InvalidTransitionError, transition };

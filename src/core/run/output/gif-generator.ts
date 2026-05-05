@@ -20,13 +20,13 @@ type GifEncoderConstructor = new (width: number, height: number) => GifEncoderIn
 const require = createRequire(import.meta.url);
 const GIFEncoder = require('gif-encoder-2') as GifEncoderConstructor;
 
-export const ANIMATED_GIF_FILENAME = 'animated.gif';
+const ANIMATED_GIF_FILENAME = 'animated.gif';
 
 const GIF_WIDTH = 640;
 const GIF_HEIGHT = 360;
 const GIF_DELAY_MS = 1000;
 
-export async function generateGif(runID: string, deviceType: DeviceType) {
+async function generateGif(runID: string, deviceType: DeviceType) {
   const screenshotsDir = path.resolve(SCREENSHOTS_DIR, runID, deviceType);
   const gifPath = path.resolve(screenshotsDir, ANIMATED_GIF_FILENAME);
 
@@ -95,3 +95,5 @@ function parseSortKey(filename: string): [number, number] {
 
   return [4, 0];
 }
+
+export const gifGenerator = { ANIMATED_GIF_FILENAME, generateGif };
