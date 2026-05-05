@@ -55,7 +55,8 @@ const STEP_REGISTRY: Record<string, Step> = {
 
 async function main() {
   const { runID, selectedGames, deviceTypes, steps, hints, outputFile } = parseArgs();
-  const cache = createStepCache(createDiskStore());
+  const diskStore = createDiskStore();
+  const cache = createStepCache(diskStore);
 
   const resolvedSteps = steps.map((name) => {
     const step = STEP_REGISTRY[name];
