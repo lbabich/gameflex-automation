@@ -5,6 +5,7 @@ import * as discoveryLoop from '../discovery/loop';
 import { DiscoveryError } from '../discovery/loop';
 import type { FailedButton } from '../discovery/prompt';
 import { buildDiscoveryPrompt } from '../discovery/prompt';
+import { makeClaudeVisionAdapter } from '../discovery/vision';
 import type { SessionContext } from './types';
 
 type VerifyFn = (ctx: SessionContext, x: number, y: number) => Promise<boolean>;
@@ -78,12 +79,15 @@ export function makeDiscover(config: MakeDiscoverConfig) {
         }
       : undefined;
 
+    const adapter = makeClaudeVisionAdapter(runID, deviceType);
+
     const run = () => {
       return discoveryLoop.runDiscoveryLoop(
         { page, game, viewport, deviceType, cache },
         {
           runID,
           stepName: config.stepName,
+          adapter,
           buildPrompt: promptBuilder,
           verifyClick,
           checkComplete,

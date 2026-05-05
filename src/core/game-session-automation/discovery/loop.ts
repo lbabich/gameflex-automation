@@ -6,7 +6,12 @@ import * as clickMarker from '../click-marker';
 import * as screenshot from '../screenshot';
 import type { SessionContext } from '../steps/types';
 import type { FailedButton } from './prompt';
-import * as claudeVision from './vision';
+
+export type ClickResult = { found: true; x: number; y: number; label: string } | { found: false };
+
+export type VisionAdapter = {
+  analyze: (page: Page, prompt: string, attempt: number) => Promise<ClickResult>;
+};
 
 export type PromptBuilder = (viewport: Viewport, failedButtons: FailedButton[]) => string;
 export type VerifyClickFn = (page: Page, x: number, y: number) => Promise<boolean>;
@@ -23,6 +28,7 @@ export type DiscoveryContext = {
 export type DiscoveryConfig = {
   runID: string;
   stepName: string;
+  adapter: VisionAdapter;
   buildPrompt: PromptBuilder;
   verifyClick: VerifyClickFn;
   checkComplete?: CheckCompleteFn;
@@ -40,7 +46,7 @@ export class DiscoveryError extends Error {
 
 export async function runDiscoveryLoop(ctx: DiscoveryContext, config: DiscoveryConfig) {
   const { page, game, viewport, deviceType, cache } = ctx;
-  const { runID, stepName, buildPrompt, verifyClick, checkComplete } = config;
+  const { runID, stepName, adapter, buildPrompt, verifyClick, checkComplete } = config;
 
   const allFailedButtons: FailedButton[] = [];
   const preTargetSteps: CachedStep[] = [];
@@ -61,15 +67,7 @@ export async function runDiscoveryLoop(ctx: DiscoveryContext, config: DiscoveryC
       return;
     }
 
-    const screenshotPath = await screenshot.snap(
-      page,
-      `${runID}/${deviceType}/discovery-${attempt}.png`,
-    );
-
-    const result = await claudeVision.query(
-      screenshotPath,
-      buildPrompt(viewport, allFailedButtons),
-    );
+    const result = await adapter.analyze(page, buildPrompt(viewport, allFailedButtons), attempt);
 
     if (result.found) {
       const waitMs = Date.now() - lastClickTime;
