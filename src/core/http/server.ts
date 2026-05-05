@@ -1,9 +1,9 @@
 import type { NextFunction, Request, Response } from 'express';
 import express from 'express';
-import { makeGamesRouter } from './router/game-catalog.router';
-import { makeRunsRouter } from './router/run.router';
-import { screenshotsRouter } from './router/screenshots.router';
-import { appRuntime } from './runtime';
+import { appRuntime } from '../runtime';
+import { makeGamesRouter } from './game-catalog.router';
+import { makeRunsRouter } from './run.router';
+import { screenshotsRouter } from './screenshots.router';
 
 const app = express();
 const PORT = 3001;
