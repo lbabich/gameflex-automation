@@ -61,6 +61,35 @@
             }
           ],
           "partial": true
+        },
+        "spinCycle": {
+          "discoveredAt": "2026-05-05T15:00:31.585Z",
+          "steps": [
+            {
+              "waitMs": 7451,
+              "x": 664,
+              "y": 390,
+              "label": "Game title splash screen - click centre to proceed"
+            },
+            {
+              "waitMs": 4689,
+              "x": 284,
+              "y": 688,
+              "label": "DO NOT SHOW AGAIN toggle/dismiss to close overlay"
+            },
+            {
+              "waitMs": 3698,
+              "x": 1155,
+              "y": 395,
+              "label": "Play/proceed button (triangle icon) to dismiss intro overlay"
+            },
+            {
+              "waitMs": 3385,
+              "x": 1155,
+              "y": 395,
+              "label": "Spin button - circular button with rotating arrows"
+            }
+          ]
         }
       }
     }
@@ -321,65 +350,71 @@
     "desktop": {
       "1280x720": {
         "spinCycle": {
-          "discoveredAt": "2026-05-01T14:53:02.868Z",
+          "discoveredAt": "2026-05-05T14:56:54.325Z",
           "steps": [
             {
-              "waitMs": 2813,
+              "waitMs": 1918,
               "x": 663,
               "y": 623,
-              "label": "CONTINUE button to dismiss intro overlay"
+              "label": "Continue button to dismiss intro overlay"
             },
             {
-              "waitMs": 4035,
+              "waitMs": 4094,
               "x": 724,
-              "y": 619,
-              "label": "Auto/Play button to the right of spin button"
+              "y": 617,
+              "label": "Autoplay/spin button with triangle play icon"
             },
             {
-              "waitMs": 4344,
+              "waitMs": 2927,
               "x": 663,
-              "y": 150,
-              "label": "Click outside the autoplay dialog to dismiss it"
+              "y": 375,
+              "label": "Click outside autoplay dialog to close overlay and access spin button"
             },
             {
-              "waitMs": 3485,
+              "waitMs": 4466,
+              "x": 253,
+              "y": 623,
+              "label": "Back/undo button to dismiss autoplay overlay"
+            },
+            {
+              "waitMs": 2986,
               "x": 663,
-              "y": 619,
-              "label": "Spin button - circular button with rotating arrows"
+              "y": 617,
+              "label": "Spin button (circular with rotating arrows)"
             }
           ]
         },
         "audioToggle": {
-          "discoveredAt": "2026-05-01T14:53:21.781Z",
+          "discoveredAt": "2026-05-05T14:57:14.358Z",
           "steps": [
             {
-              "waitMs": 2847,
-              "x": 1078,
+              "waitMs": 2106,
+              "x": 1079,
               "y": 621,
               "label": "Speaker/audio toggle button in game UI bottom right"
             }
           ]
         },
         "gameClose": {
-          "discoveredAt": "2026-05-01T14:53:43.806Z",
+          "discoveredAt": "2026-05-05T14:57:36.891Z",
           "steps": [
             {
-              "waitMs": 4738,
+              "waitMs": 4654,
               "x": 254,
               "y": 621,
-              "label": "Hamburger menu button in game controls"
+              "label": "Hamburger menu (≡) in game controls"
             },
             {
-              "waitMs": 3631,
+              "waitMs": 5795,
               "x": 255,
               "y": 588,
-              "label": "Home/house icon in game sidebar controls"
+              "label": "Home/house icon in game controls panel"
             },
             {
-              "waitMs": 3810,
+              "waitMs": 3021,
               "x": 748,
               "y": 442,
-              "label": "YES button in exit confirmation dialog"
+              "label": "YES button in exit to lobby confirmation dialog"
             }
           ]
         }

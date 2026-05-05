@@ -4,18 +4,6 @@ Opportunities to turn shallow modules into deep ones. Ordered by the number we d
 
 ---
 
-## 2. Discovery pipeline → single deep module
-
-**Files** — `discovery/loop.ts`, `discovery/vision.ts`, `steps/make-discover.ts`, `discovery/prompt.ts`
-
-**Problem** — Understanding how spin button discovery works requires bouncing across four files. Each file is a thin pass-through: `make-discover.ts` calls `loop.ts`, which calls `vision.ts`, which calls the Claude API. The seam between them is wide and shallow — callers of `makeDiscover()` must supply `buildPrompt`, `verifyClick`, and `checkComplete`, meaning the caller still owns most of the knowledge about how discovery works.
-
-**Solution** — Consolidate into a single discovery module with a deep interface: `discoverTarget(ctx, spec)` where `spec` describes what the target looks like (prompt, verification, completion check). The vision adapter and loop are wired inside. Steps call it with a spec, not with component parts.
-
-**Benefits** — *Locality*: all discovery knowledge in one place. *Leverage*: steps say "find this thing" rather than assembling a pipeline from parts. The deletion test passes hard — delete any one of the four current files and the call sites can't compensate.
-
----
-
 ## 4. SessionContext decomposition
 
 **Files** — `steps/types.ts`, `steps/spin-cycle.ts`, `steps/game-load.ts`, `steps/audio-toggle.ts`, `steps/game-close.ts`, `runner.ts`
