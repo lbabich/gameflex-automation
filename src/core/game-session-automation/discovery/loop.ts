@@ -10,6 +10,7 @@ import * as claudeVision from './vision';
 
 export type PromptBuilder = (viewport: Viewport, failedButtons: FailedButton[]) => string;
 export type VerifyClickFn = (page: Page, x: number, y: number) => Promise<boolean>;
+export type CheckCompleteFn = (page: Page) => Promise<boolean>;
 
 export type DiscoveryContext = {
   page: Page;
@@ -24,7 +25,7 @@ export type DiscoveryConfig = {
   stepName: string;
   buildPrompt: PromptBuilder;
   verifyClick: VerifyClickFn;
-  checkComplete?: VerifyClickFn;
+  checkComplete?: CheckCompleteFn;
 };
 
 const DISCOVERY_MAX_ATTEMPTS = 20;
@@ -39,19 +40,23 @@ export class DiscoveryError extends Error {
 
 export async function runDiscoveryLoop(ctx: DiscoveryContext, config: DiscoveryConfig) {
   const { page, game, viewport, deviceType, cache } = ctx;
-  const { runID, stepName, buildPrompt, verifyClick } = config;
+  const { runID, stepName, buildPrompt, verifyClick, checkComplete } = config;
 
   const allFailedButtons: FailedButton[] = [];
   const preTargetSteps: CachedStep[] = [];
 
+  const commit = () => {
+    cache.setSteps(
+      { id: game.id, deviceType, viewport, stepName },
+      { discoveredAt: new Date().toISOString(), steps: preTargetSteps },
+    );
+  };
+
   let lastClickTime = Date.now();
 
   for (let attempt = 1; attempt <= DISCOVERY_MAX_ATTEMPTS; attempt++) {
-    if (config.checkComplete && (await config.checkComplete(page, 0, 0))) {
-      cache.setSteps(
-        { id: game.id, deviceType, viewport, stepName },
-        { discoveredAt: new Date().toISOString(), steps: preTargetSteps },
-      );
+    if (checkComplete && (await checkComplete(page))) {
+      commit();
 
       return;
     }
@@ -78,10 +83,7 @@ export async function runDiscoveryLoop(ctx: DiscoveryContext, config: DiscoveryC
       preTargetSteps.push({ waitMs, x: result.x, y: result.y, label: result.label });
 
       if (verified) {
-        cache.setSteps(
-          { id: game.id, deviceType, viewport, stepName },
-          { discoveredAt: new Date().toISOString(), steps: preTargetSteps },
-        );
+        commit();
 
         return;
       }

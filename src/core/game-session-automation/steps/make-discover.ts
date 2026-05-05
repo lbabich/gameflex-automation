@@ -1,6 +1,6 @@
 import type { RunHints } from '../../../shared/types';
 import type { Viewport } from '../../types';
-import type { VerifyClickFn } from '../discovery/loop';
+import type { CheckCompleteFn, VerifyClickFn } from '../discovery/loop';
 import * as discoveryLoop from '../discovery/loop';
 import { DiscoveryError } from '../discovery/loop';
 import type { FailedButton } from '../discovery/prompt';
@@ -8,6 +8,7 @@ import { buildDiscoveryPrompt } from '../discovery/prompt';
 import type { SessionContext } from './types';
 
 type VerifyFn = (ctx: SessionContext, x: number, y: number) => Promise<boolean>;
+type CheckFn = (ctx: SessionContext) => Promise<boolean>;
 
 export type MakeDiscoverConfig = {
   stepName: string;
@@ -15,7 +16,7 @@ export type MakeDiscoverConfig = {
   failureContext: (list: string) => string;
   getHint: (hints: RunHints | undefined) => string | undefined;
   verifyClick: VerifyFn;
-  checkComplete?: VerifyFn;
+  checkComplete?: CheckFn;
   swallowDiscoveryError?: boolean;
 };
 
@@ -23,6 +24,19 @@ export function onGelEvent(event: string, timeoutMs: number): VerifyFn {
   return (ctx, _x, _y) => {
     return ctx.accumulator
       .waitFor(event, timeoutMs)
+      .then(() => {
+        return true;
+      })
+      .catch(() => {
+        return false;
+      });
+  };
+}
+
+export function gelCheck(event: string): CheckFn {
+  return (ctx) => {
+    return ctx.accumulator
+      .waitFor(event, 0)
       .then(() => {
         return true;
       })
@@ -58,9 +72,9 @@ export function makeDiscover(config: MakeDiscoverConfig) {
     };
 
     const { checkComplete: checkCompleteFn } = config;
-    const checkComplete: VerifyClickFn | undefined = checkCompleteFn
-      ? (_page, x, y) => {
-          return checkCompleteFn(ctx, x, y);
+    const checkComplete: CheckCompleteFn | undefined = checkCompleteFn
+      ? (_page) => {
+          return checkCompleteFn(ctx);
         }
       : undefined;
 

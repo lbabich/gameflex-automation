@@ -19,7 +19,9 @@ export function parseSpinOutput(json: string) {
 }
 
 function isChildProcessOutput(val: unknown): val is ChildProcessOutput {
-  if (typeof val !== 'object' || val === null) return false;
+  if (typeof val !== 'object' || val === null) {
+    return false;
+  }
 
   const obj = val as Record<string, unknown>;
 

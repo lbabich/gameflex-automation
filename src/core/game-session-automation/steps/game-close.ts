@@ -1,7 +1,7 @@
 import { GEL_EVENT } from '../gel-events';
 import * as replay from '../replay';
 import * as screenshot from '../screenshot';
-import { makeDiscover, onGelEvent } from './make-discover';
+import { gelCheck, makeDiscover, onGelEvent } from './make-discover';
 import { track } from './track';
 import type { SessionContext, StepDescriptor } from './types';
 
@@ -23,7 +23,7 @@ export const discover = makeDiscover({
     return hints?.gameClose;
   },
   verifyClick: onGelEvent(GEL_EVENT.GAME_CLOSE, CLOSE_VERIFY_TIMEOUT_MS),
-  checkComplete: onGelEvent(GEL_EVENT.GAME_CLOSE, 0),
+  checkComplete: gelCheck(GEL_EVENT.GAME_CLOSE),
 });
 
 export async function execute(ctx: SessionContext) {
