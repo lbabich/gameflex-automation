@@ -1,26 +1,11 @@
 # Architecture Deepening Opportunities
 
-Four areas where shallow modules, implicit contracts, or scattered mutations are causing friction.
+Three areas where shallow modules, implicit contracts, or scattered mutations are causing friction.
 Ordered by priority for the current refactoring phase.
 
 ---
 
-## 1. Discovery loop — hypothetical seam, one adapter
-
-**Files:** `game-session-automation/discovery/loop.ts`, `discovery/vision.ts`, `discovery/prompt.ts`, `steps/make-discover.ts`
-
-**Problem:** The loop accepts `buildPrompt` and `verifyClick` as parameters, which looks like a seam — but there is exactly one visual adapter (`vision.ts`) and the seam has never been exercised with anything else. Testing the loop requires a real Claude API call, a real screenshot file, and a real Playwright page. Deletion test: if you delete `vision.ts`, the complexity doesn't go away — it reappears at every call site. The false-positive reset logic, the navigation-click blacklist reset, and the 20-attempt ceiling are untestable without hitting the API.
-
-**Solution:** Define a real `VisionAdapter` interface at the seam. The existing Claude Vision implementation becomes one concrete adapter; a scripted test adapter becomes another. The loop takes the adapter as a parameter. Discovery logic (state machine, attempt counting, blacklist management) becomes testable in isolation without any API calls or filesystem I/O.
-
-**Benefits:**
-- *Locality:* all loop state-machine logic is in one place and exercisable through the adapter seam
-- *Leverage:* the interface is small (one or two methods); callers get the full discovery state machine behind it
-- *Tests:* the most complex Playwright-free logic in the codebase becomes unit-testable
-
----
-
-## 2. Step interface — implicit execution model
+## 1. Step interface — implicit execution model
 
 **Files:** `steps/types.ts`, `steps/spin-cycle.ts`, `steps/audio-toggle.ts`, `steps/game-close.ts`, `game-session-automation/index.ts`
 
@@ -35,7 +20,7 @@ Ordered by priority for the current refactoring phase.
 
 ---
 
-## 3. Run lifecycle — state mutations spread across five services
+## 2. Run lifecycle — state mutations spread across five services
 
 **Files:** `run/runner.service.ts`, `run/run-state.service.ts`, `run/run-finalization.service.ts`, `run/persistence.ts`, `run/run-logger.service.ts`
 
@@ -50,7 +35,7 @@ Ordered by priority for the current refactoring phase.
 
 ---
 
-## 4. Media pipeline — errors silently swallowed in finalization
+## 3. Media pipeline — errors silently swallowed in finalization
 
 **Files:** `run/run-finalization.service.ts`, `run/media.ts`, `run/gif-generator.ts`
 
