@@ -49,10 +49,6 @@ export const NodeRunLoggerService = Layer.effect(
   }),
 );
 
-function appendLog(runs: Map<string, { logs?: string[] }>, runID: string, msg: string) {
-  const run = runs.get(runID);
-
-  if (run) {
-    runs.set(runID, { ...run, logs: [...(run.logs ?? []), msg] });
-  }
+function appendLog(runs: Map<string, { logs: string[] }>, runID: string, msg: string) {
+  runs.get(runID)?.logs.push(msg);
 }

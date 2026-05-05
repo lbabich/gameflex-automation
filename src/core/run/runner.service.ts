@@ -11,6 +11,7 @@ import { ProcessExecutorService } from './process-executor.service';
 import { RunFinalizationService } from './run-finalization.service';
 import { RunLoggerService } from './run-logger.service';
 import { RunStateService } from './run-state.service';
+import { transition } from './run-transition';
 
 type RunnerState = {
   runs: Map<string, InternalRunRecord>;
@@ -234,7 +235,11 @@ function persistFinishedRun(
   updated: InternalRunRecord,
 ) {
   return Effect.gen(function* () {
-    state.runs.set(runID, updated);
+    const current = state.runs.get(runID);
+
+    if (current) {
+      state.runs.set(runID, transition(current, { type: 'Finalized', record: updated }));
+    }
 
     yield* saveRunsIgnoreError(fileService, state.runs, runLoggerService, runID);
     yield* logSummary(runLoggerService, updated);
@@ -277,14 +282,7 @@ function handleFiberError(
     const run = state.runs.get(runID);
 
     if (run?.status === 'running') {
-      const finishedAt = new Date().toISOString();
-
-      state.runs.set(runID, {
-        ...run,
-        status: 'error',
-        finishedAt,
-        durationMs: new Date(finishedAt).getTime() - new Date(run.startedAt).getTime(),
-      });
+      state.runs.set(runID, transition(run, { type: 'FiberError' }));
     }
 
     cleanupActive(state, runID, run?.gameIDs ?? []);
@@ -305,10 +303,7 @@ function cancelRun(
       return yield* Effect.fail(new RunNotFoundError({ runID }));
     }
 
-    record.status = 'cancelled';
-    record.finishedAt = new Date().toISOString();
-    record.durationMs =
-      new Date(record.finishedAt).getTime() - new Date(record.startedAt).getTime();
+    state.runs.set(runID, transition(record, { type: 'Cancelled' }));
 
     yield* Fiber.interrupt(fiber);
 
