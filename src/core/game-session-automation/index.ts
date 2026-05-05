@@ -6,7 +6,7 @@ import * as dotenv from 'dotenv';
 import type { DeviceType, GameEntry, RunHints, TestStep } from '../../shared/types';
 import type { NodeStepCache } from '../step-cache';
 import { createDiskStore, createStepCache } from '../step-cache';
-import type { InternalTestResult, Viewport } from '../types';
+import type { ChildProcessOutput, InternalTestResult, Viewport } from '../types';
 import type { EventAccumulator } from './event-accumulator';
 import * as eventAccumulator from './event-accumulator';
 import * as screenshot from './screenshot';
@@ -94,8 +94,10 @@ async function main() {
     }
   }
 
+  const output: ChildProcessOutput = { results, errors };
+
   fs.mkdirSync(path.dirname(outputFile), { recursive: true });
-  fs.writeFileSync(outputFile, JSON.stringify({ results, errors }));
+  fs.writeFileSync(outputFile, JSON.stringify(output));
 }
 
 function parseArgs() {
@@ -184,12 +186,12 @@ function buildSessionContext(
 
 function planSteps(steps: Step[]): TestStep[] {
   return steps.flatMap((step) => {
-    return step.plan.map((d) => {
+    return step.plan.map((descriptor) => {
       return {
-        title: d.title,
+        title: descriptor.title,
         duration: 0,
         status: 'skipped' as const,
-        optional: d.optional,
+        optional: descriptor.optional,
       };
     });
   });

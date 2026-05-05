@@ -57,8 +57,8 @@ HTTP routing only. One router file per API surface (`game-catalog`, `runs`, `scr
 1. An HTTP request starts a run, passing game IDs and device types.
 2. The run domain creates a record, forks a background fiber, and returns immediately.
 3. The fiber spawns the game-session-automation entry point as a child process.
-4. The child process streams stderr to the server console and writes a JSON result to stdout on exit.
-5. The run domain parses the result, attaches URLs, and persists the final record to disk.
+4. The child process streams stderr to the server console and writes a JSON result to a temp file on exit (path passed via `--outputFile`).
+5. The run domain reads the output file, parses the result, attaches URLs, and persists the final record to disk.
 
 ---
 

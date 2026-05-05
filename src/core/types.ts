@@ -4,6 +4,11 @@ export type InternalTestResult = TestResult & {
   screenshotPaths?: string[];
 };
 
+export type ChildProcessOutput = {
+  results: Partial<Record<DeviceType, InternalTestResult>>;
+  errors: string[];
+};
+
 export type InternalRunRecord = Omit<RunRecord, 'results'> & {
   rawOutput?: string;
   results: Partial<Record<DeviceType, InternalTestResult>>;

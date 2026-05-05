@@ -1,7 +1,7 @@
 import { Effect, Layer } from 'effect';
-import type { DeviceType, RunStatus, TestResult } from '../../shared/types';
+import type { RunStatus } from '../../shared/types';
 import { FileService } from '../file.service';
-import type { InternalRunRecord } from '../types';
+import type { ChildProcessOutput, InternalRunRecord } from '../types';
 import { attachGifUrls, attachScreenshotUrls, cleanupImages } from './media';
 import { parseSpinOutput } from './output-parser';
 import { RunLoggerService } from './run-logger.service';
@@ -70,9 +70,9 @@ function parseOutput(
   return Effect.gen(function* () {
     yield* runLoggerService.log(runID, 'finalize', `parsing output for run ${runID}`);
 
-    const emptyResult = {
-      results: {} as Partial<Record<DeviceType, TestResult>>,
-      errors: [] as string[],
+    const emptyResult: ChildProcessOutput = {
+      results: {},
+      errors: [],
     };
 
     const parsed = yield* parseSpinOutput(outputJson).pipe(

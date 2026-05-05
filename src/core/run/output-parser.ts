@@ -1,18 +1,27 @@
 import { Effect } from 'effect';
-import type { DeviceType, TestResult } from '../../shared/types';
+import type { ChildProcessOutput } from '../types';
 
 export function parseSpinOutput(json: string) {
   return Effect.try({
     try: () => {
-      const parsed = JSON.parse(json) as {
-        results: Partial<Record<DeviceType, TestResult>>;
-        errors: string[];
-      };
+      const parsed: unknown = JSON.parse(json);
 
-      return { results: parsed.results, errors: parsed.errors };
+      if (!isChildProcessOutput(parsed)) {
+        throw new Error('Invalid child process output shape');
+      }
+
+      return parsed;
     },
     catch: (error) => {
       return error instanceof Error ? error : new Error(String(error));
     },
   });
+}
+
+function isChildProcessOutput(val: unknown): val is ChildProcessOutput {
+  if (typeof val !== 'object' || val === null) return false;
+
+  const obj = val as Record<string, unknown>;
+
+  return typeof obj.results === 'object' && obj.results !== null && Array.isArray(obj.errors);
 }
