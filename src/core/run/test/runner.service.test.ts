@@ -5,15 +5,12 @@ import type { GameEntry, RunRecord } from '../../../shared/types';
 import { GameNotFoundError, RunNotFoundError } from '../../errors';
 import { FileService } from '../../file-service/service';
 import { GamesService } from '../../game-catalog/game-catalog.module';
-import {
-  NodeRunnerService,
-  ProcessExecutorService,
-  RunFinalizationService,
-  RunLoggerService,
-  RunnerService,
-  RunStateManagerService,
-} from '../run.module';
-import { RunStateManager } from '../run-state.manager';
+import { ProcessExecutorService } from '../process-executor.service';
+import { RunnerService } from '../run.module';
+import { RunFinalizationService } from '../run-finalization.service';
+import { RunLoggerService } from '../run-logger.service';
+import { RunStateManager, RunStateManagerService } from '../run-state.manager';
+import { NodeRunnerService } from '../runner.service';
 
 describe('RunnerService', () => {
   describe('getRun', () => {

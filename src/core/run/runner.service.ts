@@ -90,7 +90,7 @@ export const NodeRunnerService = Layer.effect(
         return getRecentRuns(runStateManager, limit);
       },
       clearGameRuns: (gameID: string) => {
-        return clearGameRuns(runStateManager, fileService, gameID);
+        return clearGameRuns(runStateManager, fileService, runLoggerService, gameID);
       },
     };
   }),
@@ -197,6 +197,29 @@ function createRecord(runID: string, gameIDs: string[]): InternalRunRecord {
   };
 }
 
+const DEFAULT_STEPS = ['gameLoad', 'spinCycle'];
+
+function buildCommand(
+  runID: string,
+  games: GameEntry[],
+  deviceTypes: string[],
+  outputFilePath: string,
+  steps: string[] = DEFAULT_STEPS,
+  hints?: RunHints,
+) {
+  const gamesArg = Buffer.from(JSON.stringify(games)).toString('base64');
+  const devices = deviceTypes.join(',');
+  const stepsArg = steps.join(',');
+
+  let cmd = `npx tsx src/core/game-session-automation/runner.ts --runID=${runID} --games=${gamesArg} --deviceTypes=${devices} --steps=${stepsArg} --outputFile=${outputFilePath}`;
+
+  if (hints && (hints.spinCycle || hints.gameClose)) {
+    cmd += ` --hints=${Buffer.from(JSON.stringify(hints)).toString('base64')}`;
+  }
+
+  return cmd;
+}
+
 function finalizeRun(
   runStateManager: RunState,
   services: FinalizeServices,
@@ -219,6 +242,28 @@ function finalizeRun(
     yield* saveRunsIgnoreError(fileService, runStateManager.snapshot(), runLoggerService, runID);
     yield* logSummary(runLoggerService, finalized);
   });
+}
+
+function logSummary(runLoggerService: RunLoggerService['Type'], record: InternalRunRecord) {
+  let passed = 0;
+  let failed = 0;
+  let skipped = 0;
+
+  for (const result of Object.values(record.results)) {
+    if (result?.status === 'passed') {
+      passed++;
+    } else if (result?.status === 'failed') {
+      failed++;
+    } else if (result?.status === 'skipped') {
+      skipped++;
+    }
+  }
+
+  return runLoggerService.log(
+    record.runID,
+    'runner',
+    `Run finished in ${record.durationMs}ms — ${passed} passed, ${failed} failed, ${skipped} skipped`,
+  );
 }
 
 function handleFiberError(
@@ -245,28 +290,6 @@ function cancelRun(
 
     yield* saveRunsIgnoreError(fileService, runStateManager.snapshot(), runLoggerService, runID);
   });
-}
-
-function logSummary(runLoggerService: RunLoggerService['Type'], record: InternalRunRecord) {
-  let passed = 0;
-  let failed = 0;
-  let skipped = 0;
-
-  for (const result of Object.values(record.results)) {
-    if (result?.status === 'passed') {
-      passed++;
-    } else if (result?.status === 'failed') {
-      failed++;
-    } else if (result?.status === 'skipped') {
-      skipped++;
-    }
-  }
-
-  return runLoggerService.log(
-    record.runID,
-    'runner',
-    `Run finished in ${record.durationMs}ms — ${passed} passed, ${failed} failed, ${skipped} skipped`,
-  );
 }
 
 function saveRunsIgnoreError(
@@ -311,42 +334,12 @@ function getRecentRuns(runStateManager: RunState, limit = 10) {
 function clearGameRuns(
   runStateManager: RunState,
   fileService: FileService['Type'],
+  runLoggerService: RunLoggerService['Type'],
   gameID: string,
 ) {
   return Effect.gen(function* () {
     runStateManager.clearGame(gameID);
 
-    yield* saveRuns(fileService, runStateManager.snapshot()).pipe(
-      Effect.tapError((err) => {
-        console.error('[runner] Failed to save runs after clear:', err);
-        return Effect.succeed(undefined);
-      }),
-      Effect.orElse(() => {
-        return Effect.succeed(undefined);
-      }),
-    );
+    yield* saveRunsIgnoreError(fileService, runStateManager.snapshot(), runLoggerService, gameID);
   });
-}
-
-const DEFAULT_STEPS = ['gameLoad', 'spinCycle'];
-
-function buildCommand(
-  runID: string,
-  games: GameEntry[],
-  deviceTypes: string[],
-  outputFilePath: string,
-  steps: string[] = DEFAULT_STEPS,
-  hints?: RunHints,
-) {
-  const gamesArg = Buffer.from(JSON.stringify(games)).toString('base64');
-  const devices = deviceTypes.join(',');
-  const stepsArg = steps.join(',');
-
-  let cmd = `npx tsx src/core/game-session-automation/runner.ts --runID=${runID} --games=${gamesArg} --deviceTypes=${devices} --steps=${stepsArg} --outputFile=${outputFilePath}`;
-
-  if (hints && (hints.spinCycle || hints.gameClose)) {
-    cmd += ` --hints=${Buffer.from(JSON.stringify(hints)).toString('base64')}`;
-  }
-
-  return cmd;
 }
