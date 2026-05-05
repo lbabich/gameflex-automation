@@ -3,7 +3,7 @@ import * as path from 'node:path';
 import { Effect, Fiber, Layer } from 'effect';
 import type { GameEntry, RunHints, RunRecord } from '../../shared/types';
 import { GameNotFoundError, RunAlreadyActiveError, RunNotFoundError } from '../errors';
-import { FileService } from '../file.service';
+import { FileService } from '../file-service/service';
 import { GamesService } from '../game-catalog/game-catalog.module';
 import type { InternalRunRecord } from '../types';
 import { buildCommand } from './command';

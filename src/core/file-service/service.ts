@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import { Effect, Layer } from 'effect';
-import { FileReadError, FileWriteError } from './errors';
+import { FileReadError, FileWriteError } from '../errors';
 
 export class FileService extends Effect.Tag('FileService')<
   FileService,

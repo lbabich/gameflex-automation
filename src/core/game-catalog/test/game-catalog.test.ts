@@ -3,10 +3,10 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { Effect, Layer, ManagedRuntime } from 'effect';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { DuplicateGameIDError, GameNotFoundError } from '../errors';
-import { StepCacheService } from '../step-cache/service';
-import { makeTestStepCacheService } from '../step-cache/testing';
-import { GamesService, NodeGamesService } from './game-catalog.module';
+import { DuplicateGameIDError, GameNotFoundError } from '../../errors';
+import { StepCacheService } from '../../step-cache/service';
+import { makeTestStepCacheService } from '../../step-cache/test/step-cache-test.helper';
+import { GamesService, NodeGamesService } from '../game-catalog.module';
 
 const GAMES_PATH = path.resolve(process.env.GAMES_JSON_PATH ?? 'src/core/data/games.json');
 

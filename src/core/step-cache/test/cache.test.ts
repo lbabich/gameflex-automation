@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createStepCache, type StepCache, type StepStore } from './cache';
+import { createStepCache, type StepCache, type StepStore } from '../cache';
 
 const VP_DESK = { width: 1280, height: 720 };
 const VP_MOB = { width: 390, height: 844 };

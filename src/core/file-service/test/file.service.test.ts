@@ -4,8 +4,8 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { Effect, ManagedRuntime } from 'effect';
 import { afterEach, describe, expect, it } from 'vitest';
-import { FileReadError } from './errors';
-import { FileService, NodeFileService } from './file.service';
+import { FileReadError } from '../../errors';
+import { FileService, NodeFileService } from '../service';
 
 const runtime = ManagedRuntime.make(NodeFileService);
 

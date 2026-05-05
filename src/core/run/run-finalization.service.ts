@@ -1,6 +1,6 @@
 import { Effect, Layer } from 'effect';
 import type { RunStatus } from '../../shared/types';
-import { FileService } from '../file.service';
+import { FileService } from '../file-service/service';
 import type { ChildProcessOutput, InternalRunRecord } from '../types';
 import { attachGifUrls, attachScreenshotUrls, cleanupImages } from './media';
 import { parseSpinOutput } from './output-parser';

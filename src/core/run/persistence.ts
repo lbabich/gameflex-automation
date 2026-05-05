@@ -1,6 +1,6 @@
 import * as path from 'node:path';
 import { Effect } from 'effect';
-import { FileService } from '../file.service';
+import { FileService } from '../file-service/service';
 import type { InternalRunRecord } from '../types';
 
 export const RUNS_FILE = path.resolve('src/core/data/runs.json');

@@ -1,10 +1,10 @@
 import { randomUUID } from 'node:crypto';
 import { Effect, Layer, ManagedRuntime } from 'effect';
 import { describe, expect, it } from 'vitest';
-import type { GameEntry, RunRecord } from '../../shared/types';
-import { GameNotFoundError, RunNotFoundError } from '../errors';
-import { FileService } from '../file.service';
-import { GamesService } from '../game-catalog/game-catalog.module';
+import type { GameEntry, RunRecord } from '../../../shared/types';
+import { GameNotFoundError, RunNotFoundError } from '../../errors';
+import { FileService } from '../../file-service/service';
+import { GamesService } from '../../game-catalog/game-catalog.module';
 import {
   NodeRunnerService,
   ProcessExecutorService,
@@ -12,7 +12,7 @@ import {
   RunLoggerService,
   RunnerService,
   RunStateService,
-} from './run.module';
+} from '../run.module';
 
 describe('RunnerService', () => {
   describe('getRun', () => {

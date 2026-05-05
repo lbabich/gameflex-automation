@@ -1,8 +1,8 @@
 import { Effect, Layer } from 'effect';
-import type { DeviceType } from '../../shared/types';
-import type { GameSteps, Viewport } from '../types';
-import type { StepCache, StepCacheKey } from './cache';
-import { StepCacheService } from './service';
+import type { DeviceType } from '../../../shared/types';
+import type { GameSteps, Viewport } from '../../types';
+import type { StepCache, StepCacheKey } from '../cache';
+import { StepCacheService } from '../service';
 
 export function makeTestStepCacheService() {
   const store = new Map<string, GameSteps>();

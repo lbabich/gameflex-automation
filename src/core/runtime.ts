@@ -1,5 +1,5 @@
 import { Layer, ManagedRuntime } from 'effect';
-import { NodeFileService } from './file.service';
+import { NodeFileService } from './file-service/service';
 import { NodeGamesService } from './game-catalog/game-catalog.module';
 import {
   NodeProcessExecutorService,
