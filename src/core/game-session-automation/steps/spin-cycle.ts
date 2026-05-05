@@ -1,7 +1,8 @@
 import type { CachedStep } from '../../types';
 import * as screenshot from '../capture/screenshot';
+import { discoverTarget } from '../discovery';
 import { GEL_EVENT } from '../gel/events';
-import { gelCheck, makeDiscover, onGelEvent } from './make-discover';
+import { gelCheck, onGelEvent } from './step-utils';
 import { track } from './track';
 import type { SessionContext, StepDescriptor } from './types';
 
@@ -15,20 +16,22 @@ const SPIN_START_WAIT_MS = 15_000;
 const SPIN_END_WAIT_MS = 15_000;
 const SPIN_VERIFY_TIMEOUT_MS = 3_000;
 
-export const discover = makeDiscover({
-  stepName,
-  defaultInstructions: ({ width, height }) => {
-    return `What is the single most important element to click to either trigger a spin or navigate toward the spin button?\n\nIf the spin button is visible and unobstructed, click it. The spin button is typically the largest circular button on screen — commonly has clockwise-rotating arrows around its edge, a play/triangle icon in the centre, or is labeled SPIN. It must be fully visible and not covered by any overlay.\n\nIf the spin button is not accessible, click whatever would unblock it: a dialog button (Continue, OK, Accept, Yes, No), close X, age/terms prompt, overlay, promo/bonus intro screen, or a full-screen brand logo or game-title splash screen (click the centre of the screen for those).\n\nDo NOT suggest: loading bars, progress indicators, loading spinners, percentage counters, autoplay buttons, or bet/settings controls.\nIf the game is still loading (spinner visible), return {"found": false}.\n\nRespond with:\n  {"found": false}\n  {"found": true, "x": <number>, "y": <number>, "label": "<short description>"}\n\nImage dimensions: ${width}x${height}`;
-  },
-  failureContext: (list) => {
-    return `Context: The following buttons were clicked as spin candidates but did not trigger a spin:\n${list}\nFeel free to suggest clicking a Back/Cancel/navigation button or another UI path to reach a different game state where the real spin button may be accessible.`;
-  },
-  getHint: (hints) => {
-    return hints?.spinCycle;
-  },
-  verifyClick: onGelEvent(GEL_EVENT.SPIN_START, SPIN_VERIFY_TIMEOUT_MS),
-  checkComplete: gelCheck(GEL_EVENT.SPIN_START),
-});
+export const discover = async (ctx: SessionContext) => {
+  await discoverTarget(ctx, {
+    stepName,
+    defaultInstructions: ({ width, height }) => {
+      return `What is the single most important element to click to either trigger a spin or navigate toward the spin button?\n\nIf the spin button is visible and unobstructed, click it. The spin button is typically the largest circular button on screen — commonly has clockwise-rotating arrows around its edge, a play/triangle icon in the centre, or is labeled SPIN. It must be fully visible and not covered by any overlay.\n\nIf the spin button is not accessible, click whatever would unblock it: a dialog button (Continue, OK, Accept, Yes, No), close X, age/terms prompt, overlay, promo/bonus intro screen, or a full-screen brand logo or game-title splash screen (click the centre of the screen for those).\n\nDo NOT suggest: loading bars, progress indicators, loading spinners, percentage counters, autoplay buttons, or bet/settings controls.\nIf the game is still loading (spinner visible), return {"found": false}.\n\nRespond with:\n  {"found": false}\n  {"found": true, "x": <number>, "y": <number>, "label": "<short description>"}\n\nImage dimensions: ${width}x${height}`;
+    },
+    failureContext: (list) => {
+      return `Context: The following buttons were clicked as spin candidates but did not trigger a spin:\n${list}\nFeel free to suggest clicking a Back/Cancel/navigation button or another UI path to reach a different game state where the real spin button may be accessible.`;
+    },
+    getHint: (hints) => {
+      return hints?.spinCycle;
+    },
+    verifyClick: onGelEvent(GEL_EVENT.SPIN_START, SPIN_VERIFY_TIMEOUT_MS),
+    checkComplete: gelCheck(GEL_EVENT.SPIN_START),
+  });
+};
 
 export async function run(ctx: SessionContext, _cachedSteps: CachedStep[] | null) {
   const { page, accumulator, runID, deviceType } = ctx;
