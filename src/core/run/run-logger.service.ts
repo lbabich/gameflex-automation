@@ -1,5 +1,5 @@
 import { Effect, Layer } from 'effect';
-import { RunStateService } from './run-state.service';
+import { RunStateManagerService } from './run-state.manager';
 
 export class RunLoggerService extends Effect.Tag('RunLoggerService')<
   RunLoggerService,
@@ -18,14 +18,14 @@ export class RunLoggerService extends Effect.Tag('RunLoggerService')<
 export const NodeRunLoggerService = Layer.effect(
   RunLoggerService,
   Effect.gen(function* () {
-    const state = yield* RunStateService;
+    const runStateManager = yield* RunStateManagerService;
 
     return {
       log: (runID: string, context: string, message: string) => {
         return Effect.sync(() => {
           const msg = `[${context}] ${message}:`;
 
-          appendLog(state.runs, runID, msg);
+          runStateManager.appendLog(runID, msg);
           console.log(msg);
         });
       },
@@ -33,7 +33,7 @@ export const NodeRunLoggerService = Layer.effect(
         return Effect.sync(() => {
           const msg = `[${context}] ${message}:`;
 
-          appendLog(state.runs, runID, msg);
+          runStateManager.appendLog(runID, msg);
           console.warn(msg);
         });
       },
@@ -41,14 +41,10 @@ export const NodeRunLoggerService = Layer.effect(
         return Effect.sync(() => {
           const msg = `[${context}] ${message}:`;
 
-          appendLog(state.runs, runID, msg);
+          runStateManager.appendLog(runID, msg);
           console.error(msg, error);
         });
       },
     };
   }),
 );
-
-function appendLog(runs: Map<string, { logs: string[] }>, runID: string, msg: string) {
-  runs.get(runID)?.logs.push(msg);
-}

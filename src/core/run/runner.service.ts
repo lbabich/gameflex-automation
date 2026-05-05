@@ -1,23 +1,16 @@
 import { randomUUID } from 'node:crypto';
 import * as path from 'node:path';
-import { Effect, Fiber, Layer } from 'effect';
+import { Effect, Layer } from 'effect';
 import type { GameEntry, RunHints, RunRecord } from '../../shared/types';
 import { GameNotFoundError, RunAlreadyActiveError, RunNotFoundError } from '../errors';
 import { FileService } from '../file-service/service';
 import { GamesService } from '../game-catalog/game-catalog.module';
 import type { InternalRunRecord } from '../types';
-import { loadRuns, saveRuns, trimMemory } from './persistence';
+import { loadRuns, saveRuns } from './persistence';
 import { ProcessExecutorService } from './process-executor.service';
 import { RunFinalizationService } from './run-finalization.service';
 import { RunLoggerService } from './run-logger.service';
-import { RunStateService } from './run-state.service';
-import { transition } from './run-transition';
-
-type RunnerState = {
-  runs: Map<string, InternalRunRecord>;
-  activeRunsByGame: Map<string, string>;
-  activeFibers: Map<string, Fiber.RuntimeFiber<void, never>>;
-};
+import { type RunState, RunStateManagerService } from './run-state.manager';
 
 type StartRunServices = {
   gamesService: GamesService['Type'];
@@ -62,7 +55,7 @@ export class RunnerService extends Effect.Tag('RunnerService')<
 export const NodeRunnerService = Layer.effect(
   RunnerService,
   Effect.gen(function* () {
-    const state = yield* RunStateService;
+    const runStateManager = yield* RunStateManagerService;
     const runLoggerService = yield* RunLoggerService;
     const fileService = yield* FileService;
     const gamesService = yield* GamesService;
@@ -71,14 +64,12 @@ export const NodeRunnerService = Layer.effect(
 
     const loadedRuns = yield* loadRuns();
 
-    for (const run of loadedRuns) {
-      state.runs.set(run.runID, run);
-    }
+    runStateManager.seed(loadedRuns);
 
     return {
       startRun: (params: StartRunParams) => {
         return startRun(
-          state,
+          runStateManager,
           {
             gamesService,
             fileService,
@@ -90,22 +81,22 @@ export const NodeRunnerService = Layer.effect(
         );
       },
       cancelRun: (runID: string) => {
-        return cancelRun(state, fileService, runLoggerService, runID);
+        return cancelRun(runStateManager, fileService, runLoggerService, runID);
       },
       getRun: (runID: string) => {
-        return getRun(state, runID);
+        return getRun(runStateManager, runID);
       },
       getRecentRuns: (limit?: number) => {
-        return getRecentRuns(state, limit);
+        return getRecentRuns(runStateManager, limit);
       },
       clearGameRuns: (gameID: string) => {
-        return clearGameRuns(state, fileService, gameID);
+        return clearGameRuns(runStateManager, fileService, gameID);
       },
     };
   }),
 );
 
-function startRun(state: RunnerState, services: StartRunServices, params: StartRunParams) {
+function startRun(runStateManager: RunState, services: StartRunServices, params: StartRunParams) {
   const {
     gamesService,
     fileService,
@@ -116,18 +107,14 @@ function startRun(state: RunnerState, services: StartRunServices, params: StartR
   const { gameIDs, deviceTypes, steps, hints } = params;
 
   return Effect.gen(function* () {
-    yield* checkNoActiveRuns(state, gameIDs);
+    yield* checkNoActiveRuns(runStateManager, gameIDs);
 
     const selectedGames = yield* fetchAndValidateGames(gamesService, gameIDs);
 
     const runID = randomUUID();
     const record = createRecord(runID, gameIDs);
 
-    state.runs.set(runID, record);
-
-    for (const id of gameIDs) {
-      state.activeRunsByGame.set(id, runID);
-    }
+    runStateManager.register(runID, record, gameIDs);
 
     const outputFilePath = path.resolve('src/core/data/run-outputs', `${runID}.json`);
     const cmd = buildCommand(runID, selectedGames, deviceTypes, outputFilePath, steps, hints);
@@ -143,28 +130,28 @@ function startRun(state: RunnerState, services: StartRunServices, params: StartR
       yield* runLoggerService.log(runID, 'runner', `Process exited with code ${code}`);
 
       yield* finalizeRun(
-        state,
+        runStateManager,
         { runFinalizationService, runLoggerService, fileService },
         { runID, code, outputFilePath },
       );
     }).pipe(
       Effect.catchAll((error: never) => {
-        return handleFiberError(state, runLoggerService, runID, error);
+        return handleFiberError(runStateManager, runLoggerService, runID, error);
       }),
     );
 
     const fiber = yield* Effect.forkDaemon(background);
 
-    state.activeFibers.set(runID, fiber);
+    runStateManager.attachFiber(runID, fiber);
 
     return record as RunRecord;
   });
 }
 
-function checkNoActiveRuns(state: RunnerState, gameIDs: string[]) {
+function checkNoActiveRuns(runStateManager: RunState, gameIDs: string[]) {
   return Effect.sync(() => {
     return gameIDs.find((id) => {
-      return state.activeRunsByGame.has(id);
+      return runStateManager.getActiveRunID(id) !== undefined;
     });
   }).pipe(
     Effect.flatMap((conflicting) => {
@@ -210,12 +197,16 @@ function createRecord(runID: string, gameIDs: string[]): InternalRunRecord {
   };
 }
 
-function finalizeRun(state: RunnerState, services: FinalizeServices, result: FinalizeResult) {
+function finalizeRun(
+  runStateManager: RunState,
+  services: FinalizeServices,
+  result: FinalizeResult,
+) {
   const { runFinalizationService, runLoggerService, fileService } = services;
   const { runID, code, outputFilePath } = result;
 
   return Effect.gen(function* () {
-    const record = state.runs.get(runID);
+    const record = runStateManager.get(runID);
 
     if (!record) {
       return;
@@ -223,28 +214,36 @@ function finalizeRun(state: RunnerState, services: FinalizeServices, result: Fin
 
     const finalized = yield* runFinalizationService.finalize(record, code, outputFilePath);
 
-    yield* persistFinishedRun(state, fileService, runLoggerService, runID, finalized);
+    runStateManager.finalize(runID, finalized);
+
+    yield* saveRunsIgnoreError(fileService, runStateManager.snapshot(), runLoggerService, runID);
+    yield* logSummary(runLoggerService, finalized);
   });
 }
 
-function persistFinishedRun(
-  state: RunnerState,
+function handleFiberError(
+  runStateManager: RunState,
+  runLoggerService: RunLoggerService['Type'],
+  runID: string,
+  error: unknown,
+) {
+  return Effect.gen(function* () {
+    yield* runLoggerService.error(runID, 'runner', 'Background fiber error:', error);
+
+    runStateManager.fiberError(runID);
+  });
+}
+
+function cancelRun(
+  runStateManager: RunState,
   fileService: FileService['Type'],
   runLoggerService: RunLoggerService['Type'],
   runID: string,
-  updated: InternalRunRecord,
 ) {
   return Effect.gen(function* () {
-    const current = state.runs.get(runID);
+    yield* runStateManager.cancel(runID);
 
-    if (current) {
-      state.runs.set(runID, transition(current, { type: 'Finalized', record: updated }));
-    }
-
-    yield* saveRunsIgnoreError(fileService, state.runs, runLoggerService, runID);
-    yield* logSummary(runLoggerService, updated);
-    trimMemory(state.runs);
-    cleanupActive(state, runID, updated.gameIDs);
+    yield* saveRunsIgnoreError(fileService, runStateManager.snapshot(), runLoggerService, runID);
   });
 }
 
@@ -270,60 +269,9 @@ function logSummary(runLoggerService: RunLoggerService['Type'], record: Internal
   );
 }
 
-function handleFiberError(
-  state: RunnerState,
-  runLoggerService: RunLoggerService['Type'],
-  runID: string,
-  error: unknown,
-) {
-  return Effect.gen(function* () {
-    yield* runLoggerService.error(runID, 'runner', 'Background fiber error:', error);
-
-    const run = state.runs.get(runID);
-
-    if (run?.status === 'running') {
-      state.runs.set(runID, transition(run, { type: 'FiberError' }));
-    }
-
-    cleanupActive(state, runID, run?.gameIDs ?? []);
-  });
-}
-
-function cancelRun(
-  state: RunnerState,
-  fileService: FileService['Type'],
-  runLoggerService: RunLoggerService['Type'],
-  runID: string,
-) {
-  return Effect.gen(function* () {
-    const fiber = state.activeFibers.get(runID);
-    const record = state.runs.get(runID);
-
-    if (!fiber || !record) {
-      return yield* Effect.fail(new RunNotFoundError({ runID }));
-    }
-
-    state.runs.set(runID, transition(record, { type: 'Cancelled' }));
-
-    yield* Fiber.interrupt(fiber);
-
-    cleanupActive(state, runID, record.gameIDs);
-
-    yield* saveRunsIgnoreError(fileService, state.runs, runLoggerService, runID);
-  });
-}
-
-function cleanupActive(state: RunnerState, runID: string, gameIDs: string[]) {
-  state.activeFibers.delete(runID);
-
-  for (const id of gameIDs) {
-    state.activeRunsByGame.delete(id);
-  }
-}
-
 function saveRunsIgnoreError(
   fileService: FileService['Type'],
-  runs: RunnerState['runs'],
+  runs: Map<string, InternalRunRecord>,
   runLoggerService: RunLoggerService['Type'],
   runID: string,
 ) {
@@ -337,9 +285,9 @@ function saveRunsIgnoreError(
   );
 }
 
-function getRun(state: RunnerState, runID: string) {
+function getRun(runStateManager: RunState, runID: string) {
   return Effect.gen(function* () {
-    const record = state.runs.get(runID);
+    const record = runStateManager.get(runID);
 
     if (!record) {
       return yield* Effect.fail(new RunNotFoundError({ runID }));
@@ -349,9 +297,10 @@ function getRun(state: RunnerState, runID: string) {
   });
 }
 
-function getRecentRuns(state: RunnerState, limit = 10) {
+function getRecentRuns(runStateManager: RunState, limit = 10) {
   return Effect.sync(() => {
-    return [...state.runs.values()]
+    return runStateManager
+      .getAll()
       .sort((runA: RunRecord, runB: RunRecord) => {
         return new Date(runB.startedAt).getTime() - new Date(runA.startedAt).getTime();
       })
@@ -359,15 +308,15 @@ function getRecentRuns(state: RunnerState, limit = 10) {
   });
 }
 
-function clearGameRuns(state: RunnerState, fileService: FileService['Type'], gameID: string) {
+function clearGameRuns(
+  runStateManager: RunState,
+  fileService: FileService['Type'],
+  gameID: string,
+) {
   return Effect.gen(function* () {
-    for (const [runID, run] of state.runs.entries()) {
-      if (run.gameIDs.includes(gameID) && !state.activeFibers.has(runID)) {
-        state.runs.delete(runID);
-      }
-    }
+    runStateManager.clearGame(gameID);
 
-    yield* saveRuns(fileService, state.runs).pipe(
+    yield* saveRuns(fileService, runStateManager.snapshot()).pipe(
       Effect.tapError((err) => {
         console.error('[runner] Failed to save runs after clear:', err);
         return Effect.succeed(undefined);

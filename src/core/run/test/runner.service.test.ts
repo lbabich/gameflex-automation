@@ -11,8 +11,9 @@ import {
   RunFinalizationService,
   RunLoggerService,
   RunnerService,
-  RunStateService,
+  RunStateManagerService,
 } from '../run.module';
+import { RunStateManager } from '../run-state.manager';
 
 describe('RunnerService', () => {
   describe('getRun', () => {
@@ -215,11 +216,7 @@ function makeTestRuntime(runsJson = '[]', gameEntries: GameEntry[] = []) {
     },
   });
 
-  const testRunStateService = Layer.succeed(RunStateService, {
-    runs: new Map(),
-    activeRunsByGame: new Map(),
-    activeFibers: new Map(),
-  });
+  const testRunStateManagerService = Layer.succeed(RunStateManagerService, new RunStateManager());
 
   const testRunLoggerService = Layer.succeed(RunLoggerService, {
     log: () => {
@@ -251,7 +248,7 @@ function makeTestRuntime(runsJson = '[]', gameEntries: GameEntry[] = []) {
       Layer.mergeAll(
         testFileService,
         testGamesService,
-        testRunStateService,
+        testRunStateManagerService,
         testRunLoggerService,
         testProcessExecutorService,
         testRunFinalizationService,

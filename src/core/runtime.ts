@@ -6,11 +6,11 @@ import {
   NodeRunFinalizationService,
   NodeRunLoggerService,
   NodeRunnerService,
-  NodeRunStateService,
+  NodeRunStateManager,
 } from './run/run.module';
 import { NodeStepCacheService } from './step-cache/service';
 
-const ProvidedRunLoggerService = Layer.provide(NodeRunLoggerService, NodeRunStateService);
+const ProvidedRunLoggerService = Layer.provide(NodeRunLoggerService, NodeRunStateManager);
 const ProvidedNodeGamesService = Layer.provide(NodeGamesService, NodeStepCacheService);
 const ProvidedNodeRunFinalizationService = Layer.provide(
   NodeRunFinalizationService,
@@ -19,7 +19,7 @@ const ProvidedNodeRunFinalizationService = Layer.provide(
 const ProvidedNodeRunnerService = Layer.provide(
   NodeRunnerService,
   Layer.mergeAll(
-    NodeRunStateService,
+    NodeRunStateManager,
     NodeFileService,
     ProvidedNodeGamesService,
     NodeProcessExecutorService,
@@ -29,7 +29,7 @@ const ProvidedNodeRunnerService = Layer.provide(
 );
 
 const AppLayer = Layer.mergeAll(
-  NodeRunStateService,
+  NodeRunStateManager,
   NodeFileService,
   NodeStepCacheService,
   ProvidedNodeGamesService,
