@@ -96,6 +96,6 @@ export async function runDiscoveryLoop(ctx: DiscoveryContext, config: DiscoveryC
   await screenshot.snap(page, `${runID}/${deviceType}/discovery-failed.png`);
 
   throw new DiscoveryError(
-    `Could not find target for '${stepName}' on ${game.name} (${game.desktopGameID}) after ${DISCOVERY_MAX_ATTEMPTS} attempts. See src/core/screenshots/${runID}/${deviceType}/discovery-failed.png`,
+    `Could not find target for '${stepName}' on ${game.name} (${game.desktopGameID}) after ${DISCOVERY_MAX_ATTEMPTS} attempts. See src/core/data/screenshots/${runID}/${deviceType}/discovery-failed.png`,
   );
 }

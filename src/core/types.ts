@@ -17,7 +17,7 @@ export type InternalRunRecord = Omit<RunRecord, 'results'> & {
 
 export const DEVICE_TYPES = ['desktop', 'mobile'] as const satisfies readonly DeviceType[];
 
-export const SCREENSHOTS_DIR = 'src/core/screenshots';
+export const SCREENSHOTS_DIR = 'src/core/data/screenshots';
 
 export type Viewport = {
   width: number;
