@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { Effect } from 'effect';
 import type { DeviceType } from '../../../shared/types';
-import type { InternalTestResult } from '../../types';
+import type { InternalTestResult, MediaDeviceResult, MediaResult } from '../../types';
 import { SCREENSHOTS_DIR } from '../../types';
 import type { RunLoggerService } from '../run-logger.service';
 import * as gifGenerator from './gif-generator';
@@ -30,82 +30,101 @@ export function attachScreenshotUrls(results: Partial<Record<DeviceType, Interna
   });
 }
 
-export function attachGifUrls(
+export function runMediaPipeline(
   runLoggerService: RunLoggerService['Type'],
   runID: string,
   results: Partial<Record<DeviceType, InternalTestResult>>,
-) {
-  return Effect.gen(function* () {
-    for (const [deviceType, result] of Object.entries(results) as [
-      DeviceType,
-      InternalTestResult,
-    ][]) {
-      if (!result) {
-        continue;
-      }
+): Effect.Effect<MediaResult> {
+  const entries = (Object.entries(results) as [DeviceType, InternalTestResult][]).filter(
+    ([, result]) => {
+      return result != null;
+    },
+  );
 
-      yield* Effect.tryPromise({
-        try: () => {
-          return gifGenerator.generateGif(runID, deviceType);
-        },
-        catch: (err: unknown) => {
-          return err;
-        },
-      }).pipe(
-        Effect.tap(() => {
-          return Effect.sync(() => {
-            result.gifUrl = `/api/screenshots/${runID}/${deviceType}/${gifGenerator.ANIMATED_GIF_FILENAME}`;
-          });
-        }),
-        Effect.catchAll((err: unknown) => {
-          return runLoggerService.warn(
-            runID,
-            'media',
-            `Failed to generate GIF for ${deviceType}: ${String(err)}`,
-          );
-        }),
-      );
-    }
-  });
+  return Effect.forEach(
+    entries,
+    ([deviceType, result]) =>
+      Effect.gen(function* () {
+        const gif = yield* attachGifUrl(runLoggerService, runID, deviceType, result);
+
+        // gif-generator already deletes PNGs on success; only clean up manually if gif failed
+        const cleanup =
+          gif === 'ok'
+            ? clearScreenshotPaths(result)
+            : yield* deleteScreenshotFiles(runLoggerService, runID, result);
+
+        return [deviceType, { gif, cleanup }] as [DeviceType, MediaDeviceResult];
+      }),
+    { concurrency: 'unbounded' },
+  ).pipe(
+    Effect.map((pairs) => {
+      return Object.fromEntries(pairs) as MediaResult;
+    }),
+  );
 }
 
-export function cleanupImages(
+function attachGifUrl(
   runLoggerService: RunLoggerService['Type'],
   runID: string,
-  results: Partial<Record<DeviceType, InternalTestResult>>,
-) {
+  deviceType: DeviceType,
+  result: InternalTestResult,
+): Effect.Effect<MediaDeviceResult['gif']> {
   return Effect.gen(function* () {
-    for (const result of Object.values(results)) {
-      if (!result) {
-        continue;
-      }
+    yield* Effect.tryPromise({
+      try: () => {
+        return gifGenerator.generateGif(runID, deviceType);
+      },
+      catch: (err: unknown) => {
+        return String(err);
+      },
+    });
 
-      const paths = result.screenshotPaths;
+    result.gifUrl = `/api/screenshots/${runID}/${deviceType}/${gifGenerator.ANIMATED_GIF_FILENAME}`;
 
-      result.screenshotPaths = undefined;
+    return 'ok' as const;
+  }).pipe(
+    Effect.catchAll((errStr) => {
+      return runLoggerService
+        .warn(runID, 'media', `Failed to generate GIF for ${deviceType}: ${errStr}`)
+        .pipe(Effect.as({ error: errStr }));
+    }),
+  );
+}
 
-      if (!paths || paths.length <= 1) {
-        continue;
-      }
+function clearScreenshotPaths(result: InternalTestResult): MediaDeviceResult['cleanup'] {
+  result.screenshotPaths = undefined;
 
-      for (let i = 0; i < paths.length - 1; i++) {
-        yield* Effect.try({
-          try: () => {
-            return fs.unlinkSync(paths[i]);
-          },
-          catch: (err) => {
-            return err;
-          },
-        }).pipe(
-          Effect.catchAll((err) => {
-            return runLoggerService.warn(
-              runID,
-              'media',
-              `Failed to delete screenshot: ${String(err)}`,
-            );
-          }),
-        );
-      }
+  return 'ok';
+}
+
+function deleteScreenshotFiles(
+  runLoggerService: RunLoggerService['Type'],
+  runID: string,
+  result: InternalTestResult,
+): Effect.Effect<MediaDeviceResult['cleanup']> {
+  const paths = result.screenshotPaths;
+
+  result.screenshotPaths = undefined;
+
+  if (!paths || paths.length <= 1) {
+    return Effect.succeed('ok');
+  }
+
+  let lastError: string | undefined;
+
+  for (let i = 0; i < paths.length - 1; i++) {
+    try {
+      fs.unlinkSync(paths[i]);
+    } catch (err) {
+      lastError = String(err);
     }
-  });
+  }
+
+  if (!lastError) {
+    return Effect.succeed('ok');
+  }
+
+  return runLoggerService
+    .warn(runID, 'media', `Failed to delete screenshot: ${lastError}`)
+    .pipe(Effect.as({ error: lastError }));
 }

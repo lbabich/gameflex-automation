@@ -9,9 +9,17 @@ export type ChildProcessOutput = {
   errors: string[];
 };
 
+export type MediaDeviceResult = {
+  gif: 'ok' | { error: string };
+  cleanup: 'ok' | { error: string };
+};
+
+export type MediaResult = Partial<Record<DeviceType, MediaDeviceResult>>;
+
 export type InternalRunRecord = Omit<RunRecord, 'results'> & {
   rawOutput?: string;
   results: Partial<Record<DeviceType, InternalTestResult>>;
+  mediaResult?: MediaResult;
   logs: string[];
 };
 

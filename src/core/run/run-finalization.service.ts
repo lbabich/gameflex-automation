@@ -2,7 +2,7 @@ import { Effect, Layer } from 'effect';
 import type { RunStatus } from '../../shared/types';
 import { FileService } from '../file-service/service';
 import type { ChildProcessOutput, InternalRunRecord } from '../types';
-import { attachGifUrls, attachScreenshotUrls, cleanupImages } from './output/media';
+import { attachScreenshotUrls, runMediaPipeline } from './output/media';
 import { parseSpinOutput } from './output/output-parser';
 import { RunLoggerService } from './run-logger.service';
 
@@ -51,10 +51,10 @@ export const NodeRunFinalizationService = Layer.effect(
           }
 
           yield* attachScreenshotUrls(updated.results);
-          yield* attachGifUrls(runLoggerService, runID, updated.results);
-          yield* cleanupImages(runLoggerService, runID, updated.results);
 
-          return updated;
+          const mediaResult = yield* runMediaPipeline(runLoggerService, runID, updated.results);
+
+          return { ...updated, mediaResult };
         });
       },
     };
