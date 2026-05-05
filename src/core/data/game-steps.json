@@ -321,50 +321,62 @@
     "desktop": {
       "1280x720": {
         "spinCycle": {
-          "discoveredAt": "2026-05-01T09:43:44.125Z",
+          "discoveredAt": "2026-05-01T14:53:02.868Z",
           "steps": [
             {
-              "waitMs": 2253,
-              "x": 1047,
-              "y": 622,
-              "label": "Lightning/spin button"
+              "waitMs": 2813,
+              "x": 663,
+              "y": 623,
+              "label": "CONTINUE button to dismiss intro overlay"
             },
             {
-              "waitMs": 3372,
-              "x": 664,
-              "y": 617,
+              "waitMs": 4035,
+              "x": 724,
+              "y": 619,
+              "label": "Auto/Play button to the right of spin button"
+            },
+            {
+              "waitMs": 4344,
+              "x": 663,
+              "y": 150,
+              "label": "Click outside the autoplay dialog to dismiss it"
+            },
+            {
+              "waitMs": 3485,
+              "x": 663,
+              "y": 619,
               "label": "Spin button - circular button with rotating arrows"
             }
           ]
         },
         "audioToggle": {
-          "discoveredAt": "2026-05-01T09:43:51.024Z",
+          "discoveredAt": "2026-05-01T14:53:21.781Z",
           "steps": [
             {
-              "waitMs": 2039,
-              "x": 1079,
-              "y": 622,
-              "label": "Speaker/audio toggle button in game UI bottom bar"
+              "waitMs": 2847,
+              "x": 1078,
+              "y": 621,
+              "label": "Speaker/audio toggle button in game UI bottom right"
             }
           ]
         },
         "gameClose": {
-          "discoveredAt": "2026-05-01T09:44:09.667Z",
+          "discoveredAt": "2026-05-01T14:53:43.806Z",
           "steps": [
             {
-              "waitMs": 4436,
+              "waitMs": 4738,
               "x": 254,
-              "y": 622,
-              "label": "Hamburger menu (≡) game control button"
+              "y": 621,
+              "label": "Hamburger menu button in game controls"
             },
             {
-              "waitMs": 2925,
+              "waitMs": 3631,
               "x": 255,
               "y": 588,
-              "label": "Home/house icon in game UI"
+              "label": "Home/house icon in game sidebar controls"
             },
             {
-              "waitMs": 4181,
+              "waitMs": 3810,
               "x": 748,
               "y": 442,
               "label": "YES button in exit confirmation dialog"
