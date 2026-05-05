@@ -7,7 +7,7 @@ import { FileService } from '../file-service/service';
 import { GamesService } from '../game-catalog/game-catalog.module';
 import type { InternalRunRecord } from '../types';
 import { loadRuns, saveRuns, trimMemory } from './persistence';
-import { buildCommand, ProcessExecutorService } from './process-executor.service';
+import { ProcessExecutorService } from './process-executor.service';
 import { RunFinalizationService } from './run-finalization.service';
 import { RunLoggerService } from './run-logger.service';
 import { RunStateService } from './run-state.service';
@@ -382,4 +382,27 @@ function clearGameRuns(state: RunnerState, fileService: FileService['Type'], gam
       }),
     );
   });
+}
+
+const DEFAULT_STEPS = ['gameLoad', 'spinCycle'];
+
+function buildCommand(
+  runID: string,
+  games: GameEntry[],
+  deviceTypes: string[],
+  outputFilePath: string,
+  steps: string[] = DEFAULT_STEPS,
+  hints?: RunHints,
+) {
+  const gamesArg = Buffer.from(JSON.stringify(games)).toString('base64');
+  const devices = deviceTypes.join(',');
+  const stepsArg = steps.join(',');
+
+  let cmd = `npx tsx src/core/game-session-automation/runner.ts --runID=${runID} --games=${gamesArg} --deviceTypes=${devices} --steps=${stepsArg} --outputFile=${outputFilePath}`;
+
+  if (hints && (hints.spinCycle || hints.gameClose)) {
+    cmd += ` --hints=${Buffer.from(JSON.stringify(hints)).toString('base64')}`;
+  }
+
+  return cmd;
 }
