@@ -2,8 +2,8 @@ import { Effect, Layer } from 'effect';
 import type { RunStatus } from '../../shared/types';
 import { FileService } from '../file-service/service';
 import type { ChildProcessOutput, InternalRunRecord } from '../types';
-import { attachGifUrls, attachScreenshotUrls, cleanupImages } from './media';
-import { parseSpinOutput } from './output-parser';
+import { attachGifUrls, attachScreenshotUrls, cleanupImages } from './output/media';
+import { parseSpinOutput } from './output/output-parser';
 import { RunLoggerService } from './run-logger.service';
 
 export class RunFinalizationService extends Effect.Tag('RunFinalizationService')<

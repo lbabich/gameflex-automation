@@ -1,5 +1,5 @@
 import { Effect } from 'effect';
-import type { ChildProcessOutput } from '../types';
+import type { ChildProcessOutput } from '../../types';
 
 export function parseSpinOutput(json: string) {
   return Effect.try({

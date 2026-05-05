@@ -2,8 +2,8 @@ import * as fs from 'node:fs';
 import { createRequire } from 'node:module';
 import * as path from 'node:path';
 import { Jimp } from 'jimp';
-import type { DeviceType } from '../../shared/types';
-import { SCREENSHOTS_DIR } from '../types';
+import type { DeviceType } from '../../../shared/types';
+import { SCREENSHOTS_DIR } from '../../types';
 
 type GifEncoderInstance = {
   setDelay(ms: number): void;
@@ -26,12 +26,6 @@ const GIF_WIDTH = 640;
 const GIF_HEIGHT = 360;
 const GIF_DELAY_MS = 1000;
 
-/**
- * Encodes all PNG screenshots for `runID`/`deviceType` into an animated GIF at
- * `src/core/screenshots/<runID>/<deviceType>/animated.gif`, then deletes the source PNGs.
- * Returns the absolute path to the generated GIF.
- * @throws if no PNG files exist in the screenshots directory
- */
 export async function generateGif(runID: string, deviceType: DeviceType) {
   const screenshotsDir = path.resolve(SCREENSHOTS_DIR, runID, deviceType);
   const gifPath = path.resolve(screenshotsDir, ANIMATED_GIF_FILENAME);

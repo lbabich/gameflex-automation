@@ -1,4 +1,4 @@
-import type { GameEntry, RunHints } from '../../shared/types';
+import type { GameEntry, RunHints } from '../../../shared/types';
 
 const DEFAULT_STEPS = ['gameLoad', 'spinCycle'];
 

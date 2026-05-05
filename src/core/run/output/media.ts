@@ -1,11 +1,11 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { Effect } from 'effect';
-import type { DeviceType } from '../../shared/types';
-import type { InternalTestResult } from '../types';
-import { SCREENSHOTS_DIR } from '../types';
+import type { DeviceType } from '../../../shared/types';
+import type { InternalTestResult } from '../../types';
+import { SCREENSHOTS_DIR } from '../../types';
+import type { RunLoggerService } from '../run-logger.service';
 import * as gifGenerator from './gif-generator';
-import type { RunLoggerService } from './run-logger.service';
 
 export function attachScreenshotUrls(results: Partial<Record<DeviceType, InternalTestResult>>) {
   return Effect.sync(() => {
