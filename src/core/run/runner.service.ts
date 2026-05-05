@@ -6,9 +6,8 @@ import { GameNotFoundError, RunAlreadyActiveError, RunNotFoundError } from '../e
 import { FileService } from '../file-service/service';
 import { GamesService } from '../game-catalog/game-catalog.module';
 import type { InternalRunRecord } from '../types';
+import { buildCommand, ProcessExecutorService } from './executor';
 import { loadRuns, saveRuns, trimMemory } from './persistence';
-import { buildCommand } from './process/command';
-import { ProcessExecutorService } from './process/process';
 import { RunFinalizationService } from './run-finalization.service';
 import { RunLoggerService } from './run-logger.service';
 import { RunStateService } from './run-state.service';
