@@ -4,7 +4,7 @@ import * as path from 'node:path';
 import { Effect, Layer } from 'effect';
 import type { GameEntry, GameUpdates } from '../../shared/types';
 import { DuplicateGameIDError, GameNotFoundError } from '../errors';
-import { StepCacheService } from '../step-cache.service';
+import { StepCacheService } from '../step-cache/service';
 
 export class GamesService extends Effect.Tag('GamesService')<
   GamesService,

@@ -1,5 +1,5 @@
 import type { TestStep } from '../../../shared/types';
-import { GEL_EVENT, GEL_READY_TIMEOUT_MS } from '../gel-events';
+import { GEL_EVENT, GEL_READY_TIMEOUT_MS } from '../gel/events';
 import * as preLaunch from '../pre-launch';
 import { track } from './track';
 import type { SessionContext, StepDescriptor } from './types';

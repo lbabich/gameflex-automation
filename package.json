@@ -7,7 +7,7 @@
     "format": "biome format --write .",
     "lint": "biome lint --write .",
     "check": "biome check --write .",
-    "server": "tsx src/core/index.ts",
+    "server": "tsx src/core/server.ts",
     "dev": "concurrently \"npm run server\" \"vite src/dashboard\""
   },
   "devDependencies": {

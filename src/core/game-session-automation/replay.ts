@@ -1,8 +1,8 @@
 import type { Page } from '@playwright/test';
 import type { DeviceType } from '../../shared/types';
 import type { CachedStep } from '../types';
-import * as clickMarker from './click-marker';
-import * as screenshot from './screenshot';
+import * as clickMarker from './capture/click-marker';
+import * as screenshot from './capture/screenshot';
 
 export async function replaySteps(
   page: Page,

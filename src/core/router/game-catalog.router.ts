@@ -6,7 +6,7 @@ import type { DuplicateGameIDError, GameNotFoundError } from '../errors';
 import { GamesService } from '../game-catalog/game-catalog.module';
 import { RunnerService } from '../run/run.module';
 import type { AppRuntime } from '../runtime';
-import { StepCacheService } from '../step-cache.service';
+import { StepCacheService } from '../step-cache/service';
 import { DEVICE_TYPES } from '../types';
 
 const PostBody = Schema.Struct({

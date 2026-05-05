@@ -3,7 +3,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import type { Page } from '@playwright/test';
 import * as dotenv from 'dotenv';
 import type { DeviceType } from '../../../shared/types';
-import * as screenshot from '../screenshot';
+import * as screenshot from '../capture/screenshot';
 import type { ClickResult, VisionAdapter } from './loop';
 
 dotenv.config();

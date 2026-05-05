@@ -1,6 +1,6 @@
-import { GEL_EVENT } from '../gel-events';
+import * as screenshot from '../capture/screenshot';
+import { GEL_EVENT } from '../gel/events';
 import * as replay from '../replay';
-import * as screenshot from '../screenshot';
 import { makeDiscover } from './make-discover';
 import { track } from './track';
 import type { SessionContext, StepDescriptor } from './types';

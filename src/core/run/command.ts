@@ -14,7 +14,7 @@ export function buildCommand(
   const devices = deviceTypes.join(',');
   const stepsArg = steps.join(',');
 
-  let cmd = `npx tsx src/core/game-session-automation/index.ts --runID=${runID} --games=${gamesArg} --deviceTypes=${devices} --steps=${stepsArg} --outputFile=${outputFilePath}`;
+  let cmd = `npx tsx src/core/game-session-automation/runner.ts --runID=${runID} --games=${gamesArg} --deviceTypes=${devices} --steps=${stepsArg} --outputFile=${outputFilePath}`;
 
   if (hints && (hints.spinCycle || hints.gameClose)) {
     cmd += ` --hints=${Buffer.from(JSON.stringify(hints)).toString('base64')}`;

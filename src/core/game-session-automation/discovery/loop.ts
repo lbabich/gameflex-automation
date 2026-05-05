@@ -1,9 +1,9 @@
 import type { Page } from '@playwright/test';
 import type { DeviceType } from '../../../shared/types';
-import type { NodeStepCache } from '../../step-cache';
+import type { NodeStepCache } from '../../step-cache/cache';
 import type { CachedStep, Viewport } from '../../types';
-import * as clickMarker from '../click-marker';
-import * as screenshot from '../screenshot';
+import * as clickMarker from '../capture/click-marker';
+import * as screenshot from '../capture/screenshot';
 import type { SessionContext } from '../steps/types';
 import type { FailedButton } from './prompt';
 

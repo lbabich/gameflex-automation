@@ -8,7 +8,7 @@ import {
   NodeRunnerService,
   NodeRunStateService,
 } from './run/run.module';
-import { NodeStepCacheService } from './step-cache.service';
+import { NodeStepCacheService } from './step-cache/service';
 
 const ProvidedRunLoggerService = Layer.provide(NodeRunLoggerService, NodeRunStateService);
 const ProvidedNodeGamesService = Layer.provide(NodeGamesService, NodeStepCacheService);

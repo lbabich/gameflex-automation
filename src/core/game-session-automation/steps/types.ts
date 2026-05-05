@@ -1,8 +1,8 @@
 import type { Page } from '@playwright/test';
 import type { DeviceType, GameEntry, RunHints, TestStep } from '../../../shared/types';
-import type { NodeStepCache } from '../../step-cache';
+import type { NodeStepCache } from '../../step-cache/cache';
 import type { Viewport } from '../../types';
-import type { EventAccumulator } from '../event-accumulator';
+import type { EventAccumulator } from '../gel/accumulator';
 
 type SessionContext = {
   page: Page;
