@@ -1,5 +1,5 @@
 import { Effect, Layer } from 'effect';
-import type { GameEntry, GameUpdates } from '../../shared/types';
+import type { DeviceType, GameEntry, GameUpdates } from '../../shared/types';
 import { DuplicateGameIDError, GameNotFoundError } from '../errors';
 import { StepCacheService } from '../step-cache/service';
 import { disk } from './disk';
@@ -21,6 +21,8 @@ export class GamesService extends Effect.Tag('GamesService')<
     update: (id: string, updates: GameUpdates) => Effect.Effect<void, GameNotFoundError>;
     delete: (id: string) => Effect.Effect<void, GameNotFoundError>;
     reorder: (ids: string[]) => Effect.Effect<void>;
+    clearAllSteps: (id: string) => Effect.Effect<void>;
+    clearSteps: (id: string, deviceType: DeviceType) => Effect.Effect<void>;
   }
 >() {}
 
@@ -100,6 +102,14 @@ export const NodeGamesService = Layer.effect(
         return Effect.sync(() => {
           return repo.reorder(ids);
         });
+      },
+
+      clearAllSteps: (id: string) => {
+        return stepCacheService.clearAllSteps(id);
+      },
+
+      clearSteps: (id: string, deviceType: DeviceType) => {
+        return stepCacheService.clearSteps(id, deviceType);
       },
     };
   }),
