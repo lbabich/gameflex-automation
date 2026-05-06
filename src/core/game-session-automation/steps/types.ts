@@ -3,6 +3,7 @@ import type { DeviceType, GameEntry, RunHints, TestStep } from '../../../shared/
 import type { NodeStepCache } from '../../step-cache/cache';
 import type { CachedStep, Viewport } from '../../types';
 import type { EventAccumulator } from '../gel/accumulator';
+import type { VisionAnalyzer } from '../vision-analyzer';
 
 export type DiscoveryContext = {
   page: Page;
@@ -12,6 +13,7 @@ export type DiscoveryContext = {
   runID: string;
   cache: NodeStepCache;
   hints?: RunHints;
+  visionAnalyzer: VisionAnalyzer;
 };
 
 export type FullStepContext = DiscoveryContext & {

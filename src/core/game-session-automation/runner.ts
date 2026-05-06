@@ -18,6 +18,7 @@ import { gameLoad } from './steps/game-load';
 import { spinCycle } from './steps/spin-cycle';
 import { tracker } from './steps/track';
 import type { FullStepContext, Step } from './steps/types';
+import { claudeVisionAnalyzer } from './vision-analyzer';
 
 dotenv.config();
 
@@ -184,6 +185,7 @@ function buildSessionContext(
     runID: run.runID,
     cache: run.cache,
     hints: run.hints,
+    visionAnalyzer: claudeVisionAnalyzer,
   };
 }
 

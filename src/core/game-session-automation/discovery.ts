@@ -1,16 +1,8 @@
-import * as fs from 'node:fs';
-import Anthropic from '@anthropic-ai/sdk';
-import type { Page } from '@playwright/test';
-import * as dotenv from 'dotenv';
 import type { CachedStep, Viewport } from '../types';
 import { clickMarker } from './capture/click-marker';
 import { screenshot } from './capture/screenshot';
 import type { DiscoveryContext } from './steps/types';
-
-dotenv.config();
-
-type ClickResult = { found: true; x: number; y: number; label: string } | { found: false };
-type FailedButton = { x: number; y: number; label: string };
+import type { VisionContext } from './vision-analyzer';
 
 export type DiscoverySpec<TCtx extends DiscoveryContext> = {
   stepName: string;
@@ -21,12 +13,8 @@ export type DiscoverySpec<TCtx extends DiscoveryContext> = {
   checkComplete?: (ctx: TCtx) => Promise<boolean>;
 };
 
-const VISION_MODEL = 'claude-sonnet-4-6';
-const VISION_SYSTEM = 'You are a visual UI analyst. Return ONLY valid JSON.';
 const DISCOVERY_MAX_ATTEMPTS = 20;
 const DISCOVERY_POLL_INTERVAL_MS = 1_000;
-
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 class DiscoveryError extends Error {
   constructor(message: string) {
@@ -39,7 +27,7 @@ async function discoverTarget<TCtx extends DiscoveryContext>(
   ctx: TCtx,
   spec: DiscoverySpec<TCtx>,
 ): Promise<void> {
-  const { page, game, viewport, deviceType, runID, hints, cache } = ctx;
+  const { page, game, viewport, deviceType, runID, hints, cache, visionAnalyzer } = ctx;
 
   const cached = cache.getSteps({ id: game.id, deviceType, viewport, stepName: spec.stepName });
 
@@ -48,7 +36,7 @@ async function discoverTarget<TCtx extends DiscoveryContext>(
   }
 
   const hint = spec.getHint(hints);
-  const allFailedButtons: FailedButton[] = [];
+  const allFailedButtons: Array<{ x: number; y: number; label: string }> = [];
   const preTargetSteps: CachedStep[] = [];
 
   const commit = () => {
@@ -67,8 +55,20 @@ async function discoverTarget<TCtx extends DiscoveryContext>(
       return;
     }
 
-    const prompt = buildPrompt(spec, viewport, hint, allFailedButtons);
-    const result = await analyzeScreenshot(page, runID, deviceType, prompt, attempt);
+    const screenshotPath = await screenshot.snap(
+      page,
+      `${runID}/${deviceType}/discovery-${attempt}.png`,
+    );
+
+    const visionContext: VisionContext = {
+      viewport,
+      hint,
+      failedButtons: allFailedButtons,
+      defaultInstructions: spec.defaultInstructions,
+      failureContext: spec.failureContext,
+    };
+
+    const result = await visionAnalyzer.analyze(screenshotPath, visionContext);
 
     if (result.found) {
       const waitMs = Date.now() - lastClickTime;
@@ -99,92 +99,6 @@ async function discoverTarget<TCtx extends DiscoveryContext>(
   throw new DiscoveryError(
     `Could not find target for '${spec.stepName}' on ${game.name} (${game.desktopGameID}) after ${DISCOVERY_MAX_ATTEMPTS} attempts. See src/core/data/screenshots/${runID}/${deviceType}/discovery-failed.png`,
   );
-}
-
-function buildPrompt<TCtx extends DiscoveryContext>(
-  spec: DiscoverySpec<TCtx>,
-  viewport: Viewport,
-  hint: string | undefined,
-  failedButtons: FailedButton[],
-): string {
-  const defaultInstructions = spec.defaultInstructions(viewport);
-
-  if (hint) {
-    let prompt = `OPERATOR INSTRUCTION (highest priority — this overrides the default guidance below):\n${hint}\n\nApply the operator instruction above first. If it specifies a sequence of steps, follow them in order and do not skip ahead — re-clicking a previously clicked button is correct if the sequence calls for it. If it specifies constraints or exclusions, honour them while using the default guidance below for anything not covered.\n\n---\n\n${defaultInstructions}`;
-
-    if (failedButtons.length > 0) {
-      const list = failedButtons
-        .map((b, i) => {
-          return `  ${i + 1}. "${b.label}" at (${b.x}, ${b.y})`;
-        })
-        .join('\n');
-
-      prompt += `\n\nClicks made so far this session (use these to track your position in any sequence — the operator instruction may require revisiting some of them):\n${list}`;
-    }
-
-    return prompt;
-  }
-
-  let prompt = defaultInstructions;
-
-  if (failedButtons.length > 0) {
-    const list = failedButtons
-      .map((b) => {
-        return `- "${b.label}" at (${b.x}, ${b.y})`;
-      })
-      .join('\n');
-
-    prompt += `\n\n${spec.failureContext(list)}`;
-  }
-
-  return prompt;
-}
-
-async function analyzeScreenshot(
-  page: Page,
-  runID: string,
-  deviceType: string,
-  prompt: string,
-  attempt: number,
-): Promise<ClickResult> {
-  const path = await screenshot.snap(page, `${runID}/${deviceType}/discovery-${attempt}.png`);
-
-  return queryVision(path, prompt);
-}
-
-async function queryVision(screenshotPath: string, prompt: string): Promise<ClickResult> {
-  const base64Image = fs.readFileSync(screenshotPath).toString('base64');
-
-  const response = await client.messages.create({
-    model: VISION_MODEL,
-    max_tokens: 512,
-    system: VISION_SYSTEM,
-    messages: [
-      {
-        role: 'user',
-        content: [
-          {
-            type: 'image',
-            source: { type: 'base64', media_type: 'image/png', data: base64Image },
-          },
-          { type: 'text', text: prompt },
-        ],
-      },
-    ],
-  });
-
-  const text = response.content[0].type === 'text' ? response.content[0].text : '';
-  const jsonStart = text.lastIndexOf('{');
-
-  if (jsonStart !== -1) {
-    try {
-      return JSON.parse(text.slice(jsonStart).trim()) as ClickResult;
-    } catch {
-      // fall through to throw below
-    }
-  }
-
-  throw new Error(`Claude returned non-JSON: ${text.slice(0, 200)}`);
 }
 
 export const discovery = { DiscoveryError, discoverTarget };
