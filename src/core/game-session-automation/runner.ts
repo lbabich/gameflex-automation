@@ -12,10 +12,7 @@ import { screenshot } from './capture/screenshot';
 import type { EventAccumulator } from './gel/accumulator';
 import { accumulator } from './gel/accumulator';
 import { replay } from './replay';
-import { audioToggle } from './steps/audio-toggle';
-import { gameClose } from './steps/game-close';
-import { gameLoad } from './steps/game-load';
-import { spinCycle } from './steps/spin-cycle';
+import { stepRegistry } from './steps/registry';
 import { tracker } from './steps/track';
 import type { FullStepContext, Step } from './steps/types';
 import { claudeVisionAnalyzer } from './vision-analyzer';
@@ -45,29 +42,12 @@ type StepOutcome = {
 const VIEWPORT: Viewport = { width: 1280, height: 720 };
 const POST_RUN_BUFFER_MS = 5_000;
 
-const DEFAULT_STEPS = ['gameLoad', 'spinCycle', 'audioToggle', 'gameClose'];
-
-const STEP_REGISTRY: Record<string, Step<FullStepContext>> = {
-  gameLoad,
-  spinCycle,
-  audioToggle,
-  gameClose,
-};
-
 async function main() {
   const { runID, selectedGames, deviceTypes, steps, hints, outputFile } = parseArgs();
   const diskStore = disk.createDiskStore();
   const stepCache = cache.createStepCache(diskStore);
 
-  const resolvedSteps = steps.map((name) => {
-    const step = STEP_REGISTRY[name];
-
-    if (!step) {
-      throw new Error(`Unknown step '${name}'`);
-    }
-
-    return step;
-  });
+  const resolvedSteps = stepRegistry.resolveSteps(steps);
 
   const browser = await chromium.launch({ headless: false });
 
@@ -110,7 +90,7 @@ function parseArgs() {
   let runID = '';
   let selectedGames: GameEntry[] = [];
   let deviceTypes: DeviceType[] = [];
-  let steps = DEFAULT_STEPS;
+  let steps = stepRegistry.DEFAULT_STEPS;
   let hints: RunHints = {};
   let outputFile = '';
 
@@ -141,7 +121,7 @@ async function runGame(context: GameRunContext, run: GameRunOptions): Promise<In
   const { page, browserContext } = await openSession(context.browser, context.viewport);
   const eventAccumulator = accumulator.createEventAccumulator(page);
   const ctx = buildSessionContext(page, eventAccumulator, context, run);
-  const plannedSteps = planSteps(run.steps);
+  const plannedSteps = stepRegistry.planSteps(run.steps);
   const startTime = Date.now();
 
   const outcome = await executeSteps(ctx, run.steps);
@@ -150,7 +130,7 @@ async function runGame(context: GameRunContext, run: GameRunOptions): Promise<In
 
   const duration = Date.now() - startTime;
   const logs = eventAccumulator.getAll();
-  const allSteps = mergeSteps(plannedSteps, outcome.collectedSteps);
+  const allSteps = stepRegistry.mergeSteps(plannedSteps, outcome.collectedSteps);
 
   return buildResult(context.game, duration, logs, allSteps, outcome);
 }
@@ -187,19 +167,6 @@ function buildSessionContext(
     hints: run.hints,
     visionAnalyzer: claudeVisionAnalyzer,
   };
-}
-
-function planSteps(steps: Step<FullStepContext>[]): TestStep[] {
-  return steps.flatMap((step) => {
-    return step.plan.map((descriptor) => {
-      return {
-        title: descriptor.title,
-        duration: 0,
-        status: 'skipped' as const,
-        optional: descriptor.optional,
-      };
-    });
-  });
 }
 
 async function executeSteps(
@@ -275,25 +242,6 @@ function buildResult(
     logs,
     steps: allSteps,
   };
-}
-
-function mergeSteps(planned: TestStep[], actual: TestStep[]): TestStep[] {
-  const result = [...planned];
-
-  for (const step of actual) {
-    const planTitle = step.title.replace(' (cached)', '');
-    const idx = result.findIndex((s) => {
-      return s.title === planTitle;
-    });
-
-    if (idx >= 0) {
-      result[idx] = step;
-    } else {
-      result.push(step);
-    }
-  }
-
-  return result;
 }
 
 async function takePostRunSnapshots(page: Page, runID: string, deviceType: DeviceType) {
