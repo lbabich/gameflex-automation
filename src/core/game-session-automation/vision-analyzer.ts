@@ -11,8 +11,8 @@ export type VisionContext = {
   viewport: Viewport;
   hint: string | undefined;
   failedButtons: ReadonlyArray<{ x: number; y: number; label: string }>;
-  defaultInstructions: (viewport: Viewport) => string;
-  failureContext: (list: string) => string;
+  instructions: (viewport: Viewport) => string;
+  failureInstructions: string;
 };
 
 export type VisionAnalyzer = {
@@ -61,11 +61,11 @@ async function analyze(screenshotPath: string, context: VisionContext): Promise<
 }
 
 function buildPrompt(context: VisionContext): string {
-  const { viewport, hint, failedButtons, defaultInstructions, failureContext } = context;
-  const instructions = defaultInstructions(viewport);
+  const { viewport, hint, failedButtons, instructions, failureInstructions } = context;
+  const instructionText = instructions(viewport);
 
   if (hint) {
-    let prompt = `OPERATOR INSTRUCTION (highest priority — this overrides the default guidance below):\n${hint}\n\nApply the operator instruction above first. If it specifies a sequence of steps, follow them in order and do not skip ahead — re-clicking a previously clicked button is correct if the sequence calls for it. If it specifies constraints or exclusions, honour them while using the default guidance below for anything not covered.\n\n---\n\n${instructions}`;
+    let prompt = `OPERATOR INSTRUCTION (highest priority — this overrides the default guidance below):\n${hint}\n\nApply the operator instruction above first. If it specifies a sequence of steps, follow them in order and do not skip ahead — re-clicking a previously clicked button is correct if the sequence calls for it. If it specifies constraints or exclusions, honour them while using the default guidance below for anything not covered.\n\n---\n\n${instructionText}`;
 
     if (failedButtons.length > 0) {
       const list = failedButtons
@@ -80,7 +80,7 @@ function buildPrompt(context: VisionContext): string {
     return prompt;
   }
 
-  let prompt = instructions;
+  let prompt = instructionText;
 
   if (failedButtons.length > 0) {
     const list = failedButtons
@@ -89,7 +89,7 @@ function buildPrompt(context: VisionContext): string {
       })
       .join('\n');
 
-    prompt += `\n\n${failureContext(list)}`;
+    prompt += `\n\n${failureInstructions.replace('{failedList}', list)}`;
   }
 
   return prompt;
