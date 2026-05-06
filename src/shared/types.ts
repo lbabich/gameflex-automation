@@ -38,6 +38,7 @@ export type RunRecord = {
   durationMs?: number;
   results: Partial<Record<DeviceType, TestResult>>;
   playwrightErrors: string[];
+  parseError?: string;
   logs: string[];
 };
 
