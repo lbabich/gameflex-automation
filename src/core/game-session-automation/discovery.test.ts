@@ -1,3 +1,4 @@
+import type { Page } from '@playwright/test';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { GameEntry } from '../../shared/types';
 import type { NodeStepCache } from '../step-cache/cache';
@@ -39,7 +40,7 @@ function makePage() {
   return {
     mouse: { click: vi.fn().mockResolvedValue(undefined) },
     waitForTimeout: vi.fn().mockResolvedValue(undefined),
-  };
+  } as unknown as Page;
 }
 
 function makeCache(hit = false): NodeStepCache {
