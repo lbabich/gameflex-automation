@@ -1,19 +1,16 @@
 import { Effect, Layer, type ParseResult } from 'effect';
 import type { RunStatus } from '../../shared/types';
 import { FileService } from '../file-service/service';
-import type { ChildProcessOutput, InternalRunRecord } from '../types';
+import type { ChildProcessOutput } from '../types';
 import { media } from './output/media';
 import { outputParser } from './output/output-parser';
 import { RunLoggerService } from './run-logger.service';
+import { RunStateManagerService } from './run-state.manager';
 
 export class RunFinalizationService extends Effect.Tag('RunFinalizationService')<
   RunFinalizationService,
   {
-    finalize: (
-      record: InternalRunRecord,
-      code: number,
-      outputFilePath: string,
-    ) => Effect.Effect<InternalRunRecord>;
+    finalize: (runID: string, code: number, outputFilePath: string) => Effect.Effect<void>;
   }
 >() {}
 
@@ -22,11 +19,16 @@ export const NodeRunFinalizationService = Layer.effect(
   Effect.gen(function* () {
     const fileService = yield* FileService;
     const runLoggerService = yield* RunLoggerService;
+    const stateManager = yield* RunStateManagerService;
 
     return {
-      finalize: (record: InternalRunRecord, code: number, outputFilePath: string) => {
+      finalize: (runID: string, code: number, outputFilePath: string) => {
         return Effect.gen(function* () {
-          const { runID } = record;
+          const record = stateManager.get(runID);
+
+          if (!record) {
+            return;
+          }
 
           const outputJson = yield* fileService.read(outputFilePath).pipe(
             Effect.orElse(() => {
@@ -37,37 +39,48 @@ export const NodeRunFinalizationService = Layer.effect(
           const finishedAt = new Date().toISOString();
           const durationMs = new Date(finishedAt).getTime() - new Date(record.startedAt).getTime();
 
-          let updated: InternalRunRecord = {
-            ...record,
-            rawOutput: outputJson,
-            finishedAt,
-            durationMs,
-          };
+          let parsedResults: ChildProcessOutput['results'] = {};
+          let playwrightErrors: readonly string[] = [];
+          let resultsStatus: RunStatus = 'cancelled';
+          let parseError: string | undefined;
 
           if (record.status !== 'cancelled') {
             const parsed = yield* parseOutput(runLoggerService, runID, outputJson, code).pipe(
               Effect.catchTag('ParseError', (error) => {
                 return Effect.succeed({
                   results: {} as ChildProcessOutput['results'],
-                  playwrightErrors: [] as string[],
+                  playwrightErrors: [] as readonly string[],
                   status: 'error' as RunStatus,
                   parseError: error.message,
                 });
               }),
             );
 
-            updated = { ...updated, ...parsed };
+            parsedResults = parsed.results;
+            playwrightErrors = parsed.playwrightErrors;
+            resultsStatus = parsed.status;
+            parseError = parsed.parseError;
           }
 
-          yield* media.attachScreenshotUrls(updated.results);
+          const resultsWithUrls = media.computeScreenshotUrls(parsedResults);
 
-          const mediaResult = yield* media.runMediaPipeline(
+          const { mediaResult, results: finalResults } = yield* media.runMediaPipeline(
             runLoggerService,
             runID,
-            updated.results,
+            resultsWithUrls,
           );
 
-          return { ...updated, mediaResult };
+          stateManager.attachResults(runID, {
+            rawOutput: outputJson,
+            finishedAt,
+            durationMs,
+            status: resultsStatus,
+            results: finalResults,
+            playwrightErrors,
+            parseError,
+          });
+
+          stateManager.attachMedia(runID, mediaResult);
         });
       },
     };

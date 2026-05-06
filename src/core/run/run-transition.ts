@@ -1,9 +1,20 @@
-import type { InternalRunRecord } from '../types';
+import type { DeviceType, RunStatus } from '../../shared/types';
+import type { InternalRunRecord, InternalTestResult, MediaResult } from '../types';
 
 export type RunEvent =
   | { type: 'Cancelled' }
   | { type: 'FiberError' }
-  | { type: 'Finalized'; record: InternalRunRecord };
+  | {
+      type: 'ResultsAttached';
+      rawOutput: string;
+      finishedAt: string;
+      durationMs: number;
+      status: RunStatus;
+      results: Readonly<Partial<Record<DeviceType, InternalTestResult>>>;
+      playwrightErrors: readonly string[];
+      parseError?: string;
+    }
+  | { type: 'MediaAttached'; mediaResult: MediaResult };
 
 class InvalidTransitionError extends Error {
   constructor(status: string, event: string) {
@@ -41,12 +52,24 @@ function transition(run: InternalRunRecord, event: RunEvent): InternalRunRecord 
         durationMs: new Date(finishedAt).getTime() - new Date(run.startedAt).getTime(),
       };
     }
-    case 'Finalized': {
+    case 'ResultsAttached': {
       if (run.status !== 'running' && run.status !== 'cancelled') {
         throw new InvalidTransitionError(run.status, event.type);
       }
 
-      return event.record;
+      return {
+        ...run,
+        rawOutput: event.rawOutput,
+        finishedAt: event.finishedAt,
+        durationMs: event.durationMs,
+        status: event.status,
+        results: event.results,
+        playwrightErrors: event.playwrightErrors,
+        ...(event.parseError !== undefined && { parseError: event.parseError }),
+      };
+    }
+    case 'MediaAttached': {
+      return { ...run, mediaResult: event.mediaResult };
     }
   }
 }

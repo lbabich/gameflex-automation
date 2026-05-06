@@ -234,8 +234,8 @@ function makeTestRuntime(runsJson = '[]', gameEntries: GameEntry[] = []) {
   });
 
   const testRunFinalizationService = Layer.succeed(RunFinalizationService, {
-    finalize: (record) => {
-      return Effect.succeed(record);
+    finalize: () => {
+      return Effect.succeed(undefined);
     },
   });
 

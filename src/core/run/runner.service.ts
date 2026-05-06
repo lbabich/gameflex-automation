@@ -229,15 +229,13 @@ function finalizeRun(
   const { runID, code, outputFilePath } = result;
 
   return Effect.gen(function* () {
-    const record = runStateManager.get(runID);
+    yield* runFinalizationService.finalize(runID, code, outputFilePath);
 
-    if (!record) {
+    const finalized = runStateManager.get(runID);
+
+    if (!finalized) {
       return;
     }
-
-    const finalized = yield* runFinalizationService.finalize(record, code, outputFilePath);
-
-    runStateManager.finalize(runID, finalized);
 
     yield* saveRunsIgnoreError(fileService, runStateManager.snapshot(), runLoggerService, runID);
     yield* logSummary(runLoggerService, finalized);

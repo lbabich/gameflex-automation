@@ -1,8 +1,8 @@
 import { Effect, Fiber, Layer } from 'effect';
 import { RunNotFoundError } from '../errors';
-import type { InternalRunRecord } from '../types';
+import type { InternalRunRecord, MediaResult } from '../types';
 import { persistence } from './persistence';
-import { runTransition } from './run-transition';
+import { type RunEvent, runTransition } from './run-transition';
 
 export class RunStateManager {
   private runs = new Map<string, InternalRunRecord>();
@@ -27,14 +27,28 @@ export class RunStateManager {
     this.activeFibers.set(runID, fiber);
   }
 
-  finalize(runID: string, record: InternalRunRecord): void {
-    const current = this.runs.get(runID);
+  attachResults(
+    runID: string,
+    event: Omit<Extract<RunEvent, { type: 'ResultsAttached' }>, 'type'>,
+  ): void {
+    const record = this.runs.get(runID);
 
-    if (current) {
-      this.runs.set(runID, runTransition.transition(current, { type: 'Finalized', record }));
+    if (record) {
+      this.runs.set(runID, runTransition.transition(record, { type: 'ResultsAttached', ...event }));
+    }
+  }
+
+  attachMedia(runID: string, mediaResult: MediaResult): void {
+    const record = this.runs.get(runID);
+
+    if (record) {
+      this.runs.set(
+        runID,
+        runTransition.transition(record, { type: 'MediaAttached', mediaResult }),
+      );
     }
 
-    this.deactivate(runID, record.gameIDs);
+    this.deactivate(runID, record?.gameIDs ?? []);
     persistence.trimMemory(this.runs);
   }
 
@@ -71,7 +85,11 @@ export class RunStateManager {
   }
 
   appendLog(runID: string, msg: string): void {
-    this.runs.get(runID)?.logs.push(msg);
+    const record = this.runs.get(runID);
+
+    if (record) {
+      this.runs.set(runID, { ...record, logs: [...record.logs, msg] });
+    }
   }
 
   get(runID: string): InternalRunRecord | undefined {
@@ -90,7 +108,7 @@ export class RunStateManager {
     return this.runs;
   }
 
-  private deactivate(runID: string, gameIDs: string[]): void {
+  private deactivate(runID: string, gameIDs: readonly string[]): void {
     this.activeFibers.delete(runID);
 
     for (const id of gameIDs) {

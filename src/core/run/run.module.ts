@@ -6,7 +6,10 @@ import { NodeRunStateManager } from './run-state.manager';
 import { NodeRunnerService, RunnerService } from './runner.service';
 
 const RunLoggerLayer = Layer.provide(NodeRunLoggerService, NodeRunStateManager);
-const RunFinalizationLayer = Layer.provide(NodeRunFinalizationService, RunLoggerLayer);
+const RunFinalizationLayer = Layer.provide(
+  NodeRunFinalizationService,
+  Layer.merge(RunLoggerLayer, NodeRunStateManager),
+);
 
 export const RunDomainLayer = Layer.provide(
   NodeRunnerService,

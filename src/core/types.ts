@@ -1,7 +1,7 @@
 import type { DeviceType, RunRecord, TestResult } from '../shared/types';
 
-export type InternalTestResult = TestResult & {
-  screenshotPaths?: readonly string[];
+export type InternalTestResult = Readonly<TestResult> & {
+  readonly screenshotPaths?: readonly string[];
 };
 
 export type ChildProcessOutput = {
@@ -16,11 +16,11 @@ export type MediaDeviceResult = {
 
 export type MediaResult = Partial<Record<DeviceType, MediaDeviceResult>>;
 
-export type InternalRunRecord = Omit<RunRecord, 'results'> & {
-  rawOutput?: string;
-  results: Partial<Record<DeviceType, InternalTestResult>>;
-  mediaResult?: MediaResult;
-  logs: string[];
+export type InternalRunRecord = Readonly<Omit<RunRecord, 'results' | 'logs'>> & {
+  readonly rawOutput?: string;
+  readonly results: Readonly<Partial<Record<DeviceType, InternalTestResult>>>;
+  readonly mediaResult?: MediaResult;
+  readonly logs: readonly string[];
 };
 
 export type Viewport = {
