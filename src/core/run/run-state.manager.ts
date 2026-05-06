@@ -31,10 +31,7 @@ export class RunStateManager {
     const current = this.runs.get(runID);
 
     if (current) {
-      this.runs.set(
-        runID,
-        runTransition.transition(current, { type: 'Finalized', record }),
-      );
+      this.runs.set(runID, runTransition.transition(current, { type: 'Finalized', record }));
     }
 
     this.deactivate(runID, record.gameIDs);

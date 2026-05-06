@@ -6,3 +6,4 @@ screenshots/
 .idea
 .playwright-mcp
 *.txt
+src/core/data/
