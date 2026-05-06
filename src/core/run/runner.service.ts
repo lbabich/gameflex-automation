@@ -39,8 +39,6 @@ type FinalizeResult = {
   outputFilePath: string;
 };
 
-const DEFAULT_STEPS = ['gameLoad', 'spinCycle'];
-
 export class RunnerService extends Effect.Tag('RunnerService')<
   RunnerService,
   {
@@ -119,15 +117,20 @@ function startRun(runStateManager: RunState, services: StartRunServices, params:
     runStateManager.register(runID, record, gameIDs);
 
     const outputFilePath = path.resolve('src/core/data/run-outputs', `${runID}.json`);
-    const cmd = buildCommand(runID, selectedGames, deviceTypes, outputFilePath, steps, hints);
 
     yield* runLoggerService.log(runID, 'runner', `Starting run ${runID}`);
-    yield* runLoggerService.log(runID, 'runner', `Command: ${cmd}`);
 
     const background = Effect.gen(function* () {
       yield* runLoggerService.log(runID, 'runner', 'Spawning playwright process');
 
-      const { code } = yield* processExecutorService.execute(cmd);
+      const { code } = yield* processExecutorService.execute({
+        runID,
+        games: selectedGames,
+        deviceTypes,
+        outputFilePath,
+        steps,
+        hints,
+      });
 
       yield* runLoggerService.log(runID, 'runner', `Process exited with code ${code}`);
 
@@ -137,7 +140,7 @@ function startRun(runStateManager: RunState, services: StartRunServices, params:
         { runID, code, outputFilePath },
       );
     }).pipe(
-      Effect.catchAll((error: never) => {
+      Effect.catchAll((error) => {
         return handleFiberError(runStateManager, runLoggerService, runID, error);
       }),
     );
@@ -197,27 +200,6 @@ function createRecord(runID: string, gameIDs: string[]): InternalRunRecord {
     playwrightErrors: [],
     rawOutput: '',
   };
-}
-
-function buildCommand(
-  runID: string,
-  games: GameEntry[],
-  deviceTypes: string[],
-  outputFilePath: string,
-  steps: string[] = DEFAULT_STEPS,
-  hints?: RunHints,
-) {
-  const gamesArg = Buffer.from(JSON.stringify(games)).toString('base64');
-  const devices = deviceTypes.join(',');
-  const stepsArg = steps.join(',');
-
-  let cmd = `npx tsx src/core/game-session-automation/runner.ts --runID=${runID} --games=${gamesArg} --deviceTypes=${devices} --steps=${stepsArg} --outputFile=${outputFilePath}`;
-
-  if (hints?.spinCycle || hints?.gameClose) {
-    cmd += ` --hints=${Buffer.from(JSON.stringify(hints)).toString('base64')}`;
-  }
-
-  return cmd;
 }
 
 function finalizeRun(

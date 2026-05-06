@@ -1,8 +1,8 @@
 import { randomUUID } from 'node:crypto';
-import { Effect, Layer, ManagedRuntime } from 'effect';
+import { Duration, Effect, Layer, ManagedRuntime } from 'effect';
 import { describe, expect, it } from 'vitest';
 import type { GameEntry, RunRecord } from '../../../shared/types';
-import { GameNotFoundError, RunNotFoundError } from '../../errors';
+import { GameNotFoundError, ProcessError, RunNotFoundError } from '../../errors';
 import { FileService } from '../../file-service/service';
 import { GamesService } from '../../game-catalog/game-catalog.module';
 import { ProcessExecutorService } from '../process-executor.service';
@@ -11,6 +11,7 @@ import { RunFinalizationService } from '../run-finalization.service';
 import { RunLoggerService } from '../run-logger.service';
 import { RunStateManager, RunStateManagerService } from '../run-state.manager';
 import { NodeRunnerService } from '../runner.service';
+import { TestProcessExecutorService } from './test-process-executor.service';
 
 describe('RunnerService', () => {
   describe('getRun', () => {
@@ -132,6 +133,34 @@ describe('RunnerService', () => {
     });
   });
 
+  describe('execution outcomes', () => {
+    it('transitions run to error when the process crashes', async () => {
+      const testGame = makeTestGame();
+      const runtime = makeTestRuntime(
+        '[]',
+        [testGame],
+        TestProcessExecutorService([Effect.fail(new ProcessError({ message: 'spawn failed' }))]),
+      );
+
+      await runtime.runPromise(
+        Effect.gen(function* () {
+          const SUT = yield* RunnerService;
+
+          const runRecord = yield* SUT.startRun({
+            gameIDs: [testGame.id],
+            deviceTypes: ['desktop'],
+          });
+
+          yield* Effect.sleep(Duration.millis(50));
+
+          const result = yield* SUT.getRun(runRecord.runID);
+
+          expect(result.status).toBe('error');
+        }),
+      );
+    });
+  });
+
   describe('startRun + cancelRun', () => {
     it('startRun returns a record with running status', async () => {
       const testGame = makeTestGame();
@@ -179,7 +208,11 @@ describe('RunnerService', () => {
   });
 });
 
-function makeTestRuntime(runsJson = '[]', gameEntries: GameEntry[] = []) {
+function makeTestRuntime(
+  runsJson = '[]',
+  gameEntries: GameEntry[] = [],
+  executorLayer?: Layer.Layer<ProcessExecutorService>,
+) {
   const testFileService = Layer.succeed(FileService, {
     read: () => {
       return Effect.succeed(runsJson);
@@ -227,11 +260,13 @@ function makeTestRuntime(runsJson = '[]', gameEntries: GameEntry[] = []) {
     },
   });
 
-  const testProcessExecutorService = Layer.succeed(ProcessExecutorService, {
-    execute: () => {
-      return Effect.succeed({ code: 0, stdout: '' });
-    },
-  });
+  const testProcessExecutorService =
+    executorLayer ??
+    Layer.succeed(ProcessExecutorService, {
+      execute: () => {
+        return Effect.succeed({ code: 0 });
+      },
+    });
 
   const testRunFinalizationService = Layer.succeed(RunFinalizationService, {
     finalize: () => {

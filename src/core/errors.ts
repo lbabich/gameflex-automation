@@ -29,3 +29,7 @@ export class FileWriteError extends Data.TaggedError('FileWriteError')<{
   path: string;
   message: string;
 }> {}
+
+export class ProcessError extends Data.TaggedError('ProcessError')<{
+  message: string;
+}> {}
