@@ -1,9 +1,8 @@
-import { Effect, Layer } from 'effect';
+import { Effect, Layer, type ParseResult } from 'effect';
 import type { RunStatus } from '../../shared/types';
 import { FileService } from '../file-service/service';
 import type { ChildProcessOutput, InternalRunRecord } from '../types';
 import { media } from './output/media';
-import type { OutputParseError } from './output/output-parser';
 import { outputParser } from './output/output-parser';
 import { RunLoggerService } from './run-logger.service';
 
@@ -47,12 +46,12 @@ export const NodeRunFinalizationService = Layer.effect(
 
           if (record.status !== 'cancelled') {
             const parsed = yield* parseOutput(runLoggerService, runID, outputJson, code).pipe(
-              Effect.catchTag('OutputParseError', (error) => {
+              Effect.catchTag('ParseError', (error) => {
                 return Effect.succeed({
                   results: {} as ChildProcessOutput['results'],
                   playwrightErrors: [] as string[],
                   status: 'error' as RunStatus,
-                  parseError: error.reason,
+                  parseError: error.message,
                 });
               }),
             );
@@ -82,7 +81,7 @@ function parseOutput(
   code: number,
 ): Effect.Effect<
   { results: ChildProcessOutput['results']; playwrightErrors: string[]; status: RunStatus },
-  OutputParseError
+  ParseResult.ParseError
 > {
   return Effect.gen(function* () {
     yield* runLoggerService.log(runID, 'finalize', `parsing output for run ${runID}`);
