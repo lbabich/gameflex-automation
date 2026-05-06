@@ -1,12 +1,12 @@
 import type { DeviceType, RunRecord, TestResult } from '../shared/types';
 
 export type InternalTestResult = TestResult & {
-  screenshotPaths?: string[];
+  screenshotPaths?: readonly string[];
 };
 
 export type ChildProcessOutput = {
   results: Partial<Record<DeviceType, InternalTestResult>>;
-  errors: string[];
+  errors: readonly string[];
 };
 
 export type MediaDeviceResult = {

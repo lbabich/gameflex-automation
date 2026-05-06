@@ -80,7 +80,11 @@ function parseOutput(
   outputJson: string,
   code: number,
 ): Effect.Effect<
-  { results: ChildProcessOutput['results']; playwrightErrors: string[]; status: RunStatus },
+  {
+    results: ChildProcessOutput['results'];
+    playwrightErrors: readonly string[];
+    status: RunStatus;
+  },
   ParseResult.ParseError
 > {
   return Effect.gen(function* () {

@@ -23,10 +23,10 @@ export type TestResult = {
   duration: number;
   error?: string;
   failedStep?: string;
-  logs: string[];
-  steps?: TestStep[];
+  logs: readonly string[];
+  steps?: readonly TestStep[];
   gifUrl?: string;
-  screenshotUrls?: string[];
+  screenshotUrls?: readonly string[];
 };
 
 export type RunRecord = {
@@ -37,7 +37,7 @@ export type RunRecord = {
   finishedAt?: string;
   durationMs?: number;
   results: Partial<Record<DeviceType, TestResult>>;
-  playwrightErrors: string[];
+  playwrightErrors: readonly string[];
   parseError?: string;
   logs: string[];
 };
