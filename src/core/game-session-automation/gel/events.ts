@@ -17,4 +17,6 @@ const GEL_EVENT = {
 
 const GEL_READY_TIMEOUT_MS = 90_000;
 
+export type GelEvent = (typeof GEL_EVENT)[keyof typeof GEL_EVENT];
+
 export const gelEvents = { GEL_EVENT, GEL_READY_TIMEOUT_MS };

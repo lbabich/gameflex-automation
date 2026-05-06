@@ -1,6 +1,7 @@
 import type { EventAccumulator } from '../gel/accumulator';
+import type { GelEvent } from '../gel/events';
 
-function onGelEvent(event: string, timeoutMs: number) {
+function onGelEvent(event: GelEvent, timeoutMs: number) {
   return (ctx: { accumulator: EventAccumulator }, _x: number, _y: number): Promise<boolean> => {
     return ctx.accumulator
       .waitFor(event, timeoutMs)
@@ -13,7 +14,7 @@ function onGelEvent(event: string, timeoutMs: number) {
   };
 }
 
-function gelCheck(event: string) {
+function gelCheck(event: GelEvent) {
   return (ctx: { accumulator: EventAccumulator }): Promise<boolean> => {
     return ctx.accumulator
       .waitFor(event, 0)

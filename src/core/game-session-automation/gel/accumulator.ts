@@ -1,7 +1,8 @@
 import type { Page } from '@playwright/test';
+import type { GelEvent } from './events';
 
 export type EventAccumulator = {
-  waitFor: (eventName: string, timeout: number) => Promise<void>;
+  waitFor: (eventName: GelEvent, timeout: number) => Promise<void>;
   getAll: () => string[];
 };
 
@@ -26,7 +27,7 @@ function createEventAccumulator(page: Page): EventAccumulator {
   });
 
   return {
-    waitFor: (eventName: string, timeout: number) => {
+    waitFor: (eventName: GelEvent, timeout: number) => {
       if (
         captured.some((line) => {
           return line.includes(eventName);
