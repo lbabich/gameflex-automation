@@ -21,22 +21,6 @@ export class ProcessExecutorService extends Effect.Tag('ProcessExecutorService')
   }
 >() {}
 
-function buildCommand(args: RunArgs): string {
-  const { runID, games, deviceTypes, outputFilePath, steps = DEFAULT_STEPS, hints } = args;
-
-  const gamesArg = Buffer.from(JSON.stringify(games)).toString('base64');
-  const devices = deviceTypes.join(',');
-  const stepsArg = steps.join(',');
-
-  let cmd = `npx tsx src/core/game-session-automation/runner.ts --runID=${runID} --games=${gamesArg} --deviceTypes=${devices} --steps=${stepsArg} --outputFile=${outputFilePath}`;
-
-  if (hints?.spinCycle || hints?.gameClose) {
-    cmd += ` --hints=${Buffer.from(JSON.stringify(hints)).toString('base64')}`;
-  }
-
-  return cmd;
-}
-
 export const NodeProcessExecutorService = Layer.succeed(ProcessExecutorService, {
   execute: (args: RunArgs) => {
     return Effect.async<{ code: number }, ProcessError>((resume) => {
@@ -95,3 +79,19 @@ export const NodeProcessExecutorService = Layer.succeed(ProcessExecutorService, 
     });
   },
 });
+
+function buildCommand(args: RunArgs): string {
+  const { runID, games, deviceTypes, outputFilePath, steps = DEFAULT_STEPS, hints } = args;
+
+  const gamesArg = Buffer.from(JSON.stringify(games)).toString('base64');
+  const devices = deviceTypes.join(',');
+  const stepsArg = steps.join(',');
+
+  let cmd = `npx tsx src/core/game-session-automation/runner.ts --runID=${runID} --games=${gamesArg} --deviceTypes=${devices} --steps=${stepsArg} --outputFile=${outputFilePath}`;
+
+  if (hints?.spinCycle || hints?.gameClose) {
+    cmd += ` --hints=${Buffer.from(JSON.stringify(hints)).toString('base64')}`;
+  }
+
+  return cmd;
+}

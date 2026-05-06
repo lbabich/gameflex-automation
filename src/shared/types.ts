@@ -39,7 +39,7 @@ export type RunRecord = {
   results: Partial<Record<DeviceType, TestResult>>;
   playwrightErrors: readonly string[];
   parseError?: string;
-  logs: string[];
+  logs: readonly string[];
 };
 
 export type GameEntry = {
