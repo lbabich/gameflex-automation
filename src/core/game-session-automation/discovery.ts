@@ -13,6 +13,8 @@ export type DiscoverySpec<TCtx extends DiscoveryContext> = {
   checkComplete?: (ctx: TCtx) => Promise<boolean>;
 };
 
+type DiscoveryDecision = 'commit' | 'falsePositive' | 'continue';
+
 const DISCOVERY_MAX_ATTEMPTS = 20;
 const DISCOVERY_POLL_INTERVAL_MS = 1_000;
 
@@ -105,8 +107,6 @@ async function discoverTarget<TCtx extends DiscoveryContext>(
     `Could not find target for '${spec.stepName}' on ${game.name} (${game.desktopGameID}) after ${DISCOVERY_MAX_ATTEMPTS} attempts. See src/core/data/screenshots/${runID}/${deviceType}/discovery-failed.png`,
   );
 }
-
-type DiscoveryDecision = 'commit' | 'falsePositive' | 'continue';
 
 function decide(result: ClickResult, verified: boolean): DiscoveryDecision {
   if (result.found && verified) {
