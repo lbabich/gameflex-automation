@@ -4,7 +4,7 @@ import { discovery } from '../discovery';
 import { gelEvents } from '../gel/events';
 import { stepUtils } from './step-utils';
 import { tracker } from './track';
-import type { SessionContext, StepDescriptor } from './types';
+import type { FullStepContext, Step, StepDescriptor } from './types';
 
 const SPIN_START_WAIT_MS = 15_000;
 const SPIN_END_WAIT_MS = 15_000;
@@ -17,7 +17,7 @@ const plan: StepDescriptor[] = [
   { title: `Spin end: ${gelEvents.GEL_EVENT.SPIN_END}` },
 ];
 
-const discover = async (ctx: SessionContext) => {
+const discover = async (ctx: FullStepContext) => {
   await discovery.discoverTarget(ctx, {
     stepName,
     defaultInstructions: ({ width, height }) => {
@@ -34,7 +34,7 @@ const discover = async (ctx: SessionContext) => {
   });
 };
 
-async function run(ctx: SessionContext, _cachedSteps: CachedStep[] | null) {
+async function run(ctx: FullStepContext, _cachedSteps: CachedStep[] | null) {
   const { page, accumulator, runID, deviceType } = ctx;
   const spinStartPromise = accumulator.waitFor(gelEvents.GEL_EVENT.SPIN_START, SPIN_START_WAIT_MS);
 
@@ -55,4 +55,4 @@ async function run(ctx: SessionContext, _cachedSteps: CachedStep[] | null) {
   return [spinStartStep, spinEndStep];
 }
 
-export const spinCycle = { stepName, plan, discover, run };
+export const spinCycle: Step<FullStepContext> = { stepName, plan, discover, run };

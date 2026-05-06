@@ -4,9 +4,8 @@ import type { NodeStepCache } from '../../step-cache/cache';
 import type { CachedStep, Viewport } from '../../types';
 import type { EventAccumulator } from '../gel/accumulator';
 
-export type SessionContext = {
+export type DiscoveryContext = {
   page: Page;
-  accumulator: EventAccumulator;
   game: GameEntry;
   viewport: Viewport;
   deviceType: DeviceType;
@@ -15,14 +14,18 @@ export type SessionContext = {
   hints?: RunHints;
 };
 
+export type FullStepContext = DiscoveryContext & {
+  accumulator: EventAccumulator;
+};
+
 export type StepDescriptor = {
   title: string;
   optional?: boolean;
 };
 
-export type Step = {
+export type Step<TCtx> = {
   plan: StepDescriptor[];
   stepName: string;
-  discover: (ctx: SessionContext) => Promise<void>;
-  run: (ctx: SessionContext, cachedSteps: CachedStep[] | null) => Promise<TestStep[]>;
+  discover: (ctx: TCtx) => Promise<void>;
+  run: (ctx: TCtx, cachedSteps: CachedStep[] | null) => Promise<TestStep[]>;
 };

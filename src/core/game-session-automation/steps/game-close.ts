@@ -4,7 +4,7 @@ import { discovery } from '../discovery';
 import { gelEvents } from '../gel/events';
 import { stepUtils } from './step-utils';
 import { tracker } from './track';
-import type { SessionContext, StepDescriptor } from './types';
+import type { FullStepContext, Step, StepDescriptor } from './types';
 
 const GAME_CLOSE_TIMEOUT_MS = 10_000;
 const CLOSE_VERIFY_TIMEOUT_MS = 3_000;
@@ -13,7 +13,7 @@ const stepName = 'gameClose';
 
 const plan: StepDescriptor[] = [{ title: `Game close: ${gelEvents.GEL_EVENT.GAME_CLOSE}` }];
 
-const discover = async (ctx: SessionContext) => {
+const discover = async (ctx: FullStepContext) => {
   await discovery.discoverTarget(ctx, {
     stepName,
     defaultInstructions: ({ width, height }) => {
@@ -30,7 +30,7 @@ const discover = async (ctx: SessionContext) => {
   });
 };
 
-async function run(ctx: SessionContext, _cachedSteps: CachedStep[] | null) {
+async function run(ctx: FullStepContext, _cachedSteps: CachedStep[] | null) {
   const { page, accumulator, runID, deviceType } = ctx;
   const gameClosePromise = accumulator.waitFor(
     gelEvents.GEL_EVENT.GAME_CLOSE,
@@ -48,4 +48,4 @@ async function run(ctx: SessionContext, _cachedSteps: CachedStep[] | null) {
   return [closeStep];
 }
 
-export const gameClose = { stepName, plan, discover, run };
+export const gameClose: Step<FullStepContext> = { stepName, plan, discover, run };

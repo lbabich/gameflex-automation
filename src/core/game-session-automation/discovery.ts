@@ -5,20 +5,20 @@ import * as dotenv from 'dotenv';
 import type { CachedStep, Viewport } from '../types';
 import { clickMarker } from './capture/click-marker';
 import { screenshot } from './capture/screenshot';
-import type { SessionContext } from './steps/types';
+import type { DiscoveryContext } from './steps/types';
 
 dotenv.config();
 
 type ClickResult = { found: true; x: number; y: number; label: string } | { found: false };
 type FailedButton = { x: number; y: number; label: string };
 
-export type DiscoverySpec = {
+export type DiscoverySpec<TCtx extends DiscoveryContext> = {
   stepName: string;
   defaultInstructions: (viewport: Viewport) => string;
   failureContext: (list: string) => string;
-  getHint: (hints: SessionContext['hints']) => string | undefined;
-  verifyClick: (ctx: SessionContext, x: number, y: number) => Promise<boolean>;
-  checkComplete?: (ctx: SessionContext) => Promise<boolean>;
+  getHint: (hints: DiscoveryContext['hints']) => string | undefined;
+  verifyClick: (ctx: TCtx, x: number, y: number) => Promise<boolean>;
+  checkComplete?: (ctx: TCtx) => Promise<boolean>;
 };
 
 const VISION_MODEL = 'claude-sonnet-4-6';
@@ -35,7 +35,10 @@ class DiscoveryError extends Error {
   }
 }
 
-async function discoverTarget(ctx: SessionContext, spec: DiscoverySpec): Promise<void> {
+async function discoverTarget<TCtx extends DiscoveryContext>(
+  ctx: TCtx,
+  spec: DiscoverySpec<TCtx>,
+): Promise<void> {
   const { page, game, viewport, deviceType, runID, hints, cache } = ctx;
 
   const cached = cache.getSteps({ id: game.id, deviceType, viewport, stepName: spec.stepName });
@@ -98,8 +101,8 @@ async function discoverTarget(ctx: SessionContext, spec: DiscoverySpec): Promise
   );
 }
 
-function buildPrompt(
-  spec: DiscoverySpec,
+function buildPrompt<TCtx extends DiscoveryContext>(
+  spec: DiscoverySpec<TCtx>,
   viewport: Viewport,
   hint: string | undefined,
   failedButtons: FailedButton[],

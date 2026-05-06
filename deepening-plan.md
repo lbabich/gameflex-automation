@@ -4,18 +4,6 @@ Opportunities to turn shallow modules into deep ones. Ordered by the number we d
 
 ---
 
-## 4. SessionContext decomposition
-
-**Files** — `steps/types.ts`, `steps/spin-cycle.ts`, `steps/game-load.ts`, `steps/audio-toggle.ts`, `steps/game-close.ts`, `runner.ts`
-
-**Problem** — `SessionContext` has 8 fields. Each step accepts the full context even though it typically uses 2–3 fields. The interface is wider than any implementation needs, which means testing any step requires constructing the full context — including fields that step doesn't use.
-
-**Solution** — Decompose SessionContext into narrower contexts (e.g. `PageContext`, `GameContext`) and have steps declare only the context shape they need.
-
-**Benefits** — *Leverage*: callers and steps are coupled only to what they actually use. Test surface: testing a step that needs only `PageContext` doesn't require building a full 8-field SessionContext. Steps become more honest about their dependencies.
-
----
-
 ## 5. Output contract → explicit schema with typed errors
 
 **Files** — `run/output/output-parser.ts`, `run/run-finalization.service.ts`

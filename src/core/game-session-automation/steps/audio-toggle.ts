@@ -3,7 +3,7 @@ import { screenshot } from '../capture/screenshot';
 import { discovery } from '../discovery';
 import { gelEvents } from '../gel/events';
 import { tracker } from './track';
-import type { SessionContext, StepDescriptor } from './types';
+import type { FullStepContext, Step, StepDescriptor } from './types';
 
 const AUDIO_TOGGLE_WAIT_MS = 10_000;
 const AUDIO_VERIFY_TIMEOUT_MS = 3_000;
@@ -13,7 +13,7 @@ const PLAN_TITLE = `Audio toggle: ${gelEvents.GEL_EVENT.AUDIO_ENABLE} / ${gelEve
 
 const plan: StepDescriptor[] = [{ title: PLAN_TITLE, optional: true }];
 
-const discover = async (ctx: SessionContext) => {
+const discover = async (ctx: FullStepContext) => {
   try {
     await discovery.discoverTarget(ctx, {
       stepName,
@@ -54,7 +54,7 @@ const discover = async (ctx: SessionContext) => {
   }
 };
 
-async function run(ctx: SessionContext, cachedSteps: CachedStep[] | null) {
+async function run(ctx: FullStepContext, cachedSteps: CachedStep[] | null) {
   const { page, accumulator, runID, deviceType } = ctx;
   const audioButton = cachedSteps?.at(-1);
 
@@ -83,4 +83,4 @@ async function run(ctx: SessionContext, cachedSteps: CachedStep[] | null) {
   return [audioStep];
 }
 
-export const audioToggle = { stepName, plan, discover, run };
+export const audioToggle: Step<FullStepContext> = { stepName, plan, discover, run };

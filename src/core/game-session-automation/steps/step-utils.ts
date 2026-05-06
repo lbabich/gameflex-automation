@@ -1,7 +1,7 @@
-import type { SessionContext } from './types';
+import type { EventAccumulator } from '../gel/accumulator';
 
 function onGelEvent(event: string, timeoutMs: number) {
-  return (ctx: SessionContext, _x: number, _y: number): Promise<boolean> => {
+  return (ctx: { accumulator: EventAccumulator }, _x: number, _y: number): Promise<boolean> => {
     return ctx.accumulator
       .waitFor(event, timeoutMs)
       .then(() => {
@@ -14,7 +14,7 @@ function onGelEvent(event: string, timeoutMs: number) {
 }
 
 function gelCheck(event: string) {
-  return (ctx: SessionContext): Promise<boolean> => {
+  return (ctx: { accumulator: EventAccumulator }): Promise<boolean> => {
     return ctx.accumulator
       .waitFor(event, 0)
       .then(() => {

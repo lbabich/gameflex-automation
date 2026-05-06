@@ -17,7 +17,7 @@ import { gameClose } from './steps/game-close';
 import { gameLoad } from './steps/game-load';
 import { spinCycle } from './steps/spin-cycle';
 import { tracker } from './steps/track';
-import type { SessionContext, Step } from './steps/types';
+import type { FullStepContext, Step } from './steps/types';
 
 dotenv.config();
 
@@ -30,7 +30,7 @@ type GameRunContext = {
 
 type GameRunOptions = {
   runID: string;
-  steps: Step[];
+  steps: Step<FullStepContext>[];
   hints: RunHints;
   cache: NodeStepCache;
 };
@@ -46,7 +46,7 @@ const POST_RUN_BUFFER_MS = 5_000;
 
 const DEFAULT_STEPS = ['gameLoad', 'spinCycle', 'audioToggle', 'gameClose'];
 
-const STEP_REGISTRY: Record<string, Step> = {
+const STEP_REGISTRY: Record<string, Step<FullStepContext>> = {
   gameLoad,
   spinCycle,
   audioToggle,
@@ -174,7 +174,7 @@ function buildSessionContext(
   eventAccumulator: EventAccumulator,
   context: GameRunContext,
   run: GameRunOptions,
-): SessionContext {
+): FullStepContext {
   return {
     page,
     accumulator: eventAccumulator,
@@ -187,7 +187,7 @@ function buildSessionContext(
   };
 }
 
-function planSteps(steps: Step[]): TestStep[] {
+function planSteps(steps: Step<FullStepContext>[]): TestStep[] {
   return steps.flatMap((step) => {
     return step.plan.map((descriptor) => {
       return {
@@ -200,7 +200,10 @@ function planSteps(steps: Step[]): TestStep[] {
   });
 }
 
-async function executeSteps(ctx: SessionContext, steps: Step[]): Promise<StepOutcome> {
+async function executeSteps(
+  ctx: FullStepContext,
+  steps: Step<FullStepContext>[],
+): Promise<StepOutcome> {
   const collectedSteps: TestStep[] = [];
 
   try {

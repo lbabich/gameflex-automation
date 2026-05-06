@@ -1,9 +1,17 @@
-import type { TestStep } from '../../../shared/types';
+import type { DeviceType, GameEntry, TestStep } from '../../../shared/types';
 import type { CachedStep } from '../../types';
+import type { EventAccumulator } from '../gel/accumulator';
 import { gelEvents } from '../gel/events';
 import { preLaunch } from '../pre-launch';
 import { tracker } from './track';
-import type { SessionContext, StepDescriptor } from './types';
+import type { Step, StepDescriptor } from './types';
+
+type GameLoadContext = {
+  page: import('@playwright/test').Page;
+  game: GameEntry;
+  deviceType: DeviceType;
+  accumulator: EventAccumulator;
+};
 
 const stepName = 'gameLoad';
 
@@ -13,11 +21,11 @@ const plan: StepDescriptor[] = [
   { title: gelEvents.GEL_EVENT.READY },
 ];
 
-async function discover(_ctx: SessionContext) {
+async function discover(_ctx: GameLoadContext) {
   console.log('[game-load] No discovery process');
 }
 
-async function run(ctx: SessionContext, _cachedSteps: CachedStep[] | null) {
+async function run(ctx: GameLoadContext, _cachedSteps: CachedStep[] | null) {
   const { page, game, deviceType, accumulator } = ctx;
   const readyPromise = accumulator.waitFor(
     gelEvents.GEL_EVENT.READY,
@@ -48,4 +56,4 @@ async function run(ctx: SessionContext, _cachedSteps: CachedStep[] | null) {
   return [launchStep, loadProgressStep, readyStep];
 }
 
-export const gameLoad = { stepName, plan, discover, run };
+export const gameLoad: Step<GameLoadContext> = { stepName, plan, discover, run };
