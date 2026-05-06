@@ -13,7 +13,12 @@ export type DiscoverySpec<TCtx extends DiscoveryContext> = {
   checkComplete?: (ctx: TCtx) => Promise<boolean>;
 };
 
-type DiscoveryDecision = 'commit' | 'falsePositive' | 'continue';
+const DiscoveryDecision = {
+  Commit: 'commit',
+  FalsePositive: 'falsePositive',
+  Continue: 'continue',
+} as const;
+type DiscoveryDecision = (typeof DiscoveryDecision)[keyof typeof DiscoveryDecision];
 
 const DISCOVERY_MAX_ATTEMPTS = 20;
 const DISCOVERY_POLL_INTERVAL_MS = 1_000;
@@ -87,13 +92,13 @@ async function discoverTarget<TCtx extends DiscoveryContext>(
 
     const decision = decide(result, verified);
 
-    if (decision === 'commit') {
+    if (decision === DiscoveryDecision.Commit) {
       commit();
 
       return;
     }
 
-    if (decision === 'falsePositive' && result.found) {
+    if (decision === DiscoveryDecision.FalsePositive && result.found) {
       allFailedButtons.push({ x: result.x, y: result.y, label: result.label });
       lastClickTime = Date.now();
     }
@@ -110,14 +115,14 @@ async function discoverTarget<TCtx extends DiscoveryContext>(
 
 function decide(result: ClickResult, verified: boolean): DiscoveryDecision {
   if (result.found && verified) {
-    return 'commit';
+    return DiscoveryDecision.Commit;
   }
 
   if (result.found) {
-    return 'falsePositive';
+    return DiscoveryDecision.FalsePositive;
   }
 
-  return 'continue';
+  return DiscoveryDecision.Continue;
 }
 
 export const discovery = { DiscoveryError, discoverTarget, decide };
