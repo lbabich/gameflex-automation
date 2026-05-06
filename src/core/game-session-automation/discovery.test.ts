@@ -84,6 +84,22 @@ function makeCtx(
   };
 }
 
+describe('decide', () => {
+  it('returns commit when found and verified', () => {
+    expect(discovery.decide({ found: true, x: 100, y: 200, label: 'Spin' }, true)).toBe('commit');
+  });
+
+  it('returns falsePositive when found but not verified', () => {
+    expect(discovery.decide({ found: true, x: 100, y: 200, label: 'Spin' }, false)).toBe(
+      'falsePositive',
+    );
+  });
+
+  it('returns continue when not found', () => {
+    expect(discovery.decide({ found: false }, false)).toBe('continue');
+  });
+});
+
 describe('discoverTarget', () => {
   beforeEach(() => {
     vi.clearAllMocks();

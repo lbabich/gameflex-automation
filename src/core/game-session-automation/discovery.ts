@@ -2,7 +2,7 @@ import type { CachedStep, Viewport } from '../types';
 import { clickMarker } from './capture/click-marker';
 import { screenshot } from './capture/screenshot';
 import type { DiscoveryContext } from './steps/types';
-import type { VisionContext } from './vision-analyzer';
+import type { ClickResult, VisionContext } from './vision-analyzer';
 
 export type DiscoverySpec<TCtx extends DiscoveryContext> = {
   stepName: string;
@@ -69,6 +69,7 @@ async function discoverTarget<TCtx extends DiscoveryContext>(
     };
 
     const result = await visionAnalyzer.analyze(screenshotPath, visionContext);
+    let verified = false;
 
     if (result.found) {
       const waitMs = Date.now() - lastClickTime;
@@ -77,16 +78,20 @@ async function discoverTarget<TCtx extends DiscoveryContext>(
       await screenshot.snap(page, `${runID}/${deviceType}/discovery-${attempt}-click.png`);
       await page.mouse.click(result.x, result.y);
 
-      const verified = await spec.verifyClick(ctx, result.x, result.y);
+      verified = await spec.verifyClick(ctx, result.x, result.y);
 
       preTargetSteps.push({ waitMs, x: result.x, y: result.y, label: result.label });
+    }
 
-      if (verified) {
-        commit();
+    const decision = decide(result, verified);
 
-        return;
-      }
+    if (decision === 'commit') {
+      commit();
 
+      return;
+    }
+
+    if (decision === 'falsePositive' && result.found) {
       allFailedButtons.push({ x: result.x, y: result.y, label: result.label });
       lastClickTime = Date.now();
     }
@@ -101,4 +106,18 @@ async function discoverTarget<TCtx extends DiscoveryContext>(
   );
 }
 
-export const discovery = { DiscoveryError, discoverTarget };
+type DiscoveryDecision = 'commit' | 'falsePositive' | 'continue';
+
+function decide(result: ClickResult, verified: boolean): DiscoveryDecision {
+  if (result.found && verified) {
+    return 'commit';
+  }
+
+  if (result.found) {
+    return 'falsePositive';
+  }
+
+  return 'continue';
+}
+
+export const discovery = { DiscoveryError, discoverTarget, decide };
