@@ -22,7 +22,10 @@ export type VisionAnalyzer = {
 const VISION_MODEL = 'claude-sonnet-4-6';
 const VISION_SYSTEM = 'You are a visual UI analyst. Return ONLY valid JSON.';
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const client = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
+  baseURL: process.env.ANTHROPIC_BASE_URL
+});
 
 async function analyze(screenshotPath: string, context: VisionContext): Promise<ClickResult> {
   const prompt = buildPrompt(context);
