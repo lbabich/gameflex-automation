@@ -10,15 +10,11 @@ const RunFinalizationLayer = Layer.provide(
   NodeRunFinalizationService,
   Layer.merge(RunLoggerLayer, NodeRunStateManager),
 );
+const ProcessExecutorLayer = Layer.provide(NodeProcessExecutorService, RunLoggerLayer);
 
 export const RunDomainLayer = Layer.provide(
   NodeRunnerService,
-  Layer.mergeAll(
-    NodeRunStateManager,
-    RunLoggerLayer,
-    NodeProcessExecutorService,
-    RunFinalizationLayer,
-  ),
+  Layer.mergeAll(NodeRunStateManager, RunLoggerLayer, ProcessExecutorLayer, RunFinalizationLayer),
 );
 
 export { RunnerService };

@@ -258,6 +258,9 @@ function makeTestRuntime(
     error: () => {
       return Effect.succeed(undefined);
     },
+    appendRaw: () => {
+      return Effect.succeed(undefined);
+    },
   });
 
   const testProcessExecutorService =

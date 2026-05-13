@@ -8,6 +8,7 @@ import { disk } from '../step-cache/disk';
 import type { ChildProcessOutput, InternalTestResult, Viewport } from '../types';
 import type { GameSessionContext, GameSessionOptions } from './game-session';
 import { gameSession } from './game-session';
+import { processLog } from './process-log';
 import { stepRegistry } from './steps/registry';
 import { claudeVisionAnalyzer } from './vision-analyzer';
 
@@ -30,6 +31,8 @@ async function main() {
   try {
     for (const game of selectedGames) {
       for (const deviceType of deviceTypes) {
+        processLog.log('session', `Starting "${game.name}" on ${deviceType}`);
+
         const context: GameSessionContext = { browser, game, deviceType, viewport: VIEWPORT };
         const options: GameSessionOptions = {
           runID,
@@ -40,6 +43,15 @@ async function main() {
 
         const result = await gameSession.run(context, options, claudeVisionAnalyzer);
 
+        if (result.status === 'passed') {
+          processLog.log('session', `"${game.name}" (${deviceType}) — passed`);
+        } else {
+          processLog.log(
+            'session',
+            `"${game.name}" (${deviceType}) — failed: ${result.error ?? 'unknown error'}`,
+          );
+        }
+
         results[deviceType] = {
           ...result,
           logs: [...(results[deviceType]?.logs ?? []), ...result.logs],
@@ -47,7 +59,10 @@ async function main() {
       }
     }
   } catch (err) {
-    errors.push(err instanceof Error ? err.message : String(err));
+    const msg = err instanceof Error ? err.message : String(err);
+
+    processLog.log('session', `Fatal error: ${msg}`);
+    errors.push(msg);
   } finally {
     try {
       await browser.close();
