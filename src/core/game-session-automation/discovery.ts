@@ -3,6 +3,7 @@ import type { CachedStep, Viewport } from '../types';
 import { clickMarker } from './capture/click-marker';
 import { screenshot } from './capture/screenshot';
 import type { GelEvent } from './gel/events';
+import { processLog } from './process-log';
 import type { FullStepContext } from './steps/types';
 import type { VisionContext } from './vision-analyzer';
 
@@ -36,12 +37,17 @@ class DiscoveryError extends Error {
 
 async function discoverTarget(ctx: FullStepContext, profile: DiscoveryProfile): Promise<void> {
   const { page, game, viewport, deviceType, runID, hints, cache, visionAnalyzer } = ctx;
+  const ctx2 = profile.stepName;
 
   const cached = cache.getSteps({ id: game.id, deviceType, viewport, stepName: profile.stepName });
 
   if (cached) {
+    processLog.log(ctx2, `Using cached steps (${cached.steps.length} step(s))`);
+
     return;
   }
+
+  processLog.log(ctx2, 'No cache — starting discovery');
 
   const hint = profile.hintKey ? hints?.[profile.hintKey] : undefined;
   const allFailedButtons: Array<{ x: number; y: number; label: string }> = [];
@@ -62,8 +68,15 @@ async function discoverTarget(ctx: FullStepContext, profile: DiscoveryProfile): 
     if (checkComplete && (await checkComplete(ctx))) {
       commit();
 
+      processLog.log(
+        ctx2,
+        `Already complete — discovery done (${preTargetSteps.length} step(s) cached)`,
+      );
+
       return;
     }
+
+    processLog.log(ctx2, `Attempt ${attempt}/${DISCOVERY_MAX_ATTEMPTS} — calling Claude Vision`);
 
     const screenshotPath = await screenshot.snap(
       page,
@@ -82,6 +95,11 @@ async function discoverTarget(ctx: FullStepContext, profile: DiscoveryProfile): 
     let verified = false;
 
     if (result.found) {
+      processLog.log(
+        ctx2,
+        `Attempt ${attempt} — Claude: clicking "${result.label}" at (${result.x},${result.y})`,
+      );
+
       const waitMs = Date.now() - lastClickTime;
 
       await clickMarker.injectClickMarker(page, result.x, result.y);
@@ -91,6 +109,8 @@ async function discoverTarget(ctx: FullStepContext, profile: DiscoveryProfile): 
       verified = await verifyClick(ctx, result.x, result.y);
 
       preTargetSteps.push({ waitMs, x: result.x, y: result.y, label: result.label });
+    } else {
+      processLog.log(ctx2, `Attempt ${attempt} — Claude: nothing found`);
     }
 
     const decision = decide(result, verified);
@@ -98,10 +118,17 @@ async function discoverTarget(ctx: FullStepContext, profile: DiscoveryProfile): 
     if (decision === DiscoveryDecision.Commit) {
       commit();
 
+      processLog.log(
+        ctx2,
+        `Attempt ${attempt} — verified ✓ — discovery complete (${preTargetSteps.length} step(s) cached)`,
+      );
+
       return;
     }
 
     if (decision === DiscoveryDecision.FalsePositive && result.found) {
+      processLog.log(ctx2, `Attempt ${attempt} — false positive, "${result.label}" blocked`);
+
       allFailedButtons.push({ x: result.x, y: result.y, label: result.label });
       lastClickTime = Date.now();
     }
@@ -110,6 +137,8 @@ async function discoverTarget(ctx: FullStepContext, profile: DiscoveryProfile): 
   }
 
   await screenshot.snap(page, `${runID}/${deviceType}/discovery-failed.png`);
+
+  processLog.log(ctx2, `Discovery failed after ${DISCOVERY_MAX_ATTEMPTS} attempts`);
 
   throw new DiscoveryError(
     `Could not find target for '${profile.stepName}' on ${game.name} (${game.desktopGameID}) after ${DISCOVERY_MAX_ATTEMPTS} attempts. See src/core/data/screenshots/${runID}/${deviceType}/discovery-failed.png`,

@@ -2,6 +2,7 @@ import type { CachedStep } from '../../types';
 import { screenshot } from '../capture/screenshot';
 import { discovery } from '../discovery';
 import { gelEvents } from '../gel/events';
+import { processLog } from '../process-log';
 import { tracker } from './track';
 import type { FullStepContext, Step, StepDescriptor } from './types';
 
@@ -30,20 +31,25 @@ const discover = async (ctx: FullStepContext) => {
 
 async function run(ctx: FullStepContext, _cachedSteps: CachedStep[] | null) {
   const { page, accumulator, runID, deviceType } = ctx;
+
+  processLog.log(stepName, 'Waiting for spin start');
+
   const spinStartPromise = accumulator.waitFor(gelEvents.GEL_EVENT.SPIN_START, SPIN_START_WAIT_MS);
 
   const spinStartStep = await tracker.track(
     `Spin start: ${gelEvents.GEL_EVENT.SPIN_START}`,
     async () => {
       await spinStartPromise;
+      processLog.log(stepName, 'Spin started — waiting for spin end');
       await screenshot.snap(page, `${runID}/${deviceType}/spin-start.png`);
     },
   );
 
   const spinEndPromise = accumulator.waitFor(gelEvents.GEL_EVENT.SPIN_END, SPIN_END_WAIT_MS);
 
-  const spinEndStep = await tracker.track(`Spin end: ${gelEvents.GEL_EVENT.SPIN_END}`, () => {
-    return spinEndPromise;
+  const spinEndStep = await tracker.track(`Spin end: ${gelEvents.GEL_EVENT.SPIN_END}`, async () => {
+    await spinEndPromise;
+    processLog.log(stepName, 'Spin complete');
   });
 
   return [spinStartStep, spinEndStep];

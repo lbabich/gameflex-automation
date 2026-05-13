@@ -12,6 +12,7 @@ export class RunLoggerService extends Effect.Tag('RunLoggerService')<
       message: string,
       error?: unknown,
     ) => Effect.Effect<void>;
+    appendRaw: (runID: string, line: string) => Effect.Effect<void>;
   }
 >() {}
 
@@ -43,6 +44,12 @@ export const NodeRunLoggerService = Layer.effect(
 
           runStateManager.appendLog(runID, msg);
           console.error(msg, error);
+        });
+      },
+      appendRaw: (runID: string, line: string) => {
+        return Effect.sync(() => {
+          runStateManager.appendLog(runID, line);
+          console.log(line);
         });
       },
     };

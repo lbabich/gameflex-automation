@@ -2,6 +2,7 @@ import { execSync, spawn } from 'node:child_process';
 import { Effect, Layer } from 'effect';
 import type { GameEntry, RunHints } from '../../shared/types';
 import { ProcessError } from '../errors';
+import { RunLoggerService } from './run-logger.service';
 
 export type RunArgs = {
   runID: string;
@@ -21,64 +22,87 @@ export class ProcessExecutorService extends Effect.Tag('ProcessExecutorService')
   }
 >() {}
 
-export const NodeProcessExecutorService = Layer.succeed(ProcessExecutorService, {
-  execute: (args: RunArgs) => {
-    return Effect.async<{ code: number }, ProcessError>((resume) => {
-      const cmd = buildCommand(args);
-      const stdoutChunks: Buffer[] = [];
-      let stderrBuffer = '';
+const GSA_LOG_PREFIX = '[gsa:log] ';
 
-      const proc = spawn(cmd, { stdio: ['ignore', 'pipe', 'pipe'], shell: true });
+export const NodeProcessExecutorService = Layer.effect(
+  ProcessExecutorService,
+  Effect.gen(function* () {
+    const runLoggerService = yield* RunLoggerService;
 
-      proc.stdout?.on('data', (chunk: Buffer) => {
-        return stdoutChunks.push(chunk);
-      });
+    return {
+      execute: (args: RunArgs) => {
+        return Effect.async<{ code: number }, ProcessError>((resume) => {
+          const cmd = buildCommand(args);
+          const stdoutChunks: Buffer[] = [];
+          let stderrBuffer = '';
 
-      proc.stderr?.on('data', (chunk: Buffer) => {
-        stderrBuffer += chunk.toString('utf-8');
+          const proc = spawn(cmd, { stdio: ['ignore', 'pipe', 'pipe'], shell: true });
 
-        const lines = stderrBuffer.split('\n');
+          proc.stdout?.on('data', (chunk: Buffer) => {
+            return stdoutChunks.push(chunk);
+          });
 
-        stderrBuffer = lines.pop() ?? '';
+          proc.stderr?.on('data', (chunk: Buffer) => {
+            stderrBuffer += chunk.toString('utf-8');
 
-        for (const line of lines) {
-          if (line.trim()) {
-            console.log(`[playwright] ${line}`);
-          }
-        }
-      });
+            const lines = stderrBuffer.split('\n');
 
-      proc.on('close', (code: number | null) => {
-        if (stderrBuffer.trim()) {
-          console.log(`[playwright] ${stderrBuffer}`);
-        }
+            stderrBuffer = lines.pop() ?? '';
 
-        resume(Effect.succeed({ code: code ?? 1 }));
-      });
+            for (const line of lines) {
+              if (!line.trim()) {
+                continue;
+              }
 
-      proc.on('error', (err: Error) => {
-        console.error('[runner] Spawn error:', err);
-        resume(Effect.fail(new ProcessError({ message: err.message })));
-      });
+              if (line.startsWith(GSA_LOG_PREFIX)) {
+                const stripped = line.slice(GSA_LOG_PREFIX.length);
 
-      return Effect.sync(() => {
-        if (proc.pid) {
-          try {
-            execSync(`taskkill /F /T /PID ${proc.pid}`);
-          } catch (err) {
-            console.error('[runner] taskkill failed, falling back to proc.kill():', err);
-
-            try {
-              proc.kill();
-            } catch (killError) {
-              console.error('[runner] Failed to kill process:', killError);
+                Effect.runSync(runLoggerService.appendRaw(args.runID, stripped));
+              } else {
+                console.log(`[playwright] ${line}`);
+              }
             }
-          }
-        }
-      });
-    });
-  },
-});
+          });
+
+          proc.on('close', (code: number | null) => {
+            if (stderrBuffer.trim()) {
+              if (stderrBuffer.startsWith(GSA_LOG_PREFIX)) {
+                Effect.runSync(
+                  runLoggerService.appendRaw(args.runID, stderrBuffer.slice(GSA_LOG_PREFIX.length)),
+                );
+              } else {
+                console.log(`[playwright] ${stderrBuffer}`);
+              }
+            }
+
+            resume(Effect.succeed({ code: code ?? 1 }));
+          });
+
+          proc.on('error', (err: Error) => {
+            console.error('[runner] Spawn error:', err);
+            resume(Effect.fail(new ProcessError({ message: err.message })));
+          });
+
+          return Effect.sync(() => {
+            if (proc.pid) {
+              try {
+                execSync(`taskkill /F /T /PID ${proc.pid}`);
+              } catch (err) {
+                console.error('[runner] taskkill failed, falling back to proc.kill():', err);
+
+                try {
+                  proc.kill();
+                } catch (killError) {
+                  console.error('[runner] Failed to kill process:', killError);
+                }
+              }
+            }
+          });
+        });
+      },
+    };
+  }),
+);
 
 function buildCommand(args: RunArgs): string {
   const { runID, games, deviceTypes, outputFilePath, steps = DEFAULT_STEPS, hints } = args;

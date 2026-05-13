@@ -3,6 +3,7 @@ import type { CachedStep } from '../../types';
 import type { EventAccumulator } from '../gel/accumulator';
 import { gelEvents } from '../gel/events';
 import { preLaunch } from '../pre-launch';
+import { processLog } from '../process-log';
 import { tracker } from './track';
 import type { Step, StepDescriptor } from './types';
 
@@ -21,12 +22,13 @@ const plan: StepDescriptor[] = [
   { title: gelEvents.GEL_EVENT.READY },
 ];
 
-async function discover(_ctx: GameLoadContext) {
-  console.log('[game-load] No discovery process');
-}
+async function discover(_ctx: GameLoadContext) {}
 
 async function run(ctx: GameLoadContext, _cachedSteps: CachedStep[] | null) {
   const { page, game, deviceType, accumulator } = ctx;
+
+  processLog.log('gameLoad', `Launching ${game.name} (${deviceType})`);
+
   const readyPromise = accumulator.waitFor(
     gelEvents.GEL_EVENT.READY,
     gelEvents.GEL_READY_TIMEOUT_MS,
@@ -38,8 +40,9 @@ async function run(ctx: GameLoadContext, _cachedSteps: CachedStep[] | null) {
     return preLaunch.launch(page, game, deviceType);
   });
 
-  const readyStep = await tracker.track(gelEvents.GEL_EVENT.READY, () => {
-    return readyPromise;
+  const readyStep = await tracker.track(gelEvents.GEL_EVENT.READY, async () => {
+    await readyPromise;
+    processLog.log('gameLoad', 'Game ready');
   });
 
   const hadLoadProgress = accumulator.getAll().some((line) => {

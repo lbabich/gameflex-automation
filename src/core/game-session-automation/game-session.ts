@@ -108,7 +108,7 @@ async function executeSteps(
       });
 
       if (cached) {
-        await replay.replaySteps(ctx.page, ctx.runID, cached.steps, ctx.deviceType);
+        await replay.replaySteps(ctx.page, ctx.runID, cached.steps, ctx.deviceType, step.stepName);
       }
 
       const stepSteps = await step.run(ctx, cached?.steps ?? null);
