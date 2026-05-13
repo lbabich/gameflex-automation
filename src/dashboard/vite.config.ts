@@ -4,6 +4,7 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   plugins: [react()],
+  root: __dirname,
   build: {
     outDir: '../../dist/dashboard',
   },
