@@ -37,7 +37,7 @@ app.use('/api/runs', makeRunsRouter(appRuntime));
 app.use('/api/screenshots', screenshotsRouter);
 
 if (serveDashboard) {
-  app.get('*', (_req: Request, res: Response) => {
+  app.get('*splat', (_req: Request, res: Response) => {
     res.sendFile(path.join(DASHBOARD_DIST, 'index.html'));
   });
 }
