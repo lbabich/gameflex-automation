@@ -7,5 +7,6 @@ services:
       - .env
     environment:
       DISPLAY: ":99"
+      NODE_TLS_REJECT_UNAUTHORIZED: "0"
     volumes:
       - ./src/core/data:/app/src/core/data
