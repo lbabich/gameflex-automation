@@ -42,7 +42,8 @@
       "Bash(taskkill:*)",
       "Bash(find:*)",
       "Bash(ls:*)",
-      "Bash(cd:*)"
+      "Bash(cd:*)",
+      "Bash(ls \"C:/Program Files/GitHub CLI/\" 2>/dev/null || ls \"C:/Users/luke.babich/AppData/Local/Programs/GitHub CLI/\" 2>/dev/null || find /c/Users/luke.babich -name \"gh.exe\" 2>/dev/null | head -5)"
     ]
   }
 }
