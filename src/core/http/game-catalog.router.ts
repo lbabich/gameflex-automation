@@ -187,6 +187,21 @@ export function makeGamesRouter(runtime: AppRuntime) {
     );
   });
 
+  router.delete('/:id/memory', (req: Request<Record<string, string>>, res: Response) => {
+    const { id } = req.params;
+
+    void runtime.runPromise(
+      Effect.gen(function* () {
+        const gamesService = yield* GamesService;
+        const runnerService = yield* RunnerService;
+
+        yield* gamesService.clearAllSteps(id);
+        yield* runnerService.clearAllMemory(id);
+        res.sendStatus(204);
+      }).pipe(Effect.catchAllDefect(serverDefectHandler(res))),
+    );
+  });
+
   return router;
 }
 

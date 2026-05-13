@@ -44,3 +44,4 @@ export type GameSteps = {
 export const DEVICE_TYPES = ['desktop', 'mobile'] as const satisfies readonly DeviceType[];
 
 export const SCREENSHOTS_DIR = 'src/core/data/screenshots';
+export const RUN_OUTPUTS_DIR = 'src/core/data/run-outputs';

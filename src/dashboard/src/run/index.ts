@@ -1,6 +1,7 @@
 export { useRecentRuns } from './useRecentRuns';
 export { useRun } from './useRun';
 export { useClearGameRuns } from './useClearGameRuns';
+export { useClearGameMemory } from './useClearGameMemory';
 export { useRunConfiguration } from './useRunConfiguration';
 export { GameActionBar } from './GameActionBar';
 export { DiscoveryHints } from './DiscoveryHints';
