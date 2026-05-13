@@ -23,7 +23,10 @@ async function main() {
 
   const resolvedSteps = stepRegistry.resolveSteps(steps);
 
-  const browser = await chromium.launch({ headless: false });
+  const browser = await chromium.launch({
+    headless: false,
+    args: ['--no-sandbox', '--disable-dev-shm-usage'],
+  });
 
   const results: Partial<Record<DeviceType, InternalTestResult>> = {};
   const errors: string[] = [];

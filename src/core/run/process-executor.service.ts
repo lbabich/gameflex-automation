@@ -36,7 +36,12 @@ export const NodeProcessExecutorService = Layer.effect(
           const stdoutChunks: Buffer[] = [];
           let stderrBuffer = '';
 
-          const proc = spawn(cmd, { stdio: ['ignore', 'pipe', 'pipe'], shell: true });
+          const isWindows = process.platform === 'win32';
+          const proc = spawn(cmd, {
+            stdio: ['ignore', 'pipe', 'pipe'],
+            shell: true,
+            ...(isWindows ? {} : { detached: true }),
+          });
 
           proc.stdout?.on('data', (chunk: Buffer) => {
             return stdoutChunks.push(chunk);
@@ -85,15 +90,17 @@ export const NodeProcessExecutorService = Layer.effect(
 
           return Effect.sync(() => {
             if (proc.pid) {
-              try {
-                execSync(`taskkill /F /T /PID ${proc.pid}`);
-              } catch (err) {
-                console.error('[runner] taskkill failed, falling back to proc.kill():', err);
-
+              if (isWindows) {
                 try {
+                  execSync(`taskkill /F /T /PID ${proc.pid}`);
+                } catch {
                   proc.kill();
-                } catch (killError) {
-                  console.error('[runner] Failed to kill process:', killError);
+                }
+              } else {
+                try {
+                  process.kill(-proc.pid, 'SIGKILL');
+                } catch {
+                  proc.kill();
                 }
               }
             }
