@@ -6,6 +6,7 @@ import { GameNotFoundError, RunAlreadyActiveError, RunNotFoundError } from '../e
 import { FileService } from '../file-service/service';
 import { GamesService } from '../game-catalog/game-catalog.module';
 import type { InternalRunRecord } from '../types';
+import { SCREENSHOTS_DIR } from '../types';
 import { persistence } from './persistence';
 import { ProcessExecutorService } from './process-executor.service';
 import { RunFinalizationService } from './run-finalization.service';
@@ -49,6 +50,7 @@ export class RunnerService extends Effect.Tag('RunnerService')<
     getRun: (runID: string) => Effect.Effect<RunRecord, RunNotFoundError>;
     getRecentRuns: (limit?: number) => Effect.Effect<RunRecord[]>;
     clearGameRuns: (gameID: string) => Effect.Effect<void>;
+    clearAllMemory: (gameID: string) => Effect.Effect<void>;
   }
 >() {}
 
@@ -91,6 +93,9 @@ export const NodeRunnerService = Layer.effect(
       },
       clearGameRuns: (gameID: string) => {
         return clearGameRuns(runStateManager, fileService, runLoggerService, gameID);
+      },
+      clearAllMemory: (gameID: string) => {
+        return clearAllMemory(runStateManager, fileService, runLoggerService, gameID);
       },
     };
   }),
@@ -305,6 +310,26 @@ function clearGameRuns(
     runStateManager.clearGame(gameID);
 
     yield* saveRunsIgnoreError(fileService, runStateManager.snapshot(), runLoggerService, gameID);
+  });
+}
+
+function clearAllMemory(
+  runStateManager: RunState,
+  fileService: FileService['Type'],
+  runLoggerService: RunLoggerService['Type'],
+  gameID: string,
+) {
+  return Effect.gen(function* () {
+    const runIDs = runStateManager.getInactiveGameRunIDs(gameID);
+
+    runStateManager.clearGame(gameID);
+
+    yield* saveRunsIgnoreError(fileService, runStateManager.snapshot(), runLoggerService, gameID);
+
+    for (const runID of runIDs) {
+      yield* fileService.deleteDir(path.resolve(SCREENSHOTS_DIR, runID));
+      yield* fileService.deleteFile(path.resolve('src/core/data/run-outputs', `${runID}.json`));
+    }
   });
 }
 

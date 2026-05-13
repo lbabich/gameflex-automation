@@ -84,6 +84,18 @@ export class RunStateManager {
     }
   }
 
+  getInactiveGameRunIDs(gameID: string): string[] {
+    const ids: string[] = [];
+
+    for (const [runID, run] of this.runs.entries()) {
+      if (run.gameIDs.includes(gameID) && !this.activeFibers.has(runID)) {
+        ids.push(runID);
+      }
+    }
+
+    return ids;
+  }
+
   appendLog(runID: string, msg: string): void {
     const record = this.runs.get(runID);
 

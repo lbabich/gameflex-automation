@@ -3,9 +3,15 @@ import type { DeviceType, GameEntry, RunHints } from '@shared/types';
 import { DEVICE_TYPE } from '@shared/types';
 import { useGameCatalog } from '../game-catalog';
 import { DEFAULT_STEPS, createRun, deleteRun } from '../shared/api';
+import { useClearGameMemory } from './useClearGameMemory';
 
 const ALL_DEVICES: DeviceType[] = [DEVICE_TYPE.DESKTOP, DEVICE_TYPE.MOBILE];
 const DEVICE_LABEL: Record<DeviceType, string> = { desktop: 'Desktop', mobile: 'Mobile' };
+
+type ExtraItem = {
+  label: string;
+  onClick: () => void;
+};
 
 type SplitDropdownButtonProps = {
   label: string;
@@ -15,6 +21,7 @@ type SplitDropdownButtonProps = {
   onToggle: (d: DeviceType) => void;
   mainButtonClass: string;
   chevronClass: string;
+  extraItems?: ExtraItem[];
 };
 
 function SplitDropdownButton(props: SplitDropdownButtonProps) {
@@ -26,6 +33,7 @@ function SplitDropdownButton(props: SplitDropdownButtonProps) {
     onToggle,
     mainButtonClass,
     chevronClass,
+    extraItems,
   } = props;
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -64,7 +72,7 @@ function SplitDropdownButton(props: SplitDropdownButtonProps) {
       </button>
 
       {open && (
-        <div className="absolute top-full right-0 mt-1 bg-white border border-gray-200 rounded shadow-md z-10 py-1 min-w-[120px]">
+        <div className="absolute top-full right-0 mt-1 bg-white border border-gray-200 rounded shadow-md z-10 py-1 min-w-[140px]">
           {ALL_DEVICES.map((d) => (
             <label
               key={d}
@@ -79,6 +87,26 @@ function SplitDropdownButton(props: SplitDropdownButtonProps) {
               {DEVICE_LABEL[d]}
             </label>
           ))}
+
+          {extraItems && extraItems.length > 0 && (
+            <>
+              <hr className="my-1 border-gray-200" />
+
+              {extraItems.map((item) => (
+                <button
+                  key={item.label}
+                  type="button"
+                  onClick={() => {
+                    item.onClick();
+                    setOpen(false);
+                  }}
+                  className="w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 cursor-pointer"
+                >
+                  {item.label}
+                </button>
+              ))}
+            </>
+          )}
         </div>
       )}
     </div>
@@ -95,6 +123,7 @@ type Props = {
   onToggleResetDevice: (d: DeviceType) => void;
   hints: RunHints | undefined;
   onRunComplete: (runID: string) => void;
+  onMemoryCleared?: () => void;
 };
 
 export function GameActionBar(props: Props) {
@@ -108,8 +137,10 @@ export function GameActionBar(props: Props) {
     onToggleResetDevice,
     hints,
     onRunComplete,
+    onMemoryCleared,
   } = props;
   const { clearAllSteps, clearDeviceSteps } = useGameCatalog();
+  const clearMemory = useClearGameMemory();
 
   function runLabel() {
     if (runDevices.has('desktop') && runDevices.has('mobile')) {
@@ -182,7 +213,7 @@ export function GameActionBar(props: Props) {
     }
   }
 
-  const resetPending = clearAllSteps.isPending || clearDeviceSteps.isPending;
+  const resetPending = clearAllSteps.isPending || clearDeviceSteps.isPending || clearMemory.isPending;
 
   return (
     <div className="flex items-center justify-between px-4 py-3 bg-white border rounded mb-4">
@@ -217,6 +248,10 @@ export function GameActionBar(props: Props) {
           onToggle={onToggleResetDevice}
           mainButtonClass="rounded-l border-t border-b border-l border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
           chevronClass="rounded-r border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+          extraItems={[{
+            label: 'Reset All Memory',
+            onClick: () => clearMemory.mutate(game.id, { onSuccess: onMemoryCleared }),
+          }]}
         />
       </div>
     </div>

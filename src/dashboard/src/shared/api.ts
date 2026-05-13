@@ -144,6 +144,14 @@ export async function clearGameRuns(gameID: string) {
   }
 }
 
+export async function clearGameMemory(id: string) {
+  const response = await fetch(`/api/games/${id}/memory`, { method: 'DELETE' });
+
+  if (!response.ok) {
+    throw new Error('Failed to clear memory');
+  }
+}
+
 export async function reorderGames(ids: string[]) {
   const response = await fetch('/api/games/reorder', {
     method: 'PATCH',

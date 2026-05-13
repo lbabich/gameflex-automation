@@ -8,6 +8,8 @@ export class FileService extends Effect.Tag('FileService')<
     read: (path: string) => Effect.Effect<string, FileReadError>;
     write: (path: string, content: string) => Effect.Effect<void, FileWriteError>;
     exists: (path: string) => Effect.Effect<boolean>;
+    deleteFile: (path: string) => Effect.Effect<void>;
+    deleteDir: (path: string) => Effect.Effect<void>;
   }
 >() {}
 
@@ -36,5 +38,17 @@ export const NodeFileService = Layer.succeed(FileService, {
 
   exists: (path: string) => {
     return Effect.succeed(fs.existsSync(path));
+  },
+
+  deleteFile: (path: string) => {
+    return Effect.sync(() => {
+      fs.rmSync(path, { force: true });
+    });
+  },
+
+  deleteDir: (path: string) => {
+    return Effect.sync(() => {
+      fs.rmSync(path, { recursive: true, force: true });
+    });
   },
 });

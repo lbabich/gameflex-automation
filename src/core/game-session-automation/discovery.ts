@@ -76,7 +76,10 @@ async function discoverTarget(ctx: FullStepContext, profile: DiscoveryProfile): 
       return;
     }
 
-    processLog.log(stepName, `Attempt ${attempt}/${DISCOVERY_MAX_ATTEMPTS} — calling Claude Vision`);
+    processLog.log(
+      stepName,
+      `Attempt ${attempt}/${DISCOVERY_MAX_ATTEMPTS} — calling Claude Vision`,
+    );
 
     const screenshotPath = await screenshot.snap(
       page,

@@ -126,6 +126,7 @@ export default function App() {
             onToggleResetDevice={runConfig.toggleResetDevice}
             hints={runConfig.hints}
             onRunComplete={handleRunComplete}
+            onMemoryCleared={() => setViewRunID(null)}
           />
         )}
         {selectedGame && (
