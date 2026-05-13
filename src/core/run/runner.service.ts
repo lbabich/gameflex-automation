@@ -6,7 +6,7 @@ import { GameNotFoundError, RunAlreadyActiveError, RunNotFoundError } from '../e
 import { FileService } from '../file-service/service';
 import { GamesService } from '../game-catalog/game-catalog.module';
 import type { InternalRunRecord } from '../types';
-import { SCREENSHOTS_DIR } from '../types';
+import { RUN_OUTPUTS_DIR, SCREENSHOTS_DIR } from '../types';
 import { persistence } from './persistence';
 import { ProcessExecutorService } from './process-executor.service';
 import { RunFinalizationService } from './run-finalization.service';
@@ -121,7 +121,7 @@ function startRun(runStateManager: RunState, services: StartRunServices, params:
 
     runStateManager.register(runID, record, gameIDs);
 
-    const outputFilePath = path.resolve('src/core/data/run-outputs', `${runID}.json`);
+    const outputFilePath = path.resolve(RUN_OUTPUTS_DIR, `${runID}.json`);
 
     yield* runLoggerService.log(runID, 'runner', `Starting run ${runID}`);
 
@@ -328,7 +328,7 @@ function clearAllMemory(
 
     for (const runID of runIDs) {
       yield* fileService.deleteDir(path.resolve(SCREENSHOTS_DIR, runID));
-      yield* fileService.deleteFile(path.resolve('src/core/data/run-outputs', `${runID}.json`));
+      yield* fileService.deleteFile(path.resolve(RUN_OUTPUTS_DIR, `${runID}.json`));
     }
   });
 }
