@@ -9,7 +9,8 @@
     "check": "biome check --write .",
     "server": "tsx src/core/http/server.ts",
     "dev": "concurrently \"npm run server\" \"vite src/dashboard\"",
-    "build:dashboard": "vite build --config src/dashboard/vite.config.ts"
+    "build:dashboard": "vite build --config src/dashboard/vite.config.ts --root src/dashboard",
+    "docker": "docker compose up --build"
   },
   "devDependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
