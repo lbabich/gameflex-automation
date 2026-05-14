@@ -94,7 +94,21 @@ async function discoverTarget(ctx: FullStepContext, profile: DiscoveryProfile): 
       failureInstructions: profile.failureInstructions,
     };
 
-    const result = await visionAnalyzer.analyze(screenshotPath, visionContext);
+    let result: Awaited<ReturnType<typeof visionAnalyzer.analyze>>;
+
+    try {
+      result = await visionAnalyzer.analyze(screenshotPath, visionContext);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+
+      processLog.log(stepName, `Attempt ${attempt} — API error (will retry): ${msg}`);
+      await new Promise((resolve) => {
+        return setTimeout(resolve, DISCOVERY_POLL_INTERVAL_MS);
+      });
+
+      continue;
+    }
+
     let verified = false;
 
     if (result.found) {
