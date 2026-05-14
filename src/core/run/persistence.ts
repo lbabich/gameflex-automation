@@ -27,13 +27,12 @@ function loadRuns() {
   });
 }
 
-function saveRuns(fileService: FileService['Type'], runs: Map<string, InternalRunRecord>) {
+function saveRuns(fileService: FileService['Type'], runs: InternalRunRecord[]) {
   return Effect.gen(function* () {
-    const completed = [...runs.values()].filter((run) => {
-      return run.status !== 'running';
-    });
-
-    const toSave = completed
+    const toSave = runs
+      .filter((run) => {
+        return run.status !== 'running';
+      })
       .sort((runA, runB) => {
         return new Date(runB.startedAt).getTime() - new Date(runA.startedAt).getTime();
       })
