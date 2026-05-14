@@ -106,6 +106,7 @@ async function discoverTarget(ctx: FullStepContext, profile: DiscoveryProfile): 
         return setTimeout(resolve, DISCOVERY_POLL_INTERVAL_MS);
       });
 
+      attempt--;
       continue;
     }
 
