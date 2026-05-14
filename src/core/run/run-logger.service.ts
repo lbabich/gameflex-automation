@@ -21,10 +21,14 @@ export const NodeRunLoggerService = Layer.effect(
   Effect.gen(function* () {
     const runStateManager = yield* RunStateManagerService;
 
+    const timestamp = () => {
+      return new Date().toISOString();
+    };
+
     return {
       log: (runID: string, context: string, message: string) => {
         return Effect.sync(() => {
-          const msg = `[${context}] ${message}:`;
+          const msg = `[${timestamp()}] [${context}] ${message}:`;
 
           runStateManager.appendLog(runID, msg);
           console.log(msg);
@@ -32,7 +36,7 @@ export const NodeRunLoggerService = Layer.effect(
       },
       warn: (runID: string, context: string, message: string) => {
         return Effect.sync(() => {
-          const msg = `[${context}] ${message}:`;
+          const msg = `[${timestamp()}] [${context}] ${message}:`;
 
           runStateManager.appendLog(runID, msg);
           console.warn(msg);
@@ -40,7 +44,7 @@ export const NodeRunLoggerService = Layer.effect(
       },
       error: (runID: string, context: string, message: string, error?: unknown) => {
         return Effect.sync(() => {
-          const msg = `[${context}] ${message}:`;
+          const msg = `[${timestamp()}] [${context}] ${message}:`;
 
           runStateManager.appendLog(runID, msg);
           console.error(msg, error);
@@ -48,8 +52,10 @@ export const NodeRunLoggerService = Layer.effect(
       },
       appendRaw: (runID: string, line: string) => {
         return Effect.sync(() => {
-          runStateManager.appendLog(runID, line);
-          console.log(line);
+          const msg = `[${timestamp()}] ${line}`;
+
+          runStateManager.appendLog(runID, msg);
+          console.log(msg);
         });
       },
     };
