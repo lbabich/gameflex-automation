@@ -63,6 +63,7 @@ async function discoverTarget(ctx: FullStepContext, profile: DiscoveryProfile): 
   };
 
   let lastClickTime = Date.now();
+  let apiRetry = 0;
 
   for (let attempt = 1; attempt <= DISCOVERY_MAX_ATTEMPTS; attempt++) {
     if (checkComplete && (await checkComplete(ctx))) {
@@ -76,9 +77,11 @@ async function discoverTarget(ctx: FullStepContext, profile: DiscoveryProfile): 
       return;
     }
 
+    const retryLabel = apiRetry > 0 ? ` (API retry ${apiRetry})` : '';
+
     processLog.log(
       stepName,
-      `Attempt ${attempt}/${DISCOVERY_MAX_ATTEMPTS} — calling Claude Vision`,
+      `Attempt ${attempt}/${DISCOVERY_MAX_ATTEMPTS}${retryLabel} — calling Claude Vision`,
     );
 
     const screenshotPath = await screenshot.snap(
@@ -98,10 +101,12 @@ async function discoverTarget(ctx: FullStepContext, profile: DiscoveryProfile): 
 
     try {
       result = await visionAnalyzer.analyze(screenshotPath, visionContext);
+      apiRetry = 0;
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
 
-      processLog.log(stepName, `Attempt ${attempt} — API error (will retry): ${msg}`);
+      apiRetry++;
+      processLog.log(stepName, `Attempt ${attempt} — API error, retrying (${apiRetry}): ${msg}`);
       await new Promise((resolve) => {
         return setTimeout(resolve, DISCOVERY_POLL_INTERVAL_MS);
       });
