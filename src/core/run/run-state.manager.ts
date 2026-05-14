@@ -1,8 +1,23 @@
 import { Effect, Fiber, Layer } from 'effect';
+import type { DeviceType, RunStatus } from '../../shared/types';
 import { RunNotFoundError } from '../errors';
-import type { InternalRunRecord, MediaResult } from '../types';
+import type { InternalRunRecord, InternalTestResult, MediaResult } from '../types';
 import { persistence } from './persistence';
-import { type RunEvent, runTransition } from './run-transition';
+
+export type RunEvent =
+  | { type: 'Cancelled' }
+  | { type: 'FiberError' }
+  | {
+      type: 'ResultsAttached';
+      rawOutput: string;
+      finishedAt: string;
+      durationMs: number;
+      status: RunStatus;
+      results: Readonly<Partial<Record<DeviceType, InternalTestResult>>>;
+      playwrightErrors: readonly string[];
+      parseError?: string;
+    }
+  | { type: 'MediaAttached'; mediaResult: MediaResult };
 
 export class RunStateManager {
   private runs = new Map<string, InternalRunRecord>();
@@ -27,39 +42,23 @@ export class RunStateManager {
     this.activeFibers.set(runID, fiber);
   }
 
-  attachResults(
-    runID: string,
-    event: Omit<Extract<RunEvent, { type: 'ResultsAttached' }>, 'type'>,
-  ): void {
+  emit(runID: string, event: RunEvent): void {
     const record = this.runs.get(runID);
 
-    if (record) {
-      this.runs.set(runID, runTransition.transition(record, { type: 'ResultsAttached', ...event }));
-    }
-  }
-
-  attachMedia(runID: string, mediaResult: MediaResult): void {
-    const record = this.runs.get(runID);
-
-    if (record) {
-      this.runs.set(
-        runID,
-        runTransition.transition(record, { type: 'MediaAttached', mediaResult }),
-      );
+    if (!record) {
+      return;
     }
 
-    this.deactivate(runID, record?.gameIDs ?? []);
-    persistence.trimMemory(this.runs);
-  }
+    this.runs.set(runID, transition(record, event));
 
-  fiberError(runID: string): void {
-    const run = this.runs.get(runID);
-
-    if (run?.status === 'running') {
-      this.runs.set(runID, runTransition.transition(run, { type: 'FiberError' }));
+    if (
+      event.type === 'Cancelled' ||
+      event.type === 'FiberError' ||
+      event.type === 'MediaAttached'
+    ) {
+      this.deactivate(runID, record.gameIDs);
+      persistence.trimMemory(this.runs);
     }
-
-    this.deactivate(runID, run?.gameIDs ?? []);
   }
 
   cancel(runID: string): Effect.Effect<void, RunNotFoundError> {
@@ -70,8 +69,7 @@ export class RunStateManager {
       return Effect.fail(new RunNotFoundError({ runID }));
     }
 
-    this.runs.set(runID, runTransition.transition(record, { type: 'Cancelled' }));
-    this.deactivate(runID, record.gameIDs);
+    this.emit(runID, { type: 'Cancelled' });
 
     return Fiber.interrupt(fiber).pipe(Effect.asVoid);
   }
@@ -116,10 +114,6 @@ export class RunStateManager {
     return this.activeRunsByGame.get(gameID);
   }
 
-  snapshot(): Map<string, InternalRunRecord> {
-    return this.runs;
-  }
-
   private deactivate(runID: string, gameIDs: readonly string[]): void {
     this.activeFibers.delete(runID);
 
@@ -137,3 +131,61 @@ export class RunStateManagerService extends Effect.Tag('RunStateManagerService')
 export const NodeRunStateManager = Layer.succeed(RunStateManagerService, new RunStateManager());
 
 export type RunState = RunStateManagerService['Type'];
+
+function transition(run: InternalRunRecord, event: RunEvent): InternalRunRecord {
+  switch (event.type) {
+    case 'Cancelled': {
+      if (run.status !== 'running') {
+        throw new InvalidTransitionError(run.status, event.type);
+      }
+
+      const finishedAt = new Date().toISOString();
+
+      return {
+        ...run,
+        status: 'cancelled',
+        finishedAt,
+        durationMs: new Date(finishedAt).getTime() - new Date(run.startedAt).getTime(),
+      };
+    }
+    case 'FiberError': {
+      if (run.status !== 'running') {
+        throw new InvalidTransitionError(run.status, event.type);
+      }
+
+      const finishedAt = new Date().toISOString();
+
+      return {
+        ...run,
+        status: 'error',
+        finishedAt,
+        durationMs: new Date(finishedAt).getTime() - new Date(run.startedAt).getTime(),
+      };
+    }
+    case 'ResultsAttached': {
+      if (run.status !== 'running' && run.status !== 'cancelled') {
+        throw new InvalidTransitionError(run.status, event.type);
+      }
+
+      return {
+        ...run,
+        rawOutput: event.rawOutput,
+        finishedAt: event.finishedAt,
+        durationMs: event.durationMs,
+        status: event.status,
+        results: event.results,
+        playwrightErrors: event.playwrightErrors,
+        ...(event.parseError !== undefined && { parseError: event.parseError }),
+      };
+    }
+    case 'MediaAttached': {
+      return { ...run, mediaResult: event.mediaResult };
+    }
+  }
+}
+
+export class InvalidTransitionError extends Error {
+  constructor(status: string, event: string) {
+    super(`Cannot apply '${event}' to a run with status '${status}'`);
+  }
+}

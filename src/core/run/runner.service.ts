@@ -224,7 +224,7 @@ function finalizeRun(
       return;
     }
 
-    yield* saveRunsIgnoreError(fileService, runStateManager.snapshot(), runLoggerService, runID);
+    yield* saveRunsIgnoreError(fileService, runStateManager.getAll(), runLoggerService, runID);
     yield* logSummary(runLoggerService, finalized);
   });
 }
@@ -260,7 +260,7 @@ function handleFiberError(
   return Effect.gen(function* () {
     yield* runLoggerService.error(runID, 'runner', 'Background fiber error:', error);
 
-    runStateManager.fiberError(runID);
+    runStateManager.emit(runID, { type: 'FiberError' });
   });
 }
 
@@ -273,7 +273,7 @@ function cancelRun(
   return Effect.gen(function* () {
     yield* runStateManager.cancel(runID);
 
-    yield* saveRunsIgnoreError(fileService, runStateManager.snapshot(), runLoggerService, runID);
+    yield* saveRunsIgnoreError(fileService, runStateManager.getAll(), runLoggerService, runID);
   });
 }
 
@@ -309,7 +309,7 @@ function clearGameRuns(
   return Effect.gen(function* () {
     runStateManager.clearGame(gameID);
 
-    yield* saveRunsIgnoreError(fileService, runStateManager.snapshot(), runLoggerService, gameID);
+    yield* saveRunsIgnoreError(fileService, runStateManager.getAll(), runLoggerService, gameID);
   });
 }
 
@@ -324,7 +324,7 @@ function clearAllMemory(
 
     runStateManager.clearGame(gameID);
 
-    yield* saveRunsIgnoreError(fileService, runStateManager.snapshot(), runLoggerService, gameID);
+    yield* saveRunsIgnoreError(fileService, runStateManager.getAll(), runLoggerService, gameID);
 
     for (const runID of runIDs) {
       yield* fileService.deleteDir(path.resolve(SCREENSHOTS_DIR, runID));
@@ -335,7 +335,7 @@ function clearAllMemory(
 
 function saveRunsIgnoreError(
   fileService: FileService['Type'],
-  runs: Map<string, InternalRunRecord>,
+  runs: InternalRunRecord[],
   runLoggerService: RunLoggerService['Type'],
   runID: string,
 ) {

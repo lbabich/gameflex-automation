@@ -70,7 +70,8 @@ export const NodeRunFinalizationService = Layer.effect(
             resultsWithUrls,
           );
 
-          stateManager.attachResults(runID, {
+          stateManager.emit(runID, {
+            type: 'ResultsAttached',
             rawOutput: outputJson,
             finishedAt,
             durationMs,
@@ -80,7 +81,7 @@ export const NodeRunFinalizationService = Layer.effect(
             parseError,
           });
 
-          stateManager.attachMedia(runID, mediaResult);
+          stateManager.emit(runID, { type: 'MediaAttached', mediaResult });
         });
       },
     };
