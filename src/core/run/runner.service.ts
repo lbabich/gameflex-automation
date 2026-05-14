@@ -260,7 +260,7 @@ function handleFiberError(
   return Effect.gen(function* () {
     yield* runLoggerService.error(runID, 'runner', 'Background fiber error:', error);
 
-    runStateManager.emit(runID, { type: 'FiberError' });
+    runStateManager.apply(runID, { type: 'FiberError' });
   });
 }
 

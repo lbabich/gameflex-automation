@@ -26,7 +26,7 @@ describe('RunStateManager', () => {
       const manager = new RunStateManager();
 
       expect(() => {
-        manager.emit('nonexistent', { type: 'Cancelled' });
+        manager.apply('nonexistent', { type: 'Cancelled' });
       }).not.toThrow();
     });
   });
@@ -37,7 +37,7 @@ describe('RunStateManager', () => {
       const record = makeRecord({ status: 'running' });
 
       seedManager(manager, record);
-      manager.emit(record.runID, { type: 'Cancelled' });
+      manager.apply(record.runID, { type: 'Cancelled' });
 
       const result = manager.get(record.runID);
 
@@ -54,7 +54,7 @@ describe('RunStateManager', () => {
 
       expect(manager.getActiveRunID('game-1')).toBe('run-1');
 
-      manager.emit(record.runID, { type: 'Cancelled' });
+      manager.apply(record.runID, { type: 'Cancelled' });
 
       expect(manager.getActiveRunID('game-1')).toBeUndefined();
     });
@@ -66,7 +66,7 @@ describe('RunStateManager', () => {
       seedManager(manager, record);
 
       expect(() => {
-        manager.emit(record.runID, { type: 'Cancelled' });
+        manager.apply(record.runID, { type: 'Cancelled' });
       }).toThrow(InvalidTransitionError);
     });
   });
@@ -77,7 +77,7 @@ describe('RunStateManager', () => {
       const record = makeRecord({ status: 'running' });
 
       seedManager(manager, record);
-      manager.emit(record.runID, { type: 'FiberError' });
+      manager.apply(record.runID, { type: 'FiberError' });
 
       const result = manager.get(record.runID);
 
@@ -90,7 +90,7 @@ describe('RunStateManager', () => {
       const record = makeRecord({ status: 'running' });
 
       seedManager(manager, record);
-      manager.emit(record.runID, { type: 'FiberError' });
+      manager.apply(record.runID, { type: 'FiberError' });
 
       expect(manager.getActiveRunID('game-1')).toBeUndefined();
     });
@@ -102,7 +102,7 @@ describe('RunStateManager', () => {
       seedManager(manager, record);
 
       expect(() => {
-        manager.emit(record.runID, { type: 'FiberError' });
+        manager.apply(record.runID, { type: 'FiberError' });
       }).toThrow(InvalidTransitionError);
     });
   });
@@ -123,7 +123,7 @@ describe('RunStateManager', () => {
       const record = makeRecord({ status: 'running' });
 
       seedManager(manager, record);
-      manager.emit(record.runID, resultsEvent);
+      manager.apply(record.runID, resultsEvent);
 
       const result = manager.get(record.runID);
 
@@ -137,8 +137,8 @@ describe('RunStateManager', () => {
       const record = makeRecord({ status: 'running' });
 
       seedManager(manager, record);
-      manager.emit(record.runID, { type: 'Cancelled' });
-      manager.emit(record.runID, resultsEvent);
+      manager.apply(record.runID, { type: 'Cancelled' });
+      manager.apply(record.runID, resultsEvent);
 
       const result = manager.get(record.runID);
 
@@ -150,10 +150,10 @@ describe('RunStateManager', () => {
       const record = makeRecord({ status: 'running' });
 
       seedManager(manager, record);
-      manager.emit(record.runID, resultsEvent);
+      manager.apply(record.runID, resultsEvent);
 
       expect(() => {
-        manager.emit(record.runID, resultsEvent);
+        manager.apply(record.runID, resultsEvent);
       }).toThrow(InvalidTransitionError);
     });
 
@@ -162,7 +162,7 @@ describe('RunStateManager', () => {
       const record = makeRecord({ status: 'running' });
 
       seedManager(manager, record);
-      manager.emit(record.runID, { ...resultsEvent, parseError: 'bad json' });
+      manager.apply(record.runID, { ...resultsEvent, parseError: 'bad json' });
 
       const result = manager.get(record.runID);
 
@@ -176,7 +176,7 @@ describe('RunStateManager', () => {
       const record = makeRecord({ status: 'running' });
 
       seedManager(manager, record);
-      manager.emit(record.runID, {
+      manager.apply(record.runID, {
         type: 'MediaAttached',
         mediaResult: { desktop: { gif: 'ok', cleanup: 'ok' } },
       });
@@ -194,7 +194,7 @@ describe('RunStateManager', () => {
 
       expect(manager.getActiveRunID('game-1')).toBe('run-1');
 
-      manager.emit(record.runID, { type: 'MediaAttached', mediaResult: {} });
+      manager.apply(record.runID, { type: 'MediaAttached', mediaResult: {} });
 
       expect(manager.getActiveRunID('game-1')).toBeUndefined();
     });
@@ -214,7 +214,7 @@ describe('RunStateManager', () => {
         manager.register(record.runID, record, record.gameIDs as string[]);
       }
 
-      manager.emit('run-11', { type: 'MediaAttached', mediaResult: {} });
+      manager.apply('run-11', { type: 'MediaAttached', mediaResult: {} });
 
       expect(manager.getAll().length).toBeLessThanOrEqual(10);
     });

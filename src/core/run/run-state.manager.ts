@@ -42,7 +42,7 @@ export class RunStateManager {
     this.activeFibers.set(runID, fiber);
   }
 
-  emit(runID: string, event: RunEvent): void {
+  apply(runID: string, event: RunEvent): void {
     const record = this.runs.get(runID);
 
     if (!record) {
@@ -69,7 +69,7 @@ export class RunStateManager {
       return Effect.fail(new RunNotFoundError({ runID }));
     }
 
-    this.emit(runID, { type: 'Cancelled' });
+    this.apply(runID, { type: 'Cancelled' });
 
     return Fiber.interrupt(fiber).pipe(Effect.asVoid);
   }
