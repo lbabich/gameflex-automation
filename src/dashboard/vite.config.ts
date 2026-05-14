@@ -4,6 +4,10 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   plugins: [react()],
+  root: __dirname,
+  build: {
+    outDir: '../../dist/dashboard',
+  },
   resolve: {
     alias: {
       '@shared': path.resolve(__dirname, '../shared'),

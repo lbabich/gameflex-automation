@@ -1,3 +1,5 @@
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import type { NextFunction, Request, Response } from 'express';
 import express from 'express';
 import { appRuntime } from '../runtime';
@@ -8,6 +10,8 @@ import { screenshotsRouter } from './screenshots.router';
 const app = express();
 const PORT = 3001;
 const CORS_ORIGIN = process.env.CORS_ORIGIN ?? 'http://localhost:5173';
+const DASHBOARD_DIST = path.join(import.meta.dirname, '../../..', 'dist', 'dashboard');
+const serveDashboard = fs.existsSync(DASHBOARD_DIST);
 
 app.use(express.json());
 
@@ -24,9 +28,19 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
+if (serveDashboard) {
+  app.use(express.static(DASHBOARD_DIST));
+}
+
 app.use('/api/games', makeGamesRouter(appRuntime));
 app.use('/api/runs', makeRunsRouter(appRuntime));
 app.use('/api/screenshots', screenshotsRouter);
+
+if (serveDashboard) {
+  app.get('*splat', (_req: Request, res: Response) => {
+    res.sendFile(path.join(DASHBOARD_DIST, 'index.html'));
+  });
+}
 
 app.listen(PORT, () => {
   console.log(`Server listening on http://localhost:${PORT}`);
